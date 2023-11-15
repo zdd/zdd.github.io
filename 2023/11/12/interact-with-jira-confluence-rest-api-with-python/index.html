@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="How to interact Jira&#x2F;Confluence REST API with Python1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162import requestsimport json#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="interact with jira&#x2F;confluence rest api with python">
+<meta property="og:url" content="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="How to interact Jira&#x2F;Confluence REST API with Python1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162import requestsimport json#">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-12T13:29:42.000Z">
+<meta property="article:modified_time" content="2023-11-12T14:05:50.243Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="jira">
+<meta property="article:tag" content="confluence">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>interact with jira/confluence rest api with python | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          interact with jira/confluence rest api with python
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-11-12 21:29:42 / Modified: 22:05:50" itemprop="dateCreated datePublished" datetime="2023-11-12T21:29:42+08:00">2023-11-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="How-to-interact-Jira-x2F-Confluence-REST-API-with-Python"><a href="#How-to-interact-Jira-x2F-Confluence-REST-API-with-Python" class="headerlink" title="How to interact Jira&#x2F;Confluence REST API with Python"></a>How to interact Jira&#x2F;Confluence REST API with Python</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="comment"># Jira API endpoint and authentication</span></span><br><span class="line">jira_url = <span class="string">&quot;https://your-jira-instance/rest/api/2/search&quot;</span></span><br><span class="line">jira_token = <span class="string">&quot;your-jira-personal-access-token&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Confluence API endpoint and authentication</span></span><br><span class="line">confluence_url = <span class="string">&quot;https://your-confluence-instance/rest/api/content&quot;</span></span><br><span class="line">confluence_token = <span class="string">&quot;your-confluence-personal-access-token&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 1: Get stories from Jira</span></span><br><span class="line">jira_headers = &#123;</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">f&quot;Bearer <span class="subst">&#123;jira_token&#125;</span>&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/json&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">jira_params = &#123;</span><br><span class="line">    <span class="string">&quot;jql&quot;</span>: <span class="string">&quot;labels = release&quot;</span>,</span><br><span class="line">    <span class="string">&quot;maxResults&quot;</span>: <span class="number">100</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(jira_url, headers=jira_headers, params=jira_params)</span><br><span class="line">jira_stories = response.json()[<span class="string">&quot;issues&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 2: Create a new Confluence page</span></span><br><span class="line">confluence_headers = &#123;</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">f&quot;Bearer <span class="subst">&#123;confluence_token&#125;</span>&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/json&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">confluence_payload = &#123;</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;page&quot;</span>,</span><br><span class="line">    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Release Stories&quot;</span>,</span><br><span class="line">    <span class="string">&quot;space&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;key&quot;</span>: <span class="string">&quot;your-space-key&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;body&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;storage&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;value&quot;</span>: <span class="string">&quot;&lt;h2&gt;Release Stories&lt;/h2&gt;&quot;</span>,</span><br><span class="line">            <span class="string">&quot;representation&quot;</span>: <span class="string">&quot;storage&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.post(confluence_url, headers=confluence_headers, json=confluence_payload)</span><br><span class="line">confluence_page_id = response.json()[<span class="string">&quot;id&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 3: Add the stories to the Confluence page</span></span><br><span class="line"><span class="keyword">for</span> story <span class="keyword">in</span> jira_stories:</span><br><span class="line">    story_title = story[<span class="string">&quot;fields&quot;</span>][<span class="string">&quot;summary&quot;</span>]</span><br><span class="line">    story_description = story[<span class="string">&quot;fields&quot;</span>][<span class="string">&quot;description&quot;</span>]</span><br><span class="line"></span><br><span class="line">    confluence_payload[<span class="string">&quot;body&quot;</span>][<span class="string">&quot;storage&quot;</span>][<span class="string">&quot;value&quot;</span>] += <span class="string">f&quot;&lt;h3&gt;<span class="subst">&#123;story_title&#125;</span>&lt;/h3&gt;&lt;p&gt;<span class="subst">&#123;story_description&#125;</span>&lt;/p&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">response = requests.put(<span class="string">f&quot;<span class="subst">&#123;confluence_url&#125;</span>/<span class="subst">&#123;confluence_page_id&#125;</span>&quot;</span>, headers=confluence_headers, json=confluence_payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 4: Verify the response</span></span><br><span class="line"><span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Page created successfully!&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Failed to create the page.&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Here is another example with Excel export support</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> openpyxl <span class="keyword">import</span> Workbook</span><br><span class="line"><span class="keyword">from</span> openpyxl.styles <span class="keyword">import</span> Color, PatternFill, Font</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> timedelta</span><br><span class="line"></span><br><span class="line">start_date = <span class="string">&#x27;2021-05-29&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_issue_list</span>():</span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;Authorization&#x27;</span>: <span class="string">&#x27;Basic YOUR_TOKEN&#x27;</span>&#125;</span><br><span class="line">    project = <span class="string">&#x27;YOUR_PROJECT&#x27;</span></span><br><span class="line">    issue_type = <span class="string">&#x27;Story&#x27;</span></span><br><span class="line">    sprint = <span class="string">&#x27;YOUR_SPRINT_ID&#x27;</span></span><br><span class="line">    order_by = <span class="string">&#x27;key&#x27;</span></span><br><span class="line">    order_by_type = <span class="string">&#x27;ASC&#x27;</span></span><br><span class="line">    jql = <span class="string">f&#x27;project = <span class="subst">&#123;project&#125;</span> AND issuetype = <span class="subst">&#123;issue_type&#125;</span> AND Sprint = <span class="subst">&#123;sprint&#125;</span> AND created &gt;= <span class="subst">&#123;start_date&#125;</span> ORDER BY <span class="subst">&#123;order_by&#125;</span> <span class="subst">&#123;order_by_type&#125;</span>&#x27;</span></span><br><span class="line">    params = &#123;</span><br><span class="line">        <span class="string">&#x27;jql&#x27;</span>: jql,</span><br><span class="line">        <span class="string">&#x27;fields&#x27;</span>: [<span class="string">&#x27;summary&#x27;</span>, <span class="string">&#x27;created&#x27;</span>, <span class="string">&#x27;status&#x27;</span>, <span class="string">&#x27;priority&#x27;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    url = <span class="string">f&#x27;https://jira.xxx.com/rest/agile/1.0/sprint/<span class="subst">&#123;sprint&#125;</span>/issue&#x27;</span></span><br><span class="line">    r = requests.get(url, headers=headers, params=params)</span><br><span class="line">    <span class="keyword">return</span> r.json()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_response</span>(<span class="params">response</span>):</span><br><span class="line">    issue_list = []</span><br><span class="line">    i = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> response[<span class="string">&#x27;issues&#x27;</span>]:</span><br><span class="line">        created = <span class="built_in">str</span>(issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;created&#x27;</span>]).split(<span class="string">&#x27;T&#x27;</span>)[<span class="number">0</span>]</span><br><span class="line">        due_date = datetime.date.fromisoformat(created) + timedelta(<span class="number">2</span>)</span><br><span class="line">        issue_item = &#123;<span class="string">&#x27;id&#x27;</span>: i, <span class="string">&#x27;issue key&#x27;</span>: issue[<span class="string">&#x27;key&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;summary&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;summary&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;status&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;status&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;priority&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;priority&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;created&#x27;</span>: created,</span><br><span class="line">                      <span class="string">&#x27;due date&#x27;</span>: due_date&#125;</span><br><span class="line">        issue_list.append(issue_item)</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> issue_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">issue_mapping</span>(<span class="params">issue_list</span>):</span><br><span class="line">    new_issue_list = []</span><br><span class="line"></span><br><span class="line">    priority_mapping = &#123;</span><br><span class="line">        <span class="string">&#x27;Low&#x27;</span>: <span class="string">&#x27;Minor&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Medium&#x27;</span>: <span class="string">&#x27;Minor&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;High&#x27;</span>: <span class="string">&#x27;Major&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    status_mapping = &#123;</span><br><span class="line">        <span class="string">&#x27;To Do&#x27;</span>: <span class="string">&#x27;Open&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> issue_list:</span><br><span class="line">        <span class="keyword">if</span> issue[<span class="string">&#x27;priority&#x27;</span>] <span class="keyword">in</span> priority_mapping:</span><br><span class="line">            issue[<span class="string">&#x27;priority&#x27;</span>] = priority_mapping[issue[<span class="string">&#x27;priority&#x27;</span>]]</span><br><span class="line">        <span class="keyword">if</span> issue[<span class="string">&#x27;status&#x27;</span>] <span class="keyword">in</span> status_mapping:</span><br><span class="line">            issue[<span class="string">&#x27;status&#x27;</span>] = status_mapping[issue[<span class="string">&#x27;status&#x27;</span>]]</span><br><span class="line">        new_issue_list.append(issue)</span><br><span class="line">    <span class="keyword">return</span> new_issue_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_to_excel</span>(<span class="params">issue_list</span>):</span><br><span class="line">    issue_list = issue_mapping(issue_list)</span><br><span class="line">    workbook = Workbook()</span><br><span class="line">    sheet = workbook.active</span><br><span class="line">    sheet.title = <span class="string">&#x27;jira issue&#x27;</span></span><br><span class="line">    sheet.append([<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;issue key&#x27;</span>, <span class="string">&#x27;summary&#x27;</span>, <span class="string">&#x27;status&#x27;</span>, <span class="string">&#x27;priority&#x27;</span>, <span class="string">&#x27;created&#x27;</span>, <span class="string">&#x27;due date&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># set color for header</span></span><br><span class="line">    <span class="keyword">for</span> rows <span class="keyword">in</span> sheet.iter_rows(min_row=<span class="number">1</span>, max_row=<span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> cell <span class="keyword">in</span> rows:</span><br><span class="line">            cell.fill = PatternFill(fgColor=<span class="string">&quot;002060&quot;</span>, fill_type=<span class="string">&quot;solid&quot;</span>)</span><br><span class="line">            cell.font = Font(color=<span class="string">&quot;FFFFFF&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> issue_list:</span><br><span class="line">        sheet.append(<span class="built_in">list</span>(issue.values()))</span><br><span class="line">    <span class="comment"># fill in color</span></span><br><span class="line">    my_red = Color(rgb=<span class="string">&#x27;00B050&#x27;</span>)</span><br><span class="line">    my_fill = PatternFill(patternType=<span class="string">&#x27;solid&#x27;</span>, fgColor=my_red)</span><br><span class="line">    <span class="keyword">for</span> row_cells <span class="keyword">in</span> sheet.iter_rows(min_row=<span class="number">1</span>, max_row=sheet.max_row):</span><br><span class="line">        <span class="keyword">if</span> row_cells[<span class="number">3</span>].value == <span class="string">&#x27;Done&#x27;</span>:</span><br><span class="line">            row_cells[<span class="number">3</span>].fill = my_fill</span><br><span class="line"></span><br><span class="line">    file_name = <span class="string">&#x27;report_issue_list_&#x27;</span> + start_date + <span class="string">&#x27;.xlsx&#x27;</span></span><br><span class="line">    workbook.save(file_name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">response = get_issue_list()</span><br><span class="line">issue_list = parse_response(response)</span><br><span class="line">write_to_excel(issue_list)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Done&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference:"></a>Reference:</h1><p><a target="_blank" rel="noopener" href="https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/">https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.atlassian.com/cloud/jira/software/rest/api-group-sprint/">The Jira Software Cloud REST API</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.atlassian.com/software/jira/docs/api/REST/7.12.0/#api/2/search-searchUsingSearchRequest">JIRA 7.12.0</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/python/" rel="tag"># python</a>
+              <a href="/tags/jira/" rel="tag"># jira</a>
+              <a href="/tags/confluence/" rel="tag"># confluence</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/07/nx-commands/" rel="prev" title="nx commands">
+      <i class="fa fa-chevron-left"></i> nx commands
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/14/How-node-js-handle-environment-variables/" rel="next" title="How node.js handle environment variables">
+      How node.js handle environment variables <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#How-to-interact-Jira-x2F-Confluence-REST-API-with-Python"><span class="nav-number">1.</span> <span class="nav-text">How to interact Jira&#x2F;Confluence REST API with Python</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">2.</span> <span class="nav-text">Reference:</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

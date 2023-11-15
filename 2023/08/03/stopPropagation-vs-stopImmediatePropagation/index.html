@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Event.stopPropagation vs Event.stopImmediatePropagationJavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传">
+<meta property="og:type" content="article">
+<meta property="og:title" content="stopPropagation-vs-stopImmediatePropagation">
+<meta property="og:url" content="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="Event.stopPropagation vs Event.stopImmediatePropagationJavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/event-dispatch-modal.jpg">
+<meta property="og:image" content="http://example.com/images/event-bubble.jpg">
+<meta property="article:published_time" content="2023-08-03T13:39:35.000Z">
+<meta property="article:modified_time" content="2023-08-03T14:33:57.931Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="javascript">
+<meta property="article:tag" content="event">
+<meta property="article:tag" content="stoppropagation">
+<meta property="article:tag" content="stopimmediatepropagation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/event-dispatch-modal.jpg">
+
+<link rel="canonical" href="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>stopPropagation-vs-stopImmediatePropagation | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          stopPropagation-vs-stopImmediatePropagation
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-08-03 21:39:35 / Modified: 22:33:57" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Event-stopPropagation-vs-Event-stopImmediatePropagation"><a href="#Event-stopPropagation-vs-Event-stopImmediatePropagation" class="headerlink" title="Event.stopPropagation vs Event.stopImmediatePropagation"></a>Event.stopPropagation vs Event.stopImmediatePropagation</h1><h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
+<p>目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。</p>
+<p>所以DOM中的事件处理分为以下三个阶段</p>
+<ul>
+<li>capture（捕获阶段），事件由外层向内层传递</li>
+<li>target（命中阶段），事件到达目标元素</li>
+<li>bubbling（冒泡阶段），事件由内层向外层传递</li>
+</ul>
+<p><img src="/../images/event-dispatch-modal.jpg"></p>
+<p>那么如何指定事件的传递方式呢？我们可以通过addEventListener的第三个参数来指定，比如下面的代码：<br>当useCapture为true时，事件传递方式为事件捕获，当useCapture为false时，事件传递方式为事件冒泡。默认值为false，使用事件冒泡模式。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addEventListener</span>(type, listener, useCapture)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Event-stopPropagation"><a href="#Event-stopPropagation" class="headerlink" title="Event.stopPropagation"></a>Event.stopPropagation</h1><ol>
+<li>当事件传递方式为捕获模式时，<code>event.stopPropagation()</code>会阻止事件继续向下（内层元素）传递。</li>
+<li>当事件传递方式为冒泡模式时，<code>event.stopPropagation()</code>会阻止事件继续向上（外层元素）传递。</li>
+</ol>
+<p>代码示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span></span><br><span class="line">  div1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span></span><br><span class="line">    div2</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div3&quot;</span>&gt;</span></span><br><span class="line">      div3</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div1&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div2 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div2&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div3 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div3&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bindEventListener</span>(<span class="params">element, event, listener, useCapture</span>) &#123;</span><br><span class="line">  element.<span class="title function_">addEventListener</span>(event, listener, useCapture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler1</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler2</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler3</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/event-bubble.jpg"></p>
+<p>点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler3中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向上（外层元素）传递。</p>
+<p>将事件处理函数改为捕获模式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p>再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler1中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向下（内层元素）传递。</p>
+<h1 id="Event-stopImmediatePropagation"><a href="#Event-stopImmediatePropagation" class="headerlink" title="Event.stopImmediatePropagation"></a>Event.stopImmediatePropagation</h1><p>如果将上述代码中的<code>event.stopPropagation()</code>改为<code>event.stopImmediatePropagation()</code>，你会发现，输出的结果是一样的，这说明<code>event.stopImmediatePropagation()</code>与<code>event.stopPropagation()</code>的作用是一样的，都是阻止事件继续传递。既然作用是一样的，那么为什么还要有<code>event.stopImmediatePropagation()</code>呢？这是因为<code>event.stopImmediatePropagation()</code>还有一个额外的功能，就是阻止事件处理函数队列中的其他函数执行，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>当我们点击div1时，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+
+<p>当多个事件处理函数绑定到同一个元素的同一个事件时，事件处理函数的执行顺序是按照绑定的顺序执行的，比如上面的代码，clickHandler1会先于clickHandler2执行，clickHandler2会先于clickHandler3执行。如果我们在clickHandler1中加入<code>event.stopImmediatePropagation()</code>，再次点击div1，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopImmediatePropagation()</code>阻止了事件处理函数队列中的其他函数执行。clickHandler2和clickHandler3都被阻止了执行。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation">Event.stopPropagation()</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation">Event.stopImmediatePropagation()</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/javascript/" rel="tag"># javascript</a>
+              <a href="/tags/event/" rel="tag"># event</a>
+              <a href="/tags/stoppropagation/" rel="tag"># stoppropagation</a>
+              <a href="/tags/stopimmediatepropagation/" rel="tag"># stopimmediatepropagation</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/08/02/event-target-vs-event-currentTarget/" rel="prev" title="event.target-vs-event.currentTarget">
+      <i class="fa fa-chevron-left"></i> event.target-vs-event.currentTarget
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/18/Angular-lifecycle/" rel="next" title="Angular lifecycle">
+      Angular lifecycle <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopPropagation-vs-Event-stopImmediatePropagation"><span class="nav-number">1.</span> <span class="nav-text">Event.stopPropagation vs Event.stopImmediatePropagation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScript%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">JavaScript事件模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopPropagation"><span class="nav-number">2.</span> <span class="nav-text">Event.stopPropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopImmediatePropagation"><span class="nav-number">3.</span> <span class="nav-text">Event.stopImmediatePropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
