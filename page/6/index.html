@@ -181,6 +181,76 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/12/Communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-07-12 18:44:28 / Modified: 21:33:15" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
+<h2 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params">message: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="指令1"><a href="#指令1" class="headerlink" title="指令1"></a>指令1</h2><p>该指令使用上面定义的service发送消息</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="指令2"><a href="#指令2" class="headerlink" title="指令2"></a>指令2</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们需要在appModule中声明这两个指令</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/04/html5-drag-and-drop-events/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1055,114 +1125,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/16/Hexo-Usage/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/16/Hexo-Usage/" class="post-title-link" itemprop="url">Hexo Usage</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-16 22:03:56" itemprop="dateCreated datePublished" datetime="2023-04-16T22:03:56+08:00">2023-04-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-15 19:59:59" itemprop="dateModified" datetime="2023-11-15T19:59:59+08:00">2023-11-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Hexo-Usage"><a href="#Hexo-Usage" class="headerlink" title="Hexo Usage"></a>Hexo Usage</h1><h2 id="How-to-Write-a-new-post"><a href="#How-to-Write-a-new-post" class="headerlink" title="How to Write a new post"></a>How to Write a new post</h2><ol>
-<li>Generate new post in your terminal: <code>hexo new &quot;Your post name&quot;</code></li>
-<li>Open your project by <code>vscode</code>, then open file: <code>source\_post\Your post name.md</code></li>
-<li>Edit your post with vscode, hexo support <code>markdown</code> and <code>ejs</code> files</li>
-</ol>
-<h2 id="Clean-cache"><a href="#Clean-cache" class="headerlink" title="Clean cache"></a>Clean cache</h2><ol>
-<li>After finish editing, you can type <code>hexo clean</code> in your terminal to clean the cache, <code>clean</code> is short for <code>clean</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h2><ol>
-<li>After finish editing, you can type <code>hexo g</code> in your terminal to generate static files, <code>g</code> is short for <code>generate</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Publish-your-post"><a href="#Publish-your-post" class="headerlink" title="Publish your post"></a>Publish your post</h2><ol>
-<li>Type <code>hexo d</code> to deploy your post to github.io, <code>d</code> is short for <code>deploy</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="View-your-post"><a href="#View-your-post" class="headerlink" title="View your post"></a>View your post</h2><ol>
-<li>open <code>zdd.github.io</code> to see your post, good job!</li>
-</ol>
-<p>you can use <code>npm run deploy</code> to combine generate and deploy in a single command.</p>
-<h2 id="View-post-locally"><a href="#View-post-locally" class="headerlink" title="View post locally"></a>View post locally</h2><ol>
-<li>Run <code>hexo s</code> in terminal, then open <code>localhost:4000</code> to see your post, this is very convenient to check your post before publish.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="404-File-not-found"><a href="#404-File-not-found" class="headerlink" title="404 File not found"></a>404 File not found</h2><p>When you encounter the 404 error, make sure to do the following</p>
-<ol>
-<li>Check your <code>source\_post\Your post name.md</code> file name, make sure it is the same as the title in the file.</li>
-<li>run <code>hexo clean</code> to clean the cache</li>
-<li>run <code>hexo g</code> to generate static files</li>
-<li>run <code>hexo d</code> to deploy your post to github.io</li>
-</ol>
-<h2 id="Tags-not-working"><a href="#Tags-not-working" class="headerlink" title="Tags not working"></a>Tags not working</h2><ol>
-<li>Make sure you have a <code>tags</code> folder under <code>source</code> folder</li>
-<li>Install easy tag plugin by <code>npm install hexo-easy-tags-plugin --save</code></li>
-<li>Delete <code>.deploy_git</code> folder</li>
-<li>Run <code>hexo clean</code> to clean the cache</li>
-<li>Run <code>hexo g</code> to generate static files</li>
-<li>Run <code>hexo d</code> to deploy your post to github.io</li>
-<li>Force refresh your browser by <code>Ctrl + F5</code></li>
-</ol>
-<h2 id="How-to-add-tags"><a href="#How-to-add-tags" class="headerlink" title="How to add tags"></a>How to add tags</h2><ol>
-<li>Run <code>hexo new post &quot;tags&quot;</code></li>
-<li>Make sure tags&#x2F;index.md has the following content<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2023-06-30 23:21:34</span><br><span class="line"><span class="section">type: &quot;tags&quot;</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Add-multiple-tags-for-a-post"><a href="#Add-multiple-tags-for-a-post" class="headerlink" title="Add multiple tags for a post"></a>Add multiple tags for a post</h2><ol>
-<li>Add tags in the front matter of your post, for example:<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: Hexo Usage</span><br><span class="line">date: 2023-04-16 22:03:56</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">-</span> hexo</span><br><span class="line"><span class="section">- blog</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1232,14 +1194,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">63</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">98</span>
+        <span class="site-state-item-count">100</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
