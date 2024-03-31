@@ -181,6 +181,85 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-avoid-comments-with-refactoring/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/02/javascript-avoid-comments-with-refactoring/" class="post-title-link" itemprop="url">javascript-avoid-comments-with-refactoring</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-03-02 13:19:36 / Modified: 14:42:40" itemprop="dateCreated datePublished" datetime="2024-03-02T13:19:36+08:00">2024-03-02</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="javascript-avoid-comments-with-refactoring"><a href="#javascript-avoid-comments-with-refactoring" class="headerlink" title="javascript-avoid-comments-with-refactoring"></a>javascript-avoid-comments-with-refactoring</h1><p>下面这段代码是今天在Youtube上看到的一个视频中的代码, 代码的功能是从一个字符串数组中找出所有最长的字符串：<br><code>input</code>: [“aba”, “aa”, “ad”, “vcd”, “aba”]<br><code>output</code>: [“aba”, “vcd”, “aba”]<br>可以看到这段代码中有很多注释，我们的目的是优化这段代码，去除注释。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gets all longest strings</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">longestString</span>(<span class="params">inputArray</span>) &#123;</span><br><span class="line">  <span class="comment">// initialize the longest string to first value</span></span><br><span class="line">  <span class="keyword">let</span> &#123; length &#125; = inputArray[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; inputArray.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="comment">// checks if current string is longer than current longest</span></span><br><span class="line">    <span class="keyword">if</span> (length &lt; inputArray[i].<span class="property">length</span>) &#123;</span><br><span class="line">      length = inputArray[i].<span class="property">length</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// filters out any values not equal to the longest string</span></span><br><span class="line">  <span class="keyword">const</span> strs = inputArray.<span class="title function_">filter</span>(<span class="function">(<span class="params">word</span>) =&gt;</span> word.<span class="property">length</span> === length);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// return the longest strings</span></span><br><span class="line">  <span class="keyword">return</span> strs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="命名优化"><a href="#命名优化" class="headerlink" title="命名优化"></a>命名优化</h2><p>可以从以下几个方面入手：</p>
+<ol>
+<li>函数名字不够清晰，<code>longestString</code>是单数形式，且没有动词，一般函数名字都应该加动词，可以改为<code>getLongestStrings</code> - 这样我们就知道，这个函数返回的是多个字符串。而且是从输入参数中<code>get</code>而来的。</li>
+<li>函数的参数名字不够清晰，<code>inputArray</code>是一个数组，但是我们不知道这个数组的内容是什么，而且<code>input</code>这个单词有点多余，参数当然是<code>input</code>的，没必要再加上<code>input</code>这个单词。可以改为<code>stringArray</code>。</li>
+</ol>
+<p>此时，我们的代码变成了这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>原来的代码中有一个<code>length</code>变量，这个变量的名字不够清晰，并没有说明是什么长度，也无法表明是最大长度，可以改为<code>longestStringLength</code>。</li>
+<li>原代码中使用的是经典的<code>for</code>循环，在Modern JavaScript中，我们更推荐函数式编程，所以可以改为<code>for...of</code>循环或者使用<code>Array.prototype.forEach</code>，这样代码更加简洁。</li>
+</ol>
+<p>此时代码变成下面的样子。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> longestStringLength = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  stringArray.<span class="title function_">forEach</span>(<span class="function">(<span class="params">str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (longestStringLength &lt; str.<span class="property">length</span>) &#123;</span><br><span class="line">      longestStringLength = str.<span class="property">length</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> longestStrings = stringArray.<span class="title function_">filter</span>(</span><br><span class="line">    <span class="function">(<span class="params">word</span>) =&gt;</span> word.<span class="property">length</span> === longestStringLength</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> longestStrings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><p>此时代码中有一个forEach，有一个filter，这两个函数都是遍历数组的，所以实际上我们遍历了两次数组，不够高效，将其改为一次遍历。此时代码变成下面的样子。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> longestStringLength = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> longestStrings = [];</span><br><span class="line"></span><br><span class="line">  stringArray.<span class="title function_">forEach</span>(<span class="function">(<span class="params">str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (str.<span class="property">length</span> &gt; longestStringLength) &#123;</span><br><span class="line">      longestStringLength = str.<span class="property">length</span>;</span><br><span class="line">      longestStrings = [str];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (str.<span class="property">length</span> === longestStringLength) &#123;</span><br><span class="line">      longestStrings.<span class="title function_">push</span>(str);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> longestStrings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用reduce优化"><a href="#使用reduce优化" class="headerlink" title="使用reduce优化"></a>使用<code>reduce</code>优化</h2><p>多数数组的遍历方法都可以使用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">reduce</a>来实现，所以我们可以将上面的代码改为使用<code>reduce</code>来实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> stringArray.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (str.<span class="property">length</span> &gt; acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123; <span class="attr">maxLength</span>: str.<span class="property">length</span>, <span class="attr">longestStrings</span>: [str] &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (str.<span class="property">length</span> === acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">      acc.<span class="property">longestStrings</span>.<span class="title function_">push</span>(str);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> acc;</span><br><span class="line">  &#125;, &#123; <span class="attr">maxLength</span>: <span class="number">0</span>, <span class="attr">longestStrings</span>: [] &#125;).<span class="property">longestStrings</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/01/javascript-cookie/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -926,121 +1005,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/23/javascript-regex-match/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/23/javascript-regex-match/" class="post-title-link" itemprop="url">javascript-regex-match</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-23 20:03:20" itemprop="dateCreated datePublished" datetime="2024-02-23T20:03:20+08:00">2024-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-24 10:46:41" itemprop="dateModified" datetime="2024-02-24T10:46:41+08:00">2024-02-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="javascript-regex-match"><a href="#javascript-regex-match" class="headerlink" title="javascript-regex-match"></a>javascript-regex-match</h1><p>先提醒一下，虽然标题有<code>regex</code>，但是<code>match</code>在js中是字符串的方法，而不是正则表达式的方法。</p>
-<p><code>match</code>用來返回符合正则表达式的字符串，如果没有找到匹配的字符串则返回<code>null</code>。</p>
-<p>先看一个例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches[<span class="number">0</span>]); <span class="comment">// 3, 返回第一个匹配。</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="match的返回值"><a href="#match的返回值" class="headerlink" title="match的返回值"></a><code>match</code>的返回值</h2><p><code>match</code>的返回值比较特殊，分以下几种情况，</p>
-<ul>
-<li>如果没有找到匹配，返回null</li>
-<li>如果找到了匹配，返回一个数组。</li>
-</ul>
-<p>返回数组时，又分为以下几种情况</p>
-<ol>
-<li>如果正则表达式没有<code>g</code>标志(且未分组)，返回一个数组，看如下代码。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>返回值如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;3&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">10</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<p>此时，你需要的匹配值是<code>matches[0]</code>。</p>
-<ol>
-<li>如果正则表达式没有<code>g</code>标志(且分组)，返回一个数组，比之上面的返回值，多一个分组对应的值。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/(\d) cats/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>返回值如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;5 cats&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;5&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">18</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>此时，你需要的匹配值是<code>matches[1]</code>。(既然分组了，就要用分组的值呀，否则还分组干嘛呢？)</p>
-<ol start="3">
-<li>如果正则表达式有<code>g</code>标志（无论是否分组），返回一个数组，数组中的元素是所有匹配的值。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/g</span>); <span class="comment">// 或者 str.match(/(\d)/g);</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>返回值如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;1&#x27;</span> ]</span><br></pre></td></tr></table></figure>
-
-<h2 id="matchAll"><a href="#matchAll" class="headerlink" title="matchAll"></a>matchAll</h2><p><code>match</code>方法使用<code>/g</code>标记时，只能返回匹配的字符串，而无法返回分组信息，这时可以使用<code>matchAll</code>方法。</p>
-<p><code>matchAll</code>方法返回一个迭代器，而不是数组，所以不能直接输出，可以使用<code>for...of</code>循环遍历匹配的所有结果。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(<span class="regexp">/(\d) (cats|dogs)/g</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(match);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;3 dogs&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;3&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="string">&#x27;dogs&#x27;</span>, <span class="comment">// 第二个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">10</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br><span class="line">[</span><br><span class="line">  <span class="string">&#x27;5 cats&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;5&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="string">&#x27;cats&#x27;</span>, <span class="comment">// 第二个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">18</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<p>假设有如下需求，将<code>There are 3 dogs, 5 cats, 2 birds and 1 cow</code>这句话中每种动物及其数量提出出来，放到一个对象中，可以使用<code>matchAll</code>方法。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(<span class="regexp">/(\d+) (cat|dog|bird|cow)/g</span>);</span><br><span class="line"><span class="keyword">const</span> result = &#123;&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  result[match[<span class="number">2</span>]] = match[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br></pre></td></tr></table></figure>
-
-<p>输出如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">dog</span>: <span class="string">&#x27;3&#x27;</span>, <span class="attr">cat</span>: <span class="string">&#x27;5&#x27;</span>, <span class="attr">bird</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">cow</span>: <span class="string">&#x27;1&#x27;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>整个需求如果要使用<code>match</code>方法来做，还是比较复杂的。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>什么时候用<code>test</code>, 什么时候用<code>match</code>？</p>
-<ol>
-<li>如果你只是想判断字符串是否满足某个规则，用<code>test</code></li>
-<li>如果你想要得到匹配的子串，用<code>match</code></li>
-<li>简单的字符串包含操作可以直接使用<code>indexOf</code>，<code>includes</code>等方法。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1110,7 +1074,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

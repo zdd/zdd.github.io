@@ -181,6 +181,121 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/23/javascript-regex-match/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/23/javascript-regex-match/" class="post-title-link" itemprop="url">javascript-regex-match</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-23 20:03:20" itemprop="dateCreated datePublished" datetime="2024-02-23T20:03:20+08:00">2024-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-02-24 10:46:41" itemprop="dateModified" datetime="2024-02-24T10:46:41+08:00">2024-02-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="javascript-regex-match"><a href="#javascript-regex-match" class="headerlink" title="javascript-regex-match"></a>javascript-regex-match</h1><p>先提醒一下，虽然标题有<code>regex</code>，但是<code>match</code>在js中是字符串的方法，而不是正则表达式的方法。</p>
+<p><code>match</code>用來返回符合正则表达式的字符串，如果没有找到匹配的字符串则返回<code>null</code>。</p>
+<p>先看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches[<span class="number">0</span>]); <span class="comment">// 3, 返回第一个匹配。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="match的返回值"><a href="#match的返回值" class="headerlink" title="match的返回值"></a><code>match</code>的返回值</h2><p><code>match</code>的返回值比较特殊，分以下几种情况，</p>
+<ul>
+<li>如果没有找到匹配，返回null</li>
+<li>如果找到了匹配，返回一个数组。</li>
+</ul>
+<p>返回数组时，又分为以下几种情况</p>
+<ol>
+<li>如果正则表达式没有<code>g</code>标志(且未分组)，返回一个数组，看如下代码。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>返回值如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;3&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">10</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>此时，你需要的匹配值是<code>matches[0]</code>。</p>
+<ol>
+<li>如果正则表达式没有<code>g</code>标志(且分组)，返回一个数组，比之上面的返回值，多一个分组对应的值。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/(\d) cats/</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>返回值如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;5 cats&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;5&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">18</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>此时，你需要的匹配值是<code>matches[1]</code>。(既然分组了，就要用分组的值呀，否则还分组干嘛呢？)</p>
+<ol start="3">
+<li>如果正则表达式有<code>g</code>标志（无论是否分组），返回一个数组，数组中的元素是所有匹配的值。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">match</span>(<span class="regexp">/\d/g</span>); <span class="comment">// 或者 str.match(/(\d)/g);</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(matches);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>返回值如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;1&#x27;</span> ]</span><br></pre></td></tr></table></figure>
+
+<h2 id="matchAll"><a href="#matchAll" class="headerlink" title="matchAll"></a>matchAll</h2><p><code>match</code>方法使用<code>/g</code>标记时，只能返回匹配的字符串，而无法返回分组信息，这时可以使用<code>matchAll</code>方法。</p>
+<p><code>matchAll</code>方法返回一个迭代器，而不是数组，所以不能直接输出，可以使用<code>for...of</code>循环遍历匹配的所有结果。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;There are 3 dogs, 5 cats, 2 birds and 1 cow&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(<span class="regexp">/(\d) (cats|dogs)/g</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(match);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;3 dogs&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;3&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="string">&#x27;dogs&#x27;</span>, <span class="comment">// 第二个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">10</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br><span class="line">[</span><br><span class="line">  <span class="string">&#x27;5 cats&#x27;</span>, <span class="comment">// 匹配的整个字符串</span></span><br><span class="line">  <span class="string">&#x27;5&#x27;</span>, <span class="comment">// 第一个分组匹配的值</span></span><br><span class="line">  <span class="string">&#x27;cats&#x27;</span>, <span class="comment">// 第二个分组匹配的值</span></span><br><span class="line">  <span class="attr">index</span>: <span class="number">18</span>, <span class="comment">// 匹配值对应的下标</span></span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>, <span class="comment">// 原始字符串</span></span><br><span class="line">  <span class="attr">groups</span>: <span class="literal">undefined</span> <span class="comment">// 分组匹配的值</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>假设有如下需求，将<code>There are 3 dogs, 5 cats, 2 birds and 1 cow</code>这句话中每种动物及其数量提出出来，放到一个对象中，可以使用<code>matchAll</code>方法。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&#x27;There are 3 dogs, 5 cats, 2 birds and 1 cow&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(<span class="regexp">/(\d+) (cat|dog|bird|cow)/g</span>);</span><br><span class="line"><span class="keyword">const</span> result = &#123;&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  result[match[<span class="number">2</span>]] = match[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br></pre></td></tr></table></figure>
+
+<p>输出如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">dog</span>: <span class="string">&#x27;3&#x27;</span>, <span class="attr">cat</span>: <span class="string">&#x27;5&#x27;</span>, <span class="attr">bird</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">cow</span>: <span class="string">&#x27;1&#x27;</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>整个需求如果要使用<code>match</code>方法来做，还是比较复杂的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>什么时候用<code>test</code>, 什么时候用<code>match</code>？</p>
+<ol>
+<li>如果你只是想判断字符串是否满足某个规则，用<code>test</code></li>
+<li>如果你想要得到匹配的子串，用<code>match</code></li>
+<li>简单的字符串包含操作可以直接使用<code>indexOf</code>，<code>includes</code>等方法。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/22/javascript-regex-test/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -945,84 +1060,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/18/cannot-use-import-statement-outside-a-module/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/18/cannot-use-import-statement-outside-a-module/" class="post-title-link" itemprop="url">Cannot use import statement outside a module</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-02-18 18:56:11 / Modified: 20:18:20" itemprop="dateCreated datePublished" datetime="2024-02-18T18:56:11+08:00">2024-02-18</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Cannot-use-import-statement-outside-a-module"><a href="#Cannot-use-import-statement-outside-a-module" class="headerlink" title="Cannot use import statement outside a module"></a>Cannot use import statement outside a module</h1><p>产生这个错误的原因是因为你使用了<code>import</code>或者<code>export</code>语句，但是没有指定模块类型。在JavaScript中，有两种常用的模块类型：CommonJS和ES6 Modules。CommonJS是Node.js的模块化规范，它使用<code>require</code>来引入模块，使用<code>module.exports</code>来暴露接口。ES6 Modules是ES6的模块化规范，它使用<code>import</code>来引入模块，使用<code>export</code>来暴露接口。</p>
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><h3 id="浏览器端"><a href="#浏览器端" class="headerlink" title="浏览器端"></a>浏览器端</h3><p>如果是浏览器端，需要将<code>&lt;script&gt;</code>标签的<code>type</code>属性设置为<code>module</code>，这样浏览器会将这个脚本当作ES6 Modules来处理。此时无论js文件的扩展名是<code>.js</code>还是<code>.mjs</code>都可以正常工作。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">import</span> &#123;add&#125; <span class="keyword">from</span> <span class="string">&#x27;./math-utils.js&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// math-utils.mjs</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Node-js端"><a href="#Node-js端" class="headerlink" title="Node.js端"></a>Node.js端</h3><p>方法一： 将文件的后缀名改为<code>.mjs</code>，这样Node.js会将这个文件当作ES6 Modules来处理。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// math-utils.mjs</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index.mjs</span></span><br><span class="line"><span class="keyword">import</span> &#123;add&#125; <span class="keyword">from</span> <span class="string">&#x27;./math-utils.mjs&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>方法二： 在<code>package.json</code>中添加<code>&quot;type&quot;: &quot;module&quot;</code>字段，这样Node.js会将所有的文件当作ES6 Modules来处理。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// package.json</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;module&quot;</span><span class="punctuation">,</span> <span class="comment">// 添加这一行，就可以支持ESModule了。</span></span><br><span class="line">  <span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
-<li>js - 常规js文件</li>
-<li>mjs - ES6 Modules文件， 使用<code>import</code>和<code>export</code>来引入和暴露接口</li>
-<li>cjs - CommonJS文件，使用<code>require</code>和<code>module.exports</code>来引入和暴露接口</li>
-</ul>
-<p>Node.js环境可以使用任何上述文件格式，浏览器端其实不在意文件的后缀名，只要<code>&lt;script&gt;</code>标签的<code>type</code>属性设置为<code>module</code>，就可以使用ES6 Modules。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1092,7 +1129,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
