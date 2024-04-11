@@ -181,6 +181,154 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/21/test-async-task-with-angular-and-jest/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/21/test-async-task-with-angular-and-jest/" class="post-title-link" itemprop="url">test async task with angular and jest</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-21 09:58:48" itemprop="dateCreated datePublished" datetime="2023-11-21T09:58:48+08:00">2023-11-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-11 21:43:58" itemprop="dateModified" datetime="2024-04-11T21:43:58+08:00">2024-04-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Test-async-task-with-Angular-Jest"><a href="#Test-async-task-with-Angular-Jest" class="headerlink" title="Test async task with Angular + Jest"></a>Test async task with Angular + Jest</h1><p>在前端开发中，Unit Test是很重要的一个环节，而异步任务测试又是Unit Test不可避免的一个环节。本文将介绍如何使用Angular + Jest来测试异步任务。</p>
+<h2 id="待测试函数返回一个Promise"><a href="#待测试函数返回一个Promise" class="headerlink" title="待测试函数返回一个Promise"></a>待测试函数返回一个Promise</h2><p>这是最简单的情况了，直接使用<code>async/await</code>即可。</p>
+<p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getPromise</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test getPromise&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> service.<span class="title function_">getPromise</span>();</span><br><span class="line">  <span class="title function_">expect</span>(result).<span class="title function_">toBe</span>(<span class="number">1</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在实际项目中不会有这么简单的情况，大部分都是一个async函数，里面await了其他异步操作，比如下面代码中的handleData，我们该如何测试它呢？</p>
+<p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="title function_">handleData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="variable language_">this</span>.<span class="title function_">getData</span>();</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    data,</span><br><span class="line">    <span class="attr">timestamp</span>: <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>(),</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先来分析一下，<code>handleData</code>是一个async方法，而async方法一定返回一个Promise(如果函数实际返回值不是Promise，那么async方法会用Promise包裹该返回值)，所以我们还是可以直接使用<code>async/await</code>来测试。</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> component.<span class="title function_">handleData</span>();</span><br><span class="line">  <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>最新版的Angular推荐使用<code>waitForAsync</code>来测试异步任务，所以我们也可以使用waitForAsync来测试。(注意<code>waitForAsync</code>中不能使用await。)</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="title function_">waitForAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">handleData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<h2 id="待测试函数包含异步操作，但是没有返回Promise。"><a href="#待测试函数包含异步操作，但是没有返回Promise。" class="headerlink" title="待测试函数包含异步操作，但是没有返回Promise。"></a>待测试函数包含异步操作，但是没有返回Promise。</h2><p>以上情况还是有些简单，实际应用中，经常是一个函数中间夹杂着某些异步操作用来获取数据，然后对数据进行处理，最后可能也不返回Promise，对于这种情况，我们应该使用<code>fakeAsync</code>来测试。<br>fakeAsync内部有三个方法可以控制异步操作</p>
+<ul>
+<li>tick: 让时间快进</li>
+<li>flush: 让所有异步操作立即执行</li>
+<li>flushMicrotasks: 让所有微任务立即执行</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>作用</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tick</td>
+<td>用于控制时间流逝</td>
+<td>想要精细控制每个timer的执行时机，tick在执行前会清空micro task队列，如果代码中有promise，tick之后，promise都会执行完毕。</td>
+</tr>
+<tr>
+<td>flush</td>
+<td>执行所有异步操作，不论是macro task还是micro task</td>
+<td>这个最常用，无脑操作，将所有异步操作执行完，比如setTimeout和promise等，flush之后就可以expect了</td>
+</tr>
+<tr>
+<td>flushMicrotasks</td>
+<td>这个只执行micro task，对于前端来说，就是promise了，不会影响timer</td>
+<td>如果代码中没有用到timer，可以使用这个。</td>
+</tr>
+</tbody></table>
+<p>下面看几个列子，分别讲解一下如何使用这三个方法来进行测试。</p>
+<h3 id="待测试函数只包含Macro-Task"><a href="#待测试函数只包含Macro-Task" class="headerlink" title="待测试函数只包含Macro Task"></a>待测试函数只包含Macro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">10</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">11</span>;</span><br><span class="line">  &#125;, <span class="number">100</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">12</span>;</span><br><span class="line">  &#125;, <span class="number">200</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">// tick the timer by 100ms</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">11</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">// tick the timer by 100ms again.</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">12</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+<p>来分析一下以上测试代码，首先我们调用了<code>updateValue</code>方法，然后期望<code>num</code>的值为10，因为<code>updateValue</code>中有两个timer，所以我们需要调用两次<code>tick</code>，第一次调用<code>tick</code>，让时间快进100ms，这时候第一个timer会执行，<code>num</code>的值变为11，然后再调用一次<code>tick</code>，让时间再快进100ms，这时候第二个timer会执行，<code>num</code>的值变为12。</p>
+<p>当然了，如果你不想测试中间过程，而只想测试最终的结果，也可以使用Jest提供的<code>useFakeTimer</code>方法。</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">12</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>useFakeTimers</code>会将所有的timer替换成一个fake的timer，然后调用<code>runAllTimers</code>，会让所有的timer立即执行，这样就可以直接测试最终结果了。</p>
+<h3 id="待测试函数只包含Micro-Task"><a href="#待测试函数只包含Micro-Task" class="headerlink" title="待测试函数只包含Micro Task"></a>待测试函数只包含Micro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = value;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="title function_">flushMicrotasks</span>(); <span class="comment">// 这里用tick()或者flush()也可以。但是flushMicrotasks更加精确。</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，首先调用了<code>updateValue</code>方法，然后期望<code>num</code>的值为0，因为<code>updateValue</code>中有一个promise，所以我们需要调用<code>flushMicrotasks</code>，让所有的micro task立即执行，这时候<code>num</code>的值变为10。</p>
+<p>当然上例中的<code>flushMicrotasks</code>也可以替换成<code>flush</code>，因为<code>flush</code>会让所有的异步操作立即执行，包括macro task和micro task。也可以使用tick，因为tick在执行之前也会先把微任务队列清空（把队列中的微任务都执行完）。</p>
+<h3 id="待测试函数同时包含Macro-Task和Micro-Task"><a href="#待测试函数同时包含Macro-Task和Micro-Task" class="headerlink" title="待测试函数同时包含Macro Task和Micro Task"></a>待测试函数同时包含Macro Task和Micro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;<span class="built_in">number</span>&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = value;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">//或者flush()</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，<code>fetchData()</code>中同时包含Macro task和Micro task，所以我们可以使用<code>tick</code>或者<code>flush</code>来测试。但是使用<code>flushMicrotasks</code>就不行了，因为<code>flushMicrotasks</code>只会让micro task立即执行，而<code>setTimeout</code>是macro task，不会被执行。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>如果函数返回一个Promise，那么直接使用<code>async/await</code>测试即可。新版的Angular推荐使用<code>waitForAsync</code>来测试。</li>
+<li>如果函数中间夹杂着异步操作，但是没有返回Promise，那么分为以下三种情况<ul>
+<li>待测试函数只包含微任务 - 使用<code>fakeAsync</code>配合<code>flushMicrotasks</code>来控制异步操作。</li>
+<li>待测试函数只包含宏任务 - 使用<code>fakeAsync</code>配合<code>tick</code>或者<code>flush</code>来控制异步操作。</li>
+<li>待测试函数同时包含微任务与宏任务 - 使用<code>fakeAsync</code>配合<code>tick</code>或者<code>flush</code>来控制异步操作。</li>
+</ul>
+</li>
+<li>能用<code>async/await</code>或者<code>waitForAsync</code>测试的一定能用<code>fakeAsync</code>测试，反之不成立。</li>
+</ul>
+<p>最终结论: 在Angular + Jest为基础的项目中，使用<code>fakeAsync</code> + <code>tick</code>&#x2F;<code>flush</code>能搞定所有的异步测试。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/18/javascript-design-pattern-singleton/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -901,80 +1049,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/16/refactor-replace-temp-with-query/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/16/refactor-replace-temp-with-query/" class="post-title-link" itemprop="url">refactor-replace-temp-with-query</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-16 10:24:57" itemprop="dateCreated datePublished" datetime="2023-09-16T10:24:57+08:00">2023-09-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-14 20:14:55" itemprop="dateModified" datetime="2023-11-14T20:14:55+08:00">2023-11-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Replace-Temp-with-Query"><a href="#Replace-Temp-with-Query" class="headerlink" title="Replace Temp with Query"></a>Replace Temp with Query</h1><p>以查询取代临时变量的方法只适用于处理某些类型的临时变量，即那些只被赋值一次，而且之后再也没有被修改的临时变量。</p>
-<p>看下面的代码：我们可以将 <code>price()</code>中的临时变量 <code>basePrice</code> 和<code>discountFactor</code> 替换为查询函数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Order</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">    <span class="keyword">const</span> basePrice = <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">    <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">    <span class="keyword">if</span> (basePrice &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">      discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> basePrice * discountFactor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>修改后如下：可以看到，修改后，<code>price()</code>内的代码明显更加简洁，更加容易理解。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">basePrice</span> * <span class="variable language_">this</span>.<span class="property">discountFactor</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">basePrice</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">discountFactor</span>() &#123;</span><br><span class="line">  <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">    discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> discountFactor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果是在不支持<code>getter</code>和<code>setter</code>的语言中，我们可以使用<code>extract function</code>的方法来实现。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getBasePrice</span>() * <span class="variable language_">this</span>.<span class="title function_">getDiscountFactor</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="title function_">getBasePrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="title function_">getDiscountFactor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">    discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> discountFactor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1044,14 +1118,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">84</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">135</span>
+        <span class="site-state-item-count">136</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
