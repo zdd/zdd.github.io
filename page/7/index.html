@@ -181,6 +181,185 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/18/javascript-design-pattern-observer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/18/javascript-design-pattern-observer/" class="post-title-link" itemprop="url">javascript-observer-mode</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-18 17:56:17" itemprop="dateCreated datePublished" datetime="2023-11-18T17:56:17+08:00">2023-11-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-26 21:40:54" itemprop="dateModified" datetime="2024-03-26T21:40:54+08:00">2024-03-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-to-use-observer-mode-in-javascript"><a href="#How-to-use-observer-mode-in-javascript" class="headerlink" title="How to use observer mode in javascript"></a>How to use observer mode in javascript</h1><h2 id="Define-Observer"><a href="#Define-Observer" class="headerlink" title="Define Observer"></a>Define Observer</h2><p>Observer中文翻译为观察者，它是一个对象，拥有一个update方法，当Subject(被观察对象)发生变化时，Observer的update方法会被调用，这样就能实现Subject和Observer的解耦。</p>
+<p>下面的代码为每个观察者指定一个名字，当Subject发生变化时，<code>Observer</code>的<code>update</code>方法会被调用，打印出观察者的名字。<code>update</code>方法就是被观察者和观察者联系的纽带。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">Observer</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">readonly</span> name;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">update</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;<span class="variable language_">this</span>.name&#125;</span> updated`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Define-Subject"><a href="#Define-Subject" class="headerlink" title="Define Subject"></a>Define Subject</h2><p>Subject中文翻译为主题，它是一个对象，拥有注册观察者、删除观察者、通知观察者的方法。当某个特定事件发生时，Subject会通知所有观察者，让它们做出相应的反应。所以Subject实际上就是被观察者。</p>
+<p>下面的代码为Subject添加了一个观察者数组，当Subject发生变化时，会遍历观察者数组，调用每个观察者的<code>update</code>方法。subscribe方法实际上就是addObserver方法，unsubscribe方法实际上就是removeObserver方法。这两个方法用来将观察者加入或者移除观察者数组。被移除数组的观察者无法再收到Subject的通知。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Observer</span> <span class="keyword">from</span> <span class="string">&#x27;./Observer&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">observers</span>: <span class="title class_">Observer</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">subscribe</span>(<span class="params">observer: Observer</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">push</span>(observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">unsubscribe</span>(<span class="params">observer: Observer</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span> = <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">filter</span>(<span class="function">(<span class="params">o</span>) =&gt;</span> o !== observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">notify</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">o</span>) =&gt;</span> o.<span class="title function_">update</span>());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-Observer"><a href="#Use-Observer" class="headerlink" title="Use Observer"></a>Use Observer</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Observer</span> <span class="keyword">from</span> <span class="string">&#x27;./Observer&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Subject</span> <span class="keyword">from</span> <span class="string">&#x27;./Subject&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> subject = <span class="keyword">new</span> <span class="title class_">Subject</span>();</span><br><span class="line"><span class="keyword">const</span> observer1 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 1&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> observer2 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 2&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> observer3 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 3&#x27;</span>);</span><br><span class="line"></span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer1);</span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer2);</span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer3);</span><br><span class="line">subject.<span class="title function_">notify</span>(); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line">subject.<span class="title function_">unsubscribe</span>(observer1);</span><br><span class="line">subject.<span class="title function_">notify</span>(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>在 &#x2F;&#x2F; 1 处，输入如下内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Observer 1 updated</span><br><span class="line">Observer 2 updated</span><br><span class="line">Observer 3 updated</span><br></pre></td></tr></table></figure>
+
+<p>在 &#x2F;&#x2F; 2 处，输入如下内容，因为Observer 1被移除了，所以只有Observer 2和Observer 3收到了通知。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Observer 2 updated</span><br><span class="line">Observer 3 updated</span><br></pre></td></tr></table></figure>
+
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ol>
+<li>Subject(被观察者，也叫Observable)：拥有注册观察者、删除观察者、通知观察者的方法。</li>
+<li>Observer(观察者)：拥有update方法，当Subject发生变化时，Observer的update方法会被调用。</li>
+<li>观察者和被观察者之间是松耦合的，被观察者只知道观察者的接口，而不知道观察者的具体实现。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/14/How-node-js-handle-environment-variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/14/How-node-js-handle-environment-variables/" class="post-title-link" itemprop="url">How node.js handle environment variables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-14 20:01:47" itemprop="dateCreated datePublished" datetime="2023-11-14T20:01:47+08:00">2023-11-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-02-16 20:06:38" itemprop="dateModified" datetime="2024-02-16T20:06:38+08:00">2024-02-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-node-js-handle-environment-variables"><a href="#How-node-js-handle-environment-variables" class="headerlink" title="How node.js handle environment variables"></a>How node.js handle environment variables</h1><p>The following content was generated by “文心一言”, Have fun!</p>
+<p>在 Node.js 中处理环境变量通常使用 process.env 对象。当你想要从不同的配置文件中加载环境变量时，需要一些额外的步骤。通常，我们不直接通过 Node.js 加载 .local.env或其他配置文件，而是通过一些库（如 dotenv）来完成这个任务。</p>
+<h2 id="使用-dotenv-处理环境变量"><a href="#使用-dotenv-处理环境变量" class="headerlink" title="使用 dotenv 处理环境变量"></a>使用 dotenv 处理环境变量</h2><p>安装 dotenv:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install dotenv</span><br></pre></td></tr></table></figure>
+
+<p>在代码中使用 dotenv:<br>你可以在代码的顶部require dotenv，并使用它加载环境变量。(默认情况下, dotenv会自动寻找项目根目录下的.env文件，如果想指定其他配置文件，可以通过path参数来控制)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>();</span><br></pre></td></tr></table></figure>
+
+<p>创建配置文件:<br>通常，你可以创建一个 .env 文件在你的项目的根目录。这个文件可以包含环境变量，如：</p>
+<p>.env 文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PORT=3000  </span><br><span class="line">DATABASE_URL=mysql://user:password@localhost/dbname</span><br></pre></td></tr></table></figure>
+
+<p><code>.local.env文件通常是用于本地开发的环境变量，这些变量不应该被提交到版本控制系统中（如 git）。你可以在你的.gitignore文件中添加.local.env 来确保它不会被提交。</code></p>
+<p>访问环境变量:<br>你可以使用 process.env 对象来访问你加载的环境变量。例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> port = process.<span class="property">env</span>.<span class="property">PORT</span>;  </span><br><span class="line"><span class="keyword">const</span> databaseUrl = process.<span class="property">env</span>.<span class="property">DATABASE_URL</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置文件的优先级"><a href="#配置文件的优先级" class="headerlink" title="配置文件的优先级"></a>配置文件的优先级</h2><p>当你有多个配置文件时，你需要确定哪个文件的优先级更高。例如，你可能有一个通用的 .env 文件，还有一个针对本地开发的 .local.env 文件。</p>
+<p>通常，你可以在加载配置文件时确定优先级。例如，你可以首先加载 .local.env，然后再加载 .env。这样，.local.env 中的设置将覆盖 .env 文件中的设置。使用 dotenv 时，你可以这样做：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(&#123; <span class="attr">path</span>: <span class="string">&#x27;.local.env&#x27;</span> &#125;);  </span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例：处理端口环境变量"><a href="#示例：处理端口环境变量" class="headerlink" title="示例：处理端口环境变量"></a>示例：处理端口环境变量</h2><p>假设你在 .env 文件中有以下设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PORT=3000</span><br></pre></td></tr></table></figure>
+
+<p>在 .local.env 文件中有以下设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PORT=8080</span><br></pre></td></tr></table></figure>
+
+<p>你可以这样加载和使用它们：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(&#123; <span class="attr">path</span>: <span class="string">&#x27;.local.env&#x27;</span> &#125;); <span class="comment">// 加载 .local.env  </span></span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(); <span class="comment">// 加载 .env  </span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);  </span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();  </span><br><span class="line"><span class="keyword">const</span> port = process.<span class="property">env</span>.<span class="property">PORT</span>; <span class="comment">// port = 8080，因为 .local.env 中的设置将覆盖 .env 中的设置。  </span></span><br><span class="line">  </span><br><span class="line">app.<span class="title function_">listen</span>(port, <span class="function">() =&gt;</span> &#123;  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Server is running on port <span class="subst">$&#123;port&#125;</span>`</span>);  </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，服务器将运行在 8080 端口上，因为 .local.env 中的 PORT 设置覆盖了 .env 文件中的设置。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -776,165 +955,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-module/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/02/Angular-module/" class="post-title-link" itemprop="url">Angular-module</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-02 21:36:32" itemprop="dateCreated datePublished" datetime="2023-09-02T21:36:32+08:00">2023-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-16 10:46:07" itemprop="dateModified" datetime="2023-09-16T10:46:07+08:00">2023-09-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Angular-Module"><a href="#Angular-Module" class="headerlink" title="Angular Module"></a>Angular Module</h1><p>Angular是模块化的，模块是Angular应用的基本构建块，每个Angular应用都至少有一个模块，即根模块，Angular模块是一个带有<code>@NgModule</code>装饰器的类。</p>
-<p>模块是一个逻辑单元，是一个自我完备的功能集合，它可以包含组件、服务、指令、管道等，模块可以导入其他模块，也可以被其他模块导入，模块之间可以相互通信，模块之间的通信是通过导入和导出来实现的。</p>
-<p>以一个电商网站App为例，可以包含如下模块：登录模块（包含登录，注册，找回密码等功能），购物成模块，订单模块，支付模块等等。</p>
-<h2 id="NgModule的组成"><a href="#NgModule的组成" class="headerlink" title="NgModule的组成"></a>NgModule的组成</h2><p>以下是一个典型的入口模块的代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">AppRoutingModule</span>,</span><br><span class="line">    <span class="title class_">FormsModule</span>,</span><br><span class="line">    <span class="title class_">HttpClientModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="declarations"><a href="#declarations" class="headerlink" title="declarations"></a>declarations</h3><p><code>declarations</code>属性用来声明属于该模块的组件、指令、管道等，这些组件、指令、管道等只能在该模块中使用，其他模块不能使用。</p>
-<h3 id="imports"><a href="#imports" class="headerlink" title="imports"></a>imports</h3><p><code>imports</code>属性用来导入其他模块，导入的模块中的组件、指令、管道等可以在该模块中使用。比如当前模块依赖其他模块A，那么要把模块A导入到当前模块中，这样当前模块就可以使用模块A中的组件、指令、管道等了。</p>
-<h3 id="providers"><a href="#providers" class="headerlink" title="providers"></a>providers</h3><p><code>providers</code>属性用来声明该模块中的服务，这些服务可以在该模块中使用，也可以在该模块导入的其他模块中使用。</p>
-<h3 id="exports"><a href="#exports" class="headerlink" title="exports"></a>exports</h3><p><code>exports</code>属性用来声明该模块中<code>导出</code>的组件、指令、管道等，这些组件、指令、管道等可以在该模块导入的其他模块中使用。注意导出的组件、指令、管道等必须同时在<code>declarations</code>属性中声明。<br>也就是说exports是declarations的子集。</p>
-<p>Angular应用的主模块<code>app.module.ts</code>中的<code>exports</code>属性是空的，因为根模块中的组件、指令、管道等都是可以在其他模块中使用的，所以不需要导出。</p>
-<h3 id="bootstrap"><a href="#bootstrap" class="headerlink" title="bootstrap"></a>bootstrap</h3><p><code>bootstrap</code>属性用来声明该模块的根组件，根组件是Angular应用的入口组件，一个Angular应用只能有一个根组件，根组件只能在根模块中声明。</p>
-<p><strong>注意：</strong> 只有根模块才需要声明根组件，其他模块不需要声明根组件。所以除了<code>app.module.ts</code>之外，其他的module都不需要声明bootstrap属性。</p>
-<h2 id="component-and-module"><a href="#component-and-module" class="headerlink" title="component and module"></a>component and module</h2><p>在Angular <code>standalone</code> component出现以前，任何一个component都必须隶属于一个module。但是在Angular <code>standalone</code> component出现以后，就可以不用隶属于一个module了，这种component称为<code>standalone</code> component，也就是独立的component。</p>
-<p>详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/09/02/Angular-standalone-component/">Angular Standalone Component</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/19/Angular-Misc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/08/19/Angular-Misc/" class="post-title-link" itemprop="url">Angular-Misc</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-08-19 20:58:58" itemprop="dateCreated datePublished" datetime="2023-08-19T20:58:58+08:00">2023-08-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-08-20 23:21:20" itemprop="dateModified" datetime="2023-08-20T23:21:20+08:00">2023-08-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Angular杂项"><a href="#Angular杂项" class="headerlink" title="Angular杂项"></a>Angular杂项</h1><h2 id="什么操作会触发Angular执行change-detection？"><a href="#什么操作会触发Angular执行change-detection？" class="headerlink" title="什么操作会触发Angular执行change detection？"></a>什么操作会触发Angular执行change detection？</h2><p>这个问题一直没有搞明白，有待进一步研究。<br><a target="_blank" rel="noopener" href="https://angular.io/guide/change-detection">https://angular.io/guide/change-detection</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-tB-QDrPmuI">https://www.youtube.com/watch?v=-tB-QDrPmuI</a></p>
-<h2 id="在AOT编译器下，Private变量无法绑定到模板中。"><a href="#在AOT编译器下，Private变量无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private变量无法绑定到模板中。"></a>在AOT编译器下，Private变量无法绑定到模板中。</h2><p>如果在组件中定义了一个私有变量，是不能使用双话括弧绑定到模板中的，比如下面的代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这样写是不行的，因为在AOT编译器下，私有变量会被删除，所以无法绑定到模板中，如果想要绑定到模板中，需要将变量定义为公共变量，或者使用<code>get</code>方法，如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">count</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="在AOT编译器下，Private方法无法绑定到模板中。"><a href="#在AOT编译器下，Private方法无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private方法无法绑定到模板中。"></a>在AOT编译器下，Private方法无法绑定到模板中。</h2><p>如果在组件中定义了一个私有方法，是不能使用双花括弧绑定到模板中的，比如下面的代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">getCount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;getCount()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这样写是不行的，因为在AOT编译器下，私有方法会被删除，所以无法绑定到模板中，如果想要绑定到模板中，需要将方法定义为公共方法，或者使用<code>get</code>方法，如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">count</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_count</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getCount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;getCount()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1000,14 +1024,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">92</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">143</span>
+        <span class="site-state-item-count">144</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

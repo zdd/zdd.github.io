@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文讲解以下如何在Angular项目中使用router。 创建一个Angular项目1ng new angular-router 在创建过程中，Angular CLI会询问是否使用router，选择Yes。 创建三个组件。使用WebStorm或者VSCode打开上面创建的项目，呼出Terminal，执行以下命令。 123ng generate component homeng generate c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angular-router">
+<meta property="og:url" content="http://example.com/2024/04/18/angular-router/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="本文讲解以下如何在Angular项目中使用router。 创建一个Angular项目1ng new angular-router 在创建过程中，Angular CLI会询问是否使用router，选择Yes。 创建三个组件。使用WebStorm或者VSCode打开上面创建的项目，呼出Terminal，执行以下命令。 123ng generate component homeng generate c">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-04-18T12:23:16.000Z">
+<meta property="article:modified_time" content="2024-04-18T14:29:54.248Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="angular">
+<meta property="article:tag" content="router">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/04/18/angular-router/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>angular-router | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/18/angular-router/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          angular-router
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-18 20:23:16 / Modified: 22:29:54" itemprop="dateCreated datePublished" datetime="2024-04-18T20:23:16+08:00">2024-04-18</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文讲解以下如何在<code>Angular</code>项目中使用<code>router</code>。</p>
+<h2 id="创建一个Angular项目"><a href="#创建一个Angular项目" class="headerlink" title="创建一个Angular项目"></a>创建一个Angular项目</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new angular-router</span><br></pre></td></tr></table></figure>
+<p>在创建过程中，<code>Angular CLI</code>会询问是否使用router，选择<code>Yes</code>。</p>
+<h2 id="创建三个组件。"><a href="#创建三个组件。" class="headerlink" title="创建三个组件。"></a>创建三个组件。</h2><p>使用<code>WebStorm</code>或者<code>VSCode</code>打开上面创建的项目，呼出<code>Terminal</code>，执行以下命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ng generate component home</span><br><span class="line">ng generate component product</span><br><span class="line">ng generate component about</span><br></pre></td></tr></table></figure>
+<p>然后打开<code>app-routing.module.ts</code>文件，创建路由。注意，path不能以<code>/</code>开头。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>, <span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HomeComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./home/home.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product/product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AboutComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./about/about.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Add Routes here</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">redirectTo</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">pathMatch</span>: <span class="string">&#x27;full&#x27;</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes)],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">RouterModule</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppRoutingModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加导航链接"><a href="#添加导航链接" class="headerlink" title="添加导航链接"></a>添加导航链接</h2><p>打开<code>app.component.html</code>文件，添加导航链接。注意，<code>routerLink</code>的值要和<code>path</code>一致。如果是跟路由，可以使用<code>/</code>。文档末尾的<code>router-outlet</code>是用来显示路由组件的。当我们点击某一个链接的时候，Angular会找到对应的组件，并将其加载到<code>router-outlet</code>中。所以<code>router-outlet</code>相当于一个占位符，与html中的<code>slot</code>类似。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Angular Router Demo<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/product&quot;</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h2><p>在<code>Terminal</code>中执行以下命令。打开浏览器，输入<code>http://localhost:4200</code>，就可以看到导航链接了。依次点击页面上的Home，Product，About链接，可以看到页面跳转了，并且浏览器中的地址也发生了变化。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加404页面"><a href="#添加404页面" class="headerlink" title="添加404页面"></a>添加404页面</h2><p>如果我们在浏览器中随意输入一个不存在的路径，比如<code>http://localhost:4200/abc</code>，会发现页面是空白的。这是因为我们没有处理404页面。我们可以在<code>app-routing.module.ts</code>中添加一个<code>**</code>路径，用来匹配所有路径，然后将其重定向到一个<code>404</code>组件。</p>
+<h3 id="创建404页面组件"><a href="#创建404页面组件" class="headerlink" title="创建404页面组件"></a>创建404页面组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component not-found</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改404页面内容"><a href="#修改404页面内容" class="headerlink" title="修改404页面内容"></a>修改404页面内容</h3><p>打开<code>not-found.component.html</code>，输入以下内容。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>404: Not Found!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加404路由"><a href="#添加404路由" class="headerlink" title="添加404路由"></a>添加404路由</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>此时，如果在浏览器里面输入一个不存在的路径，比如<code>http://localhost:4200/abc</code>，则会显示<code>404: Not Found!</code>。</p>
+<h2 id="嵌套路由"><a href="#嵌套路由" class="headerlink" title="嵌套路由"></a>嵌套路由</h2><p>如果我们想要在<code>product</code>组件中添加两个子路由，<code>product-a</code>和<code>product-a</code>，可以在<code>app-routing.module.ts</code>中添加如下代码。</p>
+<h3 id="新建两个组件"><a href="#新建两个组件" class="headerlink" title="新建两个组件"></a>新建两个组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ng generate component product-a</span><br><span class="line">ng generate component product-b</span><br></pre></td></tr></table></figure>
+
+<h3 id="在product页面添加router-outlet"><a href="#在product页面添加router-outlet" class="headerlink" title="在product页面添加router-outlet"></a>在product页面添加router-outlet</h3><p>这个<code>router-outlet</code>用来显示ProductA和ProductB对应的的组件。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>product works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加子路由"><a href="#添加子路由" class="headerlink" title="添加子路由"></a>添加子路由</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="comment">// pathMatch: &#x27;full&#x27;, 注意这一句不能写！否则子路由无法匹配，会导致404！</span></span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about-me&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutmeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>此时，如果在浏览器中输入<code>http://localhost:4200/product/a</code>，会显示<code>ProductA works!</code>，输入<code>http://localhost:4200/product/b</code>，会显示<code>ProductB works!</code>。同时也会显示<code>product works!</code>，因为<code>product.component.html</code>中除了有<code>&lt;router-outlet&gt;&lt;/router-outlet&gt;</code>。还有<code>&lt;p&gt;product works!&lt;/p&gt;</code>。</p>
+<h2 id="严格匹配"><a href="#严格匹配" class="headerlink" title="严格匹配"></a>严格匹配</h2><p>上面的例子中，product的path不能使用严格匹配选项<code>pathMath: &#39;full&#39;</code>，否则子路由无法匹配，会导致404。这是为什么呢？<br>因为匹配子路由的时候，必须先匹配父级路由，而由于父级路由使用了<code>pathMatch: &#39;full&#39;</code>，所以无法匹配，父级路由无法匹配导致子路由的匹配无法进行，所以导致了404！</p>
+<p>如果你非要使用<code>pathMatch: &#39;full&#39;</code>，可以如下定义路由表。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">pathMatch</span>: <span class="string">&#x27;full&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product/a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product/b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about-me&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutmeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>这样就可以使用<code>pathMatch: &#39;full&#39;</code>了。但是这么做也有一个弊端，就是a和b从逻辑上讲不再是product子路由了。而是平级路由，只不过路径中包含了字符串<code>product</code>而已。这会导致product页面的内容无法显示。通常父级路由都会显示一些公共信息，差异化的信息放到子路由中。如果你使用了<code>pathMatch: &#39;full&#39;</code>，则会导致父级页面内容无法显示。请酌情使用此方法。</p>
+<p>注意，如果你使用了嵌套路由，或者lazy load, 请谨慎使用<code>pathMatch: &#39;full&#39;</code>。详情请看这里：<a target="_blank" rel="noopener" href="https://dev.to/raj_sekhar/angular-route-pathmatch-full-when-to-not-use-4mb1">detail</a></p>
+<h2 id="路由拆分"><a href="#路由拆分" class="headerlink" title="路由拆分"></a>路由拆分</h2><p>如果product中的子路由越来越多，都放到一个文件中会显得很臃肿。这时候我们可以将子路由拆分到单独的文件中。将子路由定义到product组件中。</p>
+<h3 id="创建module文件"><a href="#创建module文件" class="headerlink" title="创建module文件"></a>创建module文件</h3><p>进入<code>product</code>文件夹，执行以下命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ng generate module product-routing --flat</span><br><span class="line">ng generate module product --flat</span><br></pre></td></tr></table></figure>
+<p><code>--flat</code>选项表示不创建文件夹。</p>
+<p>在<code>product-routing.module.ts</code>中添加如下代码。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-routing.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CommonModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductBComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-b/product-b.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductAComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-a/product-a.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>, <span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">CommonModule</span>,</span><br><span class="line">    <span class="title class_">RouterModule</span>.<span class="title function_">forChild</span>(routes),</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">RouterModule</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductRoutingModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>product.module.ts文件中添加如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CommonModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;./product.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductRoutingModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;./product-routing.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductAComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../product-a/product-a.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductBComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../product-b/product-b.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="title class_">ProductAComponent</span>,</span><br><span class="line">    <span class="title class_">ProductBComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">CommonModule</span>,</span><br><span class="line">    <span class="title class_">ProductRoutingModule</span></span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改app-routing-module-ts"><a href="#修改app-routing-module-ts" class="headerlink" title="修改app-routing.module.ts"></a>修改app-routing.module.ts</h3><p>注意，这里必须使用loadChildren, 否则子路由无法显示。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>这样就可以将product中的子路由拆分到单独的文件中了。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular/" rel="tag"># angular</a>
+              <a href="/tags/router/" rel="tag"># router</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/17/angular-router-nested-routes/" rel="prev" title="angular-router-nested_routes">
+      <i class="fa fa-chevron-left"></i> angular-router-nested_routes
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAAngular%E9%A1%B9%E7%9B%AE"><span class="nav-number">1.</span> <span class="nav-text">创建一个Angular项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%89%E4%B8%AA%E7%BB%84%E4%BB%B6%E3%80%82"><span class="nav-number">2.</span> <span class="nav-text">创建三个组件。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%AF%BC%E8%88%AA%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">添加导航链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE"><span class="nav-number">4.</span> <span class="nav-text">运行项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0404%E9%A1%B5%E9%9D%A2"><span class="nav-number">5.</span> <span class="nav-text">添加404页面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA404%E9%A1%B5%E9%9D%A2%E7%BB%84%E4%BB%B6"><span class="nav-number">5.1.</span> <span class="nav-text">创建404页面组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9404%E9%A1%B5%E9%9D%A2%E5%86%85%E5%AE%B9"><span class="nav-number">5.2.</span> <span class="nav-text">修改404页面内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0404%E8%B7%AF%E7%94%B1"><span class="nav-number">5.3.</span> <span class="nav-text">添加404路由</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E8%B7%AF%E7%94%B1"><span class="nav-number">6.</span> <span class="nav-text">嵌套路由</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E5%BB%BA%E4%B8%A4%E4%B8%AA%E7%BB%84%E4%BB%B6"><span class="nav-number">6.1.</span> <span class="nav-text">新建两个组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8product%E9%A1%B5%E9%9D%A2%E6%B7%BB%E5%8A%A0router-outlet"><span class="nav-number">6.2.</span> <span class="nav-text">在product页面添加router-outlet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%AD%90%E8%B7%AF%E7%94%B1"><span class="nav-number">6.3.</span> <span class="nav-text">添加子路由</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A5%E6%A0%BC%E5%8C%B9%E9%85%8D"><span class="nav-number">7.</span> <span class="nav-text">严格匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E6%8B%86%E5%88%86"><span class="nav-number">8.</span> <span class="nav-text">路由拆分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAmodule%E6%96%87%E4%BB%B6"><span class="nav-number">8.1.</span> <span class="nav-text">创建module文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9app-routing-module-ts"><span class="nav-number">8.2.</span> <span class="nav-text">修改app-routing.module.ts</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">144</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
