@@ -20,17 +20,17 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Event.stopPropagation vs Event.stopImmediatePropagationJavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传">
+  <meta name="description" content="JavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。 所以DOM中的事件处理分为以下三个">
 <meta property="og:type" content="article">
 <meta property="og:title" content="stopPropagation-vs-stopImmediatePropagation">
 <meta property="og:url" content="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="Event.stopPropagation vs Event.stopImmediatePropagationJavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传">
+<meta property="og:description" content="JavaScript事件模型在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。 目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。 所以DOM中的事件处理分为以下三个">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/images/event-dispatch-modal.jpg">
 <meta property="og:image" content="http://example.com/images/event-bubble.jpg">
 <meta property="article:published_time" content="2023-08-03T13:39:35.000Z">
-<meta property="article:modified_time" content="2023-08-03T14:33:57.931Z">
+<meta property="article:modified_time" content="2024-04-20T02:02:19.978Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="event">
@@ -213,10 +213,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-08-03 21:39:35 / Modified: 22:33:57" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
+              <time title="Created: 2023-08-03 21:39:35" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 10:02:19" itemprop="dateModified" datetime="2024-04-20T10:02:19+08:00">2024-04-20</time>
+              </span>
 
           
 
@@ -229,7 +235,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Event-stopPropagation-vs-Event-stopImmediatePropagation"><a href="#Event-stopPropagation-vs-Event-stopImmediatePropagation" class="headerlink" title="Event.stopPropagation vs Event.stopImmediatePropagation"></a>Event.stopPropagation vs Event.stopImmediatePropagation</h1><h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
+        <h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
 <p>目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。</p>
 <p>所以DOM中的事件处理分为以下三个阶段</p>
 <ul>
@@ -249,14 +255,14 @@
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span></span><br><span class="line">  div1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span></span><br><span class="line">    div2</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div3&quot;</span>&gt;</span></span><br><span class="line">      div3</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div1&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div2 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div2&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div3 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div3&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bindEventListener</span>(<span class="params">element, event, listener, useCapture</span>) &#123;</span><br><span class="line">  element.<span class="title function_">addEventListener</span>(event, listener, useCapture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler1</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler2</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler3</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><img src="/../images/event-bubble.jpg"></p>
-<p>点击div3，输出如下：</p>
+<p>点击<code>div3</code>，输出如下，因为采用的是冒泡模式，所以事件会从内层元素向外层元素传递。即<code>div3</code>最先捕获事件，然后是冒泡给<code>div2</code>，最后是<code>div1</code>.</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
 <p>如果我们在clickHandler3中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
 <p>可见，<code>event.stopPropagation()</code>阻止了事件继续向上（外层元素）传递。</p>
-<p>将事件处理函数改为捕获模式：</p>
+<p>将事件处理函数改为捕获模式</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
-<p>再次点击div3，输出如下：</p>
+<p>再次点击div3，输出如下，因为采用的是捕获模式，所以事件会从外层元素向内层元素传递。即<code>div1</code>最先捕获事件，然后是<code>div2</code>，最后是<code>div3</code>.</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
 <p>如果我们在clickHandler1中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
@@ -359,7 +365,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopPropagation-vs-Event-stopImmediatePropagation"><span class="nav-number">1.</span> <span class="nav-text">Event.stopPropagation vs Event.stopImmediatePropagation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScript%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">JavaScript事件模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopPropagation"><span class="nav-number">2.</span> <span class="nav-text">Event.stopPropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopImmediatePropagation"><span class="nav-number">3.</span> <span class="nav-text">Event.stopImmediatePropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScript%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">JavaScript事件模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopPropagation"><span class="nav-number"></span> <span class="nav-text">Event.stopPropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-stopImmediatePropagation"><span class="nav-number"></span> <span class="nav-text">Event.stopImmediatePropagation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number"></span> <span class="nav-text">References</span></a></div>
       </div>
       <!--/noindex-->
 
