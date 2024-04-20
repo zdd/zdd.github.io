@@ -181,6 +181,153 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/remove-ngmodule-from-your-angular-app/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/20/remove-ngmodule-from-your-angular-app/" class="post-title-link" itemprop="url">remove ngModule from your angular app</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-20 12:39:46 / Modified: 16:55:50" itemprop="dateCreated datePublished" datetime="2024-04-20T12:39:46+08:00">2024-04-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>你也许在Angular的文档或者某些博客中看到过这样一句话：<br><code> Every application has at least one Angular module, the root module, which must be present for bootstrapping the application on launch. By convention and by default, this NgModule is named AppModule</code></p>
+<p>在Angular 14之前，这句话是正确的。但是从Angular 14开始，你可以不用<code>AppModule</code>，因为<code>standalone component</code>可以替代它。下面我们来看看，如何移除<code>AppModule</code>。</p>
+<h2 id="创建一个Angular项目"><a href="#创建一个Angular项目" class="headerlink" title="创建一个Angular项目"></a>创建一个Angular项目</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new my-app</span><br></pre></td></tr></table></figure>
+
+<h2 id="将app-component设置为standalone"><a href="#将app-component设置为standalone" class="headerlink" title="将app component设置为standalone"></a>将app component设置为standalone</h2><p>首先要将<code>app.component.ts</code>中的<code>standalone</code>设置为<code>true</code>。如果使用了router，还需要将RouterModule导入到component中。否则在html中使用<code>router-outlet</code>或者<code>routerLink</code>会报错。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// set standalone to true</span></span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterModule</span>], <span class="comment">// import RouterModule if you use router</span></span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./app.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;angular-router&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建routes文件"><a href="#创建routes文件" class="headerlink" title="创建routes文件"></a>创建routes文件</h2><p>新建一个app-routes.ts文件，用来定义路由，就是将原本在<code>app-routing.module.ts</code>中定义的路由移到这个文件中。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HomeComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./home/home.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AboutComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./about/about.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NotFoundComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./not-found/not-found.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="删除AppModule"><a href="#删除AppModule" class="headerlink" title="删除AppModule"></a>删除AppModule</h2><p>经过上面的改造，我们已经将<code>AppModule</code>中的内容移到了<code>AppComponent</code>中，现在可以删除<code>AppModule</code>了。</p>
+<ol>
+<li>删除app module文件：<code>src/app/app.module.ts</code>。</li>
+<li>删除route文件：<code>src/app/app-routing.module.ts</code>。（如果创建项目时选择了router）</li>
+</ol>
+<h2 id="修改main-ts"><a href="#修改main-ts" class="headerlink" title="修改main.ts"></a>修改main.ts</h2><p>最后，我们还需要修改<code>main.ts</code>，<code>main.ts</code>是app的入口文件，它本来引入的是<code>AppModule</code>，我们需要修改它来引入<code>standalone component</code>。</p>
+<ol>
+<li>将<code>bootstrapModule</code>替换为<code>bootstrapApplication</code>。</li>
+<li>将<code>AppModule</code>替换为<code>AppComponent</code>。</li>
+<li>引入<code>importProvidersFrom</code>来加载路由。</li>
+</ol>
+<p>修改前</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>修改后</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;enableProdMode, importProvidersFrom&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;environment&#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;routes&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.routes&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;bootstrapApplication&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/platform-browser&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AppComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    importProvidersFrom(<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes))</span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/to-do-list/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/20/to-do-list/" class="post-title-link" itemprop="url">to-do-list</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-20 12:22:05 / Modified: 12:22:52" itemprop="dateCreated datePublished" datetime="2024-04-20T12:22:05+08:00">2024-04-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="To-Do-List"><a href="#To-Do-List" class="headerlink" title="To Do List"></a>To Do List</h2><ol>
+<li>Angular change detection</li>
+<li>Angular zone</li>
+<li>Angular polyfill(under project root)</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/18/angular-router/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -212,7 +359,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 08:49:46" itemprop="dateModified" datetime="2024-04-20T08:49:46+08:00">2024-04-20</time>
+                <time title="Modified: 2024-04-20 11:47:16" itemprop="dateModified" datetime="2024-04-20T11:47:16+08:00">2024-04-20</time>
               </span>
 
           
@@ -226,7 +373,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文讲解以下如何在<code>Angular</code>项目中使用<code>router</code>。</p>
+          <p>本文讲解一下如何在<code>Angular</code>项目中使用<code>router</code>。</p>
 <h2 id="创建一个Angular项目"><a href="#创建一个Angular项目" class="headerlink" title="创建一个Angular项目"></a>创建一个Angular项目</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new angular-router</span><br></pre></td></tr></table></figure>
 <p>在创建过程中，<code>Angular CLI</code>会询问是否使用router，选择<code>Yes</code>。</p>
 <h2 id="创建三个组件。"><a href="#创建三个组件。" class="headerlink" title="创建三个组件。"></a>创建三个组件。</h2><p>使用<code>WebStorm</code>或者<code>VSCode</code>打开上面创建的项目，呼出<code>Terminal</code>，执行以下命令。</p>
@@ -912,152 +1059,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/11/javascript-tricks/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/11/javascript-tricks/" class="post-title-link" itemprop="url">javascript tricks</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-11 22:31:09 / Modified: 22:45:33" itemprop="dateCreated datePublished" datetime="2024-04-11T22:31:09+08:00">2024-04-11</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Tricks"><a href="#JavaScript-Tricks" class="headerlink" title="JavaScript Tricks"></a>JavaScript Tricks</h1><h2 id="1-typeof-null-39-object-39-This-is-a-known-bug-in-JavaScript"><a href="#1-typeof-null-39-object-39-This-is-a-known-bug-in-JavaScript" class="headerlink" title="1. typeof null === &#39;object&#39;. This is a known bug in JavaScript."></a>1. <code>typeof null === &#39;object&#39;</code>. This is a known bug in JavaScript.</h2><h2 id="2-typeof-NaN-39-number-39-But-this-is-true"><a href="#2-typeof-NaN-39-number-39-But-this-is-true" class="headerlink" title="2. typeof NaN === &#39;number&#39;. But, this is true."></a>2. <code>typeof NaN === &#39;number&#39;</code>. But, this is true.</h2><h2 id="3-perform-a-shallow-copy-only-the-first-level-is-copied-by-value-other-levels-is-copied-by-reference"><a href="#3-perform-a-shallow-copy-only-the-first-level-is-copied-by-value-other-levels-is-copied-by-reference" class="headerlink" title="3. ... perform a shallow copy(only the first level is copied by value, other levels is copied by reference)."></a>3. <code>...</code> perform a shallow copy(only the first level is copied by value, other levels is copied by reference).</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>]];</span><br><span class="line"><span class="keyword">const</span> newArr = [...arr];</span><br><span class="line"></span><br><span class="line">newArr[<span class="number">1</span>] = <span class="number">3</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 2, [3, 4]]</span></span><br><span class="line"></span><br><span class="line">newArr[<span class="number">2</span>][<span class="number">0</span>] = <span class="number">5</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 2, [5, 4]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-There-is-no-pass-by-reference-in-JavaScript-only-pass-by-value"><a href="#4-There-is-no-pass-by-reference-in-JavaScript-only-pass-by-value" class="headerlink" title="4. There is no pass by reference in JavaScript, only pass by value."></a>4. There is no pass by reference in JavaScript, only pass by value.</h2><h2 id="5-In-JavaScript-everything-is-object-this-is-not-true"><a href="#5-In-JavaScript-everything-is-object-this-is-not-true" class="headerlink" title="5. In JavaScript, everything is object - this is not true."></a>5. In JavaScript, everything is object - this is not true.</h2><h2 id="6-type-print-or-window-print-in-Browser-console-you-will-get-a-print-dialog"><a href="#6-type-print-or-window-print-in-Browser-console-you-will-get-a-print-dialog" class="headerlink" title="6. type print or window.print in Browser console, you will get a print dialog."></a>6. type <code>print</code> or <code>window.print</code> in <code>Browser console</code>, you will get a print dialog.</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/11/jest-usefaketimer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/11/jest-usefaketimer/" class="post-title-link" itemprop="url">jest-useFakeTimer</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-11 21:45:06 / Modified: 22:19:08" itemprop="dateCreated datePublished" datetime="2024-04-11T21:45:06+08:00">2024-04-11</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Jest-useFakeTimer"><a href="#Jest-useFakeTimer" class="headerlink" title="Jest useFakeTimer"></a>Jest useFakeTimer</h1><p>Jest’s useFakeTimers function is used to mock timers in JavaScript. This is particularly useful when you have code that uses setTimeout, setInterval, or Date objects, and you want to control the passage of time in your tests.</p>
-<h2 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h2><p>To use Jest’s useFakeTimers function, you need to call it before the code you want to test. You can then advance the timers using the advanceTimersByTime function.</p>
-<h2 id="Advance-Timers"><a href="#Advance-Timers" class="headerlink" title="Advance Timers"></a>Advance Timers</h2><p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-all-timers"><a href="#Run-all-timers" class="headerlink" title="Run all timers"></a>Run all timers</h2><p>Jest.runAllTimers() will run all pending timers. This is useful when you have multiple timers that need to be run in sequence. (Note, it will not work for nested timers)</p>
-<p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">false</span>;</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// other timers...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-only-pending-timers"><a href="#Run-only-pending-timers" class="headerlink" title="Run only pending timers"></a>Run only pending timers</h2><p>There are also scenarios where you might have a recursive timer – that is a timer that sets a new timer in its own callback.</p>
-<p>Jest.runOnlyPendingTimers() will only run the timers that are currently pending. This is useful when you want to run the timers that are currently in the queue, but not the ones that are scheduled to run in the future.</p>
-<p>If you use <code>jest.runAllTimers</code> here, it will run all the timers and end up with an infinite loop.</p>
-<p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">firstRound = <span class="literal">false</span>;</span><br><span class="line">secondRound = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">infiniteTimerGame</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">firstRound</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// Schedule the next game in 10 seconds</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">secondRound</span> = <span class="literal">true</span>;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">    &#125;, <span class="number">10000</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test infiniteTimerGame&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">  <span class="comment">// This will only run the timers that are currently pending(the outer timer)</span></span><br><span class="line">  jest.<span class="title function_">runOnlyPendingTimers</span>(); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">firstRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// or jest.runOnlyPendingTimers(); This will run the newly created timer</span></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">10000</span>); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">secondRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Selective-faking"><a href="#Selective-faking" class="headerlink" title="Selective faking"></a>Selective faking</h2><p>Sometimes your code may require to avoid overwriting the original implementation of one or another API. If that is the case, you can use <code>doNotFake</code> option. For example, here is how you could provide a custom mock function for <code>performance.mark()</code> in jsdom environment:</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mockPerformanceMark = jest.<span class="title function_">fn</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span> = mockPerformanceMark;</span><br><span class="line"></span><br><span class="line"><span class="title function_">test</span>(<span class="string">&#x27;allows mocking `performance.mark()`&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>(&#123;<span class="attr">doNotFake</span>: [<span class="string">&#x27;performance&#x27;</span>]&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">expect</span>(<span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span>).<span class="title function_">toBe</span>(mockPerformanceMark);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Restore-timers"><a href="#Restore-timers" class="headerlink" title="Restore timers"></a>Restore timers</h2><p>After you have finished testing, you should restore the original timers using jest.useRealTimers().</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">afterEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1127,14 +1128,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">94</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">144</span>
+        <span class="site-state-item-count">146</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
