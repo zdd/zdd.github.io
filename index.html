@@ -181,6 +181,103 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/" class="post-title-link" itemprop="url">NG0100: Expression has changed after it was checked</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-22 20:25:54 / Modified: 21:25:12" itemprop="dateCreated datePublished" datetime="2024-04-22T20:25:54+08:00">2024-04-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>不知各位冰雪聪明的朋友们是否遇到过如下错误？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NG0100: Expression has changed after it was checked</span><br></pre></td></tr></table></figure>
+
+<p>大家在第一次遇到这个错误的时候是什么反应呢？反正我是一头雾水，今天就来揭开这个错误的神秘面纱，我现在很困。。。非常不想写，但是我还是要写，因为我是一个有责任心的人。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">为什么我的眼里常含泪水？因为我太困了。。。</span><br></pre></td></tr></table></figure>
+<p>言归正传！其实从这个错误的描述来看，聪明的你已经发现了，那就是在Angular刚刚进行完一次变更检测，你又更新了某个值。</p>
+<p>先来看一个最简单的例子：</p>
+<h2 id="Update-value-in-ngAfterViewInit"><a href="#Update-value-in-ngAfterViewInit" class="headerlink" title="Update value in ngAfterViewInit"></a>Update value in <code>ngAfterViewInit</code></h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; count &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子中，我们在<code>ngAfterViewInit</code>生命周期钩子中更新了<code>count</code>的值，在<code>ngAfterViewInit</code>之前，Angular刚刚进行完一次变更检测，我们在<code>ngAfterViewInit</code>中更新了<code>count</code>的值，此时下一次变更检测还未开始，所以就产生了这个错误。</p>
+<p>他来了，他来了，他迈着箭步走来了！<br>我们可以点击红框中的文件链接，查看到底哪个变量出了问题。</p>
+<p><img src="/../images/ng0100.png" alt="ng0100"></p>
+<p>既然错误已经发生了，那么该如何解决它呢？</p>
+<ol>
+<li>不要在<code>ngAfterViewInit</code>中更新值。你可以在其他地方更新，比如用户点击了某个按钮，或者做了其他操作时。</li>
+<li>使用<code>ChangeDetectorRef</code>手动触发变更检测。既然Angular不让我们在变更检测之后更新值，那么我们就在更新值域以后手动触发一次变更检测，如下：<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdr: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cdr</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>使用异步更新，比如用<code>setTimeout</code>，<code>Promise</code>等包裹以下更新值的操作。因为Angular内部使用<code>zone.js</code>对这些操作进行了hook，并自动加入了更新检测，所以这样做是安全的。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="use-random-values-in-template-bindings"><a href="#use-random-values-in-template-bindings" class="headerlink" title="use random values in template bindings"></a>use random values in template bindings</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; randomValue &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">randomValue</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="title function_">random</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子中，我们在模板中使用了一个随机值，每次变更检测都会重新计算这个值，所以就会产生这个错误。</p>
+<h2 id="Update-parent-component-property-from-child-component"><a href="#Update-parent-component-property-from-child-component" class="headerlink" title="Update parent component property from child component"></a>Update parent component property from child component</h2><p>稍后补充！</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><h3 id="There-are-several-scenarios-that-produce-this-error"><a href="#There-are-several-scenarios-that-produce-this-error" class="headerlink" title="There are several scenarios that produce this error."></a>There are several scenarios that produce this error.</h3><ol>
+<li>value in <code>ngAfterViewInit</code>.</li>
+<li>Use random values in template bindings</li>
+<li>Update parent component property from child component.</li>
+</ol>
+<h3 id="How-to-solve-this-problem"><a href="#How-to-solve-this-problem" class="headerlink" title="How to solve this problem"></a>How to solve this problem</h3><ol>
+<li>Refactor <code>ngAfterViewInit</code> lifecycle hook.</li>
+<li>Use <code>ChangeDetectorRef</code> to manually trigger change detection.</li>
+<li>Make getters idempotent.</li>
+<li>Make the update async(last resort)</li>
+</ol>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://angular.io/errors/NG0100">https://angular.io/errors/NG0100</a></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>话说我现在实在太困了，睁不开眼睛，写这破玩意能涨工资吗？大概率不能！但是老话说的好，凡事求个明白！不扯了，睡觉去了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/remove-ngmodule-from-your-angular-app/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -288,10 +385,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-04-20 12:22:05 / Modified: 12:22:52" itemprop="dateCreated datePublished" datetime="2024-04-20T12:22:05+08:00">2024-04-20</time>
+              <time title="Created: 2024-04-20 12:22:05" itemprop="dateCreated datePublished" datetime="2024-04-20T12:22:05+08:00">2024-04-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-21 08:35:40" itemprop="dateModified" datetime="2024-04-21T08:35:40+08:00">2024-04-21</time>
+              </span>
 
           
 
@@ -305,9 +408,20 @@
 
       
           <h2 id="To-Do-List"><a href="#To-Do-List" class="headerlink" title="To Do List"></a>To Do List</h2><ol>
-<li>Angular change detection</li>
-<li>Angular zone</li>
-<li>Angular polyfill(under project root)</li>
+<li><p>Angular change detection</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://angularindepth.com/posts/1513/from-zone-js-to-zoneless-angular-and-back-how-it-all-works">https://angularindepth.com/posts/1513/from-zone-js-to-zoneless-angular-and-back-how-it-all-works</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/">https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/</a></li>
+</ol>
+</li>
+<li><p>Angular zone</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://dev.to/vivekdogra02/angular-zonejs-change-detection-understanding-the-core-concepts-16ek">https://dev.to/vivekdogra02/angular-zonejs-change-detection-understanding-the-core-concepts-16ek</a></li>
+<li><a target="_blank" rel="noopener" href="https://angularindepth.com/posts/1135/i-reverse-engineered-zones-zone-js-and-here-is-what-ive-found">https://angularindepth.com/posts/1135/i-reverse-engineered-zones-zone-js-and-here-is-what-ive-found</a></li>
+</ol>
+</li>
+<li><p>Angular polyfill(under project root)</p>
+</li>
 </ol>
 
       
@@ -978,87 +1092,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/13/dependency-injection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/13/dependency-injection/" class="post-title-link" itemprop="url">dependency-injection</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-13 21:55:20 / Modified: 22:04:06" itemprop="dateCreated datePublished" datetime="2024-04-13T21:55:20+08:00">2024-04-13</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Dependency injection(DI) is a design pattern that allows us to remove the hard-coded dependencies and make our application loosely coupled, maintainable, and testable. It is a way to achieve Inversion of Control (IoC) in our application.</p>
-<p>DI is widely used in Angular, React, and other modern frameworks. In Angular, we can inject services, components, and other dependencies into our components, services, and directives.</p>
-<p>Some terms:</p>
-<ul>
-<li>DI - Dependency Injection</li>
-<li>IoC - Inversion of Control</li>
-</ul>
-<p>Ways to implement DI:</p>
-<ul>
-<li>Constructor Injection</li>
-<li>Setter Injection</li>
-<li>Interface Injection</li>
-</ul>
-<h1 id="Pros-of-DI"><a href="#Pros-of-DI" class="headerlink" title="Pros of DI:"></a>Pros of DI:</h1><ul>
-<li>Loose coupling</li>
-<li>Easy to test</li>
-<li>Easy to maintain</li>
-</ul>
-<h1 id="references"><a href="#references" class="headerlink" title="references:"></a>references:</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified">https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver">https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.io/guide/dependency-injection">Angular Dependency Injection</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1128,14 +1161,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">94</span>
+          <span class="site-state-item-count">95</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">146</span>
+        <span class="site-state-item-count">147</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
