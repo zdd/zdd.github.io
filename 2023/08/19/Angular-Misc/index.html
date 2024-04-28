@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI 在AOT编译器下，Private变量无法绑定到模板中。如果在组件中定义了一个私有变量，是不能使用双话括弧绑">
+  <meta name="description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI Content Monkey Patching   Private Variable  在AOT编译器下，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Angular-Misc">
 <meta property="og:url" content="http://example.com/2023/08/19/Angular-Misc/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI 在AOT编译器下，Private变量无法绑定到模板中。如果在组件中定义了一个私有变量，是不能使用双话括弧绑">
+<meta property="og:description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI Content Monkey Patching   Private Variable  在AOT编译器下，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-19T12:58:58.000Z">
-<meta property="article:modified_time" content="2024-04-20T01:08:03.822Z">
+<meta property="article:modified_time" content="2024-04-28T13:07:19.692Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta name="twitter:card" content="summary">
@@ -215,7 +215,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 09:08:03" itemprop="dateModified" datetime="2024-04-20T09:08:03+08:00">2024-04-20</time>
+                <time title="Modified: 2024-04-28 21:07:19" itemprop="dateModified" datetime="2024-04-28T21:07:19+08:00">2024-04-28</time>
               </span>
 
           
@@ -230,7 +230,11 @@
 
       
         <h1 id="Angular杂项"><a href="#Angular杂项" class="headerlink" title="Angular杂项"></a>Angular杂项</h1><h2 id="什么操作会触发Angular执行change-detection？"><a href="#什么操作会触发Angular执行change-detection？" class="headerlink" title="什么操作会触发Angular执行change detection？"></a>什么操作会触发Angular执行change detection？</h2><p>这个问题一直没有搞明白，有待进一步研究。<br><a target="_blank" rel="noopener" href="https://angular.io/guide/change-detection">https://angular.io/guide/change-detection</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-tB-QDrPmuI">https://www.youtube.com/watch?v=-tB-QDrPmuI</a></p>
-<h2 id="在AOT编译器下，Private变量无法绑定到模板中。"><a href="#在AOT编译器下，Private变量无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private变量无法绑定到模板中。"></a>在AOT编译器下，Private变量无法绑定到模板中。</h2><p>如果在组件中定义了一个私有变量，是不能使用双话括弧绑定到模板中的，比如下面的代码：</p>
+<h2 id="Content"><a href="#Content" class="headerlink" title="Content"></a>Content</h2><ul>
+<li><a href="#monkey-patching">Monkey Patching</a>  </li>
+<li><a href="#private-variable">Private Variable</a></li>
+</ul>
+<h2 id="在AOT编译器下，Private变量无法绑定到模板中。"><a href="#在AOT编译器下，Private变量无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private变量无法绑定到模板中。"></a>在AOT编译器下，Private变量无法绑定到模板中。</h2><p><a name="private-variable"></a>如果在组件中定义了一个私有变量，是不能使用双括弧绑定到模板中的，比如下面的代码：</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>这样写是不行的，因为在AOT编译器下，私有变量会被删除，所以无法绑定到模板中，如果想要绑定到模板中，需要将变量定义为公共变量，或者使用<code>get</code>方法，如下：</p>
@@ -242,6 +246,7 @@
 
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;getCount()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+<h2 id="AOT-vs-JIT"><a href="#AOT-vs-JIT" class="headerlink" title="AOT vs JIT"></a>AOT vs JIT</h2><h2 id="Monkey-Patching"><a href="#Monkey-Patching" class="headerlink" title="Monkey Patching"></a>Monkey Patching</h2><p><a name="monkey-patching"></a>In computer programming, monkey patching is a technique used to dynamically update the behavior of a piece of code at run-time. It is used to extend or modify the runtime code of dynamic languages such as Smalltalk, JavaScript, Objective-C, Ruby, Perl, Python, Groovy, and Lisp without altering the original source code. - <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">Wikipedia</a></p>
 
     </div>
 
@@ -325,7 +330,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Angular%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">Angular杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%93%8D%E4%BD%9C%E4%BC%9A%E8%A7%A6%E5%8F%91Angular%E6%89%A7%E8%A1%8Cchange-detection%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">什么操作会触发Angular执行change detection？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8AOT%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%8B%EF%BC%8CPrivate%E5%8F%98%E9%87%8F%E6%97%A0%E6%B3%95%E7%BB%91%E5%AE%9A%E5%88%B0%E6%A8%A1%E6%9D%BF%E4%B8%AD%E3%80%82"><span class="nav-number">1.2.</span> <span class="nav-text">在AOT编译器下，Private变量无法绑定到模板中。</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Angular%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">Angular杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%93%8D%E4%BD%9C%E4%BC%9A%E8%A7%A6%E5%8F%91Angular%E6%89%A7%E8%A1%8Cchange-detection%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">什么操作会触发Angular执行change detection？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Content"><span class="nav-number">1.2.</span> <span class="nav-text">Content</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8AOT%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%8B%EF%BC%8CPrivate%E5%8F%98%E9%87%8F%E6%97%A0%E6%B3%95%E7%BB%91%E5%AE%9A%E5%88%B0%E6%A8%A1%E6%9D%BF%E4%B8%AD%E3%80%82"><span class="nav-number">1.3.</span> <span class="nav-text">在AOT编译器下，Private变量无法绑定到模板中。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOT-vs-JIT"><span class="nav-number">1.4.</span> <span class="nav-text">AOT vs JIT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monkey-Patching"><span class="nav-number">1.5.</span> <span class="nav-text">Monkey Patching</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -339,14 +344,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">96</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">148</span>
+        <span class="site-state-item-count">149</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
