@@ -181,6 +181,241 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/06/typeerror-cannot-read-property-setstate-of-undefined/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/06/typeerror-cannot-read-property-setstate-of-undefined/" class="post-title-link" itemprop="url">TypeError: Cannot read property 'setState' of undefined</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-03-06 20:49:29 / Modified: 20:53:10" itemprop="dateCreated datePublished" datetime="2024-03-06T20:49:29+08:00">2024-03-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="TypeError-Cannot-read-property-‘setState’-of-undefined"><a href="#TypeError-Cannot-read-property-‘setState’-of-undefined" class="headerlink" title="TypeError: Cannot read property ‘setState’ of undefined"></a>TypeError: Cannot read property ‘setState’ of undefined</h1><p>相信很多初学React的同学都差不多遇到过这个错误。</p>
+<p>在js中，function中的this代表调用这个函数的object，也就是谁调用这个函数，那么this就指向谁，这个object可以是window，可以使document，也可以是button。</p>
+<p>这个特性导致了React中一个常见的的找不到this的问题，且看下面的代码。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123;<span class="title class_">Component</span>&#125; <span class="keyword">from</span> <span class="string">&quot;react&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ThisTest</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Component</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(props);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">state</span> = &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;ddz&#x27;</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;this.handleClick&#125;</span>&gt;</span>hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">ThisTest</span>;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码运行的时候会出现如下错误：</p>
+<p><code>TypeError: Cannot read property &#39;setState&#39; of undefined</code></p>
+<p>为啥呢？</p>
+<p>我们来分析一下，函数handleClick中有一个this，这个this指向调用该函数的对象，也就是button，button中没有setState这个方法，所以出错了。怎么解决？两个办法：</p>
+<p>方法一：将handleClick改为箭头函数，因为箭头函数中的this指向该函数所在的组件，如下：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">handleClick = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;ddz&#x27;</span>,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>方法二：用bind函数将调用的函数绑定到组件上，一般我们在constructor中做这个绑定，上面的代码可以变为：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ThisTest</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Component</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(props);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">state</span> = &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加下面一行。</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">handleClick</span> = <span class="variable language_">this</span>.<span class="property">handleClick</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然网上还有其他方法，比如使用React.createClass来创建组件，这样会自动将this绑定到组件上，但这种创建组件的方法已经不推荐使用了，或者在render函数中绑定this，如下：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="variable language_">this</span>.<span class="property">handleClick</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>)&#125;&gt;hello&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<p>或者直接将箭头函数写在调用处，如下：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">handleClick</span>&#125;&gt;hello&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这两种方法会有轻微的性能问题，因为每次render函数调用时都会重新分配handleClick这个函数。</p>
+<p>推荐第一种方法，简单方便，没有副作用。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-object-prototype-groupby/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/02/javascript-object-prototype-groupby/" class="post-title-link" itemprop="url">javascript-object.prototype.groupBy</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-02 22:02:02" itemprop="dateCreated datePublished" datetime="2024-03-02T22:02:02+08:00">2024-03-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-03 07:45:26" itemprop="dateModified" datetime="2024-03-03T07:45:26+08:00">2024-03-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-Object-prototype-groupBy"><a href="#JavaScript-Object-prototype-groupBy" class="headerlink" title="JavaScript Object.prototype.groupBy"></a>JavaScript Object.prototype.groupBy</h1><p>Given the following array of objects: How to group it by type?</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> inventory = [</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;asparagus&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;vegetables&quot;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;bananas&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;fruit&quot;</span>, <span class="attr">quantity</span>: <span class="number">0</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;goat&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;meat&quot;</span>, <span class="attr">quantity</span>: <span class="number">23</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;cherries&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;fruit&quot;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;fish&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;meat&quot;</span>, <span class="attr">quantity</span>: <span class="number">22</span> &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>Before <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy">groupBy</a>, we can do it with <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">reduce</a>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">groupBy</span> = (<span class="params">arr, key</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> arr.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, item</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> group = item[key];</span><br><span class="line">    <span class="keyword">if</span> (!acc[group]) &#123;</span><br><span class="line">      acc[group] = [];</span><br><span class="line">    &#125;</span><br><span class="line">    acc[group].<span class="title function_">push</span>(item);</span><br><span class="line">    <span class="keyword">return</span> acc;</span><br><span class="line">  &#125;, &#123;&#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>With <code>groupBy</code>, we can do it like this, very simple! right?</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> result = <span class="title class_">Object</span>.<span class="title function_">groupBy</span>(inventory, <span class="function">(<span class="params">&#123; type &#125;</span>) =&gt;</span> type);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">vegetables</span>: [ &#123; <span class="attr">name</span>: <span class="string">&#x27;asparagus&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;vegetables&#x27;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125; ],</span><br><span class="line">  <span class="attr">fruit</span>: [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;bananas&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;fruit&#x27;</span>, <span class="attr">quantity</span>: <span class="number">0</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;cherries&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;fruit&#x27;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">meat</span>: [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;goat&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;meat&#x27;</span>, <span class="attr">quantity</span>: <span class="number">23</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;fish&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;meat&#x27;</span>, <span class="attr">quantity</span>: <span class="number">22</span> &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Usually, <code>groupBy</code> takes an <code>array</code> as input and output an <code>object</code>.</p>
+<p>Note, you can only use <code>Object.groupBy</code> in <code>Chrome 117</code> or later and <code>Node.js 21.0.0</code> or later.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-console/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/02/javascript-console/" class="post-title-link" itemprop="url">javascript-console</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-03-02 18:31:08 / Modified: 22:00:36" itemprop="dateCreated datePublished" datetime="2024-03-02T18:31:08+08:00">2024-03-02</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-Console"><a href="#JavaScript-Console" class="headerlink" title="JavaScript Console"></a>JavaScript Console</h1><p><code>console</code>对象是JavaScript的一个全局对象，它提供了控制台的操作方法和属性。控制台是浏览器提供的一个调试工具，它可以用来输出信息、查看变量的值、查看调用栈等。</p>
+<h2 id="colored-log"><a href="#colored-log" class="headerlink" title="colored log"></a>colored log</h2><p>In JavaScript, you can output colored logs to the console using the %c directive in console.log(). Here’s an example:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;%cThis is a green text&quot;</span>, <span class="string">&quot;color:green; font-size: 18px&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>output:<br><img src="/../images/console-green-text.png" alt="console-green-text"><br>In this example, %c is used as a placeholder for the styles that are specified in the second argument. The text “This is a green text” will be displayed in green color in the console.</p>
+<p>You can also specify multiple styles:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;%cThis is a blue text on yellow background&quot;</span>, <span class="string">&quot;color:blue; background-color:yellow&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>output:<br><img src="/../images/console-blue-text-yellow-background.png" alt="alt text"></p>
+<p>In this example, the text will be blue and the background color will be yellow.</p>
+<h2 id="console-dir"><a href="#console-dir" class="headerlink" title="console.dir()"></a>console.dir()</h2><p>To print a deeply nested object in a more readable way, you can use console.dir().</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span>,</span><br><span class="line">  <span class="attr">address</span>: &#123;</span><br><span class="line">    <span class="attr">company</span>: &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;google&#x27;</span>,</span><br><span class="line">      <span class="attr">location</span>: &#123;</span><br><span class="line">        <span class="attr">city</span>: <span class="string">&#x27;shanghai&#x27;</span>,</span><br><span class="line">        <span class="attr">country</span>: <span class="string">&#x27;china&#x27;</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj);</span><br></pre></td></tr></table></figure>
+<p>output: Notice that the location object is printed as [Object]. not very readable</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span>,</span><br><span class="line">  <span class="attr">address</span>: &#123; <span class="attr">company</span>: &#123; <span class="attr">name</span>: <span class="string">&#x27;google&#x27;</span>, <span class="attr">location</span>: [<span class="title class_">Object</span>] &#125; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Usually, we resolve this by using JSON.stringify() to convert the object to a string.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj));</span><br></pre></td></tr></table></figure>
+<p>but this method has a limitation: it only works for objects that are serializable to JSON. If the object contains circular references, it will throw an error.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">dir</span>(obj);</span><br></pre></td></tr></table></figure>
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span>,</span><br><span class="line">  <span class="attr">address</span>: &#123;</span><br><span class="line">    <span class="attr">company</span>: &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;google&#x27;</span>,</span><br><span class="line">      <span class="attr">location</span>: &#123; <span class="attr">city</span>: <span class="string">&#x27;shanghai&#x27;</span>, <span class="attr">country</span>: <span class="string">&#x27;china&#x27;</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-flatmap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -773,244 +1008,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/27/javascript-file-collecting/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/27/javascript-file-collecting/" class="post-title-link" itemprop="url">javascript-file-collecting</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-02-27 20:53:19 / Modified: 21:00:09" itemprop="dateCreated datePublished" datetime="2024-02-27T20:53:19+08:00">2024-02-27</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-File-Collecting"><a href="#JavaScript-File-Collecting" class="headerlink" title="JavaScript File Collecting"></a>JavaScript File Collecting</h1><p>今天收到老婆的一个需求，她有一个文件夹，里面包含若干文件和子文件夹，子文件夹又包含文件及子文件夹，她需要将这些文件全部收集到一个文件夹中。收集后的文件要从1开始命名，依次递增。我想到了 Node.js，可以使用 Node.js 来实现这个需求。</p>
-<h2 id="代码实现-百度文心一言版"><a href="#代码实现-百度文心一言版" class="headerlink" title="代码实现 - 百度文心一言版"></a>代码实现 - 百度文心一言版</h2><p>这个版本一开始错误百出，经过我修改后才能使用。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>).<span class="property">promises</span>;</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> fileIndex = <span class="number">3001</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">copyAndRenameFiles</span>(<span class="params">srcDir, destDir</span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 确保目标目录存在</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">access</span>(destDir);</span><br><span class="line">  &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">    <span class="comment">// 如果不存在，则创建目标目录</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">mkdir</span>(destDir, &#123; <span class="attr">recursive</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 读取srcDir中的所有文件和文件夹</span></span><br><span class="line">  <span class="keyword">const</span> entries = <span class="keyword">await</span> fs.<span class="title function_">readdir</span>(srcDir, &#123; <span class="attr">withFileTypes</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> entries) &#123;</span><br><span class="line">    <span class="keyword">const</span> srcPath = path.<span class="title function_">join</span>(srcDir, entry.<span class="property">name</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(srcPath);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (entry.<span class="title function_">isDirectory</span>()) &#123;</span><br><span class="line">      <span class="comment">// 如果是文件夹，则递归调用</span></span><br><span class="line">      <span class="keyword">await</span> <span class="title function_">copyAndRenameFiles</span>(srcPath, destDir);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (entry.<span class="title function_">isFile</span>()) &#123;</span><br><span class="line">      <span class="keyword">const</span> destBaseName = <span class="string">`<span class="subst">$&#123;fileIndex&#125;</span>`</span>; <span class="comment">// 新文件的基本名称</span></span><br><span class="line">      <span class="keyword">const</span> destExtname = path.<span class="title function_">extname</span>(entry.<span class="property">name</span>); <span class="comment">// 获取原文件的扩展名</span></span><br><span class="line">      <span class="keyword">const</span> destPath = path.<span class="title function_">join</span>(destDir, <span class="string">`<span class="subst">$&#123;destBaseName&#125;</span><span class="subst">$&#123;destExtname&#125;</span>`</span>); <span class="comment">// 目标文件完整路径</span></span><br><span class="line">      <span class="comment">// 如果是文件，则复制到目标文件夹并重命名</span></span><br><span class="line">      <span class="keyword">await</span> fs.<span class="title function_">copyFile</span>(srcPath, destPath);</span><br><span class="line">      fileIndex++; <span class="comment">// 更新文件索引</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> fileIndex; <span class="comment">// 返回下一个可用的文件索引</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="keyword">const</span> sourceFolder = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// 顶层文件夹路径</span></span><br><span class="line"><span class="keyword">const</span> destinationFolder = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// 目标文件夹路径</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 从1开始编号</span></span><br><span class="line"><span class="title function_">copyAndRenameFiles</span>(sourceFolder, destinationFolder)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">finalFileIndex</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">      <span class="string">`所有文件已成功复制到目标文件夹，并从1开始重新编号到<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="subst"><span class="string">        finalFileIndex - <span class="number">1</span></span></span></span><br><span class="line"><span class="subst"><span class="string">      &#125;</span>。`</span></span><br><span class="line">    );</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;在复制过程中发生错误:&#x27;</span>, error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码实现-ChatGPT4"><a href="#代码实现-ChatGPT4" class="headerlink" title="代码实现-ChatGPT4"></a>代码实现-ChatGPT4</h2><p>这个版本一次通过，一行未改。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>).<span class="property">promises</span>;</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里使用参数arrayOfFiles递归收集所有文件，思路很巧妙。</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">getAllFiles</span>(<span class="params">dirPath, arrayOfFiles</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> files = <span class="keyword">await</span> fs.<span class="title function_">readdir</span>(dirPath);</span><br><span class="line"></span><br><span class="line">  arrayOfFiles = arrayOfFiles || [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> file <span class="keyword">of</span> files) &#123;</span><br><span class="line">    <span class="keyword">const</span> filepath = path.<span class="title function_">join</span>(dirPath, file);</span><br><span class="line">    <span class="keyword">const</span> stat = <span class="keyword">await</span> fs.<span class="title function_">stat</span>(filepath);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (stat.<span class="title function_">isDirectory</span>()) &#123;</span><br><span class="line">      arrayOfFiles = <span class="keyword">await</span> <span class="title function_">getAllFiles</span>(filepath, arrayOfFiles);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      arrayOfFiles.<span class="title function_">push</span>(filepath);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> arrayOfFiles;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">copyFilesWithNumberedNames</span>(<span class="params">sourceDir, targetDir</span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// Create target directory if it does not exist</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">mkdir</span>(targetDir, &#123; <span class="attr">recursive</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get all files from the source directory</span></span><br><span class="line">    <span class="keyword">const</span> filesToCopy = <span class="keyword">await</span> <span class="title function_">getAllFiles</span>(sourceDir);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Copy each file with a new numbered name</span></span><br><span class="line">    <span class="keyword">let</span> fileNumber = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> file <span class="keyword">of</span> filesToCopy) &#123;</span><br><span class="line">      <span class="keyword">const</span> newFilename = <span class="string">`<span class="subst">$&#123;fileNumber&#125;</span><span class="subst">$&#123;path.extname(file)&#125;</span>`</span>;</span><br><span class="line">      <span class="keyword">const</span> targetPath = path.<span class="title function_">join</span>(targetDir, newFilename);</span><br><span class="line">      <span class="keyword">await</span> fs.<span class="title function_">copyFile</span>(file, targetPath);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Copied <span class="subst">$&#123;file&#125;</span> to <span class="subst">$&#123;targetPath&#125;</span>`</span>);</span><br><span class="line">      fileNumber++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;All files have been copied successfully.&#x27;</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;An error occurred:&#x27;</span>, err);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sourceDirectory = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// Replace with your source directory path</span></span><br><span class="line"><span class="keyword">const</span> targetDirectory = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// Replace with your target directory path</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">copyFilesWithNumberedNames</span>(sourceDirectory, targetDirectory);</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/26/javascript-return/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/26/javascript-return/" class="post-title-link" itemprop="url">javascript-return</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-02-26 20:28:43 / Modified: 20:44:46" itemprop="dateCreated datePublished" datetime="2024-02-26T20:28:43+08:00">2024-02-26</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Return"><a href="#JavaScript-Return" class="headerlink" title="JavaScript Return"></a>JavaScript Return</h1><p>今天一起了解一下 JavaScript 中的 <code>return</code> 语句。</p>
-<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p><code>return</code> 语句用于指定函数的返回值。当 JavaScript 遇到 <code>return</code> 语句时，函数将立即返回，并且不再执行任何后续的语句。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> [expression]; <span class="comment">// expression 是要返回的值</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>)); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
-
-<p>如果省略 <code>expression</code>，或者 <code>return</code> 语句没有在函数中，则返回值为 <code>undefined</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span>; <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-<p><code>return</code>后面省略表达式，返回值为<code>undefined</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">const</span> b = <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">foo</span>()); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-<p>没有<code>return</code>语句，也返回<code>undefined</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">bar</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">const</span> b = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">bar</span>()); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="返回对象"><a href="#返回对象" class="headerlink" title="返回对象"></a>返回对象</h2><p><code>return</code> 语句返回复杂值时，<code>return</code>不能独占一行，否则会报错。</p>
-<p>下面这样写会导致语法错误。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getPerson</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="comment">// return 不能独占一行</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>正确的写法是：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getPerson</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="comment">// &#x27;&#123;&#x27; 与 &#x27;return&#x27; 在同一行</span></span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="try…catch…finally"><a href="#try…catch…finally" class="headerlink" title="try…catch…finally"></a>try…catch…finally</h2><p>如果在 <code>try</code> 语句块中使用了 <code>return</code> 语句，<code>finally</code> 语句块中的代码会在 <code>return</code> 语句执行之后，<code>return</code> 返回之前执行。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;3&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">foo</span>()); <span class="comment">// 1 3 2</span></span><br></pre></td></tr></table></figure>
-
-<p>再看一个复杂的例子</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> a = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a);</span><br><span class="line">    <span class="keyword">return</span> a++;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">foo</span>()); <span class="comment">// 1 2 1</span></span><br></pre></td></tr></table></figure>
-<p>为啥结果是<code>1 2 1</code>呢？</p>
-<ul>
-<li>try中&#96;console.log(a)输出1，这个很好理解。</li>
-<li><code>return a++</code>，这里的<code>a++</code>是先返回<code>a</code>的值，然后再执行<code>a++</code>，所以<code>return</code>返回的是<code>1</code>。</li>
-<li><code>finally</code>中<code>console.log(a)</code>输出的是<code>2</code>，因为<code>a++</code>执行了一次。</li>
-</ul>
-<p>所以执行的顺序是：</p>
-<ol>
-<li>先计算return后面的表达式，a &#x3D; 2.</li>
-<li>然后执行finally中的代码，输出a &#x3D; 2</li>
-<li>最后return返回1.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/24/javascript-regex-groups/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/24/javascript-regex-groups/" class="post-title-link" itemprop="url">javascript-regex-groups</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-24 12:43:18" itemprop="dateCreated datePublished" datetime="2024-02-24T12:43:18+08:00">2024-02-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-25 08:53:56" itemprop="dateModified" datetime="2024-02-25T08:53:56+08:00">2024-02-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Regex-Groups"><a href="#JavaScript-Regex-Groups" class="headerlink" title="JavaScript Regex Groups"></a>JavaScript Regex Groups</h1><p>分组匹配是正则表达式中非常重要的一部分，它允许我们将多个字符组合在一起，并对它们进行操作。在 JavaScript 中，我们可以使用括号 <code>()</code> 来创建一个分组。在这篇文章中，我们将学习如何使用分组匹配。</p>
-<h2 id="匿名分组"><a href="#匿名分组" class="headerlink" title="匿名分组"></a>匿名分组</h2><p>匿名分组的格式如下，其中 <code>xxx</code> 是要匹配的内容。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(xxx)</span><br></pre></td></tr></table></figure>
-
-<h2 id="命名分组"><a href="#命名分组" class="headerlink" title="命名分组"></a>命名分组</h2><p>命名分组的格式如下，其中 <code>name</code> 是分组的名称，<code>xxx</code> 是要匹配的内容。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(?&lt;name&gt;xxx)</span><br></pre></td></tr></table></figure>
-
-<p>举个例子，假设有如下字符串：<code>name: zdd, age: 18, gender: male</code>，要从中提取出姓名，年龄和性别。使用命名匹配就方便一些。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">`name: zdd, age: 18, gender: male`</span>;</span><br><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/name: (?&lt;name&gt;\w+), age: (?&lt;age&gt;\d+), gender: (?&lt;gender&gt;\w+)/</span>;</span><br><span class="line"><span class="keyword">const</span> match = str.<span class="title function_">match</span>(regex); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>); <span class="comment">// [Object: null prototype] &#123; name: &#x27;zdd&#x27;, age: &#x27;18&#x27;, gender: &#x27;male&#x27; &#125;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>.<span class="property">name</span>); <span class="comment">// zdd</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>.<span class="property">age</span>); <span class="comment">// 18</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>.<span class="property">gender</span>); <span class="comment">// male</span></span><br></pre></td></tr></table></figure>
-
-<p>match返回值如下：可见使用命名匹配是非常方便的。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  <span class="string">&#x27;name: zdd, age: 18, gender: male&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;18&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;male&#x27;</span>,</span><br><span class="line">  <span class="attr">index</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">input</span>: <span class="string">&#x27;name: zdd, age: 18, gender: male&#x27;</span>,</span><br><span class="line">  <span class="attr">groups</span>: [<span class="title class_">Object</span>: <span class="literal">null</span> prototype] &#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, <span class="attr">age</span>: <span class="string">&#x27;18&#x27;</span>, <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span> &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1080,14 +1077,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-count">104</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">151</span>
+        <span class="site-state-item-count">158</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
