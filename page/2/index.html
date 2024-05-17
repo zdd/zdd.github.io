@@ -212,7 +212,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-05 10:04:25" itemprop="dateModified" datetime="2024-05-05T10:04:25+08:00">2024-05-05</time>
+                <time title="Modified: 2024-05-17 22:45:18" itemprop="dateModified" datetime="2024-05-17T22:45:18+08:00">2024-05-17</time>
               </span>
 
           
@@ -239,6 +239,12 @@
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">zone: NgZone</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_inner</span>.<span class="property">name</span>); <span class="comment">// angular</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_outer</span>.<span class="property">name</span>); <span class="comment">// root</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><code>NgZone</code> is instantiated during the bootstrap phase.</p>
+<h2 id="ngOnChanges"><a href="#ngOnChanges" class="headerlink" title="ngOnChanges"></a>ngOnChanges</h2><p><code>ngOnChanges</code> is a lifecycle hook that is called when a component’s input properties change. It is used to detect changes in the component’s input properties.</p>
+<p>What’s the scenarios to use <code>ngOnChanges</code>?</p>
+<ol>
+<li>When you want to detect changes in the component’s input properties.</li>
+<li>When you want to avoid function call in template. see <a target="_blank" rel="noopener" href="https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496">here</a></li>
+</ol>
 
       
     </div>
@@ -576,7 +582,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-12 23:02:24" itemprop="dateModified" datetime="2024-05-12T23:02:24+08:00">2024-05-12</time>
+                <time title="Modified: 2024-05-16 22:47:28" itemprop="dateModified" datetime="2024-05-16T22:47:28+08:00">2024-05-16</time>
               </span>
 
           
@@ -605,6 +611,8 @@
 </li>
 <li><p>Angular polyfill(under project root)</p>
 </li>
+<li><p>Angular module federation</p>
+</li>
 <li><p>Angular data binding.</p>
 </li>
 <li><p>Angular selector in details</p>
@@ -617,6 +625,11 @@
 </li>
 <li><p>What’s new in Angular 17</p>
 </li>
+<li><p>import by <code>@</code> in Angular, need configuration in tsconfig.json</p>
+</li>
+<li><p><code>angular.json</code> - <code>projects</code> - <code>architect</code> - <code>build</code> - <code>options</code> - <code>tsConfig</code></p>
+</li>
+<li></li>
 </ol>
 
       
@@ -668,7 +681,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-11 10:37:46" itemprop="dateModified" datetime="2024-05-11T10:37:46+08:00">2024-05-11</time>
+                <time title="Modified: 2024-05-17 23:19:59" itemprop="dateModified" datetime="2024-05-17T23:19:59+08:00">2024-05-17</time>
               </span>
 
           
@@ -730,6 +743,28 @@
 <h3 id="修改app-routing-module-ts"><a href="#修改app-routing-module-ts" class="headerlink" title="修改app-routing.module.ts"></a>修改app-routing.module.ts</h3><p>注意，这里必须使用loadChildren, 否则子路由无法显示。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
 <p>这样就可以将product中的子路由拆分到单独的文件中了。</p>
+<h2 id="监听路由变化"><a href="#监听路由变化" class="headerlink" title="监听路由变化"></a>监听路由变化</h2><p>如果我们想要在路由变化的时候做一些事情，比如打印路由信息，可以在<code>app.component.ts</code>中添加如下代码。此时会监听整个app所有路由的变化，如果只想监控某个组件的路由变化，那么可以在该组件对应的<code>constructor</code>中添监听代码。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  router.<span class="property">events</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Route:&#x27;</span>, event);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>路由变化时会依次触发以下事件：</p>
+<ul>
+<li>NavigationStart</li>
+<li>RoutesRecognized</li>
+<li>GuardsCheckStart</li>
+<li>ChildActivationStart</li>
+<li>ActivationStart</li>
+<li>GuardsCheckEnd</li>
+<li>ResolveStart</li>
+<li>ResolveEnd</li>
+<li>ActivationEnd</li>
+<li>ChildActivationEnd</li>
+<li>NavigationEnd</li>
+</ul>
+<p>我们一般在<code>NavigationEnd</code>事件中做一些事情。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">router.<span class="property">events</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (event <span class="keyword">instanceof</span> <span class="title class_">NavigationEnd</span>) &#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：<p style="color:darkred;">即使使用了<code>skipLocationChange</code>选项，也可以通过以上方法获取完整的路由信息，因为<code>skipLocationChange</code>只是不改变浏览器地址栏的URL，但是路由信息还是会变化的。<p></p>
+<h2 id="获取路由信息"><a href="#获取路由信息" class="headerlink" title="获取路由信息"></a>获取路由信息</h2><p>如果获取路由对应的url，路由中的参数等信息，可以在组件中注入<code>ActivatedRoute</code>服务。</p>
 <p>待商榷：</p>
 <ol>
 <li>lazy load如何加载component？- 使用<code>loadComponent</code>代替<code>loadChildren</code>。</li>
