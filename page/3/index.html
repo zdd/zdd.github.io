@@ -181,6 +181,162 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/30/angular-how-to-read-angular-source-code/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/30/angular-how-to-read-angular-source-code/" class="post-title-link" itemprop="url">angular-how-to-read-angular-source-code</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-30 08:50:24" itemprop="dateCreated datePublished" datetime="2024-04-30T08:50:24+08:00">2024-04-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-05 15:17:57" itemprop="dateModified" datetime="2024-05-05T15:17:57+08:00">2024-05-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h2><p>Angular的源码托管在<a target="_blank" rel="noopener" href="https://github.com/angular/angular">GitHub</a>上，通过<code>git clone</code>命令下载源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/angular/angular.git</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建Angular项目"><a href="#创建Angular项目" class="headerlink" title="创建Angular项目"></a>创建Angular项目</h2><p>参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这里</a>创建Angular项目</p>
+<p>用<code>VSCode</code>或者<code>WebStorm</code>打开项目，找到<code>src/main.ts</code>文件，这是Angular应用的入口文件。可以看到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>此处通过调用<code>platformBrowserDynamic().bootstrapModule(AppModule)</code>来启动应用。那么<code>bootstrapModule</code>是什么呢？通过在Angular源码中搜索<code>bootstrapModule</code>，可以找到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModule&lt;M&gt;(</span><br><span class="line">    <span class="attr">moduleType</span>: <span class="title class_">Type</span>&lt;M&gt;,</span><br><span class="line">    <span class="attr">compilerOptions</span>:</span><br><span class="line">      | (<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>)</span><br><span class="line">      | <span class="title class_">Array</span>&lt;<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>&gt; = [],</span><br><span class="line">  ): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> options = <span class="title function_">optionsReducer</span>(&#123;&#125;, compilerOptions);</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">compileNgModuleFactory</span>(<span class="variable language_">this</span>.<span class="property">injector</span>, options, moduleType).<span class="title function_">then</span>(<span class="function">(<span class="params">moduleFactory</span>) =&gt;</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">bootstrapModuleFactory</span>(moduleFactory, options),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="快速定位源码的位置"><a href="#快速定位源码的位置" class="headerlink" title="快速定位源码的位置"></a>快速定位源码的位置</h3><p>我的习惯是，同时打开两个IDE，一个用来查看应用代码，一个用来查看<a target="_blank" rel="noopener" href="https://github.com/angular/angular">Angular源码</a>。这样可以快速定位源码的位置。<br>比如对于上面的<code>bootstrapModule</code>, 则可以复制一份，到Angular源码所在的IDE中（WebStorm), 连按两下<code>Shift</code>键，然后粘贴<code>bootstrapModule</code>，就可以找到源码。</p>
+<p>IDE本身提供的<code>Go to Definition/implementation</code>（或者按住<code>Ctrl</code>点击方法名）功能对于源码来说并不好用，只能定位到<code>*.d.ts</code>类型文件，而不能定位到源码文件。</p>
+<h2 id="如何调试源码"><a href="#如何调试源码" class="headerlink" title="如何调试源码"></a>如何调试源码</h2><p>阅读源码的最好方式就是单步调试，一步一步观察程序是如何运行的。</p>
+<h3 id="浏览器调试"><a href="#浏览器调试" class="headerlink" title="浏览器调试"></a>浏览器调试</h3><h4 id="Webpack"><a href="#Webpack" class="headerlink" title="Webpack"></a>Webpack</h4><p>Angular App默认使用Webpack打包，Webpack打包后的代码是经过压缩和混淆的，不利于调试。但是Webpack提供了SourceMap功能，可以将打包后的代码映射到源码，方便调试。</p>
+<p>运行Angular程序后，在浏览器地址栏输入<code>localhost:4200</code>，按键盘上的<code>F12</code>键打开开发者工具，切换到<code>Source</code>选项卡，可以看到项目的源码。在<code>Webpack</code>结点下找到<code>src/main.ts</code>文件，点击行号，可以在代码中打断点。然后按<code>F5</code>刷新页面，就可以看到断点被触发了。<br><img src="/../images/browser-debug.png" alt="browser-debug"></p>
+<p>但是当你step into源码时，会发现并没有进入到<code>bootstrapModule</code>方法中，而是停在了<code>core.mjs</code>文件的末尾，这时我们需要在<code>core.mjs</code>文件中找到<code>bootstrapModule</code>方法，然后在方法体内打断点。注意bootstrapModule会在<code>core.mjs</code>文件中出现多次，有些甚至是注释，可以搜索<code>bootstrapModule(</code>来定位。<br><img src="/../images/angular_core.png" alt="angular-core"></p>
+<h4 id="ESBuild"><a href="#ESBuild" class="headerlink" title="ESBuild"></a>ESBuild</h4><p>Angular 17以后也支持esbuild打包，而且打包后的代码调试更方便，如下图。<br><img src="/../images/browser-debug-esbuild.png" alt="esbuild-debug"></p>
+<h3 id="WebStorm调试"><a href="#WebStorm调试" class="headerlink" title="WebStorm调试"></a>WebStorm调试</h3><p>WebStorm调试十分简单，现在代码中打上断点，然后在<code>Run Configuration</code>列表中选择<code>Angular Application</code>，点击绿色的<code>Debug</code>按钮，就可以开始调试了。<br><img src="/../images/webstorm-debug.png" alt="webstorm-debug"></p>
+<h3 id="VSCode调试"><a href="#VSCode调试" class="headerlink" title="VSCode调试"></a>VSCode调试</h3><p>待补充</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/markdown/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/28/markdown/" class="post-title-link" itemprop="url">markdown</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-28 21:02:17" itemprop="dateCreated datePublished" datetime="2024-04-28T21:02:17+08:00">2024-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-04 12:48:26" itemprop="dateModified" datetime="2024-05-04T12:48:26+08:00">2024-05-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Anchor"><a href="#Anchor" class="headerlink" title="Anchor"></a>Anchor</h2><p>Anchor is a way to jump to a specific location in a page.</p>
+<ol>
+<li><p>create anchor</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">name</span>=<span class="string">&quot;anchor_name&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jump to anchor</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">Link Text</span>](<span class="link">#anchor_name</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Colored-text"><a href="#Colored-text" class="headerlink" title="Colored text"></a>Colored text</h2><p>Markdown itself support a limited features of HTML, so you can use HTML to color text.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:red&quot;</span>&gt;</span></span>red<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:blue&quot;</span>&gt;</span></span>blue<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:green&quot;</span>&gt;</span></span>green<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/angular-change-detection/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -492,7 +648,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-08 10:26:01" itemprop="dateModified" datetime="2024-05-08T10:26:01+08:00">2024-05-08</time>
+                <time title="Modified: 2024-06-06 20:46:25" itemprop="dateModified" datetime="2024-06-06T20:46:25+08:00">2024-06-06</time>
               </span>
 
           
@@ -532,6 +688,18 @@
 
 <p>修改后</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;enableProdMode, importProvidersFrom&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;environment&#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;routes&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.routes&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;bootstrapApplication&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/platform-browser&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AppComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    importProvidersFrom(<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes))</span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<h2 id="Angular-17"><a href="#Angular-17" class="headerlink" title="Angular 17+"></a>Angular 17+</h2><p>从Angular 17开始，使用Angular CLI创建的app默认就是standalone component，不需要再做上面的修改。一个新的Angular 17+项目结构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">my-app/</span><br><span class="line">├─ node-modules/</span><br><span class="line">├─ src/</span><br><span class="line">│  ├─ app/</span><br><span class="line">│  │  ├─ app.component.css</span><br><span class="line">│  │  ├─ app.component.html</span><br><span class="line">│  │  ├─ app.component.ts</span><br><span class="line">│  │  ├─ app.config.ts</span><br><span class="line">│  │  ├─ app.routes.ts</span><br><span class="line">│  ├─ index.html</span><br><span class="line">│  ├─ main.ts</span><br><span class="line">├─ angular.json</span><br><span class="line">├─ package.json</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">RouterOutlet</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterOutlet</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./app.component.css&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;my-app&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.config.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ApplicationConfig</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; provideRouter &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; routes &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.routes&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title function_">provideRouter</span>(routes)]</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Routes</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; bootstrapApplication &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; appConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.config&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -1055,202 +1223,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/ecma-script-version-history/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/ecma-script-version-history/" class="post-title-link" itemprop="url">ecma-script-version-history</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-14 15:57:45 / Modified: 17:14:26" itemprop="dateCreated datePublished" datetime="2024-04-14T15:57:45+08:00">2024-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="ES5"><a href="#ES5" class="headerlink" title="ES5"></a>ES5</h1><h2 id="strict-mode"><a href="#strict-mode" class="headerlink" title="strict mode"></a>strict mode</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&quot;use strict&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> json = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(json); <span class="comment">// &#123;&quot;a&quot;:1,&quot;b&quot;:2,&quot;c&quot;:3&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="New-array-methods"><a href="#New-array-methods" class="headerlink" title="New array methods:"></a>New array methods:</h2><ul>
-<li>forEach</li>
-<li>map</li>
-<li>filter</li>
-<li>reduce</li>
-<li>reduceRight</li>
-<li>…</li>
-</ul>
-<h2 id="Property-getters-and-setters"><a href="#Property-getters-and-setters" class="headerlink" title="Property getters and setters"></a>Property getters and setters</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">a</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_a</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="keyword">set</span> <span class="title function_">a</span>(<span class="params">value</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_a</span> = value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.<span class="property">a</span> = <span class="number">1</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span>); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Function-binding-bind"><a href="#Function-binding-bind" class="headerlink" title="Function binding: bind"></a>Function binding: <code>bind</code></h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">foo.<span class="title function_">bind</span>(&#123; <span class="attr">a</span>: <span class="number">1</span> &#125;);</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES6-ECMAScript-2015"><a href="#ES6-ECMAScript-2015" class="headerlink" title="ES6(ECMAScript 2015)"></a>ES6(ECMAScript 2015)</h1><h1 id="ES7-ECMAScript-2016"><a href="#ES7-ECMAScript-2016" class="headerlink" title="ES7(ECMAScript 2016)"></a>ES7(ECMAScript 2016)</h1><h2 id="Array-prototype-includes"><a href="#Array-prototype-includes" class="headerlink" title="Array.prototype.includes"></a>Array.prototype.includes</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">includes</span>(<span class="number">2</span>)); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Exponentiation-Operator"><a href="#Exponentiation-Operator" class="headerlink" title="Exponentiation Operator"></a>Exponentiation Operator</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span> ** <span class="number">3</span>); <span class="comment">// 8</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="ES8-ECMAScript-2017"><a href="#ES8-ECMAScript-2017" class="headerlink" title="ES8(ECMAScript 2017)"></a>ES8(ECMAScript 2017)</h1><h2 id="Object-values"><a href="#Object-values" class="headerlink" title="Object.values"></a>Object.values</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">values</span>(obj)); <span class="comment">// [1, 2, 3]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-entries"><a href="#Object-entries" class="headerlink" title="Object.entries"></a>Object.entries</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj)); <span class="comment">// [[&quot;a&quot;, 1], [&quot;b&quot;, 2], [&quot;c&quot;, 3]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-getOwnPropertyDescriptors"><a href="#Object-getOwnPropertyDescriptors" class="headerlink" title="Object.getOwnPropertyDescriptors"></a>Object.getOwnPropertyDescriptors</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">getOwnPropertyDescriptors</span>(obj));</span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   a: &#123; value: 1, writable: true, enumerable: true, configurable: true &#125;,</span></span><br><span class="line"><span class="comment">//   b: &#123; value: 2, writable: true, enumerable: true, configurable: true &#125;,</span></span><br><span class="line"><span class="comment">//   c: &#123; value: 3, writable: true, enumerable: true, configurable: true &#125;</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-padding"><a href="#String-padding" class="headerlink" title="String padding"></a>String padding</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;hello&quot;</span>.<span class="title function_">padStart</span>(<span class="number">10</span>, <span class="string">&quot;123&quot;</span>)); <span class="comment">// 12312hello</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;hello&quot;</span>.<span class="title function_">padEnd</span>(<span class="number">10</span>, <span class="string">&quot;123&quot;</span>)); <span class="comment">// hello12312</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Trailing-commas-in-function-parameter-lists-and-calls"><a href="#Trailing-commas-in-function-parameter-lists-and-calls" class="headerlink" title="Trailing commas in function parameter lists and calls"></a>Trailing commas in function parameter lists and calls</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params">a, b, c,</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a, b, c);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES9-ECMAScript-2018"><a href="#ES9-ECMAScript-2018" class="headerlink" title="ES9(ECMAScript 2018)"></a>ES9(ECMAScript 2018)</h1><h2 id="Asynchronous-Iteration"><a href="#Asynchronous-Iteration" class="headerlink" title="Asynchronous Iteration"></a>Asynchronous Iteration</h2><h1 id="ES10-ECMAScript-2019"><a href="#ES10-ECMAScript-2019" class="headerlink" title="ES10(ECMAScript 2019)"></a>ES10(ECMAScript 2019)</h1><h2 id="Array-prototype-flat"><a href="#Array-prototype-flat" class="headerlink" title="Array.prototype.flat()"></a>Array.prototype.flat()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>, [<span class="number">5</span>, <span class="number">6</span>]]];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">flat</span>()); <span class="comment">// [1, 2, 3, 4, [5, 6]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Array-prototype-flatMap"><a href="#Array-prototype-flatMap" class="headerlink" title="Array.prototype.flatMap()"></a>Array.prototype.flatMap()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">map</span>(<span class="function"><span class="params">x</span> =&gt;</span> [x * <span class="number">2</span>])); <span class="comment">// [[2], [4], [6]]</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">flatMap</span>(<span class="function"><span class="params">x</span> =&gt;</span> [x * <span class="number">2</span>])); <span class="comment">// [2, 4, 6]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-fromEntries"><a href="#Object-fromEntries" class="headerlink" title="Object.fromEntries()"></a>Object.fromEntries()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj)); <span class="comment">// [[&quot;a&quot;, 1], [&quot;b&quot;, 2], [&quot;c&quot;, 3]]</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">fromEntries</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj))); <span class="comment">// &#123; a: 1, b: 2, c: 3 &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-trimStart-and-String-prototype-trimEnd"><a href="#String-prototype-trimStart-and-String-prototype-trimEnd" class="headerlink" title="String.prototype.trimStart() and String.prototype.trimEnd()"></a>String.prototype.trimStart() and String.prototype.trimEnd()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;  hello  &quot;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trimStart</span>()); <span class="comment">// &quot;hello  &quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trimEnd</span>()); <span class="comment">// &quot;  hello&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Optional-Catch-Binding"><a href="#Optional-Catch-Binding" class="headerlink" title="Optional Catch Binding"></a>Optional Catch Binding</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;error&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;caught&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON-stringify-replacer-parameter"><a href="#JSON-stringify-replacer-parameter" class="headerlink" title="JSON.stringify() replacer parameter"></a>JSON.stringify() replacer parameter</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj, [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>])); <span class="comment">// &#123;&quot;a&quot;:1,&quot;b&quot;:2&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON-stringify-space-parameter"><a href="#JSON-stringify-space-parameter" class="headerlink" title="JSON.stringify() space parameter"></a>JSON.stringify() space parameter</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj, <span class="literal">null</span>, <span class="number">2</span>));</span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   &quot;a&quot;: 1,</span></span><br><span class="line"><span class="comment">//   &quot;b&quot;: 2,</span></span><br><span class="line"><span class="comment">//   &quot;c&quot;: 3</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="ES11-ECMAScript-2020"><a href="#ES11-ECMAScript-2020" class="headerlink" title="ES11(ECMAScript 2020)"></a>ES11(ECMAScript 2020)</h1><h2 id="BigInt"><a href="#BigInt" class="headerlink" title="BigInt"></a>BigInt</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> max = <span class="title class_">Number</span>.<span class="property">MAX_SAFE_INTEGER</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max); <span class="comment">// 9007199254740991</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">1</span>); <span class="comment">// 9007199254740992</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">2</span>); <span class="comment">// 9007199254740992</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">3n</span>); <span class="comment">// 9007199254740994n</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dynamic-import"><a href="#Dynamic-import" class="headerlink" title="Dynamic import"></a>Dynamic import</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable language_">module</span> = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">&#x27;./module.js&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Optional-chaining-operator"><a href="#Optional-chaining-operator" class="headerlink" title="Optional chaining operator (?.)"></a>Optional chaining operator (?.)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: &#123; <span class="attr">b</span>: &#123; <span class="attr">c</span>: <span class="number">1</span> &#125; &#125; &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span>?.<span class="property">b</span>?.<span class="property">c</span>); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Nullish-coalescing-operator"><a href="#Nullish-coalescing-operator" class="headerlink" title="Nullish coalescing operator (??)"></a>Nullish coalescing operator (??)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">0</span>, <span class="attr">b</span>: <span class="string">&quot;&quot;</span>, <span class="attr">c</span>: <span class="literal">null</span>, <span class="attr">d</span>: <span class="literal">undefined</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">b</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">c</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">d</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// 0</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">b</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// &quot;&quot;(empty string)</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">c</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">d</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Promise-allSettled"><a href="#Promise-allSettled" class="headerlink" title="Promise.allSettled()"></a>Promise.allSettled()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">1000</span>));</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(reject, <span class="number">1000</span>));</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">results</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(results));</span><br><span class="line"><span class="comment">// [</span></span><br><span class="line"><span class="comment">//   &#123; status: &quot;fulfilled&quot;, value: undefined &#125;,</span></span><br><span class="line"><span class="comment">//   &#123; status: &quot;rejected&quot;, reason: undefined &#125;</span></span><br><span class="line"><span class="comment">// ]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="globalThis"><a href="#globalThis" class="headerlink" title="globalThis"></a>globalThis</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(globalThis);</span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-matchAll"><a href="#String-prototype-matchAll" class="headerlink" title="String.prototype.matchAll()"></a>String.prototype.matchAll()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/\w+/g</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(regex);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(match);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES12-ECMAScript-2021"><a href="#ES12-ECMAScript-2021" class="headerlink" title="ES12(ECMAScript 2021)"></a>ES12(ECMAScript 2021)</h1><h2 id="Numeric-separators"><a href="#Numeric-separators" class="headerlink" title="Numeric separators"></a>Numeric separators</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">1_000_000</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 1000000</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-replaceAll"><a href="#String-prototype-replaceAll" class="headerlink" title="String.prototype.replaceAll()"></a>String.prototype.replaceAll()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">replaceAll</span>(<span class="string">&quot;o&quot;</span>, <span class="string">&quot;0&quot;</span>)); <span class="comment">// hell0 w0rld</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Promise-any"><a href="#Promise-any" class="headerlink" title="Promise.any()"></a>Promise.any()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(reject, <span class="number">1000</span>));</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>));</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">value</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
-
-<h2 id="WeakRef"><a href="#WeakRef" class="headerlink" title="WeakRef"></a>WeakRef</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">name</span>: <span class="string">&quot;John&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> weakRef = <span class="keyword">new</span> <span class="title class_">WeakRef</span>(obj);</span><br><span class="line">obj = <span class="literal">null</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(weakRef.<span class="title function_">deref</span>()); <span class="comment">// &#123; name: &quot;John&quot; &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="FinalizationRegistry"><a href="#FinalizationRegistry" class="headerlink" title="FinalizationRegistry"></a>FinalizationRegistry</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">name</span>: <span class="string">&quot;John&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> finalizationRegistry = <span class="keyword">new</span> <span class="title class_">FinalizationRegistry</span>(<span class="function"><span class="params">key</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(key));</span><br><span class="line">finalizationRegistry.<span class="title function_">register</span>(obj, <span class="string">&quot;custom key&quot;</span>);</span><br><span class="line">obj = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES13-ECMAScript-2022"><a href="#ES13-ECMAScript-2022" class="headerlink" title="ES13(ECMAScript 2022)"></a>ES13(ECMAScript 2022)</h1><h2 id="Top-level-await"><a href="#Top-level-await" class="headerlink" title="Top-level await"></a>Top-level await</h2><h2 id="Private-instance-fields-methods-and-accessors"><a href="#Private-instance-fields-methods-and-accessors" class="headerlink" title="Private instance fields, methods, and accessors"></a>Private instance fields, methods, and accessors</h2><h2 id="Static-class-fields-and-methods"><a href="#Static-class-fields-and-methods" class="headerlink" title="Static class fields and methods"></a>Static class fields and methods</h2><h2 id="Static-class-initialization-blocks"><a href="#Static-class-initialization-blocks" class="headerlink" title="Static class initialization blocks"></a>Static class initialization blocks</h2><h2 id="Error-cause"><a href="#Error-cause" class="headerlink" title="Error.cause"></a>Error.cause</h2><h2 id="Array-String-and-TypedArray-at-method"><a href="#Array-String-and-TypedArray-at-method" class="headerlink" title="Array, String, and TypedArray .at() method"></a>Array, String, and TypedArray .at() method</h2><h2 id="Object-hasOwn"><a href="#Object-hasOwn" class="headerlink" title="Object.hasOwn()"></a>Object.hasOwn()</h2><p>The Object.hasOwn() static method returns true if the specified object has the indicated property as its <code>own</code> property. If the property is <code>inherited</code>, or does <code>not exist</code>, the method returns false.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;a&quot;</span>)); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;b&quot;</span>)); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;toString&quot;</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
-<p><code>Object.hasOwn</code> is intended as a replacement of <code>Object.prototype.hasOwnProperty</code>.</p>
-<h2 id="RegExp-match-x2F-d-flag"><a href="#RegExp-match-x2F-d-flag" class="headerlink" title="RegExp match &#x2F;d flag"></a>RegExp match &#x2F;d flag</h2><h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://gist.github.com/rajaramtt/7df3702a04c644b0b62c9a64f48f3dbf#2-ecmascript-2016---es-7">Github</a></li>
-<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ECMAScript_version_history">WikiPedia</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/javascript-clean-code/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/javascript-clean-code/" class="post-title-link" itemprop="url">javascript-clean-code</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-14 14:06:37 / Modified: 14:09:10" itemprop="dateCreated datePublished" datetime="2024-04-14T14:06:37+08:00">2024-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Prefer-const-over-let-and-var"><a href="#Prefer-const-over-let-and-var" class="headerlink" title="Prefer const over let and var"></a>Prefer <code>const</code> over <code>let</code> and <code>var</code></h2><h3 id="Bad"><a href="#Bad" class="headerlink" title="Bad"></a>Bad</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> array) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Good"><a href="#Good" class="headerlink" title="Good"></a>Good</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> array) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>Note</strong>, If you access array by index, you can’t use <code>const</code>:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; array.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(array[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1320,14 +1292,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">117</span>
+          <span class="site-state-item-count">119</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">174</span>
+        <span class="site-state-item-count">177</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
