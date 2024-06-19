@@ -28,7 +28,7 @@
 <meta property="og:description" content="Jest useFakeTimerJest’s useFakeTimers function is used to mock timers in JavaScript. This is particularly useful when you have code that uses setTimeout, setInterval, or Date objects, and you want to">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-04-11T13:45:06.000Z">
-<meta property="article:modified_time" content="2024-04-11T14:19:08.846Z">
+<meta property="article:modified_time" content="2024-06-19T12:51:40.045Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="jest">
 <meta property="article:tag" content="test">
@@ -209,10 +209,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-04-11 21:45:06 / Modified: 22:19:08" itemprop="dateCreated datePublished" datetime="2024-04-11T21:45:06+08:00">2024-04-11</time>
+              <time title="Created: 2024-04-11 21:45:06" itemprop="dateCreated datePublished" datetime="2024-04-11T21:45:06+08:00">2024-04-11</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-19 20:51:40" itemprop="dateModified" datetime="2024-06-19T20:51:40+08:00">2024-06-19</time>
+              </span>
 
           
 
@@ -252,8 +258,11 @@
 <h2 id="Selective-faking"><a href="#Selective-faking" class="headerlink" title="Selective faking"></a>Selective faking</h2><p>Sometimes your code may require to avoid overwriting the original implementation of one or another API. If that is the case, you can use <code>doNotFake</code> option. For example, here is how you could provide a custom mock function for <code>performance.mark()</code> in jsdom environment:</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mockPerformanceMark = jest.<span class="title function_">fn</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span> = mockPerformanceMark;</span><br><span class="line"></span><br><span class="line"><span class="title function_">test</span>(<span class="string">&#x27;allows mocking `performance.mark()`&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>(&#123;<span class="attr">doNotFake</span>: [<span class="string">&#x27;performance&#x27;</span>]&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">expect</span>(<span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span>).<span class="title function_">toBe</span>(mockPerformanceMark);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
-<h2 id="Restore-timers"><a href="#Restore-timers" class="headerlink" title="Restore timers"></a>Restore timers</h2><p>After you have finished testing, you should restore the original timers using jest.useRealTimers().</p>
+<h2 id="Restore-timers"><a href="#Restore-timers" class="headerlink" title="Restore timers"></a>Restore timers</h2><p>After you have finished testing, you should restore the original timers using jest.useRealTimers(), This can be done by invoking jest.useRealTimers() in the afterEach hook.</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">afterEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>You can also do this at the end of a test:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>(); <span class="comment">// restore to use real timers</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
     </div>
 
     
