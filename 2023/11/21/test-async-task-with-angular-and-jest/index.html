@@ -28,12 +28,15 @@
 <meta property="og:description" content="Test async task with Angular + Jest在前端开发中，Unit Test是很重要的一个环节，而异步任务测试又是Unit Test不可避免的一个环节。本文将介绍如何使用Angular + Jest来测试异步任务。 待测试函数返回一个Promise这是最简单的情况了，直接使用async&#x2F;await即可。 待测函数 123getPromise() &amp;#123;  retur">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-21T01:58:48.000Z">
-<meta property="article:modified_time" content="2024-05-25T01:44:22.174Z">
+<meta property="article:modified_time" content="2024-07-10T12:30:36.132Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="jest">
 <meta property="article:tag" content="test">
 <meta property="article:tag" content="async">
+<meta property="article:tag" content="flush">
+<meta property="article:tag" content="fakeasync">
+<meta property="article:tag" content="waitforasync">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2023/11/21/test-async-task-with-angular-and-jest/">
@@ -218,7 +221,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-25 09:44:22" itemprop="dateModified" datetime="2024-05-25T09:44:22+08:00">2024-05-25</time>
+                <time title="Modified: 2024-07-10 20:30:36" itemprop="dateModified" datetime="2024-07-10T20:30:36+08:00">2024-07-10</time>
               </span>
 
           
@@ -249,6 +252,10 @@
 <p><strong>测试代码</strong></p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="title function_">waitForAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">handleData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
 
+<p>当然也可以使用<code>fakeAsync</code>来测试，这个情景使用<code>fakeAsync</code>来测试有点大材小用，仅作示例。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  service.<span class="title function_">handleData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="title function_">flush</span>();</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>注意不要忘记<code>flush()</code>操作，否则会产生如下错误：<code>Error: 1 timer(s) still in the queue.</code></p>
 <h2 id="待测试函数包含异步操作，但是没有返回Promise。"><a href="#待测试函数包含异步操作，但是没有返回Promise。" class="headerlink" title="待测试函数包含异步操作，但是没有返回Promise。"></a>待测试函数包含异步操作，但是没有返回Promise。</h2><p>以上情况还是有些简单，实际应用中，经常是一个函数中间夹杂着某些异步操作用来获取数据，然后对数据进行处理，最后可能也不返回Promise，对于这种情况，我们应该使用<code>fakeAsync</code>来测试。<br>fakeAsync内部有三个方法可以控制异步操作</p>
 <ul>
 <li>tick: 让时间快进</li>
@@ -336,6 +343,9 @@
               <a href="/tags/jest/" rel="tag"># jest</a>
               <a href="/tags/test/" rel="tag"># test</a>
               <a href="/tags/async/" rel="tag"># async</a>
+              <a href="/tags/flush/" rel="tag"># flush</a>
+              <a href="/tags/fakeasync/" rel="tag"># fakeasync</a>
+              <a href="/tags/waitforasync/" rel="tag"># waitforasync</a>
           </div>
 
         
@@ -430,7 +440,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">198</span>
+        <span class="site-state-item-count">201</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
