@@ -181,6 +181,106 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/05/angular-how-does-an-angular-app-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/05/angular-how-does-an-angular-app-start/" class="post-title-link" itemprop="url">angular-how does an angular app start</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-05 11:58:38" itemprop="dateCreated datePublished" datetime="2024-05-05T11:58:38+08:00">2024-05-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-07 20:00:28" itemprop="dateModified" datetime="2024-05-07T20:00:28+08:00">2024-05-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天从源码的角度来看一下Angular是如何启动一个应用的。</p>
+<h2 id="创建Angular项目"><a href="#创建Angular项目" class="headerlink" title="创建Angular项目"></a>创建Angular项目</h2><p>首先，参照<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这篇文章</a>创建一个Angular项目</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>关于如何阅读Angular源码，请参考这里<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/30/angular-how-to-read-angular-source-code/">如何阅读Angular源码</a>。</p>
+<p>使用<code>VSCode</code>或者<code>WebStorm</code>打开项目，找到<code>src/main.ts</code>文件，这是Angular应用的入口文件。可以看到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>这里调用platformBrowserDynamic().bootstrapModule来启动Angular项目，我们到源码里面搜索<code>bootstrapModule</code>，找到如下代码：</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModule&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleType</span>: <span class="title class_">Type</span>&lt;M&gt;,</span><br><span class="line">  <span class="attr">compilerOptions</span>:</span><br><span class="line">    | (<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>)</span><br><span class="line">    | <span class="title class_">Array</span>&lt;<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>&gt; = [],</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> options = <span class="title function_">optionsReducer</span>(&#123;&#125;, compilerOptions);</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">compileNgModuleFactory</span>(<span class="variable language_">this</span>.<span class="property">injector</span>, options, moduleType).<span class="title function_">then</span>(<span class="function">(<span class="params">moduleFactory</span>) =&gt;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">bootstrapModuleFactory</span>(moduleFactory, options), <span class="comment">// &lt;------- Here</span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>bootstrapModule</code>方法内部调用了 <code>bootstrapModuleFactory</code> 方法，我们继续搜索<code>bootstrapModuleFactory</code>，找到如下代码：</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModuleFactory&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleFactory</span>: <span class="title class_">NgModuleFactory</span>&lt;M&gt;,</span><br><span class="line">  options?: <span class="title class_">BootstrapOptions</span>,</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="comment">// Note: We need to create the NgZone _before_ we ins</span></span><br><span class="line">  <span class="comment">// as instantiating the module creates some providers</span></span><br><span class="line">  <span class="comment">// So we create a mini parent injector that just cont</span></span><br><span class="line">  <span class="comment">// pass that as parent to the NgModuleFactory.</span></span><br><span class="line">  <span class="keyword">const</span> ngZone = <span class="title function_">getNgZone</span>(</span><br><span class="line">    options?.<span class="property">ngZone</span>,</span><br><span class="line">    <span class="title function_">getNgZoneOptions</span>(&#123;</span><br><span class="line">      <span class="attr">eventCoalescing</span>: options?.<span class="property">ngZoneEventCoalescing</span>,</span><br><span class="line">      <span class="attr">runCoalescing</span>: options?.<span class="property">ngZoneRunCoalescing</span>,</span><br><span class="line">    &#125;),</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Note: Create ngZoneInjector within ngZone.run so that all of the instantiated services are</span></span><br><span class="line">  <span class="comment">// created within the Angular zone</span></span><br><span class="line">  <span class="comment">// Do not try to replace ngZone.run with ApplicationRef#run because ApplicationRef would then be</span></span><br><span class="line">  <span class="comment">// created outside of the Angular zone.</span></span><br><span class="line">  <span class="keyword">return</span> ngZone.<span class="title function_">run</span>(<span class="function">() =&gt;</span> &#123;...&#125;); <span class="comment">// &lt;------- Here</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意<code>bootstrapModuleFactory</code>这个方法比较长，我们简化以下，只截取其中的关键部分，首先这里创建了一个<code>ngZone</code>，用来做更新检测。然后调用了<code>ngZone.run</code>方法，这个方法是<code>NgZone</code>的方法，用来运行一个函数，并且确保这个函数在Angular的Zone中运行。在<code>return ngZone.run()</code>方法中的最后，又调用了<code>_moduleDoBootstrap</code>。</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_moduleDoBootstrap</span>(<span class="attr">moduleRef</span>: <span class="title class_">InternalNgModuleRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> appRef = moduleRef.<span class="property">injector</span>.<span class="title function_">get</span>(<span class="title class_">ApplicationRef</span>);</span><br><span class="line">  <span class="keyword">if</span> (moduleRef.<span class="property">_bootstrapComponents</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">_bootstrapComponents</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> appRef.<span class="title function_">bootstrap</span>(f)); <span class="comment">// &lt;------- Here</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (moduleRef.<span class="property">instance</span>.<span class="property">ngDoBootstrap</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">instance</span>.<span class="title function_">ngDoBootstrap</span>(appRef);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeError</span>(</span><br><span class="line">      <span class="title class_">RuntimeErrorCode</span>.<span class="property">BOOTSTRAP_COMPONENTS_NOT_FOUND</span>,</span><br><span class="line">      ngDevMode &amp;&amp;</span><br><span class="line">        <span class="string">`The module <span class="subst">$&#123;stringify(moduleRef.instance.constructor)&#125;</span> was bootstrapped, `</span> +</span><br><span class="line">          <span class="string">`but it does not declare &quot;@NgModule.bootstrap&quot; components nor a &quot;ngDoBootstrap&quot; method. `</span> +</span><br><span class="line">          <span class="string">`Please define one of these.`</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="title function_">push</span>(moduleRef);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在该方法中，对于每个声明的<code>bootstrap</code>组件，都会调用<code>appRef.bootstrap</code>方法，这个方法是<code>ApplicationRef</code>的方法，用来启动一个组件。通常Angular程序只有一个bootstrap组件，就是<code>AppComponent</code>。<br>再来看<code>appRef.bootstrap</code>方法：</p>
+<p><code>packages/core/src/application/application_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrap&lt;C&gt;(</span><br><span class="line">  <span class="attr">componentOrFactory</span>: <span class="title class_">ComponentFactory</span>&lt;C&gt; | <span class="title class_">Type</span>&lt;C&gt;,</span><br><span class="line">  rootSelectorOrNode?: <span class="built_in">string</span> | <span class="built_in">any</span>,</span><br><span class="line">): <span class="title class_">ComponentRef</span>&lt;C&gt; &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">const</span> selectorOrNode = rootSelectorOrNode || componentFactory.<span class="property">selector</span>;</span><br><span class="line">  <span class="keyword">const</span> compRef = componentFactory.<span class="title function_">create</span>(<span class="title class_">Injector</span>.<span class="property">NULL</span>, [], selectorOrNode, ngModule); <span class="comment">// 1</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">_loadComponent</span>(compRef); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法同样很大，如前，这里省略一些细枝末节，直接展示最重要的代码。</p>
+<ol>
+<li>首先根据bootstrap方法的第一个参数（通常是<code>AppComponent</code>）创建component。</li>
+<li>然后调用内部方法<code>_loadComponent</code>来加载组件。</li>
+</ol>
+<p>继续看<code>_loadComponent</code>方法：<br><code>packages/core/src/application/application_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_loadComponent</span>(<span class="attr">componentRef</span>: <span class="title class_">ComponentRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">attachView</span>(componentRef.<span class="property">hostView</span>); <span class="comment">// 1</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">tick</span>(); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>首先调用<code>attachView</code>方法, 将组件的视图添加到视图树中。</li>
+<li>然后调用<code>tick</code>方法，用来触发变更检测。</li>
+</ol>
+<p><code>tick</code>后续的方法调用如下：<br><code>tick</code> -&gt; <code>_tick</code> -&gt; <code>detectChangesInAttachedViews</code> -&gt; <code>detectChangesInViewIfRequired</code> -&gt; <code>detectChangesInternal</code></p>
+<p>再看<code>detectChangesInternal</code>方法：<br><code>packages/core/src/render3/instructions/change_detection.ts</code></p>
+<p>未完待续。。。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/30/angular-how-to-read-angular-source-code/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1132,111 +1232,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/15/javascript-design-pattern-strategy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/15/javascript-design-pattern-strategy/" class="post-title-link" itemprop="url">javascript-design-pattern-strategy</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-15 21:04:42" itemprop="dateCreated datePublished" datetime="2024-04-15T21:04:42+08:00">2024-04-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-11 10:43:01" itemprop="dateModified" datetime="2024-05-11T10:43:01+08:00">2024-05-11</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h1><p>策略模式是一种行为设计模式，它定义了一系列算法，将每个算法封装到一个类中，并使它们可以相互替换。策略模式让算法独立于使用它的客户端。</p>
-<h1 id="现实中的例子"><a href="#现实中的例子" class="headerlink" title="现实中的例子"></a>现实中的例子</h1><p>假设我们经营一家电影院，目前是销售淡季，我们推出了各种折扣，学生票八折，儿童票九折，VIP会员半价。我们要设计一个系统，根据不同的折扣算法计算电影票的价格。</p>
-<p>不假思索的你可能写下了如下代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">UserType</span> &#123;</span><br><span class="line">  <span class="title class_">Regular</span>,</span><br><span class="line">  <span class="title class_">Student</span>,</span><br><span class="line">  <span class="title class_">Child</span>,</span><br><span class="line">  <span class="variable constant_">VIP</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MovieTicket</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> ticketPrice = <span class="number">100</span>;</span><br><span class="line">  <span class="keyword">private</span> userType?: <span class="title class_">UserType</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">setUserType</span>(<span class="params">userType: UserType</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">userType</span> = userType;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="variable language_">this</span>.<span class="property">userType</span>) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">Student</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.8</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">Child</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.9</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">VIP</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.5</span>;</span><br><span class="line">      <span class="attr">default</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ticket = <span class="keyword">new</span> <span class="title class_">MovieTicket</span>();</span><br><span class="line">ticket.<span class="title function_">setUserType</span>(<span class="title class_">UserType</span>.<span class="property">Student</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(ticket.<span class="title function_">getPrice</span>());</span><br></pre></td></tr></table></figure>
-
-<p>我们来看看这段代码有什么问题：</p>
-<ol>
-<li>违反了开闭原则。如果我们要添加新的折扣类型，比如老年人票，就需要修改<code>MovieTicket</code>类，违反了开闭原则。</li>
-<li>违反了单一职责原则。<code>MovieTicket</code>类不仅负责计算价格，还负责判断折扣类型，违反了单一职责原则。</li>
-<li>耦合性太高，不易维护。如果折扣算法发生变化，需要修改<code>MovieTicket</code>类，不易维护。</li>
-<li>其他类如果想要使用折扣算法的话，只能复制粘贴一份，导致代码重复。</li>
-</ol>
-<p>下面我们通过策略模式来重构这段代码，策略模式的精髓就是将算法和使用算法的类解耦，使得算法可以独立于使用它的类进行变化。</p>
-<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StudentDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.8</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ChildrenDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.9</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VIPDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MovieTicket</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> ticketPrice = <span class="number">100</span>;</span><br><span class="line">  <span class="keyword">private</span> discount?: <span class="title class_">Discount</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">setDiscount</span>(<span class="params">discount: Discount</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">discount</span> = discount;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">discount</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="variable language_">this</span>.<span class="property">discount</span>.<span class="title function_">getDiscount</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;No discount set&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ticket = <span class="keyword">new</span> <span class="title class_">MovieTicket</span>();</span><br><span class="line">ticket.<span class="title function_">setDiscount</span>(<span class="keyword">new</span> <span class="title class_">StudentDiscount</span>());</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(ticket.<span class="title function_">getPrice</span>());</span><br></pre></td></tr></table></figure>
-
-<p>代码解析：</p>
-<ol>
-<li>首先定义一个接口<code>Discount</code>，它有一个<code>getDiscount</code>方法，返回折扣值。所有具体的折扣类都要实现这个接口。</li>
-<li>然后定义三个具体的折扣类：<code>StudentDiscount</code>、<code>ChildrenDiscount</code>和<code>VIPDiscount</code>。在每个折扣类中，我们实现了<code>getDiscount</code>方法，返回不同的折扣值。</li>
-<li>最后定义一个<code>MovieTicket</code>类，它有一个<code>ticketPrice</code>属性，表示电影票的价格，还有一个<code>discount</code>属性，表示折扣。我们定义了一个<code>setDiscount</code>方法，用来设置折扣。<code>getPrice</code>方法用来计算折扣后的价格。</li>
-</ol>
-<p>这种实现使得折扣算法和使用折扣的类解耦，使得折扣算法可以独立于使用它的类进行变化。好处如下：</p>
-<ol>
-<li>便于扩展，可以很容易地添加新的折扣类。只要这个类实现了<code>Discount</code>接口，就可以被<code>MovieTicket</code>类使用。</li>
-<li>由于折扣算法和使用折扣的类解耦，所以折扣算法可以独立于使用它的类进行变化。如果折扣算法发生变化，只需要修改折扣类即可，不需要修改使用折扣的类。而且如果有其他类想使用折扣算法的话，也可以直接使用。</li>
-</ol>
-<p>这里面其实使用了依赖注入的方式，<code>MovieTicket</code>类依赖于<code>Discount</code>接口，我们通过Setter的方式将具体的折扣类注入到<code>MovieTicket</code>类中。</p>
-<p>注意这里<code>discount</code>属性是可选的，因为我们在<code>getPrice</code>方法中判断了<code>discount</code>是否存在，如果不存在就抛出异常。这样做是为了防止忘记设置折扣而导致的错误。如果不设置为可选的话会报错：<code>Property &#39;discount&#39; has no initializer and is not definitely assigned in the constructor.</code> 由于TypeScript配置文件默认开启了<code>strictPropertyInitialization</code>选项导致的。</p>
-<h1 id="策略模式UML图"><a href="#策略模式UML图" class="headerlink" title="策略模式UML图"></a>策略模式UML图</h1><p><img src="/../images/js-design-pattern-strategy.png" alt="image"></p>
-<ul>
-<li><code>Context</code>：消费策略的类相当于上例中的<code>MovieTicket</code>类，内涵一个抽象策略类，相当于上例中的<code>Discount</code>接口。</li>
-<li><code>Strategy</code>：抽象策略类，相当于上例中的<code>Discount</code>接口。</li>
-<li><code>ConcreteStrategy</code>：具体策略类，相当于上例中的<code>StudentDiscount</code>、<code>ChildrenDiscount</code>和<code>VIPDiscount</code>类。</li>
-<li><code>execute</code>：执行策略的方法，相当于上例中的<code>getDiscount</code>方法。</li>
-</ul>
-<h1 id="策略模式的应用场景"><a href="#策略模式的应用场景" class="headerlink" title="策略模式的应用场景"></a>策略模式的应用场景</h1><ol>
-<li>Sorting Algorithms: If you have a collection of data that can be sorted in several ways, you can use the Strategy pattern to switch between sorting algorithms (like quicksort, merge sort, heap sort) at runtime.  </li>
-<li>Payment Methods: In an e-commerce application, you can use the Strategy pattern to switch between different payment methods (like credit card, PayPal, Bitcoin) at runtime.  </li>
-<li>Compression Algorithms: If you have a file that can be compressed using different algorithms (like zip, rar, 7z), you can use the Strategy pattern to choose the compression algorithm at runtime.  </li>
-<li>Travel Planning: If you have a travel planning application, you can use the Strategy pattern to switch between different travel strategies (like by car, by train, by plane) at runtime.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1306,14 +1301,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">139</span>
+          <span class="site-state-item-count">140</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">201</span>
+        <span class="site-state-item-count">203</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
