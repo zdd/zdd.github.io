@@ -181,6 +181,101 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/11/jest-usefaketimer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/11/jest-usefaketimer/" class="post-title-link" itemprop="url">jest-useFakeTimer</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-11 21:45:06" itemprop="dateCreated datePublished" datetime="2024-04-11T21:45:06+08:00">2024-04-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-19 20:51:40" itemprop="dateModified" datetime="2024-06-19T20:51:40+08:00">2024-06-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Jest-useFakeTimer"><a href="#Jest-useFakeTimer" class="headerlink" title="Jest useFakeTimer"></a>Jest useFakeTimer</h1><p>Jest’s useFakeTimers function is used to mock timers in JavaScript. This is particularly useful when you have code that uses setTimeout, setInterval, or Date objects, and you want to control the passage of time in your tests.</p>
+<h2 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h2><p>To use Jest’s useFakeTimers function, you need to call it before the code you want to test. You can then advance the timers using the advanceTimersByTime function.</p>
+<h2 id="Advance-Timers"><a href="#Advance-Timers" class="headerlink" title="Advance Timers"></a>Advance Timers</h2><p>待测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Run-all-timers"><a href="#Run-all-timers" class="headerlink" title="Run all timers"></a>Run all timers</h2><p>Jest.runAllTimers() will run all pending timers. This is useful when you have multiple timers that need to be run in sequence. (Note, it will not work for nested timers)</p>
+<p>待测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">false</span>;</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// other timers...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Run-only-pending-timers"><a href="#Run-only-pending-timers" class="headerlink" title="Run only pending timers"></a>Run only pending timers</h2><p>There are also scenarios where you might have a recursive timer – that is a timer that sets a new timer in its own callback.</p>
+<p>Jest.runOnlyPendingTimers() will only run the timers that are currently pending. This is useful when you want to run the timers that are currently in the queue, but not the ones that are scheduled to run in the future.</p>
+<p>If you use <code>jest.runAllTimers</code> here, it will run all the timers and end up with an infinite loop.</p>
+<p>待测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">firstRound = <span class="literal">false</span>;</span><br><span class="line">secondRound = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">infiniteTimerGame</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">firstRound</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// Schedule the next game in 10 seconds</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">secondRound</span> = <span class="literal">true</span>;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">    &#125;, <span class="number">10000</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test infiniteTimerGame&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">  <span class="comment">// This will only run the timers that are currently pending(the outer timer)</span></span><br><span class="line">  jest.<span class="title function_">runOnlyPendingTimers</span>(); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">firstRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// or jest.runOnlyPendingTimers(); This will run the newly created timer</span></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">10000</span>); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">secondRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Selective-faking"><a href="#Selective-faking" class="headerlink" title="Selective faking"></a>Selective faking</h2><p>Sometimes your code may require to avoid overwriting the original implementation of one or another API. If that is the case, you can use <code>doNotFake</code> option. For example, here is how you could provide a custom mock function for <code>performance.mark()</code> in jsdom environment:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mockPerformanceMark = jest.<span class="title function_">fn</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span> = mockPerformanceMark;</span><br><span class="line"></span><br><span class="line"><span class="title function_">test</span>(<span class="string">&#x27;allows mocking `performance.mark()`&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>(&#123;<span class="attr">doNotFake</span>: [<span class="string">&#x27;performance&#x27;</span>]&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">expect</span>(<span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span>).<span class="title function_">toBe</span>(mockPerformanceMark);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Restore-timers"><a href="#Restore-timers" class="headerlink" title="Restore timers"></a>Restore timers</h2><p>After you have finished testing, you should restore the original timers using jest.useRealTimers(), This can be done by invoking jest.useRealTimers() in the afterEach hook.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">afterEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>You can also do this at the end of a test:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>(); <span class="comment">// restore to use real timers</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/09/javascript-design-pattern-adapter/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1091,84 +1186,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-object-prototype-groupby/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/03/02/javascript-object-prototype-groupby/" class="post-title-link" itemprop="url">javascript-object.prototype.groupBy</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-03-02 22:02:02" itemprop="dateCreated datePublished" datetime="2024-03-02T22:02:02+08:00">2024-03-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-03-03 07:45:26" itemprop="dateModified" datetime="2024-03-03T07:45:26+08:00">2024-03-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Object-prototype-groupBy"><a href="#JavaScript-Object-prototype-groupBy" class="headerlink" title="JavaScript Object.prototype.groupBy"></a>JavaScript Object.prototype.groupBy</h1><p>Given the following array of objects: How to group it by type?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> inventory = [</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;asparagus&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;vegetables&quot;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;bananas&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;fruit&quot;</span>, <span class="attr">quantity</span>: <span class="number">0</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;goat&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;meat&quot;</span>, <span class="attr">quantity</span>: <span class="number">23</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;cherries&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;fruit&quot;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&quot;fish&quot;</span>, <span class="attr">type</span>: <span class="string">&quot;meat&quot;</span>, <span class="attr">quantity</span>: <span class="number">22</span> &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-
-<p>Before <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy">groupBy</a>, we can do it with <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">reduce</a>.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">groupBy</span> = (<span class="params">arr, key</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> arr.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, item</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> group = item[key];</span><br><span class="line">    <span class="keyword">if</span> (!acc[group]) &#123;</span><br><span class="line">      acc[group] = [];</span><br><span class="line">    &#125;</span><br><span class="line">    acc[group].<span class="title function_">push</span>(item);</span><br><span class="line">    <span class="keyword">return</span> acc;</span><br><span class="line">  &#125;, &#123;&#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>With <code>groupBy</code>, we can do it like this, very simple! right?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> result = <span class="title class_">Object</span>.<span class="title function_">groupBy</span>(inventory, <span class="function">(<span class="params">&#123; type &#125;</span>) =&gt;</span> type);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br></pre></td></tr></table></figure>
-
-<p>output:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">vegetables</span>: [ &#123; <span class="attr">name</span>: <span class="string">&#x27;asparagus&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;vegetables&#x27;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125; ],</span><br><span class="line">  <span class="attr">fruit</span>: [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;bananas&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;fruit&#x27;</span>, <span class="attr">quantity</span>: <span class="number">0</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;cherries&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;fruit&#x27;</span>, <span class="attr">quantity</span>: <span class="number">5</span> &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">meat</span>: [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;goat&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;meat&#x27;</span>, <span class="attr">quantity</span>: <span class="number">23</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;fish&#x27;</span>, <span class="attr">type</span>: <span class="string">&#x27;meat&#x27;</span>, <span class="attr">quantity</span>: <span class="number">22</span> &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>Usually, <code>groupBy</code> takes an <code>array</code> as input and output an <code>object</code>.</p>
-<p>Note, you can only use <code>Object.groupBy</code> in <code>Chrome 117</code> or later and <code>Node.js 21.0.0</code> or later.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1238,14 +1255,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">152</span>
+          <span class="site-state-item-count">153</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">221</span>
+        <span class="site-state-item-count">224</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
