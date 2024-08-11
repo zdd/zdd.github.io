@@ -28,10 +28,15 @@
 <meta property="og:description" content="Dependency injection(DI) is a design pattern that allows us to remove the hard-coded dependencies and make our application loosely coupled, maintainable, and testable. It is a way to achieve Inversion">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-04-13T13:55:20.000Z">
-<meta property="article:modified_time" content="2024-04-13T14:04:06.068Z">
+<meta property="article:modified_time" content="2024-08-11T12:44:08.764Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
+<meta property="article:tag" content="service">
 <meta property="article:tag" content="design pattern">
+<meta property="article:tag" content="dependency injection">
+<meta property="article:tag" content="di">
+<meta property="article:tag" content="ioc">
+<meta property="article:tag" content="injector">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2024/04/13/dependency-injection/">
@@ -208,10 +213,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-04-13 21:55:20 / Modified: 22:04:06" itemprop="dateCreated datePublished" datetime="2024-04-13T21:55:20+08:00">2024-04-13</time>
+              <time title="Created: 2024-04-13 21:55:20" itemprop="dateCreated datePublished" datetime="2024-04-13T21:55:20+08:00">2024-04-13</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-11 20:44:08" itemprop="dateModified" datetime="2024-08-11T20:44:08+08:00">2024-08-11</time>
+              </span>
 
           
 
@@ -228,6 +239,9 @@
 <p>DI is widely used in Angular, React, and other modern frameworks. In Angular, we can inject services, components, and other dependencies into our components, services, and directives.</p>
 <p>Some terms:</p>
 <ul>
+<li>Dependency 依赖</li>
+<li>Injector 注入器</li>
+<li>Registry 注册中心</li>
 <li>DI - Dependency Injection</li>
 <li>IoC - Inversion of Control</li>
 </ul>
@@ -237,12 +251,54 @@
 <li>Setter Injection</li>
 <li>Interface Injection</li>
 </ul>
+<h1 id="Angular-Dependency-Injection"><a href="#Angular-Dependency-Injection" class="headerlink" title="Angular Dependency Injection"></a>Angular Dependency Injection</h1><p>Angular通过一个叫做<code>Injector</code>（注入器）的服务来实现DI。注入器相当于依赖的生产者和依赖的消费者之间的桥梁。Angular会在启动时创建一个全局的注入器，然后在每个组件、指令、服务等需要依赖的地方注入依赖。</p>
+<p>当需要一个依赖时，Angular首先会检查其注册中心是否有这个依赖，如果有则直接返回，如果没有则会根据依赖的类型创建一个实例并返回。同时将其加入到注册中心中，以便下次使用。</p>
+<h1 id="Provide-a-dependency"><a href="#Provide-a-dependency" class="headerlink" title="Provide a dependency"></a>Provide a dependency</h1><p>在Angular中，有三种方式提供一个依赖。</p>
+<h2 id="provideIn"><a href="#provideIn" class="headerlink" title="provideIn"></a>provideIn</h2><p>创建依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> heroService: HeroService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>provideIn：&#39;root&#39;</code>方式提供的依赖有如下特点：</p>
+<ol>
+<li>该依赖是全局共享的的，只有一个实例。</li>
+<li>所有组件、指令、服务等都可以使用该依赖。</li>
+<li>支持tree shaking, 如果该依赖没有被使用，则不会被打包到最终的bundle中。</li>
+</ol>
+<h2 id="providers"><a href="#providers" class="headerlink" title="providers"></a>providers</h2><p>创建依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>providers</code>方式提供的依赖有如下特点：</p>
+<ol>
+<li>每个使用该依赖的模块对应的实例都会创建一个该依赖的实例。</li>
+<li>该依赖是局部的，只有在提供了<code>providers</code>的模块中才能使用。</li>
+<li>不支持tree shaking, 无论是否使用，都会被打包到最终的bundle中。</li>
+</ol>
+<h2 id="ApplicationConfig"><a href="#ApplicationConfig" class="headerlink" title="ApplicationConfig"></a>ApplicationConfig</h2><p>创建依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">    <span class="attr">providers</span>: [</span><br><span class="line">      &#123; <span class="attr">provide</span>: <span class="title class_">HeroService</span> &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;;</span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br></pre></td></tr></table></figure>
+
+<h2 id="NgModule-based-configuration"><a href="#NgModule-based-configuration" class="headerlink" title="NgModule based configuration"></a>NgModule based configuration</h2><p>创建依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>A service provided in a module is available to all declarations of the module, or to any other modules which share the same ModuleInjector. To understand all edge-cases, see <a target="_blank" rel="noopener" href="https://angular.dev/guide/di/hierarchical-dependency-injection">Hierarchical injectors</a>.</p>
+<p>使用<code>ApplicationConfig</code>方式提供的依赖有如下特点：</p>
+<ol>
+<li>该依赖是全局共享的的，只有一个实例。</li>
+<li>所有组件、指令、服务等都可以使用该依赖。</li>
+<li>不支持tree shaking, 无论是否使用，都会被打包到最终的bundle中。</li>
+</ol>
 <h1 id="Pros-of-DI"><a href="#Pros-of-DI" class="headerlink" title="Pros of DI:"></a>Pros of DI:</h1><ul>
 <li>Loose coupling</li>
 <li>Easy to test</li>
 <li>Easy to maintain</li>
 </ul>
 <h1 id="references"><a href="#references" class="headerlink" title="references:"></a>references:</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/di/dependency-injection">https://angular.dev/guide/di/dependency-injection</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified">https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver">https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver</a></li>
 <li><a target="_blank" rel="noopener" href="https://angular.io/guide/dependency-injection">Angular Dependency Injection</a></li>
@@ -257,7 +313,12 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/angular/" rel="tag"># angular</a>
+              <a href="/tags/service/" rel="tag"># service</a>
               <a href="/tags/design-pattern/" rel="tag"># design pattern</a>
+              <a href="/tags/dependency-injection/" rel="tag"># dependency injection</a>
+              <a href="/tags/di/" rel="tag"># di</a>
+              <a href="/tags/ioc/" rel="tag"># ioc</a>
+              <a href="/tags/injector/" rel="tag"># injector</a>
           </div>
 
         
@@ -331,7 +392,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pros-of-DI"><span class="nav-number">1.</span> <span class="nav-text">Pros of DI:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#references"><span class="nav-number">2.</span> <span class="nav-text">references:</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Angular-Dependency-Injection"><span class="nav-number">1.</span> <span class="nav-text">Angular Dependency Injection</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Provide-a-dependency"><span class="nav-number">2.</span> <span class="nav-text">Provide a dependency</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#provideIn"><span class="nav-number">2.1.</span> <span class="nav-text">provideIn</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#providers"><span class="nav-number">2.2.</span> <span class="nav-text">providers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ApplicationConfig"><span class="nav-number">2.3.</span> <span class="nav-text">ApplicationConfig</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NgModule-based-configuration"><span class="nav-number">2.4.</span> <span class="nav-text">NgModule based configuration</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pros-of-DI"><span class="nav-number">3.</span> <span class="nav-text">Pros of DI:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#references"><span class="nav-number">4.</span> <span class="nav-text">references:</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -352,7 +413,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">231</span>
+        <span class="site-state-item-count">235</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
