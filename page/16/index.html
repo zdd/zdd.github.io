@@ -181,6 +181,104 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/22/Angular-template-reference-variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/22/Angular-template-reference-variables/" class="post-title-link" itemprop="url">Angular template reference variables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-07-22 11:02:12 / Modified: 17:01:25" itemprop="dateCreated datePublished" datetime="2023-07-22T11:02:12+08:00">2023-07-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-template-reference-variables"><a href="#Angular-template-reference-variables" class="headerlink" title="Angular template reference variables"></a>Angular template reference variables</h1><p>Template reference variables - 模板引用变量，是指在模板中声明的变量，它可以在模板中的任何地方使用，比如在模板中的表单元素中，可以使用模板引用变量来获取表单元素的值。模板引用变量的名字以<code>#</code>开头，比如<code>#name</code>，<code>#age</code>等。模板引用变量的作用域是模板，不能在组件中使用。</p>
+<p>模板引用变量可以引用如下内容</p>
+<ul>
+<li>A DOM element in a template</li>
+<li>a directive or component</li>
+<li>a TemplateRef from an ng-template</li>
+<li>a web component</li>
+</ul>
+<h2 id="Syntax"><a href="#Syntax" class="headerlink" title="Syntax"></a>Syntax</h2><p>模板引用变量以<code>#</code>开头，比如下面的代码中，<code>#phone</code>就是一个模板引用变量, 它引用了<code>&lt;input&gt;</code>元素。就是说，我们可以通过<code>#phone</code>这个模板引用变量来获取<code>&lt;input&gt;</code>元素的值。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="引用DOM元素"><a href="#引用DOM元素" class="headerlink" title="引用DOM元素"></a>引用DOM元素</h2><p>下面的代码使用<code>#phone</code>变量引用了<code>input</code>元素，在点击button的时候，获取input元素的值，并调用相应的方法。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;callPhone(phone.value)&quot;</span>&gt;</span>Call<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>如果想在页面上显示input中输入的值，可以使用双向绑定，如下所示：注意这里添加了<code>ngModel</code>，没有这个的话，<code>phone.value</code>是获取不到值的，因为初始的时候输入框并并没有值，而且input值改变的时候，phone.value也无法感知更新。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">ngModel</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;phone.value&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>引用DOM元素应该是模板变量最常用的场景了，有了它，我们就可以不用再使用<code>document.getElementById()</code>这样的方法来获取DOM元素了。</p>
+<h2 id="使用模板变量创建ViewChild"><a href="#使用模板变量创建ViewChild" class="headerlink" title="使用模板变量创建ViewChild"></a>使用模板变量创建<code>ViewChild</code></h2><p>模板引用变量可以用来创建<code>ViewChild</code>，比如下面的代码中，<code>#phone</code>就是一个模板引用变量，它引用了<code>&lt;input&gt;</code>元素，然后我们就可以在组件中使用<code>@ViewChild</code>装饰器来获取<code>&lt;input&gt;</code>元素。</p>
+<p>template.html代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>component.ts代码</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ViewChild</span>(<span class="string">&#x27;phone&#x27;</span>) <span class="attr">phone</span>: <span class="title class_">ElementRef</span>;</span><br></pre></td></tr></table></figure>
+<p>这样我们就可以在组件中调用input元素的方法，比如点击某个按钮时，让input元素获取焦点。</p>
+  <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">focusPhone</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">phone</span>.<span class="property">nativeElement</span>.<span class="title function_">focus</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="引用Component"><a href="#引用Component" class="headerlink" title="引用Component"></a>引用Component</h2><p>模板引用变量可以引用组件，比如下面的代码中，<code>#child</code>就是一个模板引用变量，它引用了<code>&lt;child-component&gt;</code>组件，然后我们就可以在模板中使用<code>#child</code>这个模板引用变量来调用<code>&lt;child-component&gt;</code>组件中的方法和属性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">child-component</span> #<span class="attr">child</span>&gt;</span><span class="tag">&lt;/<span class="name">child-component</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;child.childMethod()&quot;</span>&gt;</span>Call child method<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="引用Directive"><a href="#引用Directive" class="headerlink" title="引用Directive"></a>引用Directive</h2><p><code>Directive</code>中有一个属性：<code>exportAs</code>, 这个属性对应的值，就是模板引用变量中可以使用的名字。<br>下面是一个自定Directive，用来给某一段文字添加背景色。</p>
+  <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHighlight]&#x27;</span>,</span><br><span class="line">  <span class="attr">exportAs</span>: <span class="string">&#x27;highlightDirective&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HighlightDirective</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="title function_">setAttribute</span>(<span class="string">&#x27;style&#x27;</span>, <span class="string">&#x27;background-color: yellow;&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">setBackgroundColor</span>(<span class="params">color: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="title function_">setAttribute</span>(<span class="string">&#x27;style&#x27;</span>, <span class="string">`background-color: <span class="subst">$&#123;color&#125;</span>;`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面是使用这个自定义指令的component对应的模板代码：页面加载后，文字的背景色为黄色，点击按钮后，文字的背景色变为红色。注意<code>#highlight=&quot;highlightDirective&quot;</code>这句话，<code>highlight</code>是模板引用变量，<code>highlightDirective</code>是<code>Directive</code>中<code>exportAs</code>属性对应的值。这样就把模板变量和其引用的指令关联起来了。</p>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHighlight</span> #<span class="attr">highlight</span>=<span class="string">&quot;highlightDirective&quot;</span>&gt;</span>test-component works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;highlight.setBackgroundColor(&#x27;red&#x27;)&quot;</span>&gt;</span>Reset color<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="引用TemplateRef"><a href="#引用TemplateRef" class="headerlink" title="引用TemplateRef"></a>引用TemplateRef</h2><p>模板引用变量可以引用<code>&lt;ng-template&gt;</code>元素，这种情形经常出现在条件渲染中，就是根据不同的条件渲染不同的内容，比如下面的代码中，当<code>condition</code>为<code>true</code>时，渲染<code>thenBlock</code>，当<code>condition</code>为<code>false</code>时，渲染<code>elseBlock</code>。这里面的<code>thenBlock</code>和<code>elseBlock</code>引用的都是<code>&lt;ng-template&gt;</code>元素。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span>Content to render when condition is true.<span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span>Content to render when condition is false.<span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="引用Web-Component"><a href="#引用Web-Component" class="headerlink" title="引用Web Component"></a>引用Web Component</h2><p>模板引用变量可以引用Web Component，比如下面的代码中，<code>#wc</code>就是一个模板引用变量，它引用了<code>&lt;my-custom-element&gt;</code>元素，然后我们就可以在模板中使用<code>#wc</code>这个模板引用变量来调用<code>&lt;my-custom-element&gt;</code>元素中的方法和属性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">my-custom-element</span> #<span class="attr">wc</span>&gt;</span><span class="tag">&lt;/<span class="name">my-custom-element</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;wc.webComponentMethod()&quot;</span>&gt;</span>Call web component method<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/19/Event-delegate/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1090,111 +1188,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/14/Javascript%E4%B8%AD%E7%9A%84for-of%E5%BE%AA%E7%8E%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/05/14/Javascript%E4%B8%AD%E7%9A%84for-of%E5%BE%AA%E7%8E%AF/" class="post-title-link" itemprop="url">Javascript for ... of</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-05-14 20:25:38" itemprop="dateCreated datePublished" datetime="2023-05-14T20:25:38+08:00">2023-05-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 09:37:35" itemprop="dateModified" datetime="2024-04-20T09:37:35+08:00">2024-04-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="for-…-of-功能"><a href="#for-…-of-功能" class="headerlink" title="for … of 功能"></a>for … of 功能</h2><p>javascript中的<code>for ... of</code>语句用来遍历可迭代对象，比如遍历数组可以使用如下代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>可迭代对象有很多，包括以下这些：</p>
-<ol>
-<li>Array</li>
-<li>String</li>
-<li>TypeArray</li>
-<li>Map</li>
-<li>Set</li>
-<li>NodeList(and other DOM collections)</li>
-<li>Array like objects(<code>arguments</code>)</li>
-<li>generators produced by generator functions</li>
-<li>User-defined iterables.</li>
-</ol>
-<h2 id="for-…-of-执行原理"><a href="#for-…-of-执行原理" class="headerlink" title="for … of 执行原理"></a>for … of 执行原理</h2><p><code>for ... of</code>首先会调用可迭代对象的<code>@@iterator()</code>方法获取一个<code>iterator</code>,然后反复调用这个<code>iterator</code>的<code>next</code>方法来获取对应的值。</p>
-<h2 id="for-…-of-何时结束迭代？"><a href="#for-…-of-何时结束迭代？" class="headerlink" title="for … of 何时结束迭代？"></a>for … of 何时结束迭代？</h2><p>以下三种情况都会导致for … of结束迭代。</p>
-<ol>
-<li>遇到<code>break</code>语句</li>
-<li>遇到<code>continue</code>语句</li>
-<li><code>iterator</code>的<code>next</code>方法返回 <code>done: true</code>时（也就是正常遍历结束）</li>
-</ol>
-<h2 id="for-…-of-不会修改被迭代的对象"><a href="#for-…-of-不会修改被迭代的对象" class="headerlink" title="for … of 不会修改被迭代的对象"></a>for … of 不会修改被迭代的对象</h2><p>for … of底层使用generator实现，每次迭代都会生成一个新的变量，所以不会改变被迭代的对象。下面的代码将数组中每个值加1，并不会改变原来的数组，因为变量<code>num</code>时迭代时生成的，而且每次迭代就重新生成一个。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  num += <span class="number">1</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 2, 3, 4</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(nums); <span class="comment">// still [1, 2, 3]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="for-…-of-中可以使用destruction"><a href="#for-…-of-中可以使用destruction" class="headerlink" title="for … of 中可以使用destruction"></a>for … of 中可以使用destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> students = [</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Bob&#x27;</span>, <span class="attr">age</span>: <span class="number">21</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Cindy&#x27;</span>, <span class="attr">age</span>: <span class="number">22</span> &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> &#123; name, age &#125; <span class="keyword">of</span> students) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(name, age);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="何时使用经典的for循环？"><a href="#何时使用经典的for循环？" class="headerlink" title="何时使用经典的for循环？"></a>何时使用经典的for循环？</h2><p>所谓经典for循环就是使用下标遍历的循环，类似C语言中的for循环。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; nums.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>是否使用经典的for循环有一个简单的判断标准，在遍历的过程中是否要改变原数组，如果需要，就使用，否则就可以使用其他循环代替，比如for … of, forEach, filter, map, reduce等。</p>
-<h2 id="for…of-vs-for…in"><a href="#for…of-vs-for…in" class="headerlink" title="for…of vs for…in"></a>for…of vs for…in</h2><p><code>for ... of</code>和<code>for ... in</code>都是用来遍历对象的，但是有一些区别：</p>
-<ol>
-<li><code>for ... of</code>遍历的是<code>可迭代</code>对象，而<code>for ... in</code>遍历的是<code>可枚举</code>对象。</li>
-<li><code>for ... of</code>遍历的是值，而<code>for ... in</code>遍历的是键。</li>
-</ol>
-<h3 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h3><p>对于数组来说，<code>for ... of</code>遍历的是数组的值，而<code>for ... in</code>遍历的是数组的键（下标）。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">nums.<span class="property">foo</span> = <span class="string">&#x27;bar&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 1, 2, 3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// 0, 1, 2, foo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Object"><a href="#Object" class="headerlink" title="Object"></a>Object</h3><p>在对象上使用<code>for ... of</code>会报错，因为对象不是可迭代对象，但是可以使用<code>for ... in</code>来遍历对象的键。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="string">&quot;bar&quot;</span>,</span><br><span class="line">  <span class="attr">baz</span>: <span class="string">&quot;qux&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> value <span class="keyword">of</span> obj) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// TypeError: obj is not iterable</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// 0, 1, 2, foo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用<code>for...of</code>可以对<code>Object.keys</code>或者<code>Object.values</code>来进行遍历。</p>
-  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="string">&quot;bar&quot;</span>,</span><br><span class="line">  <span class="attr">baz</span>: <span class="string">&quot;qux&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">keys</span>(obj)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// foo, baz</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> value <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">values</span>(obj)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(value); <span class="comment">// bar, qux</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1264,14 +1257,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">165</span>
+          <span class="site-state-item-count">166</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">249</span>
+        <span class="site-state-item-count">250</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
