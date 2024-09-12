@@ -181,6 +181,82 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/12/angular-build-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/12/angular-build-process/" class="post-title-link" itemprop="url">angular-build-process</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-12 20:45:25 / Modified: 20:57:24" itemprop="dateCreated datePublished" datetime="2024-09-12T20:45:25+08:00">2024-09-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Angular的编译过程是怎样的？<br>通常我么使用<code>ng build</code>命令来编译Angular项目，但是这个命令背后的逻辑是怎样的呢？</p>
+<ul>
+<li><code>ng build</code>命令底层是用<code>WebPack</code>还是<code>ESBuild</code>？</li>
+<li><code>ng build</code>命令是如何处理<code>TypeScript</code>文件的？</li>
+<li><code>ng build</code>命令是如何处理<code>HTML</code>文件的？</li>
+</ul>
+<h2 id="ts-x2F-js编译"><a href="#ts-x2F-js编译" class="headerlink" title="ts&#x2F;js编译"></a>ts&#x2F;js编译</h2><p>Webpack的配置文件在这里：<code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code></p>
+<p>这个文件里我们可以看到如下<code>rule</code>配置：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">test</span>: <span class="regexp">/\.[cm]?[tj]sx?$/</span>,</span><br><span class="line">  <span class="comment">// The below is needed due to a bug in `@babel/runtime`. See: https://github.com/babel/babel/issues/12824</span></span><br><span class="line">  <span class="attr">resolve</span>: &#123; <span class="attr">fullySpecified</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">  <span class="attr">exclude</span>: [</span><br><span class="line">    <span class="regexp">/[\\/]node_modules[/\\](?:core-js|@babel|tslib|web-animations-js|web-streams-polyfill|whatwg-url)[/\\]/</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">use</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">loader</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;../../babel/webpack-loader&#x27;</span>),</span><br><span class="line">      <span class="attr">options</span>: &#123;</span><br><span class="line">        <span class="attr">cacheDirectory</span>: (cache.<span class="property">enabled</span> &amp;&amp; path.<span class="title function_">join</span>(cache.<span class="property">path</span>, <span class="string">&#x27;babel-webpack&#x27;</span>)) || <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">aot</span>: buildOptions.<span class="property">aot</span>,</span><br><span class="line">        <span class="attr">optimize</span>: buildOptions.<span class="property">buildOptimizer</span>,</span><br><span class="line">        <span class="attr">supportedBrowsers</span>: buildOptions.<span class="property">supportedBrowsers</span>,</span><br><span class="line">        <span class="attr">instrumentCode</span>: codeCoverage</span><br><span class="line">          ? &#123;</span><br><span class="line">              <span class="attr">includedBasePath</span>: sourceRoot ?? projectRoot,</span><br><span class="line">              <span class="attr">excludedPaths</span>: <span class="title function_">getInstrumentationExcludedPaths</span>(root, codeCoverageExclude),</span><br><span class="line">            &#125;</span><br><span class="line">          : <span class="literal">undefined</span>,</span><br><span class="line">      &#125; <span class="keyword">as</span> <span class="title class_">AngularBabelLoaderOptions</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>可以看到这个正则表达式匹配的是：</p>
+<ul>
+<li><code>.ts</code>、<code>.tsx</code></li>
+<li><code>.js</code>、<code>.jsx</code></li>
+<li><code>.cjs</code>、<code>.mjs</code></li>
+</ul>
+<p>这些文件都会被<code>require.resolve(&#39;../../babel/webpack-loader&#39;)</code>这个loader处理。而这个loader的代码在这里：<code>packages/angular_devkit/build_angular/src/tools/babel/webpack-loader.ts</code></p>
+<p>这个文件里面又调用了babelLoader。所以可知，<code>ng build</code>命令底层是用<code>Babel</code>来处理<code>TypeScript</code>文件的。</p>
+<p>这里可以画一个流程图：ng build -&gt; Webpack -&gt; Babel -&gt; TypeScript</p>
+<h2 id="scss-x2F-sass-x2F-less-x2F-css编译"><a href="#scss-x2F-sass-x2F-less-x2F-css编译" class="headerlink" title="scss&#x2F;sass&#x2F;less&#x2F;css编译"></a>scss&#x2F;sass&#x2F;less&#x2F;css编译</h2><h2 id="html编译"><a href="#html编译" class="headerlink" title="html编译"></a>html编译</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/09/angular-how-ng-serve-works/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -212,7 +288,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-10 11:26:15" itemprop="dateModified" datetime="2024-09-10T11:26:15+08:00">2024-09-10</time>
+                <time title="Modified: 2024-09-11 19:28:13" itemprop="dateModified" datetime="2024-09-11T19:28:13+08:00">2024-09-11</time>
               </span>
 
           
@@ -235,7 +311,7 @@
 <li><code>ng serve</code>命令是如何实现热更新的？</li>
 </ol>
 <p>下面就让我们开始这段愉快而又漫长的探索之旅吧！</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个是待调试的项目代码，一个是<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个查看待调试的项目代码，一个查看<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
 <h2 id="从命令行开始"><a href="#从命令行开始" class="headerlink" title="从命令行开始"></a>从命令行开始</h2><p>如果你直接查看<code>ng serve</code>命令的源码，可能得不到什么有用的信息，<code>serve</code>命令对应的源码在这里：<code>packages/angular/cli/src/commands/serve/cli.ts</code>， 从以下代码可知，<code>serve</code>命令是继承自<code>ArchitectCommandModule</code>的，同时也实现了<code>CommandModuleImplementation</code>接口。而该文件本身只是做了一个简单的配置，具体的实现逻辑都在<code>ArchitectCommandModule</code>和<code>CommandModuleImplementation</code>中。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">ServeCommandModule</span></span><br><span class="line">  <span class="keyword">extends</span> <span class="title class_ inherited__">ArchitectCommandModule</span></span><br><span class="line">  <span class="keyword">implements</span> <span class="title class_">CommandModuleImplementation</span></span><br><span class="line">&#123;</span><br><span class="line">  multiTarget = <span class="literal">false</span>;</span><br><span class="line">  command = <span class="string">&#x27;serve [project]&#x27;</span>;</span><br><span class="line">  aliases = <span class="title class_">RootCommands</span>[<span class="string">&#x27;serve&#x27;</span>].<span class="property">aliases</span>;</span><br><span class="line">  describe = <span class="string">&#x27;Builds and serves your application, rebuilding on file changes.&#x27;</span>;</span><br><span class="line">  longDescriptionPath?: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -247,7 +323,7 @@
 <li>VSCode: 鼠标悬停到<code>start</code>命令上，点击<code>Debug</code>按钮，这样就可以进入<code>ng serve</code>的源码了。</li>
 </ul>
 <p>使用这种方法可以进入调试状态，但是我们要在哪里设置断点呢？</p>
-<p>对于<code>package.json</code>中的script区块中的命令，其他他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
+<p>对于<code>package.json</code>中的script区块中的命令，其实他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
 <p>可是我们找到了三个<code>ng</code>文件，分别是<code>ng</code>, <code>ng.cmd</code>, <code>ng.ps1</code>，那么我们应该选择哪一个呢？其实通过扩展名就能看出来，我这里使用的是Windows系统，所以我们选择<code>ng.cmd</code>文件。</p>
 <ul>
 <li>ng - Unix shell script</li>
@@ -318,10 +394,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-09-03 09:58:05 / Modified: 17:32:18" itemprop="dateCreated datePublished" datetime="2024-09-03T09:58:05+08:00">2024-09-03</time>
+              <time title="Created: 2024-09-03 09:58:05" itemprop="dateCreated datePublished" datetime="2024-09-03T09:58:05+08:00">2024-09-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-11 19:35:49" itemprop="dateModified" datetime="2024-09-11T19:35:49+08:00">2024-09-11</time>
+              </span>
 
           
 
@@ -359,7 +441,7 @@
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  component.<span class="title function_">updateName</span>();</span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">    <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">    <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 <p>其实，这个test case是有问题的，它根本没有通过测试，虽然我们使用<code>async</code>标记了测试方法，但是<code>async</code>要配合<code>await</code>使用，而不是<code>then</code>，实际上，这里的<code>then</code>根本没有执行！</p>
-<p>为了修复这个test case，我们可以将<code>async</code>删除。</p>
+<p>为了修复这个test case，我们可以将<code>async</code>删除。（<strong>这里有待验证！！！</strong>）</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> component.<span class="title function_">updateName</span>();</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">    <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">    <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 <p>其实，这里根本就不需要<code>fixture.whenStable()</code>，因为我们使用了<code>await</code>，它会等待异步任务完成，所以我们可以直接这样写：</p>
@@ -510,7 +592,7 @@
 <h2 id="Sharing-of-Data"><a href="#Sharing-of-Data" class="headerlink" title="Sharing of Data"></a>Sharing of Data</h2><p>We do not share any personal and sensitive user data with third parties. Any non-personal data collected is not shared with any third parties.</p>
 <h2 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h2><p>We take reasonable measures to protect any non-personal data collected from unauthorized access or disclosure.</p>
 <h2 id="Changes-to-This-Privacy-Policy"><a href="#Changes-to-This-Privacy-Policy" class="headerlink" title="Changes to This Privacy Policy"></a>Changes to This Privacy Policy</h2><p>We may update our Privacy Policy from time to time. Thus, you are advised to review this page periodically for any changes. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
-<h2 id="Contact-Us"><a href="#Contact-Us" class="headerlink" title="Contact Us"></a>Contact Us</h2><p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at <strong><a href="mailto:&#118;&#99;&#107;&#122;&#100;&#100;&#64;&#x67;&#109;&#x61;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#118;&#99;&#107;&#122;&#100;&#100;&#64;&#x67;&#109;&#x61;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a></strong>.</p>
+<h2 id="Contact-Us"><a href="#Contact-Us" class="headerlink" title="Contact Us"></a>Contact Us</h2><p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at <strong><a href="mailto:&#118;&#x63;&#107;&#x7a;&#100;&#x64;&#x40;&#x67;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#118;&#x63;&#107;&#x7a;&#100;&#x64;&#x40;&#x67;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a></strong>.</p>
 
       
     </div>
@@ -906,82 +988,6 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/01/css-last-child-vs-last-of-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/08/01/css-last-child-vs-last-of-type/" class="post-title-link" itemprop="url">css-last-child-vs-last-of-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-08-01 20:49:41" itemprop="dateCreated datePublished" datetime="2024-08-01T20:49:41+08:00">2024-08-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-07 20:01:07" itemprop="dateModified" datetime="2024-08-07T20:01:07+08:00">2024-08-07</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="last-child"><a href="#last-child" class="headerlink" title=":last-child"></a>:last-child</h2><p>The <code>:last-child</code> CSS pseudo-class represents the last element among a group of sibling elements.</p>
-<h2 id="last-of-type"><a href="#last-of-type" class="headerlink" title=":last-of-type"></a>:last-of-type</h2><p>The :last-of-type CSS pseudo-class represents the last element of its type among a group of sibling elements.</p>
-<p>Given the following types of elements, mark the background color of the last <code>li</code> element as green.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Angular<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>React<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Vue<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">span</span>&gt;</span>JavaScript<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>The following css will not work, because the last element is <code>span</code>, not <code>li</code>.</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">li</span><span class="selector-pseudo">:last-child</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>But the following css works</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">li</span><span class="selector-pseudo">:last-of-type</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>See here for details: <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/play?id=FF41abhgvLgFICAeu/s1mH1eX4ogSM5sk6lPN8iXs2M4Pu7Zhzv73YLI9mL97NjLKhcuKG01T9TU40kU">https://developer.mozilla.org/en-US/play?id=FF41abhgvLgFICAeu%2Fs1mH1eX4ogSM5sk6lPN8iXs2M4Pu7Zhzv73YLI9mL97NjLKhcuKG01T9TU40kU</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1051,7 +1057,7 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">166</span>
+          <span class="site-state-item-count">167</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

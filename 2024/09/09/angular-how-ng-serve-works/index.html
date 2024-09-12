@@ -28,7 +28,7 @@
 <meta property="og:description" content="IntroductionAngular的CLI(Command Line Interface)系统非常强大，它提供了丰富的命令用来构建，测试，运行Angular程序，今天我们就从源码的角度来看看cli中的ng serve命令是如何工作的。 ng serve是我们日常频繁使用的命令，它用来本地启动Angular项目，检测代码更新以做出响应，但是用了这么久的命令，你了解它的底层逻辑吗？下面的几个问题你">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-09-09T14:19:19.000Z">
-<meta property="article:modified_time" content="2024-09-10T03:26:15.941Z">
+<meta property="article:modified_time" content="2024-09-11T11:28:13.249Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="cli">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-10 11:26:15" itemprop="dateModified" datetime="2024-09-10T11:26:15+08:00">2024-09-10</time>
+                <time title="Modified: 2024-09-11 19:28:13" itemprop="dateModified" datetime="2024-09-11T19:28:13+08:00">2024-09-11</time>
               </span>
 
           
@@ -241,7 +241,7 @@
 <li><code>ng serve</code>命令是如何实现热更新的？</li>
 </ol>
 <p>下面就让我们开始这段愉快而又漫长的探索之旅吧！</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个是待调试的项目代码，一个是<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个查看待调试的项目代码，一个查看<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
 <h2 id="从命令行开始"><a href="#从命令行开始" class="headerlink" title="从命令行开始"></a>从命令行开始</h2><p>如果你直接查看<code>ng serve</code>命令的源码，可能得不到什么有用的信息，<code>serve</code>命令对应的源码在这里：<code>packages/angular/cli/src/commands/serve/cli.ts</code>， 从以下代码可知，<code>serve</code>命令是继承自<code>ArchitectCommandModule</code>的，同时也实现了<code>CommandModuleImplementation</code>接口。而该文件本身只是做了一个简单的配置，具体的实现逻辑都在<code>ArchitectCommandModule</code>和<code>CommandModuleImplementation</code>中。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">ServeCommandModule</span></span><br><span class="line">  <span class="keyword">extends</span> <span class="title class_ inherited__">ArchitectCommandModule</span></span><br><span class="line">  <span class="keyword">implements</span> <span class="title class_">CommandModuleImplementation</span></span><br><span class="line">&#123;</span><br><span class="line">  multiTarget = <span class="literal">false</span>;</span><br><span class="line">  command = <span class="string">&#x27;serve [project]&#x27;</span>;</span><br><span class="line">  aliases = <span class="title class_">RootCommands</span>[<span class="string">&#x27;serve&#x27;</span>].<span class="property">aliases</span>;</span><br><span class="line">  describe = <span class="string">&#x27;Builds and serves your application, rebuilding on file changes.&#x27;</span>;</span><br><span class="line">  longDescriptionPath?: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -253,7 +253,7 @@
 <li>VSCode: 鼠标悬停到<code>start</code>命令上，点击<code>Debug</code>按钮，这样就可以进入<code>ng serve</code>的源码了。</li>
 </ul>
 <p>使用这种方法可以进入调试状态，但是我们要在哪里设置断点呢？</p>
-<p>对于<code>package.json</code>中的script区块中的命令，其他他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
+<p>对于<code>package.json</code>中的script区块中的命令，其实他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
 <p>可是我们找到了三个<code>ng</code>文件，分别是<code>ng</code>, <code>ng.cmd</code>, <code>ng.ps1</code>，那么我们应该选择哪一个呢？其实通过扩展名就能看出来，我这里使用的是Windows系统，所以我们选择<code>ng.cmd</code>文件。</p>
 <ul>
 <li>ng - Unix shell script</li>
@@ -306,7 +306,10 @@
     <a href="/2024/09/03/angular-test-fixture/" rel="prev" title="angular-test-fixture">
       <i class="fa fa-chevron-left"></i> angular-test-fixture
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/09/12/angular-build-process/" rel="next" title="angular-build-process">
+      angular-build-process <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -379,7 +382,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">166</span>
+          <span class="site-state-item-count">167</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
