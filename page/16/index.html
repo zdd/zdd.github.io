@@ -181,6 +181,324 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/18/Angular-lifecycle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/18/Angular-lifecycle/" class="post-title-link" itemprop="url">Angular lifecycle</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-18 22:15:52" itemprop="dateCreated datePublished" datetime="2023-08-18T22:15:52+08:00">2023-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-11 22:55:00" itemprop="dateModified" datetime="2024-06-11T22:55:00+08:00">2024-06-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Lifecycle"><a href="#Angular-Lifecycle" class="headerlink" title="Angular Lifecycle"></a>Angular Lifecycle</h1><p>今天我们来深入学习一下Angular的Lifecycle方法，Lifecycle方法是Angular中非常重要的一个概念，我们在开发中经常会用到这些方法，比如在<code>ngOnInit</code>中初始化数据，或者在<code>ngOnDestroy</code>中取消订阅等等。</p>
+<p>首先创建一个简单的组件，这个组件什么都不渲染，也就是说组件对应的html文件是空的，这样我们就可以专注于Lifecycle方法了。</p>
+<p>首先在项目中生成一个组件，命名为<code>lifecycle</code>，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g component lifecycle</span><br></pre></td></tr></table></figure>
+
+<p>将<code>lifecycle.component.html</code>中的内容清空.</p>
+<p>然后在<code>lifecycle.component.ts</code>中添加如下代码：组件中的<code>count</code>变量用来标记每个Lifecycle方法的调用顺序，每个方法都会在控制台打印出自己的调用顺序，这样我们就可以很清楚的看到每个方法的调用顺序了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  <span class="title class_">AfterContentChecked</span>,</span><br><span class="line">  <span class="title class_">AfterContentInit</span>,</span><br><span class="line">  <span class="title class_">AfterViewChecked</span>,</span><br><span class="line">  <span class="title class_">AfterViewInit</span>,</span><br><span class="line">  <span class="title class_">Component</span>,</span><br><span class="line">  <span class="title class_">DoCheck</span>,</span><br><span class="line">  <span class="title class_">OnChanges</span>,</span><br><span class="line">  <span class="title class_">OnDestroy</span>,</span><br><span class="line">  <span class="title class_">OnInit</span>,</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span></span><br><span class="line">  <span class="keyword">implements</span></span><br><span class="line">    <span class="title class_">OnInit</span>,</span><br><span class="line">    <span class="title class_">AfterViewInit</span>,</span><br><span class="line">    <span class="title class_">OnChanges</span>,</span><br><span class="line">    <span class="title class_">AfterContentInit</span>,</span><br><span class="line">    <span class="title class_">AfterContentChecked</span>,</span><br><span class="line">    <span class="title class_">AfterViewChecked</span>,</span><br><span class="line">    <span class="title class_">OnDestroy</span>,</span><br><span class="line">    <span class="title class_">DoCheck</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> constructor`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngOnInit`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngDoCheck`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngAfterContentInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngAfterContentInit`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngAfterContentChecked</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngAfterContentChecked`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngAfterViewInit`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngAfterViewChecked</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngAfterViewChecked`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngOnChanges`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnDestroy</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngOnDestroy`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>运行程序，会得到如下输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1 constructor</span><br><span class="line">2 ngOnInit</span><br><span class="line">3 ngDoCheck</span><br><span class="line">4 ngAfterContentInit</span><br><span class="line">5 ngAfterContentChecked</span><br><span class="line">6 ngAfterViewInit</span><br><span class="line">7 ngAfterViewChecked</span><br></pre></td></tr></table></figure>
+<p><code>constructor</code>是构造函数，并不能算是Angular生命周期函数，但是为了图个全乎，我们一并介绍。</p>
+<h2 id="Constructor"><a href="#Constructor" class="headerlink" title="Constructor"></a>Constructor</h2><p><code>constructor</code>是构造函数，它是在组件被创建时调用的，它的调用顺序是最早的，也就是说它是第一个被调用的方法，它的调用顺序是固定的，不会因为其他因素而改变。  </p>
+<h3 id="构造函数中应该做哪些事情"><a href="#构造函数中应该做哪些事情" class="headerlink" title="构造函数中应该做哪些事情"></a>构造函数中应该做哪些事情</h3><p>一般在构造函数中会做一些初始化的工作，比如</p>
+<ol>
+<li>初始化变量</li>
+<li>订阅事件</li>
+</ol>
+<h3 id="构造函数中不应该做哪些事情？"><a href="#构造函数中不应该做哪些事情？" class="headerlink" title="构造函数中不应该做哪些事情？"></a>构造函数中不应该做哪些事情？</h3><ol>
+<li>与View相关的操作，比如操作DOM元素(应该在<code>ngAfterViewInit</code>中进行)</li>
+<li>获取后台数据（应该在<code>ngOnInit</code>中获取）</li>
+</ol>
+<h2 id="ngOnChanges"><a href="#ngOnChanges" class="headerlink" title="ngOnChanges"></a>ngOnChanges</h2><p><code>ngOnChanges</code>是当组件的<code>@Input</code>属性发生变化时调用的，它接收一个<code>SimpleChanges</code>类型的参数，这个参数中包含了变化的属性的信息，比如变化前的值和变化后的值等等。</p>
+<p><strong>调用时机：</strong></p>
+<ol>
+<li>当且仅当组件中有<code>@Input</code>属性时才会被调用。</li>
+<li>先在<code>ngOnInit</code>之前调用一次。</li>
+<li>后续每当<code>@Input</code>属性发生变化时调用一次。</li>
+</ol>
+<p>由于我们这个组件中没有<code>@Input</code>属性，所以这个方法没有被调用。</p>
+<h2 id="ngOnInit"><a href="#ngOnInit" class="headerlink" title="ngOnInit"></a>ngOnInit</h2><p>Initialize the directive or component after Angular first displays the data-bound properties and sets the directive or component’s input properties</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在<code>ngOnChanges</code>之后调用一次。</li>
+<li>不管<code>ngOnChanges</code>是否被调用，<code>ngOnInit</code>都会被调用一次。</li>
+<li>整个生命周期中只调用一次。</li>
+</ol>
+<p>所以上面例子中构造函数调用之后，立即调用了<code>ngOnInit</code>方法。</p>
+<h2 id="ngDoCheck"><a href="#ngDoCheck" class="headerlink" title="ngDoCheck"></a>ngDoCheck</h2><p>Detect and act upon changes that Angular can’t or won’t detect on its own</p>
+<p>该方法主要用来做自定义的更新检测。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>每次<code>ngOnChanges</code>调用之后，都会调用该方法。</li>
+<li>每次<code>ngOnInit</code>调用之后，调用一次。</li>
+</ol>
+<p>在上例中，虽然没有调用<code>ngOnChanges</code>，但是<code>ngOnInit</code>调用了，所以该方法也调用了一次。</p>
+<p>注意：这里的第一点Angular官网的解释并不准确，确切的说，是每次Angular进行更新检测之后，都会调用该方法，即使更新检测后，绑定的值没有任何变化，也会调用该方法。为了验证，我们可以在<code>ngInit</code>中添加如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">  <span class="keyword">private</span> changeDetector: ChangeDetectorRef, <span class="comment">// 注入ChangeDetectorRef</span></span></span><br><span class="line"><span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> constructor`</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> ngOnInit`</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 每隔一秒手动触发一次更新检测。</span></span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">changeDetector</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时观察控制台，输入如下，可见，每当change detection发生时，<code>ngDoCheck</code>都会被调用。<code>ngAfterContentChecked</code>和<code>ngAfterViewChecked</code>也会跟着被调用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1 constructor</span><br><span class="line">2 ngOnInit</span><br><span class="line">3 ngDoCheck</span><br><span class="line">4 ngAfterContentInit</span><br><span class="line">5 ngAfterContentChecked</span><br><span class="line">6 ngAfterViewInit</span><br><span class="line">7 ngAfterViewChecked</span><br><span class="line"></span><br><span class="line">8 ngDoCheck</span><br><span class="line">9 ngAfterContentChecked</span><br><span class="line">10 ngAfterViewChecked</span><br><span class="line"></span><br><span class="line">11 ngDoCheck</span><br><span class="line">12 ngAfterContentChecked</span><br><span class="line">13 ngAfterViewChecked</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h2 id="ngAfterContentInit"><a href="#ngAfterContentInit" class="headerlink" title="ngAfterContentInit"></a>ngAfterContentInit</h2><p>Respond after Angular projects external content into the component’s view。该方法与<code>&lt;ng-content&gt;</code>标签相关。但是需要注意的是，无论组件中是否包含<code>&lt;ng-content&gt;</code>标签，该方法都会被调用。<br>在Angular初始化组件内容之后调用。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在<code>ngDoCheck</code>第一次调用之后，调用一次。</li>
+<li>整个生命周期中只调用一次。</li>
+</ol>
+<h2 id="ngAfterContentChecked"><a href="#ngAfterContentChecked" class="headerlink" title="ngAfterContentChecked"></a>ngAfterContentChecked</h2><p>当Angular检测完组件内容变化之后调用。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在<code>ngAfterContentInit</code>之后调用一次。</li>
+<li>在每次<code>ngDoCheck</code>之后调用一次。</li>
+</ol>
+<h2 id="ngAfterViewInit"><a href="#ngAfterViewInit" class="headerlink" title="ngAfterViewInit"></a>ngAfterViewInit</h2><p>当Angular初始化完组件视图及其子视图之后调用。如果是directive中的ngAfterViewInit，则在初始化完包含该directive的视图之后调用。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在<code>ngAfterContentChecked</code>第一次调用之后调用一次。</li>
+<li>整个生命周期中只调用一次。</li>
+</ol>
+<h2 id="ngAfterViewChecked"><a href="#ngAfterViewChecked" class="headerlink" title="ngAfterViewChecked"></a>ngAfterViewChecked</h2><p>当Angular检测完组件视图及其子视图之后调用。如果是directive中的ngAfterViewChecked，则在检测完包含该directive的视图之后调用。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在<code>ngAfterViewInit</code>之后调用一次。</li>
+<li>在每次<code>ngAfterContentChecked</code>之后调用一次。</li>
+</ol>
+<h2 id="ngOnDestroy"><a href="#ngOnDestroy" class="headerlink" title="ngOnDestroy"></a>ngOnDestroy</h2><p>当Angular销毁组件之前调用。</p>
+<p><strong>调用时机</strong></p>
+<ol>
+<li>在组件被销毁之前调用。</li>
+<li>整个生命周期中只调用一次。</li>
+</ol>
+<p>要想看到该方法被调用，必须切换到切他页面，也就是离开该组件所在的页面才行。</p>
+<p>下面我们改变页面内容，看看这些生命周期是否有变换，首先给模板文件添加内容，在<code>lifecycle.component.html</code>中添加如下内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Lifecycle component works<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>保存并刷新页面，可以看到输出并未变化。</p>
+<p>接下来我们给组件添加一个<code>@Input</code>属性，修改<code>lifecycle.component.ts</code>文件，添加如下内容：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Input</span>() <span class="attr">nameList</span>: <span class="built_in">string</span>[] = [];</span><br></pre></td></tr></table></figure>
+
+<p>修改模板文件，添加如下内容，用来显示输入的名字列表。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let name of nameList&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>name: &#123;&#123;name&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后我们创建一个父组件，用来调用<code>LifecycleComponent</code>组件，并传入<code>nameList</code>属性。<br>lifecycle-parent.component.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">lifecycle-order</span> [<span class="attr">nameList</span>]=<span class="string">&quot;nameList&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">lifecycle-order</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>然后运行程序，切换到life-cycle页面，可以看到控制台输出如下内容，从第二行可以看出，<code>ngOnChanges</code>方法被调用了，而且是在<code>ngOnInit</code>之前调用的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1 - OrderComponent: constructor</span><br><span class="line">2 - OrderComponent: ngOnChanges</span><br><span class="line">3 - OrderComponent: ngOnInit</span><br><span class="line">4 - OrderComponent: ngDoCheck</span><br><span class="line">5 - OrderComponent: ngAfterContentInit</span><br><span class="line">6 - OrderComponent: ngAfterContentChecked</span><br><span class="line">7 - OrderComponent: ngAfterViewInit</span><br><span class="line">8 - OrderComponent: ngAfterViewChecked</span><br></pre></td></tr></table></figure>
+<p>由于我们并没有在父组件中修改<code>nameList</code>属性，所以<code>ngOnChanges</code>方法只被调用了一次。<br>我们可以打印一下<code>changes</code>参数，看看里面有什么内容。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngOnChanges</span>(<span class="params">simpleChanges: SimpleChanges</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;++OrderComponent.count&#125;</span> - <span class="subst">$&#123;<span class="variable language_">this</span>.className&#125;</span>: ngOnChanges`</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(simpleChanges); <span class="comment">// print changes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控制台输出如下内容：<br><img src="/../images/ngOnChanges-simpleChanges.png" alt="Alt text"><br>因为是第一次赋值，所以<code>previousValue</code>是<code>undefined</code>，<code>currentValue</code>是<code>[&#39;John, &#39;Mary&#39;, &#39;Joe&#39;]</code>。并且firstChange为<code>true</code>。</p>
+<p>接下来我们在父组件中添加一个按钮，用来修改<code>nameList</code>属性，修改<code>lifecycle-parent.component.html</code>文件，添加如下内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;changeNameList()&quot;</span>&gt;</span>Change Name List<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改<code>lifecycle-parent.component.ts</code>文件，添加如下内容：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">changeNameList</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">nameList</span> = [<span class="string">&#x27;John&#x27;</span>, <span class="string">&#x27;Mary&#x27;</span>, <span class="string">&#x27;Joe&#x27;</span>, <span class="string">&#x27;Tom&#x27;</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行程序，切换到life-cycle页面，点击按钮，可以看到控制台输出如下内容：可以看到，由于这次我们修改了<code>nameList</code>属性，所以<code>ngOnChanges</code>方法又被调了一次。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">9 - OrderComponent: ngOnChanges</span><br><span class="line">10 - OrderComponent: ngDoCheck</span><br><span class="line">11 - OrderComponent: ngAfterContentChecked</span><br><span class="line">12 - OrderComponent: ngAfterViewChecked</span><br></pre></td></tr></table></figure>
+
+<p>这次<code>changes</code>参数的内容如下图所示：<br><img src="/../images/ngOnChanges-second-change.png" alt="Alt text"></p>
+<p>接下来，我们修改一下代码，添加一个input框，让用户输入名字，然后将该名字显示到页面上，修改<code>lifecycle-parent.component.html</code>文件，添加如下内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> [(<span class="attr">ngModel</span>)]=<span class="string">&quot;name&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;addName()&quot;</span>&gt;</span>Add Name<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改<code>lifecycle-parent.component.ts</code>文件，添加如下内容：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line"><span class="title function_">addName</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">trim</span>()) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">nameList</span>.<span class="title function_">push</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行程序，输入<code>zdd</code>到input框，点击Add Name按钮，可以看到新添加的name显示到了页面上，但是<code>onChanges</code>方法并没有被调用，这是为什么呢？</p>
+<p><img src="/../images/ngOnChanges-input.png" alt="Alt text"></p>
+<p>这是因为，Angular默认的change detection比较的是Input值的<code>引用</code>，而不是值本身。所以，当我们重新给<code>nameList</code>赋值时，<code>ngOnChanges</code>方法被调用了，因为此时<code>nameList</code>的引用改变了，但是当我们使用<code>Array.prototype.push</code>向<code>nameList</code>中添加元素时，<code>ngOnChanges</code>方法并没有被调用，因为<code>nameList</code>的引用并没有变化。</p>
+<p>要想让<code>ngOnChanges</code>方法被调用，我们可以这样给<code>nameList</code>属性赋值：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">nameList</span> = [...<span class="variable language_">this</span>.<span class="property">nameList</span>, <span class="variable language_">this</span>.<span class="property">name</span>];</span><br></pre></td></tr></table></figure>
+<p>这样，<code>nameList</code>的引用就变化了，<code>ngOnChanges</code>方法就会被调用。</p>
+<p>不知道大家是否注意到这样一个情况，我们在input框每输入一个字符，控制台都会打印一下内容，甚至在我们删除输入框内容的时候，也会打印。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">96 - OrderComponent: ngDoCheck</span><br><span class="line">97 - OrderComponent: ngAfterContentChecked</span><br><span class="line">98 - OrderComponent: ngAfterViewChecked</span><br></pre></td></tr></table></figure>
+<p>看来，每当我们输入值的时候，都触发了Angular change detection，这并不是我们想要的，我们只想在点击Add Name按钮的时候，触发change detection，这样才能保证性能。</p>
+<p>用Angular Dev tool分析一下程序的性能。</p>
+<p>首先打开Chrome的插件商店，搜索<code>Angular DevTools</code>，然后安装该插件。</p>
+<p>然后运行程序，打开该插件，切换到<code>Profiler</code>页面。点击<code>Start recording</code>，然后在input框中输入几个字符，并停止录制。</p>
+<p><img src="/../images/angular-devtools-profiler.png" alt="Alt text"></p>
+<p>可以看到，输入框的input事件触发了<code>OrderComponent</code>的change detection,这不是我们想要的。我们可以使用<code>ChangeDetectorRef</code>来禁用change detection.</p>
+<p>修改<code>lifecycle.component.ts</code>文件，添加如下内容：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> changeDetector: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// 注意，不能在ngOnInit方法中调用以下方法，否则初始数据无法显示到页面上。</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">changeDetector</span>.<span class="title function_">detach</span>(); <span class="comment">// 禁用change detection.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">onInput</span>(<span class="params">event: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">data</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">addName</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">trim</span>()) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">nameList</span> = [...<span class="variable language_">this</span>.<span class="property">nameList</span>, <span class="variable language_">this</span>.<span class="property">name</span>];</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">changeDetector</span>.<span class="title function_">detectChanges</span>(); <span class="comment">// 更新数据时，要手动触发change detection.</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再次运行程序，在input框中输入字符，观察控制台，你会发现，input事件不再触发change detection了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">12</span><br><span class="line">123</span><br><span class="line">1234</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>ChangeDetectionStrategy.OnPush</code>可以提高性能，但是要注意，如果我们使用了<code>ChangeDetectionStrategy.OnPush</code>，那么我们就必须使用<code>@Input</code>属性，否则，<code>ngOnChanges</code>方法不会被调用。而且使用这种策略时，只有当<code>@Input</code>属性的<code>引用</code>发生变化时，才会触发change detection，如果<code>@Input</code>属性的值发生变化，是不会触发change detection的。</p>
+<p>比如，这样可以触发<code>ngOnChanges</code>方法：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addName</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">trim</span>()) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">nameList</span> = [...<span class="variable language_">this</span>.<span class="property">nameList</span>, <span class="variable language_">this</span>.<span class="property">name</span>];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是这样不会触发<code>ngOnChanges</code>方法：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addName</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">trim</span>()) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">nameList</span>.<span class="title function_">push</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Nested-Components"><a href="#Nested-Components" class="headerlink" title="Nested Components"></a>Nested Components</h1><p>In Angular, components can be nested, for example, a <code>Parent</code> component can contain a <code>Child</code> component. Here is the lifecycle method order for nested components.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ParentComponent.constructor</span><br><span class="line">ChildComponent.constructor</span><br><span class="line">ParentComponent.ngOnChanges</span><br><span class="line">ParentComponent.ngOnInit</span><br><span class="line">ParentComponent.ngDoCheck</span><br><span class="line">ParentComponent.ngAfterContentInit</span><br><span class="line">ParentComponent.ngAfterContentChecked</span><br><span class="line">ChildComponent.ngOnChanges</span><br><span class="line">ChildComponent.ngOnInit</span><br><span class="line">ChildComponent.ngDoCheck</span><br><span class="line">ChildComponent.ngAfterContentInit</span><br><span class="line">ChildComponent.ngAfterContentChecked</span><br><span class="line">ChildComponent.ngAfterViewInit</span><br><span class="line">ChildComponent.ngAfterViewChecked</span><br><span class="line">ParentComponent.ngAfterViewInit</span><br><span class="line">ParentComponent.ngAfterViewChecked</span><br><span class="line">ChildComponent.ngOnDestroy</span><br><span class="line">ParentComponent.ngOnDestroy</span><br></pre></td></tr></table></figure>
+
+<h1 id="Deep-nested-components"><a href="#Deep-nested-components" class="headerlink" title="Deep nested components"></a>Deep nested components</h1><p>What if the <code>Child</code> component also has a child component <code>Descendant</code>? Here is the lifecycle method order for deep nested components.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">ParentComponent.constructor</span><br><span class="line">ChildComponent.constructor</span><br><span class="line">DescendantComponent.constructor</span><br><span class="line">ParentComponent.ngOnChanges</span><br><span class="line">ParentComponent.ngOnInit</span><br><span class="line">ParentComponent.ngDoCheck</span><br><span class="line">ParentComponent.ngAfterContentInit</span><br><span class="line">ParentComponent.ngAfterContentChecked</span><br><span class="line">ChildComponent.ngOnChanges</span><br><span class="line">ChildComponent.ngOnInit</span><br><span class="line">ChildComponent.ngDoCheck</span><br><span class="line">ChildComponent.ngAfterContentInit</span><br><span class="line">ChildComponent.ngAfterContentChecked</span><br><span class="line">DescendantComponent.ngOnChanges</span><br><span class="line">DescendantComponent.ngOnInit</span><br><span class="line">DescendantComponent.ngDoCheck</span><br><span class="line">DescendantComponent.ngAfterContentInit</span><br><span class="line">DescendantComponent.ngAfterContentChecked</span><br><span class="line">DescendantComponent.ngAfterViewInit</span><br><span class="line">DescendantComponent.ngAfterViewChecked</span><br><span class="line">ChildComponent.ngAfterViewInit</span><br><span class="line">ChildComponent.ngAfterViewChecked</span><br><span class="line">ParentComponent.ngAfterViewInit</span><br><span class="line">ParentComponent.ngAfterViewChecked</span><br><span class="line">DescendantComponent.ngOnDestroy</span><br><span class="line">ChildComponent.ngOnDestroy</span><br><span class="line">ParentComponent.ngOnDestroy</span><br></pre></td></tr></table></figure>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/components/lifecycle#summary">https://angular.dev/guide/components/lifecycle#summary</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/03/stopPropagation-vs-stopImmediatePropagation/" class="post-title-link" itemprop="url">stopPropagation-vs-stopImmediatePropagation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-03 21:39:35" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 10:02:19" itemprop="dateModified" datetime="2024-04-20T10:02:19+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
+<p>目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。</p>
+<p>所以DOM中的事件处理分为以下三个阶段</p>
+<ul>
+<li>capture（捕获阶段），事件由外层向内层传递</li>
+<li>target（命中阶段），事件到达目标元素</li>
+<li>bubbling（冒泡阶段），事件由内层向外层传递</li>
+</ul>
+<p><img src="/../images/event-dispatch-modal.jpg"></p>
+<p>那么如何指定事件的传递方式呢？我们可以通过addEventListener的第三个参数来指定，比如下面的代码：<br>当useCapture为true时，事件传递方式为事件捕获，当useCapture为false时，事件传递方式为事件冒泡。默认值为false，使用事件冒泡模式。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addEventListener</span>(type, listener, useCapture)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Event-stopPropagation"><a href="#Event-stopPropagation" class="headerlink" title="Event.stopPropagation"></a>Event.stopPropagation</h1><ol>
+<li>当事件传递方式为捕获模式时，<code>event.stopPropagation()</code>会阻止事件继续向下（内层元素）传递。</li>
+<li>当事件传递方式为冒泡模式时，<code>event.stopPropagation()</code>会阻止事件继续向上（外层元素）传递。</li>
+</ol>
+<p>代码示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span></span><br><span class="line">  div1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span></span><br><span class="line">    div2</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div3&quot;</span>&gt;</span></span><br><span class="line">      div3</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div1&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div2 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div2&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div3 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div3&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bindEventListener</span>(<span class="params">element, event, listener, useCapture</span>) &#123;</span><br><span class="line">  element.<span class="title function_">addEventListener</span>(event, listener, useCapture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler1</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler2</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler3</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/event-bubble.jpg"></p>
+<p>点击<code>div3</code>，输出如下，因为采用的是冒泡模式，所以事件会从内层元素向外层元素传递。即<code>div3</code>最先捕获事件，然后是冒泡给<code>div2</code>，最后是<code>div1</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler3中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向上（外层元素）传递。</p>
+<p>将事件处理函数改为捕获模式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p>再次点击div3，输出如下，因为采用的是捕获模式，所以事件会从外层元素向内层元素传递。即<code>div1</code>最先捕获事件，然后是<code>div2</code>，最后是<code>div3</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler1中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向下（内层元素）传递。</p>
+<h1 id="Event-stopImmediatePropagation"><a href="#Event-stopImmediatePropagation" class="headerlink" title="Event.stopImmediatePropagation"></a>Event.stopImmediatePropagation</h1><p>如果将上述代码中的<code>event.stopPropagation()</code>改为<code>event.stopImmediatePropagation()</code>，你会发现，输出的结果是一样的，这说明<code>event.stopImmediatePropagation()</code>与<code>event.stopPropagation()</code>的作用是一样的，都是阻止事件继续传递。既然作用是一样的，那么为什么还要有<code>event.stopImmediatePropagation()</code>呢？这是因为<code>event.stopImmediatePropagation()</code>还有一个额外的功能，就是阻止事件处理函数队列中的其他函数执行，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>当我们点击div1时，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+
+<p>当多个事件处理函数绑定到同一个元素的同一个事件时，事件处理函数的执行顺序是按照绑定的顺序执行的，比如上面的代码，clickHandler1会先于clickHandler2执行，clickHandler2会先于clickHandler3执行。如果我们在clickHandler1中加入<code>event.stopImmediatePropagation()</code>，再次点击div1，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopImmediatePropagation()</code>阻止了事件处理函数队列中的其他函数执行。clickHandler2和clickHandler3都被阻止了执行。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation">Event.stopPropagation()</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation">Event.stopImmediatePropagation()</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/02/event-target-vs-event-currentTarget/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1000,234 +1318,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/29/How-to-get-DOM-element-on-page/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/29/How-to-get-DOM-element-on-page/" class="post-title-link" itemprop="url">How to get DOM element on page</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-29 20:14:35" itemprop="dateCreated datePublished" datetime="2023-06-29T20:14:35+08:00">2023-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-01 07:32:28" itemprop="dateModified" datetime="2023-07-01T07:32:28+08:00">2023-07-01</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-to-get-DOM-elements-on-page"><a href="#How-to-get-DOM-elements-on-page" class="headerlink" title="How to get DOM elements on page"></a>How to get DOM elements on page</h1><p>获取Dom元素总体来说有两类方法：</p>
-<ul>
-<li>getElementByXXX</li>
-<li>queryXXX</li>
-</ul>
-<p>这两种方法都是从document对象开始查找，所以可以直接使用，不需要先获取document对象。</p>
-<h2 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h2><h3 id="getElementById"><a href="#getElementById" class="headerlink" title="getElementById"></a>getElementById</h3><p>这是最常用的方法，如果你的元素有id属性，那么可以使用这个方法获取元素，返回的是一个Element对象。如果没有找到，则返回null。<br>html代码：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;root&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>js代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> (element) &#123;</span><br><span class="line">  <span class="comment">// do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="getElementsByClassName"><a href="#getElementsByClassName" class="headerlink" title="getElementsByClassName"></a>getElementsByClassName</h3><p>这个方法可以获取到所有class属性中包含指定类名的元素，返回的是一个<a target="_blank" rel="noopener" href="https://daily.dev/blog/why-do-you-need-to-know-about-array-like-objects"><code>array-like</code></a>对象HTMLCollection，可以使用Array.from()方法将其转换为数组。<br>html代码：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>js代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
-
-<p>需要注意的是，这个方法返回的是一个动态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合也会跟着改变。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>A<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>B<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>C<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 初始时，页面上有三个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttons = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(3) [button, button, button]</span></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 添加一个按钮, 此时再打印buttons，则输出四个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttonD = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">innerHTML</span> = <span class="string">&quot;D&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">className</span> = <span class="string">&quot;button&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(buttonD);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(4) [button, button, button, button]</span></span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="query方法"><a href="#query方法" class="headerlink" title="query方法"></a>query方法</h2><p>query类的方法参数是CSS选择器，比如 </p>
-<ul>
-<li>“#root” - 查找id为root的结点，</li>
-<li>“.container” - 查找class为container的结点，</li>
-<li>“div” - 查找所有div结点。</li>
-</ul>
-<h3 id="querySelector"><a href="#querySelector" class="headerlink" title="querySelector"></a>querySelector</h3><p>这个方法可以获取到第一个匹配的元素，它的返回值类型是Element。如果没有匹配的元素，返回null。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>js代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="querySelectorAll"><a href="#querySelectorAll" class="headerlink" title="querySelectorAll"></a>querySelectorAll</h3><p>这个方法可以获取到所有匹配的元素，返回的是一个类数组对象NodeList，可以使用Array.from()方法将其转换为数组。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>js代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
-
-<p>querySelectorAll方法返回的是一个静态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合不会跟着改变。</p>
-<p>需要注意的是，尽管querySelectorAll方法返回的NodeList是静态的，但是NodeList在有些情况下却是动态的，比如 <code>Node.childNodes</code> 返回的就是一个动态的NodeList。</p>
-<h2 id="总结成如下表格"><a href="#总结成如下表格" class="headerlink" title="总结成如下表格"></a>总结成如下表格</h2><table>
-<thead>
-<tr>
-<th>方法</th>
-<th>返回值类型</th>
-<th>返回值个数</th>
-<th>查不到时返回值</th>
-<th>返回值状态：动态&#x2F;静态</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>getElementById</td>
-<td>Element</td>
-<td>1</td>
-<td>null</td>
-<td>-</td>
-</tr>
-<tr>
-<td>getElementsByClassName</td>
-<td>HTMLCollection</td>
-<td>0~n</td>
-<td>空的HTMLCollection</td>
-<td>动态</td>
-</tr>
-<tr>
-<td>querySelector</td>
-<td>Element</td>
-<td>1</td>
-<td>null</td>
-<td>-</td>
-</tr>
-<tr>
-<td>querySelectorAll</td>
-<td>NodeList</td>
-<td>0~n</td>
-<td>空的NodeList</td>
-<td>静态</td>
-</tr>
-</tbody></table>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementById">getElementById</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementsByClassName">getElementsByClassName</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelector">querySelector</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelectorAll">querySelectorAll</a>  </p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/JavaScrip-array-operations/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/17/JavaScrip-array-operations/" class="post-title-link" itemprop="url">JavaScript Array operations</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-17 22:17:48" itemprop="dateCreated datePublished" datetime="2023-06-17T22:17:48+08:00">2023-06-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-03-02 14:26:54" itemprop="dateModified" datetime="2024-03-02T14:26:54+08:00">2024-03-02</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Array-operations"><a href="#Array-operations" class="headerlink" title="Array operations"></a>Array operations</h1><h2 id="插入，删除，替换数组元素"><a href="#插入，删除，替换数组元素" class="headerlink" title="插入，删除，替换数组元素"></a>插入，删除，替换数组元素</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// insert 6 at index 2</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">0</span>, <span class="number">6</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// remove 2 elements starting from index 3</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">3</span>, <span class="number">2</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// replace 1 element at index 2 with 7</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="number">7</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 7, 5]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="获取最后一个元素"><a href="#获取最后一个元素" class="headerlink" title="获取最后一个元素"></a>获取最后一个元素</h2><h3 id="使用length属性"><a href="#使用length属性" class="headerlink" title="使用length属性"></a>使用<code>length</code>属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers[numbers.<span class="property">length</span> - <span class="number">1</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用at方法："><a href="#使用at方法：" class="headerlink" title="使用at方法："></a>使用<code>at</code>方法：</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">at</span>(-<span class="number">1</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
-<p>原本JavaScript并不支持负值索引，但是有了<code>at</code>方法后，则可以使用负值索引。<br>注意<code>at</code>方法需要新版的浏览器和Node.js支持，详情看这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at</a></p>
-<h3 id="截取数组的一部分"><a href="#截取数组的一部分" class="headerlink" title="截取数组的一部分"></a>截取数组的一部分</h3><h4 id="使用slice方法"><a href="#使用slice方法" class="headerlink" title="使用slice方法"></a>使用<code>slice</code>方法</h4><p><code>slice</code> return a shallow copy of a portion of an array into a new array object selected from <code>begin</code> to <code>end</code> (<code>end</code> not included). The original array will not be modified.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">slice</span>(<span class="number">1</span>, <span class="number">3</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [2, 3]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="合并两个数组"><a href="#合并两个数组" class="headerlink" title="合并两个数组"></a>合并两个数组</h2><h3 id="使用concat方法"><a href="#使用concat方法" class="headerlink" title="使用concat方法"></a>使用<code>concat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">concat</span>(numbers2);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用扩展运算符"><a href="#使用扩展运算符" class="headerlink" title="使用扩展运算符"></a>使用扩展运算符</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组去重"><a href="#数组去重" class="headerlink" title="数组去重"></a>数组去重</h2><h3 id="使用Set对象"><a href="#使用Set对象" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>(numbers)];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用filter方法"><a href="#使用filter方法" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index</span>) =&gt;</span> numbers.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法"><a href="#使用reduce方法" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组diff"><a href="#数组diff" class="headerlink" title="数组diff"></a>数组diff</h2><h3 id="使用filter方法-1"><a href="#使用filter方法-1" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-1"><a href="#使用reduce方法-1" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组交集"><a href="#数组交集" class="headerlink" title="数组交集"></a>数组交集</h2><h3 id="使用filter方法-2"><a href="#使用filter方法-2" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-2"><a href="#使用reduce方法-2" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? [...acc, cur] : acc, []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组并集"><a href="#数组并集" class="headerlink" title="数组并集"></a>数组并集</h2><h3 id="使用Set对象-1"><a href="#使用Set对象-1" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>([...numbers1, ...numbers2])];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用filter方法-3"><a href="#使用filter方法-3" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index, arr</span>) =&gt;</span> arr.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-3"><a href="#使用reduce方法-3" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组差集"><a href="#数组差集" class="headerlink" title="数组差集"></a>数组差集</h2><h3 id="使用filter方法-4"><a href="#使用filter方法-4" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers1.<span class="title function_">includes</span>(item) || !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-4"><a href="#使用reduce方法-4" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers1.<span class="title function_">includes</span>(cur) &amp;&amp; numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="打平数组"><a href="#打平数组" class="headerlink" title="打平数组"></a>打平数组</h2><h3 id="使用flat方法"><a href="#使用flat方法" class="headerlink" title="使用flat方法"></a>使用<code>flat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, [<span class="number">5</span>, <span class="number">6</span>, [<span class="number">7</span>, <span class="number">8</span>]]]];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result1 = numbers.<span class="title function_">flat</span>(); <span class="comment">// 默认只展开一层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result1); <span class="comment">// [1, 2, 3, 4, [5, 6]]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result2 = numbers.<span class="title function_">flat</span>(<span class="number">2</span>); <span class="comment">// 展开两层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result2); <span class="comment">// [1, 2, 3, 4, 5, 6, [7, 8]]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">flat</span>(<span class="title class_">Infinity</span>); <span class="comment">// Infinity 表示展开所有层级</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1297,14 +1387,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">168</span>
+          <span class="site-state-item-count">170</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">251</span>
+        <span class="site-state-item-count">252</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
