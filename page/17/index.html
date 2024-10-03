@@ -181,6 +181,114 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/03/stopPropagation-vs-stopImmediatePropagation/" class="post-title-link" itemprop="url">stopPropagation-vs-stopImmediatePropagation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-03 21:39:35" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 10:02:19" itemprop="dateModified" datetime="2024-04-20T10:02:19+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
+<p>目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。</p>
+<p>所以DOM中的事件处理分为以下三个阶段</p>
+<ul>
+<li>capture（捕获阶段），事件由外层向内层传递</li>
+<li>target（命中阶段），事件到达目标元素</li>
+<li>bubbling（冒泡阶段），事件由内层向外层传递</li>
+</ul>
+<p><img src="/../images/event-dispatch-modal.jpg"></p>
+<p>那么如何指定事件的传递方式呢？我们可以通过addEventListener的第三个参数来指定，比如下面的代码：<br>当useCapture为true时，事件传递方式为事件捕获，当useCapture为false时，事件传递方式为事件冒泡。默认值为false，使用事件冒泡模式。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addEventListener</span>(type, listener, useCapture)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Event-stopPropagation"><a href="#Event-stopPropagation" class="headerlink" title="Event.stopPropagation"></a>Event.stopPropagation</h1><ol>
+<li>当事件传递方式为捕获模式时，<code>event.stopPropagation()</code>会阻止事件继续向下（内层元素）传递。</li>
+<li>当事件传递方式为冒泡模式时，<code>event.stopPropagation()</code>会阻止事件继续向上（外层元素）传递。</li>
+</ol>
+<p>代码示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span></span><br><span class="line">  div1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span></span><br><span class="line">    div2</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div3&quot;</span>&gt;</span></span><br><span class="line">      div3</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div1&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div2 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div2&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div3 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div3&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bindEventListener</span>(<span class="params">element, event, listener, useCapture</span>) &#123;</span><br><span class="line">  element.<span class="title function_">addEventListener</span>(event, listener, useCapture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler1</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler2</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler3</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/event-bubble.jpg"></p>
+<p>点击<code>div3</code>，输出如下，因为采用的是冒泡模式，所以事件会从内层元素向外层元素传递。即<code>div3</code>最先捕获事件，然后是冒泡给<code>div2</code>，最后是<code>div1</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler3中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向上（外层元素）传递。</p>
+<p>将事件处理函数改为捕获模式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p>再次点击div3，输出如下，因为采用的是捕获模式，所以事件会从外层元素向内层元素传递。即<code>div1</code>最先捕获事件，然后是<code>div2</code>，最后是<code>div3</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler1中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向下（内层元素）传递。</p>
+<h1 id="Event-stopImmediatePropagation"><a href="#Event-stopImmediatePropagation" class="headerlink" title="Event.stopImmediatePropagation"></a>Event.stopImmediatePropagation</h1><p>如果将上述代码中的<code>event.stopPropagation()</code>改为<code>event.stopImmediatePropagation()</code>，你会发现，输出的结果是一样的，这说明<code>event.stopImmediatePropagation()</code>与<code>event.stopPropagation()</code>的作用是一样的，都是阻止事件继续传递。既然作用是一样的，那么为什么还要有<code>event.stopImmediatePropagation()</code>呢？这是因为<code>event.stopImmediatePropagation()</code>还有一个额外的功能，就是阻止事件处理函数队列中的其他函数执行，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>当我们点击div1时，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+
+<p>当多个事件处理函数绑定到同一个元素的同一个事件时，事件处理函数的执行顺序是按照绑定的顺序执行的，比如上面的代码，clickHandler1会先于clickHandler2执行，clickHandler2会先于clickHandler3执行。如果我们在clickHandler1中加入<code>event.stopImmediatePropagation()</code>，再次点击div1，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopImmediatePropagation()</code>阻止了事件处理函数队列中的其他函数执行。clickHandler2和clickHandler3都被阻止了执行。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation">Event.stopPropagation()</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation">Event.stopImmediatePropagation()</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/02/event-target-vs-event-currentTarget/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1141,93 +1249,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/17/JavaScrip-array-operations/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/06/17/JavaScrip-array-operations/" class="post-title-link" itemprop="url">JavaScript Array operations</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-06-17 22:17:48" itemprop="dateCreated datePublished" datetime="2023-06-17T22:17:48+08:00">2023-06-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-03-02 14:26:54" itemprop="dateModified" datetime="2024-03-02T14:26:54+08:00">2024-03-02</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Array-operations"><a href="#Array-operations" class="headerlink" title="Array operations"></a>Array operations</h1><h2 id="插入，删除，替换数组元素"><a href="#插入，删除，替换数组元素" class="headerlink" title="插入，删除，替换数组元素"></a>插入，删除，替换数组元素</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// insert 6 at index 2</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">0</span>, <span class="number">6</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// remove 2 elements starting from index 3</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">3</span>, <span class="number">2</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// replace 1 element at index 2 with 7</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="number">7</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 7, 5]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="获取最后一个元素"><a href="#获取最后一个元素" class="headerlink" title="获取最后一个元素"></a>获取最后一个元素</h2><h3 id="使用length属性"><a href="#使用length属性" class="headerlink" title="使用length属性"></a>使用<code>length</code>属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers[numbers.<span class="property">length</span> - <span class="number">1</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用at方法："><a href="#使用at方法：" class="headerlink" title="使用at方法："></a>使用<code>at</code>方法：</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">at</span>(-<span class="number">1</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
-<p>原本JavaScript并不支持负值索引，但是有了<code>at</code>方法后，则可以使用负值索引。<br>注意<code>at</code>方法需要新版的浏览器和Node.js支持，详情看这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at</a></p>
-<h3 id="截取数组的一部分"><a href="#截取数组的一部分" class="headerlink" title="截取数组的一部分"></a>截取数组的一部分</h3><h4 id="使用slice方法"><a href="#使用slice方法" class="headerlink" title="使用slice方法"></a>使用<code>slice</code>方法</h4><p><code>slice</code> return a shallow copy of a portion of an array into a new array object selected from <code>begin</code> to <code>end</code> (<code>end</code> not included). The original array will not be modified.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">slice</span>(<span class="number">1</span>, <span class="number">3</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [2, 3]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="合并两个数组"><a href="#合并两个数组" class="headerlink" title="合并两个数组"></a>合并两个数组</h2><h3 id="使用concat方法"><a href="#使用concat方法" class="headerlink" title="使用concat方法"></a>使用<code>concat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">concat</span>(numbers2);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用扩展运算符"><a href="#使用扩展运算符" class="headerlink" title="使用扩展运算符"></a>使用扩展运算符</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组去重"><a href="#数组去重" class="headerlink" title="数组去重"></a>数组去重</h2><h3 id="使用Set对象"><a href="#使用Set对象" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>(numbers)];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用filter方法"><a href="#使用filter方法" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index</span>) =&gt;</span> numbers.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法"><a href="#使用reduce方法" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组diff"><a href="#数组diff" class="headerlink" title="数组diff"></a>数组diff</h2><h3 id="使用filter方法-1"><a href="#使用filter方法-1" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-1"><a href="#使用reduce方法-1" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组交集"><a href="#数组交集" class="headerlink" title="数组交集"></a>数组交集</h2><h3 id="使用filter方法-2"><a href="#使用filter方法-2" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-2"><a href="#使用reduce方法-2" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? [...acc, cur] : acc, []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组并集"><a href="#数组并集" class="headerlink" title="数组并集"></a>数组并集</h2><h3 id="使用Set对象-1"><a href="#使用Set对象-1" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>([...numbers1, ...numbers2])];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用filter方法-3"><a href="#使用filter方法-3" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index, arr</span>) =&gt;</span> arr.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-3"><a href="#使用reduce方法-3" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h2 id="数组差集"><a href="#数组差集" class="headerlink" title="数组差集"></a>数组差集</h2><h3 id="使用filter方法-4"><a href="#使用filter方法-4" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers1.<span class="title function_">includes</span>(item) || !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用reduce方法-4"><a href="#使用reduce方法-4" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers1.<span class="title function_">includes</span>(cur) &amp;&amp; numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="打平数组"><a href="#打平数组" class="headerlink" title="打平数组"></a>打平数组</h2><h3 id="使用flat方法"><a href="#使用flat方法" class="headerlink" title="使用flat方法"></a>使用<code>flat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, [<span class="number">5</span>, <span class="number">6</span>, [<span class="number">7</span>, <span class="number">8</span>]]]];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result1 = numbers.<span class="title function_">flat</span>(); <span class="comment">// 默认只展开一层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result1); <span class="comment">// [1, 2, 3, 4, [5, 6]]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result2 = numbers.<span class="title function_">flat</span>(<span class="number">2</span>); <span class="comment">// 展开两层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result2); <span class="comment">// [1, 2, 3, 4, 5, 6, [7, 8]]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">flat</span>(<span class="title class_">Infinity</span>); <span class="comment">// Infinity 表示展开所有层级</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1297,14 +1318,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">178</span>
+          <span class="site-state-item-count">179</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">261</span>
+        <span class="site-state-item-count">262</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
