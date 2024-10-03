@@ -28,7 +28,7 @@
 <meta property="og:description" content="Define ObserverObserver中文翻译为观察者，它是一个对象，拥有一个update方法，当Subject(被观察对象)发生变化时，Observer的update方法会被调用，这样就能实现Subject和Observer的解耦。 下面的代码为每个观察者指定一个名字，当Subject发生变化时，Observer的update方法会被调用，打印出观察者的名字。update方法就是被观察者">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-18T09:56:17.000Z">
-<meta property="article:modified_time" content="2024-08-02T13:35:59.481Z">
+<meta property="article:modified_time" content="2024-10-03T05:07:55.863Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="design pattern">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-02 21:35:59" itemprop="dateModified" datetime="2024-08-02T21:35:59+08:00">2024-08-02</time>
+                <time title="Modified: 2024-10-03 13:07:55" itemprop="dateModified" datetime="2024-10-03T13:07:55+08:00">2024-10-03</time>
               </span>
 
           
@@ -253,7 +253,12 @@
 <li>Observer(观察者)：拥有update方法，当Subject发生变化时，Observer的update方法会被调用。</li>
 <li>观察者和被观察者之间是松耦合的，被观察者只知道观察者的接口，而不知道观察者的具体实现。</li>
 </ol>
+<p>网上常见的EventBus就是基于观察者模式实现的，当一个组件发生变化时，EventBus会通知所有订阅了这个事件的组件。下面是一个简单的EventBus实现。之所以将EventBus挂在到Window对象上，是因为这样可以在全局范围内使用EventBus。比如在不同的模块中，可以通过EventBus来通信。Module Federation中Remote模块和Host模块之间的通信也可以通过EventBus实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// eventBus.js</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventBus</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listeners</span> = &#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">on</span>(<span class="params">eventName, callback</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">listeners</span>[eventName]) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName] = [];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName].<span class="title function_">push</span>(callback);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">emit</span>(<span class="params">eventName, data</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">listeners</span>[eventName]) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName].<span class="title function_">forEach</span>(<span class="function"><span class="params">callback</span> =&gt;</span> <span class="title function_">callback</span>(data));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> eventBus = <span class="keyword">new</span> <span class="title class_">EventBus</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span> = eventBus;</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Emit an event from Remote module.</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span>.<span class="title function_">emit</span>(<span class="string">&#x27;someEvent&#x27;</span>, &#123; <span class="attr">message</span>: <span class="string">&#x27;Hello from Remote&#x27;</span> &#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Listen for an event from Host module.</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span>.<span class="title function_">on</span>(<span class="string">&#x27;someEvent&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data.<span class="property">message</span>); <span class="comment">// 输出: Hello from Remote</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -353,14 +358,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">179</span>
+          <span class="site-state-item-count">180</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">262</span>
+        <span class="site-state-item-count">263</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
