@@ -181,6 +181,95 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-standalone-component/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/02/Angular-standalone-component/" class="post-title-link" itemprop="url">Angular-standalone-component</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-02 21:56:59" itemprop="dateCreated datePublished" datetime="2023-09-02T21:56:59+08:00">2023-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-08 14:01:55" itemprop="dateModified" datetime="2024-05-08T14:01:55+08:00">2024-05-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Standalone-Component"><a href="#Angular-Standalone-Component" class="headerlink" title="Angular Standalone Component"></a>Angular Standalone Component</h1><p><code>standalone component</code>是Angular 14的一个新特性，它可以让我们在不创建module的情况下创建一个component。注意：<code>Directive</code>和<code>Pipe</code>也可以是standalone的。</p>
+<h2 id="创建一个standalone-component"><a href="#创建一个standalone-component" class="headerlink" title="创建一个standalone component"></a>创建一个standalone component</h2><p>组件代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// 添加这一句，表示这是一个standalone component。</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;lifecycle-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span>&#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>standalone component和module的交互使用有如下两种情况。</p>
+<h2 id="standalone-component引入其他module"><a href="#standalone-component引入其他module" class="headerlink" title="standalone component引入其他module"></a>standalone component引入其他module</h2><p>如果standalone component需要引入其他module，那么需要在<code>imports</code>属性中引入其他module，比如上面代码中引入的<code>CommonModule</code>。</p>
+<p>注意：只有standalone component才能引入其他module，<code>普通的component(non-standalone component)不能引入其他module</code>。所以只有standalone component才能使用<code>imports</code>属性。</p>
+<p>如果你遇到如下报错，那么说明你在非standalone组件中使用了<code>imports</code>属性，这是不允许的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error NG2010: <span class="string">&#x27;imports&#x27;</span> is only valid on a component that is standalone.</span><br></pre></td></tr></table></figure>
+
+<p>这种情况经常发生在，ComponentA(非独立组件)想在template中使用ComponentB(独立组件)，那么应该在ComponentA所在的module中的imports属性中引入ComponentB。</p>
+<h2 id="module引入standalone-component"><a href="#module引入standalone-component" class="headerlink" title="module引入standalone component"></a>module引入standalone component</h2><p>如果一个module要使用一个standalone component，那么<code>不再</code>需要在<code>declarations</code>属性中声明这个standalone component，只需要在<code>imports</code>属性中引入这个standalone component所在的module即可。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="comment">// OrderComponent, // no need to declare standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">OrderComponent</span>, <span class="comment">// imports standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="lazy-load-module"><a href="#lazy-load-module" class="headerlink" title="lazy load module"></a>lazy load module</h2><p>在NgModel时代，我们可以使用<code>loadChildren</code>来实现懒加载，比如下面的<code>product module</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="Lazy-load-standalone-component"><a href="#Lazy-load-standalone-component" class="headerlink" title="Lazy load standalone component"></a>Lazy load standalone component</h2><p>在Angular 14中，我们可以使用<code>loadComponent</code>来实现懒加载standalone component，比如下面的<code>order component</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;order&#x27;</span>, <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./order/order.component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">OrderComponent</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<h3 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h3><ul>
+<li>lazy load module: <code>loadChildren</code></li>
+<li>lazy load standalone component: <code>loadComponent</code></li>
+</ul>
+<h2 id="Bootstrap-standalone-component"><a href="#Bootstrap-standalone-component" class="headerlink" title="Bootstrap standalone component"></a>Bootstrap standalone component</h2><p>See <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/20/angular-bootstrap-standalone-component/">here</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><p><a target="_blank" rel="noopener" href="https://angular.io/guide/standalone-components">Angular standalone component</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-module/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1136,82 +1225,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/12/Communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-12 18:44:28" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-18 21:17:47" itemprop="dateModified" datetime="2024-09-18T21:17:47+08:00">2024-09-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
-<h2 id="Create-a-service"><a href="#Create-a-service" class="headerlink" title="Create a service"></a>Create a service</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params">message: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Send-message"><a href="#Directive-Send-message" class="headerlink" title="Directive(Send message)"></a>Directive(Send message)</h2><p>该指令使用上面定义的service发送消息</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Receive-message"><a href="#Directive-Receive-message" class="headerlink" title="Directive(Receive message)"></a>Directive(Receive message)</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="AppModule"><a href="#AppModule" class="headerlink" title="AppModule"></a>AppModule</h2><p>我们需要在appModule中声明这两个指令</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1281,14 +1294,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">182</span>
+          <span class="site-state-item-count">183</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">266</span>
+        <span class="site-state-item-count">267</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
