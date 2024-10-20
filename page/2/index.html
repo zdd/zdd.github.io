@@ -181,6 +181,157 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/29/angular-proxy-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/29/angular-proxy-config/" class="post-title-link" itemprop="url">angular-proxy-config</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-29 20:49:25 / Modified: 21:12:03" itemprop="dateCreated datePublished" datetime="2024-09-29T20:49:25+08:00">2024-09-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>When you are developing an Angular application, you may need to call some APIs from the backend server. But in the development environment, the backend server may not be ready yet, or you want to use a local backend server for testing. In this case, you can use the proxy configuration to redirect the API requests to another server.</p>
+<h2 id="1-Create-proxy-file"><a href="#1-Create-proxy-file" class="headerlink" title="1. Create proxy file"></a>1. Create proxy file</h2><p>Create a new file named <code>proxy.conf.json</code> in the root <code>src</code> folder of your Angular project. The content of the file should look like this:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;/api&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://localhost:3000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;secure&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>In this example, we are redirecting all requests that start with <code>/api</code> to <code>http://localhost:3000</code>. You can change the target URL to your backend server address.</p>
+<h2 id="2-Update-angular-json"><a href="#2-Update-angular-json" class="headerlink" title="2. Update angular.json"></a>2. Update <code>angular.json</code></h2><p>Open the <code>angular.json</code> file in the root of your Angular project. Find the <code>serve</code> section under <code>projects &gt; your-project-name &gt; architect &gt; serve &gt; configuration &gt; development</code>. Add the <code>proxyConfig</code> option with the path to the <code>proxy.conf.json</code> file.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;serve&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:dev-server&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;configurations&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;production&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;browserTarget&quot;</span><span class="punctuation">:</span> <span class="string">&quot;angular-16:build:production&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;development&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;proxyConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/proxy.conf.json&quot;</span><span class="punctuation">,</span> <span class="comment">// &lt;--- Add this line</span></span><br><span class="line">      <span class="attr">&quot;browserTarget&quot;</span><span class="punctuation">:</span> <span class="string">&quot;angular-16:build:development&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure>
+<p><strong>Note:</strong> you can also serve the proxy file in <code>ng serve</code> command as below.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve --proxy-config src/proxy.conf.json</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Start-the-development-server"><a href="#3-Start-the-development-server" class="headerlink" title="3. Start the development server"></a>3. Start the development server</h2><p>Now you can start the development server with the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-Example-of-backend-server-Express"><a href="#4-Example-of-backend-server-Express" class="headerlink" title="4. Example of backend server(Express)"></a>4. Example of backend server(Express)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Sample user information</span></span><br><span class="line"><span class="keyword">const</span> userInfo = &#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;John Doe&#x27;</span>,</span><br><span class="line">    <span class="attr">email</span>: <span class="string">&#x27;john.doe@example.com&#x27;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Define the /api/user route</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/api/user&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;request in....&#x27;</span>)</span><br><span class="line">    res.<span class="title function_">json</span>(userInfo);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start the server</span></span><br><span class="line">app.<span class="title function_">listen</span>(port, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Server is running on http://localhost:<span class="subst">$&#123;port&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="5-Troubleshooting"><a href="#5-Troubleshooting" class="headerlink" title="5. Troubleshooting"></a>5. Troubleshooting</h2><ol>
+<li>Make sure your backend server is running on the specified target URL. you can test your api from the browser or using tools like Postman to make sure it works.</li>
+<li>Don’t call backend api directly, only calls made to dev server will be redirected to the target URL.<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchUser</span>(<span class="params"></span>) &#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="built_in">any</span>&gt;(<span class="string">&#x27;/api/user&#x27;</span>); <span class="comment">// OK </span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchUser</span>(<span class="params"></span>) &#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="built_in">any</span>&gt;(<span class="string">&#x27;http://localhost:4200/api/user&#x27;</span>); <span class="comment">// OK </span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchUser</span>(<span class="params"></span>) &#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="built_in">any</span>&gt;(<span class="string">&#x27;http://localhost:3000/api/user&#x27;</span>); <span class="comment">// Won&#x27;t work! </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Make sure the path of proxy config file is correct in <code>angular.json</code> file.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/28/npm-install-production/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/28/npm-install-production/" class="post-title-link" itemprop="url">npm-install-production</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-28 12:37:23 / Modified: 12:38:13" itemprop="dateCreated datePublished" datetime="2024-09-28T12:37:23+08:00">2024-09-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>The <code>npm install --production</code> command is used to install only the dependencies listed under the <code>dependencies</code> section in the <code>package.json</code> file, excluding the <code>devDependencies</code>. This is typically used in production environments where you want to avoid installing unnecessary development tools and libraries.</p>
+<p>Here is a brief explanation of when and why you might use <code>npm install --production</code>:</p>
+<ol>
+<li><p><strong>Production Deployment</strong>: When deploying an application to a production environment, you often want to minimize the size of the deployment package and reduce the number of installed packages to only those necessary for running the application. This helps in improving performance and security.</p>
+</li>
+<li><p><strong>Server Environments</strong>: In server environments where the application is running, you generally do not need development tools like testing frameworks, linters, or build tools. Using <code>npm install --production</code> ensures that only the essential packages are installed.</p>
+</li>
+<li><p><strong>Docker Images</strong>: When building Docker images for your application, using <code>npm install --production</code> can help create smaller and more efficient images by excluding development dependencies.</p>
+</li>
+</ol>
+<p>Example usage:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --production</span><br></pre></td></tr></table></figure>
+
+<p>This command will read the <code>package.json</code> file and install only the packages listed under <code>dependencies</code>, ignoring those under <code>devDependencies</code>.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/28/rxjs-function-timeout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -837,236 +988,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/09/angular-how-ng-serve-works/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/09/angular-how-ng-serve-works/" class="post-title-link" itemprop="url">angular-how-ng-serve-works</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-09-09 22:19:19" itemprop="dateCreated datePublished" datetime="2024-09-09T22:19:19+08:00">2024-09-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-19 10:30:46" itemprop="dateModified" datetime="2024-09-19T10:30:46+08:00">2024-09-19</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Angular的CLI(Command Line Interface)系统非常强大，它提供了丰富的命令用来构建，测试，运行Angular程序，今天我们就从源码的角度来看看cli中的<code>ng serve</code>命令是如何工作的。</p>
-<p><code>ng serve</code>是我们日常频繁使用的命令，它用来本地启动Angular项目，检测代码更新以做出响应，但是用了这么久的命令，你了解它的底层逻辑吗？下面的几个问题你是否思考过？</p>
-<ol>
-<li><code>ng serve</code>命令为什么没有输出文件到dist目录？</li>
-<li><code>ng serve</code>命令是如何启动一个web server的？</li>
-<li><code>ng serve</code>命令是如何监控文件变化的？</li>
-<li><code>ng serve</code>命令是如何实现热更新的？</li>
-</ol>
-<p>下面就让我们开始这段愉快而又漫长的探索之旅吧！</p>
-<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个查看待调试的项目代码，一个查看<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
-<h2 id="从命令行开始"><a href="#从命令行开始" class="headerlink" title="从命令行开始"></a>从命令行开始</h2><p>如果你直接查看<code>ng serve</code>命令的源码，可能得不到什么有用的信息，<code>serve</code>命令对应的源码在这里：<code>packages/angular/cli/src/commands/serve/cli.ts</code>， 从以下代码可知，<code>serve</code>命令是继承自<code>ArchitectCommandModule</code>的，同时也实现了<code>CommandModuleImplementation</code>接口。而该文件本身只是做了一个简单的配置，具体的实现逻辑都在<code>ArchitectCommandModule</code>和<code>CommandModuleImplementation</code>中。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">ServeCommandModule</span></span><br><span class="line">  <span class="keyword">extends</span> <span class="title class_ inherited__">ArchitectCommandModule</span></span><br><span class="line">  <span class="keyword">implements</span> <span class="title class_">CommandModuleImplementation</span></span><br><span class="line">&#123;</span><br><span class="line">  multiTarget = <span class="literal">false</span>;</span><br><span class="line">  command = <span class="string">&#x27;serve [project]&#x27;</span>;</span><br><span class="line">  aliases = <span class="title class_">RootCommands</span>[<span class="string">&#x27;serve&#x27;</span>].<span class="property">aliases</span>;</span><br><span class="line">  describe = <span class="string">&#x27;Builds and serves your application, rebuilding on file changes.&#x27;</span>;</span><br><span class="line">  longDescriptionPath?: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>还是调试吧，我们打开Angular项目，然后打开项目根目录下的<code>package.json</code>文件，找到<code>scripts</code>字段，你会看到如下内容：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;ng&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng serve&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng build&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;watch&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng build --watch --configuration development&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ngc&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --verbose&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test:watch&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --watch&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;prepare&quot;</span><span class="punctuation">:</span> <span class="string">&quot;husky install&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure>
-<p>想要深入理解<code>ng serve</code>命令，我们需要先了解<code>start</code>命令是如何工作的。我们通过调式该命令的方式来了解<code>ng serve</code>的底层逻辑。不同的IDE对应不同的调试方式：</p>
-<ul>
-<li>WebStorm: 点击<code>start</code>命令左侧的绿色三角按钮，然后选择<code>Debug &#39;start&#39;</code>，这样就可以进入<code>ng serve</code>的源码了。</li>
-<li>VSCode: 鼠标悬停到<code>start</code>命令上，点击<code>Debug</code>按钮，这样就可以进入<code>ng serve</code>的源码了。</li>
-</ul>
-<p>使用这种方法可以进入调试状态，但是我们要在哪里设置断点呢？</p>
-<p>对于<code>package.json</code>中的script区块中的命令，其实他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
-<p>可是我们找到了三个<code>ng</code>文件，分别是<code>ng</code>, <code>ng.cmd</code>, <code>ng.ps1</code>，那么我们应该选择哪一个呢？其实通过扩展名就能看出来，我这里使用的是Windows系统，所以我们选择<code>ng.cmd</code>文件。</p>
-<ul>
-<li>ng - Unix shell script</li>
-<li>ng.cmd - Windows batch file</li>
-<li>ng.ps1 - Windows PowerShell script</li>
-</ul>
-<p>用记事本打开这个文件看看它的代码:</p>
-<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> off</span><br><span class="line"><span class="keyword">GOTO</span> <span class="built_in">start</span></span><br><span class="line">:find_dp0</span><br><span class="line"><span class="built_in">SET</span> dp0=%~dp0</span><br><span class="line"><span class="keyword">EXIT</span> /b</span><br><span class="line">:<span class="built_in">start</span></span><br><span class="line"><span class="built_in">SETLOCAL</span></span><br><span class="line"><span class="keyword">CALL</span> :find_dp0</span><br><span class="line"></span><br><span class="line"><span class="keyword">IF</span> <span class="keyword">EXIST</span> &quot;<span class="variable">%dp0%</span>\node.exe&quot; (</span><br><span class="line">  <span class="built_in">SET</span> &quot;_prog=<span class="variable">%dp0%</span>\node.exe&quot;</span><br><span class="line">) <span class="keyword">ELSE</span> (</span><br><span class="line">  <span class="built_in">SET</span> &quot;_prog=node&quot;</span><br><span class="line">  <span class="built_in">SET</span> PATHEXT=<span class="variable">%PATHEXT:;.JS;=;%</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">endLocal</span> &amp; <span class="keyword">goto</span> #_undefined_# <span class="number">2</span>&gt;<span class="built_in">NUL</span> || <span class="built_in">title</span> <span class="variable">%COMSPEC%</span> &amp; &quot;<span class="variable">%_prog%</span>&quot;  &quot;<span class="variable">%dp0%</span>\..\@angular\cli\bin\ng.js&quot; %*</span><br></pre></td></tr></table></figure>
-<p>我们不必纠结于每一行代码的含义，简单分析下来，我们可以推断出这个脚本的作用就是用<code>node.exe</code>来调用<code>@angular/cli/bin/ng.js</code>文件。</p>
-<p>好了，我们再去看一下这个<code>ng.js</code>文件，这个文件就是Angular CLI的入口文件。ng.js调用了同一目录下的<code>bootstrap.js</code>文件，<code>bootstrap.js</code>文件调用了<code>lib/init.ts</code>文件。<code>init.ts</code>又调用了<code>lib/cli/index.ts</code>文件，后续又有一大堆的调用。</p>
-<p><code>bin/ng.js</code> –&gt; <code>bin/bootstrap.js</code> –&gt; <code>lib/init.ts</code> –&gt; <code>lib/cli/index.ts</code> –&gt; …</p>
-<p>通过不断的设置断点并调试得知，最终在文件<code>packages/angular/cli/src/command-builder/architect-base-command-module.ts</code>中通过解析项目的配置文件<code>angular.json</code>，找到<code>serve</code>命令对应的<code>builder</code>，然后通过调用那个<code>builder</code>来启动一个web server。</p>
-<p><code>architect-base-command-module.ts</code>对应的代码如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">async</span> <span class="title function_">runSingleTarget</span>(<span class="attr">target</span>: <span class="title class_">Target</span>, <span class="attr">options</span>: <span class="title class_">OtherOptions</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">number</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> architectHost = <span class="variable language_">this</span>.<span class="title function_">getArchitectHost</span>();</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">builderName</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    builderName = <span class="keyword">await</span> architectHost.<span class="title function_">getBuilderNameForTarget</span>(target); <span class="comment">// 获取builder名称</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="title function_">assertIsError</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">onMissingTarget</span>(e.<span class="property">message</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
-
-<h2 id="Webpack配置在哪里？"><a href="#Webpack配置在哪里？" class="headerlink" title="Webpack配置在哪里？"></a>Webpack配置在哪里？</h2><p>我们都知道，<code>ng serve</code>命令启动的是一个web server，而这是通过<code>webpack-dev-server</code>来实现的，那么这个webpack-dev-server的配置在哪里呢？我么可以在源码中找到如下目录：<br><code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code>，这个目录下有四个文件：</p>
-<ul>
-<li><code>common.ts</code> - 通用配置，主要是打包配置</li>
-<li><code>dev-server.ts</code> - 开发服务器配置 - 我们要找的配置就在这里。</li>
-<li><code>styles.ts</code> - 样式配置，用来处理各种样式文件, 如css, scss&#x2F;sass, less等</li>
-<li><code>index.ts</code> - 导出上面三个文件</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Angular的CLI命令对应的逻辑源码并不在CLI命令本身中，而是在对应的builder中，builder源码在这个目录下：</p>
-<ul>
-<li><code>packages/angular/build/src/builders</code> - application builder</li>
-<li><code>packages/angular_devkit/build_angular/src/builders</code> - other builders</li>
-</ul>
-<p>关于builder的详细介绍，可以参考之前的一篇博文：<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/06/06/angular-builders/%EF%BC%8C">https://zdd.github.io/2024/06/06/angular-builders/，</a> 也可以参考Angular官方文档：<a target="_blank" rel="noopener" href="https://angular.dev/tools/cli/cli-builder/">https://angular.dev/tools/cli/cli-builder/</a></p>
-<ul>
-<li>ng server works in memory and never generate files to dist folder</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/03/angular-test-fixture/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/03/angular-test-fixture/" class="post-title-link" itemprop="url">angular-test-fixture</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-09-03 09:58:05" itemprop="dateCreated datePublished" datetime="2024-09-03T09:58:05+08:00">2024-09-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-11 19:35:49" itemprop="dateModified" datetime="2024-09-11T19:35:49+08:00">2024-09-11</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What’s-Fixture"><a href="#What’s-Fixture" class="headerlink" title="What’s Fixture?"></a>What’s Fixture?</h2><p>先解释一下<code>fixture</code>这个单词，它的意思是固定设施，比如室内的浴缸或抽水马桶。当然这里指的是测试中的固定设施，也就是我们要测试的组件。在Angular中，我们可以通过<code>TestBed</code>来创建一个组件的<code>fixture</code>，然后对这个<code>fixture</code>进行测试。</p>
-<p>通常来说，<code>fixture</code>都是在<code>beforeEach</code>中创建。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;ProductComponent&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">component</span>: <span class="title class_">ProductComponent</span>;</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">fixture</span>: <span class="title class_">ComponentFixture</span>&lt;<span class="title class_">ProductComponent</span>&gt;;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">beforeEach</span>(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">await</span> <span class="title class_">TestBed</span>.<span class="title function_">configureTestingModule</span>(&#123;</span><br><span class="line">      <span class="attr">imports</span>: [<span class="title class_">ProductComponent</span>] <span class="comment">// import standalone component</span></span><br><span class="line">    &#125;)</span><br><span class="line">    .<span class="title function_">compileComponents</span>();</span><br><span class="line"></span><br><span class="line">    fixture = <span class="title class_">TestBed</span>.<span class="title function_">createComponent</span>(<span class="title class_">ProductComponent</span>); <span class="comment">// create fixture</span></span><br><span class="line">    component = fixture.<span class="property">componentInstance</span>;</span><br><span class="line">    fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should create&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(component).<span class="title function_">toBeTruthy</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="fixture-detectChanges"><a href="#fixture-detectChanges" class="headerlink" title="fixture.detectChanges()"></a>fixture.detectChanges()</h2><p><code>fixture.detectChanges()</code>是用来触发组件的变更检测的，也就是说，当我们对组件的状态进行了修改之后，我们需要调用<code>fixture.detectChanges()</code>来通知Angular进行变更检测，以便更新视图。<br>如果你的测试中包含对UI的检测，那么你就需要调用<code>fixture.detectChanges()</code>。否则不需要。<br>来，举个例子！</p>
-<p>We have a product component which just display the product name as ‘Computer’, and when user click the <code>Change product name</code> button, we’ll update the product name to ‘Phone’.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">  name = <span class="string">&#x27;Computer&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">changeName</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;Phone&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">&quot;product-name&quot;</span>&gt;</span>Product name: &#123;&#123;name&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;changeName()&quot;</span>&gt;</span>Change product name<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>Does this test case work?</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should have name as Computer&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">changeName</span>();</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Phone&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>Yes, it works, but, we don’t need to call <code>fixture.detectChanges()</code> here, because we are testing the component’s property <code>name</code> change directly, not the UI changes.</p>
-<p>Does the following test case work?</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should change name&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">changeName</span>();</span><br><span class="line">  <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">  <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Phone&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>No, it doesn’t work, because, you call <code>component.changeName()</code> to change the product name, but you didn’t call <code>fixture.detectChanges()</code> to trigger the change detection and update the view. so the product name on page is still ‘Computer’.</p>
-<p>We can call <code>fixture.detectChanges()</code> after <code>component.changeName()</code> to fix this issue.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should change name&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">changeName</span>();</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">  <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Phone&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h2 id="fixture-whenStable"><a href="#fixture-whenStable" class="headerlink" title="fixture.whenStable()"></a>fixture.whenStable()</h2><p><code>fixture.whenStable()</code>是用来等待异步任务完成的，为了使用这个函数，我们给product component添加一个异步任务，比如通过<code>setTimeout</code>来模拟一个异步任务。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="title function_">updateName</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = <span class="keyword">await</span> <span class="variable language_">this</span>.<span class="title function_">getData</span>() <span class="keyword">as</span> <span class="built_in">unknown</span> <span class="keyword">as</span> <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;updateName()&quot;</span>&gt;</span>Update name<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>接下来，我们测试一下<code>updateName</code>方法。下面这个test case,没有调用<code>fixture.detectChanges()</code>，但是仍然可以通过测试，为什么呢？</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  component.<span class="title function_">updateName</span>();</span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">    <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">    <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>其实，这个test case是有问题的，它根本没有通过测试，虽然我们使用<code>async</code>标记了测试方法，但是<code>async</code>要配合<code>await</code>使用，而不是<code>then</code>，实际上，这里的<code>then</code>根本没有执行！</p>
-<p>为了修复这个test case，我们可以将<code>async</code>删除。（<strong>这里有待验证！！！</strong>）</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> component.<span class="title function_">updateName</span>();</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">    <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">    <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>其实，这里根本就不需要<code>fixture.whenStable()</code>，因为我们使用了<code>await</code>，它会等待异步任务完成，所以我们可以直接这样写：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> component.<span class="title function_">updateName</span>();</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">name</span>).<span class="title function_">toEqual</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">  <span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span>;</span><br><span class="line">  <span class="title function_">expect</span>(compiled.<span class="title function_">querySelector</span>(<span class="string">&#x27;#product-name&#x27;</span>).<span class="property">textContent</span>).<span class="title function_">toContain</span>(<span class="string">&#x27;Keyboard&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>那到底什么时候需要使用<code>fixture.whenStable()</code>呢？当你测试的方法里面包含异步操作，但是这个方法又不返回Promise的时候，你就需要使用<code>fixture.whenStable()</code>来等待异步任务完成。</p>
-<p>思考题：<br>下面的代码能通过测试吗？</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(<span class="literal">false</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>答案是：能！因为<code>fixture.whenStable()</code>里面的代码根本就没有执行，如何修复？</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> fixture.<span class="title function_">whenStable</span>();</span><br><span class="line">  <span class="title function_">expect</span>(<span class="literal">false</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>还可以在<code>fixture.whenStable()</code>前面加上<code>return</code>,因为Jest中如果返回一个Promise，Jest会等待这个Promise执行完成。详情看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/07/16/jest-test-async-functions/">这里</a></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should update name&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(<span class="literal">false</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><h3 id="fixture-detectChanges-1"><a href="#fixture-detectChanges-1" class="headerlink" title="fixture.detectChanges()"></a><code>fixture.detectChanges()</code></h3><ol>
-<li>This function will trigger change detection.</li>
-<li>Change detection will updates the view.</li>
-<li>If you test UI changes, you need to call <code>fixture.detectChanges()</code>.</li>
-</ol>
-<h3 id="fixture-whenStable-1"><a href="#fixture-whenStable-1" class="headerlink" title="fixture.whenStable()"></a><code>fixture.whenStable()</code></h3><ol>
-<li>This function will wait for the asynchronous tasks to complete.</li>
-<li>You should use this function in <code>async</code> function.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1136,14 +1057,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">183</span>
+          <span class="site-state-item-count">185</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">266</span>
+        <span class="site-state-item-count">268</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

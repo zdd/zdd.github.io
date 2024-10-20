@@ -181,6 +181,165 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/19/Event-delegate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/19/Event-delegate/" class="post-title-link" itemprop="url">Event-delegate</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-19 09:53:38" itemprop="dateCreated datePublished" datetime="2023-07-19T09:53:38+08:00">2023-07-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 08:57:36" itemprop="dateModified" datetime="2024-04-20T08:57:36+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是事件代理（也叫事件委托）"><a href="#什么是事件代理（也叫事件委托）" class="headerlink" title="什么是事件代理（也叫事件委托）"></a>什么是事件代理（也叫事件委托）</h2><p>事件代理是利用事件冒泡，只指定一个事件处理程序，就可以管理某一类型的所有事件。比如，我们有一个<code>ul</code>元素，里面有很多<code>li</code>元素，我们想要给每个<code>li</code>元素添加点击事件。有两种方法可以完成这件事：</p>
+<ol>
+<li>给每个<code>li</code>元素都添加一个点击事件，弊端是如果<code>li</code>元素很多的话，就会导致代码很冗余，如果后面还有新的<code>li</code>元素添加进来，还需要给新的<code>li</code>元素添加点击事件，导致代码很难维护。</li>
+<li>给<code>ul</code>元素添加一个点击事件，然后在事件处理程序中判断点击的是哪个<code>li</code>元素，然后执行对应的操作即可，简洁高效。<code>这种方法就是事件代理</code>。</li>
+</ol>
+<h2 id="事件代理的原理"><a href="#事件代理的原理" class="headerlink" title="事件代理的原理"></a>事件代理的原理</h2><p>事件代理的原理是利用事件冒泡，将本应由被点击元素处理了的事件委托给其父元素来处理，这样就可以在事件处理程序中判断点击的是哪个元素，然后执行对应的操作。<br>不支持事冒泡的事件无法使用事件代理，比如<code>blur</code>、<code>focus</code>、<code>load</code>、<code>unload</code>等事件。</p>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p>下面代码为<code>ul</code>元素添加了一个点击事件，然后在事件处理程序中判断点击的是哪个<code>li</code>元素，然后执行对应的操作。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">&quot;list&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 4<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 5<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> list = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;list&#x27;</span>);</span><br><span class="line">list.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (e.<span class="property">target</span> &amp;&amp; e.<span class="property">target</span>.<span class="property">nodeName</span> === <span class="string">&#x27;LI&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">target</span>.<span class="property">innerHTML</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>而下面的代码为table元素添加了点击事件，然后在事件处理程序中判断点击的是哪个<code>td</code>元素，然后执行对应的操作。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">id</span>=<span class="string">&quot;my-table&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>2<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>3<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> table = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;my-table&quot;</span>);</span><br><span class="line">table.<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// Only handle click on td element.</span></span><br><span class="line">  <span class="keyword">if</span> (e.<span class="property">target</span>.<span class="property">tagName</span>.<span class="title function_">toLowerCase</span>() === <span class="string">&quot;td&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">      <span class="string">`You clicked on td element with value <span class="subst">$&#123;e.target.innerHTML&#125;</span>`</span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="为啥突然想到这个呢？"><a href="#为啥突然想到这个呢？" class="headerlink" title="为啥突然想到这个呢？"></a>为啥突然想到这个呢？</h2><p>因为最近在做一个drag and drop的app，需要在拖拽的时候显示preview（被拖拽元素跟着鼠标走），需要一个操作就是克隆被拖拽的元素，而cloneNode这个方法是无法克隆事件的（只能克隆inline事件，无法克隆通过属性或者event listener添加的事件），而如果使用的是事件代理模式，则不存在这个问题。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/13/Enable-CORS-from-backend-with-Node-and-Express/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/13/Enable-CORS-from-backend-with-Node-and-Express/" class="post-title-link" itemprop="url">Enable CORS from backend with Node and Express</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-13 21:51:11" itemprop="dateCreated datePublished" datetime="2023-07-13T21:51:11+08:00">2023-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-22 09:09:42" itemprop="dateModified" datetime="2023-07-22T09:09:42+08:00">2023-07-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Enable-CORS-from-backend-with-Node-and-Express"><a href="#Enable-CORS-from-backend-with-Node-and-Express" class="headerlink" title="Enable CORS from backend with Node and Express"></a>Enable CORS from backend with Node and Express</h1><p>本文介绍如何在Node和Express中启用CORS。从后端解决前端项目中常见的跨域问题。想必每个做过前端开发的同学都对下面这个错误很熟悉：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to XMLHttpRequest at &#x27;http://localhost:3000/api/xxx&#x27; from origin &#x27;http://localhost:4200&#x27; has been blocked by CORS policy: No &#x27;Access-Control-Allow-Origin&#x27; header is present on the requested resource.</span><br></pre></td></tr></table></figure>
+<p>这个错误是由于浏览器的同源策略导致的，同源策略是浏览器的一种安全策略，它要求浏览器只能向同源网址发送请求，同源网址指的是协议、域名、端口号都相同的网址。比如，<code>http://localhost:4200</code>(4200是Angular项目常用端口)和<code>http://localhost:3000</code>（3000是Node.js项目常用端口）就不是同源网址，因为它们的端口号不同。同源策略的目的是为了防止恶意的网站窃取数据，但是对于前端开发来说，这个策略有时候就显得有点过于严格了，比如我们在开发时，前端项目和后端项目往往是分开的，前端项目一般运行在<code>http://localhost:4200</code>，而后端项目一般运行在<code>http://localhost:3000</code>，这样就导致了前端项目无法向后端项目发送请求，从而导致了上面的错误。那么如何解决这个问题呢？我们可以在后端项目中启用CORS，从而解决这个问题。下面我们就来看看如何在Node和Express中启用CORS。</p>
+<h2 id="什么是CORS"><a href="#什么是CORS" class="headerlink" title="什么是CORS"></a>什么是CORS</h2><p>CORS是Cross-Origin Resource Sharing的缩写，中文名是跨域资源共享，它是一种机制，它使用额外的HTTP头来告诉浏览器，允许运行在一个源上的Web应用访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域HTTP请求。<br>以下是几种跨域常见的场景：</p>
+<ol>
+<li>域名不同<br><code>remotehost</code> vs <code>localhost</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:4200 和 http://remotehost:3000</span><br></pre></td></tr></table></figure></li>
+<li>协议不同<br><code>http</code> vs <code>https</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 https://localhost:3000</span><br></pre></td></tr></table></figure></li>
+<li>端口不同<br><code>3000</code> vs <code>4200</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 http://localhost:4200</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="解决跨域"><a href="#解决跨域" class="headerlink" title="解决跨域"></a>解决跨域</h2><ol>
+<li>创建一个Express项目并安装cors<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm init</span><br><span class="line">npm install express --save</span><br><span class="line">npm install cors --save</span><br></pre></td></tr></table></figure></li>
+<li>在项目根目录下创建<code>server.js</code>文件，添加如下内容，这个服务器提供两个接口，一个是<code>/</code>，一个是<code>/users</code>，其中<code>/users</code>接口返回一个用户列表。而且在<code>server.js</code>中启用了CORS，允许<code>http://localhost:4200</code>这个地址访问该服务提供的接口。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">&#x27;cors&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Enable CORS</span></span><br><span class="line"><span class="keyword">let</span> corsOptions = &#123;</span><br><span class="line"> origin : [<span class="string">&#x27;http://localhost:4200&#x27;</span>], <span class="comment">// 前端项目地址</span></span><br><span class="line">&#125;;</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>(corsOptions));</span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> res.<span class="title function_">send</span>(<span class="string">&#x27;Hello World!&#x27;</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/users&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> <span class="keyword">const</span> users = [</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Jane&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span>&#125;,</span><br><span class="line"> ];</span><br><span class="line"></span><br><span class="line"> res.<span class="title function_">json</span>(users);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li>启动项目<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node server.js</span><br></pre></td></tr></table></figure></li>
+<li>新建一个前端项目（Angular），启动项目后运行在localhost:4200,通过前端访问这个api时就不会有跨域问题了。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">UsersModel</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./users.model&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClient</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/common/http&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-users&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./users.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./users.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">UsersComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">users</span>: <span class="title class_">UsersModel</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> http: HttpClient</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">UsersModel</span>[]&gt;(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>)</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">users: UsersModel[]</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">users</span> = users;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>记得在app.module.ts中启用HttpClientModule<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClientModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">   <span class="attr">declarations</span>: [</span><br><span class="line">   <span class="title class_">AppComponent</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">imports</span>: [</span><br><span class="line">     <span class="title class_">HttpClientModule</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">providers</span>: [],</span><br><span class="line">   <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1042,128 +1201,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/25/Android-version-sdk-version-API-level-mapping/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/25/Android-version-sdk-version-API-level-mapping/" class="post-title-link" itemprop="url">Android version, sdk version API level mapping</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-04-25 20:56:10 / Modified: 20:57:34" itemprop="dateCreated datePublished" datetime="2023-04-25T20:56:10+08:00">2023-04-25</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>See here for details:<br><a target="_blank" rel="noopener" href="https://apilevels.com/">https://apilevels.com/</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/22/Android-dependencies/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/22/Android-dependencies/" class="post-title-link" itemprop="url">Android dependencies</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-04-22 17:28:14 / Modified: 18:13:34" itemprop="dateCreated datePublished" datetime="2023-04-22T17:28:14+08:00">2023-04-22</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Android-dependencies-conflict-resolve"><a href="#Android-dependencies-conflict-resolve" class="headerlink" title="Android dependencies conflict resolve"></a>Android dependencies conflict resolve</h1><p>今天在编译Android应用“草书字典”时突然发现以下错误：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-18.0 (com.google.guava:guava:18.0) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)</span><br></pre></td></tr></table></figure>
-<p>大意是说<code>com.google.common.util.concurrent.ListenableFuture</code>这个class出现在不同的package中，属于重复依赖，gradle无法处理，要手动处理一下。</p>
-<p>在<code>app.gradle</code>文件中加入如下一行就好了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation &#x27;com.google.guava:guava:27.0.1-android&#x27;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1233,14 +1270,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">183</span>
+          <span class="site-state-item-count">185</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">266</span>
+        <span class="site-state-item-count">268</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
