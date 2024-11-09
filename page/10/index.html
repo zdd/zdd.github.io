@@ -181,6 +181,179 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/angular-change-detection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/28/angular-change-detection/" class="post-title-link" itemprop="url">angular-change-detection</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-28 20:47:10" itemprop="dateCreated datePublished" datetime="2024-04-28T20:47:10+08:00">2024-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-03 11:42:50" itemprop="dateModified" datetime="2024-09-03T11:42:50+08:00">2024-09-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>The most important work for frontend framework is state management and change detection. Angular uses Zone.js to detect changes in the application. In this article, we will discuss how Angular change detection works.</p>
+<p>Unlike React and Vue, Change detection in Angular is triggered automatically as a result of async event. Angular uses Zone.js to detect changes in the application. Zone.js is a library that <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patches</a> all asynchronous operations in the browser. It allows Angular to know when to run change detection.</p>
+<p>&#x2F;&#x2F; insert code example here.</p>
+<p>Angular patches all asynchronous operations in the browser, such as <code>setTimeout</code>, <code>setInterval</code>, <code>addEventListener</code>, <code>XMLHttpRequest</code>, <code>fetch</code>, <code>Promise</code>, <code>MutationObserver</code>, etc. When an asynchronous operation is executed, Angular will run change detection.</p>
+<p>Take the DOM event as an example, when user click a button on page, Angular will run change detection to update the view. Angular will run change detection after the event handler is executed.</p>
+<p>Here is the pseudo code, you can find the real code in <code>packages/zone.js/lib/browser/event-target.ts</code> in angular source code.(Note, initially, <code>zone.js</code> is a independent library, but it is moved to angular’s mono-repo.)</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Store a reference to the original addEventListener</span></span><br><span class="line"><span class="keyword">const</span> nativeAddEventListener = <span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Replace the original addEventListener with a patched version</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span> = <span class="keyword">function</span>(<span class="params">eventName, handler, options</span>) &#123;</span><br><span class="line">  <span class="comment">// Call the native addEventListener with the provided arguments</span></span><br><span class="line">  nativeAddEventListener.<span class="title function_">call</span>(<span class="variable language_">this</span>, eventName, handler, options);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional functionality to track the state of asynchronous operations</span></span><br><span class="line">  <span class="comment">// This could involve interacting with Zone.js&#x27;s internal data structures</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="What-does-change-detection-do-in-Angular"><a href="#What-does-change-detection-do-in-Angular" class="headerlink" title="What does change detection do in Angular?"></a>What does change detection do in Angular?</h2><ol>
+<li>Update all bindings in templates.</li>
+<li>Update the view.</li>
+</ol>
+<h2 id="NgZone"><a href="#NgZone" class="headerlink" title="NgZone"></a>NgZone</h2><p>Angular uses <code>NgZone</code> to detect changes in the application. <code>NgZone</code> is a class that provides a way to run code in the Angular zone. It is used to detect changes in the application.</p>
+<p>You can easily see NgZone by logging it to the console.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">zone: NgZone</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_inner</span>.<span class="property">name</span>); <span class="comment">// angular</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_outer</span>.<span class="property">name</span>); <span class="comment">// root</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NgZone</code> is instantiated during the bootstrap phase.</p>
+<h2 id="How-to-determine-when-change-detection-is-triggered-in-a-component"><a href="#How-to-determine-when-change-detection-is-triggered-in-a-component" class="headerlink" title="How to determine when change detection is triggered in a component?"></a>How to determine when change detection is triggered in a component?</h2><p>You can use the <code>ngDoCheck</code> lifecycle hook to determine when change detection is triggered in a component. <code>ngDoCheck</code> is called every time change detection is triggered in a component.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Change detection triggered&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ngOnChanges"><a href="#ngOnChanges" class="headerlink" title="ngOnChanges"></a>ngOnChanges</h2><p><code>ngOnChanges</code> is a lifecycle hook that is called when a component’s input properties change. It is used to detect changes in the component’s input properties.</p>
+<p>What’s the scenarios to use <code>ngOnChanges</code>?</p>
+<ol>
+<li>When you want to detect changes in the component’s input properties.</li>
+<li>When you want to avoid function call in template. see <a target="_blank" rel="noopener" href="https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496">here</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/27/nginx-beginner-guide-for-windows/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/27/nginx-beginner-guide-for-windows/" class="post-title-link" itemprop="url">nginx-beginner-guide-for-windows</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-04-27 22:06:12 / Modified: 22:13:54" itemprop="dateCreated datePublished" datetime="2024-04-27T22:06:12+08:00">2024-04-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Install-Nginx-on-Windows"><a href="#Install-Nginx-on-Windows" class="headerlink" title="Install Nginx on Windows"></a>Install Nginx on Windows</h1><ol>
+<li>Download Nginx from <a target="_blank" rel="noopener" href="https://nginx.org/en/download.html">Nginx official website</a>.</li>
+<li>Extract the downloaded file to a folder, for example, <code>C:\nginx</code>.</li>
+</ol>
+<h2 id="Build-your-app"><a href="#Build-your-app" class="headerlink" title="Build your app"></a>Build your app</h2><ol>
+<li>Build your Angular app using the following command: This will generate the <code>dist</code> folder under your project root. for example, <code>D:\codes\angular\angular-router</code>.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng build --prod</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Setup-Nginx"><a href="#Setup-Nginx" class="headerlink" title="Setup Nginx"></a>Setup Nginx</h2><ol>
+<li>Open a command prompt as an administrator.</li>
+<li>Navigate to the Nginx directory.</li>
+<li>Open the <code>conf/nginx.conf</code> file in a text editor.</li>
+<li>Find the <code>http</code> | <code>server</code> block and add the following line:<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> localhost;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">root</span> D:/codes/angular/angular-router/dist;</span><br><span class="line">        <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Start-Nginx"><a href="#Start-Nginx" class="headerlink" title="Start Nginx"></a>Start Nginx</h2><ol>
+<li>Open a command prompt as an administrator.</li>
+<li>Navigate to the Nginx directory.</li>
+<li>Start Nginx using the following command:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start nginx</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Restart-Nginx"><a href="#Restart-Nginx" class="headerlink" title="Restart Nginx"></a>Restart Nginx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="Stop-Nginx"><a href="#Stop-Nginx" class="headerlink" title="Stop Nginx"></a>Stop Nginx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s stop</span><br></pre></td></tr></table></figure>
+
+<h2 id="Check-Nginx-configuration"><a href="#Check-Nginx-configuration" class="headerlink" title="Check Nginx configuration"></a>Check Nginx configuration</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t</span><br></pre></td></tr></table></figure>
+<p>If the configuration is valid, you will see a message like this:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nginx: the configuration file C:/nginx/conf/nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file C:/nginx/conf/nginx.conf <span class="built_in">test</span> is successful</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1123,199 +1296,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/javascript-apply-call-bind/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/javascript-apply-call-bind/" class="post-title-link" itemprop="url">javascript-apply-call-bind</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-14 12:49:19 / Modified: 12:51:52" itemprop="dateCreated datePublished" datetime="2024-04-14T12:49:19+08:00">2024-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在JavaScript中,<code>apply</code>, <code>call</code>, <code>bind</code>是三个非常重要的方法，它们的一个重要作用是在调用函数时改变<code>this</code>的值。<strong>注意：箭头函数的this值无法修改。</strong></p>
-<ol>
-<li>Function.prototype.apply()</li>
-<li>Function.prototype.call()</li>
-<li>Function.prototype.bind()</li>
-</ol>
-<h2 id="apply"><a href="#apply" class="headerlink" title="apply"></a>apply</h2><h2 id="call"><a href="#call" class="headerlink" title="call"></a>call</h2><h2 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h2><p><code>bind</code>函数创建一个新的函数，并且第一个参数是<code>this</code>的值，后面的参数是新函数的参数。<br>还记得前面的例子吗？将对象方法赋值给普通函数时，this指向了全局对象，而全局对象上没有<code>name</code>属性，所以输出<code>undefined</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="title function_">sayName</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sayName = person.<span class="property">sayName</span>;</span><br><span class="line"><span class="title function_">sayName</span>(); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-
-<p>我们只要用<code>bind</code>修改一下<code>this</code>，让它绑定到person对象，就可以输出<code>Philip</code>了。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="title function_">sayName</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sayName = person.<span class="property">sayName</span>.<span class="title function_">bind</span>(person);</span><br><span class="line"><span class="title function_">sayName</span>(); <span class="comment">// Philip</span></span><br></pre></td></tr></table></figure>
-
-<p>再看一个class中使用bind的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CountDown</span> &#123;</span><br><span class="line">  count = <span class="number">0</span>;</span><br><span class="line">  interval = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">count</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = count;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">decrement</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">count</span>);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> -= <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">count</span> &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Done&quot;</span>);</span><br><span class="line">      <span class="built_in">clearInterval</span>(<span class="variable language_">this</span>.<span class="property">interval</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">start</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">interval</span> = <span class="built_in">setInterval</span>(<span class="variable language_">this</span>.<span class="property">decrement</span>, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">new</span> <span class="title class_">CountDown</span>(<span class="number">10</span>);</span><br><span class="line">foo.<span class="title function_">start</span>();</span><br></pre></td></tr></table></figure>
-<p>上面的代码中，<code>this.interval</code>是一个定时器，每隔1秒调用<code>this.decrement</code>方法，但是<code>this.decrement</code>方法中的<code>this</code>指向了全局对象，所以<code>this.count</code>一直是<code>undefined</code>，而不是<code>CountDown</code>实例的<code>count</code>属性。我们可以使用<code>bind</code>来修改<code>this</code>的值。</p>
-<p>这说明了我们将对象方法传递给另一个函数作为参数时，该方法并不以对象方法的形式调用，而是以普通函数调用，所以<code>this</code>指向了全局对象。<br>以上代码相当于</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> decrement = foo.<span class="property">decrement</span>; <span class="comment">// 这里就变成普通方法了。</span></span><br><span class="line"><span class="built_in">setInterval</span>(decrement, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">start</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">interval</span> = <span class="built_in">setInterval</span>(<span class="variable language_">this</span>.<span class="property">decrement</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>), <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>或者干脆将<code>decrement</code>方法改为箭头函数，因为箭头函数没有自己的<code>this binding</code>, 所以<code>this</code>指向其<code>parent scope</code>，也就是<code>CountDown</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">decrement = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">count</span>);</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> -= <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">count</span> &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Done&quot;</span>);</span><br><span class="line">    <span class="built_in">clearInterval</span>(<span class="variable language_">this</span>.<span class="property">interval</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/javascript-functional-programming/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/javascript-functional-programming/" class="post-title-link" itemprop="url">javascript-functional-programming</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-14 10:42:51" itemprop="dateCreated datePublished" datetime="2024-04-14T10:42:51+08:00">2024-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-10-17 19:35:48" itemprop="dateModified" datetime="2024-10-17T19:35:48+08:00">2024-10-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="What-is-functional-programming"><a href="#What-is-functional-programming" class="headerlink" title="What is functional programming?"></a>What is functional programming?</h1><p>Functional programming is a programming paradigm that treats computation as the evaluation of mathematical functions and avoids changing state and mutable data.</p>
-<h1 id="Functional-programming-concepts"><a href="#Functional-programming-concepts" class="headerlink" title="Functional programming concepts"></a>Functional programming concepts</h1><h2 id="Pure-functions"><a href="#Pure-functions" class="headerlink" title="Pure functions"></a>Pure functions</h2><p>A function is called pure function if it returns the same result for the same arguments and has no side effects.</p>
-<p>And here is the full definition of a pure function from <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pure_function#cite_note-1">WikiPedia</a></p>
-<blockquote>
-<p>In computer programming, a pure function is a function that has the following properties</p>
-</blockquote>
-<blockquote>
-<p>the function return values are identical for identical arguments (no variation with local static variables, non-local variables, mutable reference arguments or input streams, i.e., referential transparency), and<br>the function has no side effects (no mutation of local static variables, non-local variables, mutable reference arguments or input&#x2F;output streams).</p>
-</blockquote>
-<h3 id="pure-function"><a href="#pure-function" class="headerlink" title="pure function"></a>pure function</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="non-pure-function"><a href="#non-pure-function" class="headerlink" title="non-pure function"></a>non-pure function</h3><p>In this example, the <code>calculateTax</code> function depends on the external variable <code>taxRate</code>. This means that if <code>taxRate</code> changes, the output of <code>calculateTax</code> changes even if the input remains the same. Therefore, <code>calculateTax</code> is not a pure function. </p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> taxRate = <span class="number">0.1</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">calculateTax</span>(<span class="params">amount</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> amount * taxRate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Is the following function pure?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">mergeArray</span>(<span class="params">arr1, arr2</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> arr1.<span class="title function_">push</span>(...arr2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>No, the function <code>mergeArray</code> is not pure because it modifies the <code>arr1</code> array in place using the <code>push</code> method.</p>
-<p>How to make the <code>mergeArray</code> function pure?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">mergeArray</span>(<span class="params">arr1, arr2</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> [...arr1, ...arr2];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Immutable-data"><a href="#Immutable-data" class="headerlink" title="Immutable data"></a>Immutable data</h2><p>In functional programming, data is immutable, which means it cannot be changed once it’s created. Instead of modifying existing data, we create new data with the desired changes.</p>
-<h2 id="Side-effects"><a href="#Side-effects" class="headerlink" title="Side effects"></a>Side effects</h2><p>A function is said to have a side effect if it modifies some state or variable outside its scope.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">incrementCount</span>(<span class="params"></span>) &#123;</span><br><span class="line">  count += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">incrementCount</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(count); <span class="comment">// Outputs: 1</span></span><br></pre></td></tr></table></figure>
-<p>In this example, the function <code>incrementCount</code> has a side effect because it modifies the global variable <code>count</code>. This is a side effect because it’s changing state outside of its own scope.</p>
-<h2 id="Referential-transparency"><a href="#Referential-transparency" class="headerlink" title="Referential transparency"></a>Referential transparency</h2><p>A function is called referentially transparent if it can be replaced with its value without changing the program’s behavior.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add</span>(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// Outputs: 5</span></span><br></pre></td></tr></table></figure>
-
-<p>In this example, the function <code>add</code> is referentially transparent because we can replace <code>add(2, 3)</code> with <code>5</code> without changing the program’s behavior.</p>
-<h2 id="First-class-functions"><a href="#First-class-functions" class="headerlink" title="First-class functions"></a>First-class functions</h2><p>In JavaScript, functions are first-class citizens. It means we can assign functions to variables, pass functions as arguments to other functions, and return functions from other functions.</p>
-<h3 id="function-as-variable"><a href="#function-as-variable" class="headerlink" title="function as variable"></a>function as variable</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> add = <span class="keyword">function</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add</span>(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// Outputs: 5</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="function-as-argument"><a href="#function-as-argument" class="headerlink" title="function as argument"></a>function as argument</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isEven</span>(<span class="params">num</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> num % <span class="number">2</span> === <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> evens = nums.<span class="title function_">filter</span>(isEven);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(evens);</span><br></pre></td></tr></table></figure>
-
-<h3 id="function-as-return-value"><a href="#function-as-return-value" class="headerlink" title="function as return value"></a>function as return value</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">createGreeter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`Hello, <span class="subst">$&#123;name&#125;</span>!`</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> greet = <span class="title function_">createGreeter</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">greet</span>(<span class="string">&#x27;John&#x27;</span>));</span><br></pre></td></tr></table></figure>
-
-<h2 id="Higher-order-functions"><a href="#Higher-order-functions" class="headerlink" title="Higher-order functions"></a>Higher-order functions</h2><p>A function that takes one or more functions as arguments or returns a function is called a higher-order function.<br>There are many functions in javascript that are higher-order functions, such as <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>forEach</code>, <code>sort</code>, etc.</p>
-<h2 id="declarative-vs-imperative"><a href="#declarative-vs-imperative" class="headerlink" title="declarative vs imperative"></a>declarative vs imperative</h2><p>Declarative programming is a programming paradigm that expresses the logic of a computation without describing its control flow. In contrast, imperative programming is a programming paradigm that uses statements that change a program’s state.</p>
-<p>Example:<br>Given an array of numbers, multiply all even numbers by 10 and return the sum of them.</p>
-<h3 id="Imperative-way"><a href="#Imperative-way" class="headerlink" title="Imperative way:"></a>Imperative way:</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; numbers.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  <span class="keyword">if</span> (numbers[i] % <span class="number">2</span> === <span class="number">0</span>) &#123;</span><br><span class="line">    sum += numbers[i] * <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(sum); <span class="comment">// 60</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Declarative-way"><a href="#Declarative-way" class="headerlink" title="Declarative way:"></a>Declarative way:</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sum = numbers</span><br><span class="line">  .<span class="title function_">filter</span>(<span class="function"><span class="params">num</span> =&gt;</span> num % <span class="number">2</span> === <span class="number">0</span>)</span><br><span class="line">  .<span class="title function_">map</span>(<span class="function"><span class="params">num</span> =&gt;</span> num * <span class="number">10</span>)</span><br><span class="line">  .<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, num</span>) =&gt;</span> acc + num, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(sum); <span class="comment">// 60</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="Benefits-of-functional-programming"><a href="#Benefits-of-functional-programming" class="headerlink" title="Benefits of functional programming"></a>Benefits of functional programming</h1><ul>
-<li>Easy to test</li>
-<li>Easy to run in parallel(concurrency)</li>
-<li>Easy to cache</li>
-</ul>
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Functional_programming">Wikipedia</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1385,14 +1365,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">185</span>
+          <span class="site-state-item-count">187</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">268</span>
+        <span class="site-state-item-count">271</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
