@@ -181,6 +181,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/31/javascript-promise-then/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/31/javascript-promise-then/" class="post-title-link" itemprop="url">javascript-promise-then</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-31 10:58:07" itemprop="dateCreated datePublished" datetime="2024-03-31T10:58:07+08:00">2024-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-13 20:26:00" itemprop="dateModified" datetime="2024-06-13T20:26:00+08:00">2024-06-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Promise被reject时，then方法会执行吗？"><a href="#Promise被reject时，then方法会执行吗？" class="headerlink" title="Promise被reject时，then方法会执行吗？"></a>Promise被<code>reject</code>时，then方法会执行吗？</h2><p><code>promise.protyto.then</code>什么时候会执行？我的印象里只有<code>promise</code>状态为<code>fullfilled</code>时才会执行，其实是不对的，<code>promise</code>状态为<code>reject</code>时，同样可以执行<code>then</code>方法。</p>
+<p>先来看一个最常规的应用，我们在写代码时都是<code>then</code>和<code>catch</code>配合使用的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="string">&#x27;success in fetchData&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">&#125;).<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>我们在<code>fetchData</code>中使用<code>setTimeout</code>模拟了一个异步操作，100ms后<code>resolve</code>，这时<code>then</code>中的回调函数会被执行，打印出<code>success in fetchData</code>。</p>
+<p>同理，假设100ms后<code>reject</code>这个<code>promise</code>，那么会打印出: <code>error in fetchData</code>。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">reject</span>(<span class="string">&#x27;error in fetchData&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">&#125;).<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在常规使用中，我们只给<code>then</code>传了一个方法作为参数，但是<code>then</code>其实可以接受两个参数的。如果我们传递了第二个参数，那么当<code>promise</code>状态为<code>reject</code>时，第二个参数对应的方法会被执行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">then</span>(onFulfilled)</span><br><span class="line"><span class="title function_">then</span>(onFulfilled, onRejected)</span><br></pre></td></tr></table></figure>
+
+<p>所以，修改一下上面的代码，我们可以这样写：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">reject</span>(<span class="string">&#x27;error in fetchData&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">&#125;, <span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这样，当<code>promise</code>状态为<code>reject</code>时，第二个参数对应的方法会被执行，打印出<code>error in fetchData</code>。这和使用<code>catch</code>的效果是一样的。</p>
+<p>那么如果我们既传递了<code>then</code>中的第二个参数<code>onRejected</code>又使用了<code>catch</code>，结果会怎样呢？我们来看一下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">reject</span>(<span class="string">&#x27;error in fetchData&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">&#125;, <span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">&#125;).<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;catch:&#x27;</span>, error);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>此时打印出的结果是<code>error in fetchData</code>，因为then中的第二个参数会优先被执行，<code>catch</code>不会被执行。</p>
+<h2 id="Promise-then中抛出的异常会被catch捕获吗？"><a href="#Promise-then中抛出的异常会被catch捕获吗？" class="headerlink" title="Promise.then中抛出的异常会被catch捕获吗？"></a>Promise.then中抛出的异常会被catch捕获吗？</h2><p><code>Promise.then</code>中抛出的异常会被<code>catch</code>捕获吗？我们来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="string">&#x27;success in fetchData&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;error in then&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在<code>then</code>中，我们抛出了一个异常，这个异常会被<code>catch</code>捕获吗？答案是会的，打印出<code>Error: error in then</code>。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/17/javascript-destruction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -934,107 +1020,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/02/javascript-avoid-comments-with-refactoring/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/03/02/javascript-avoid-comments-with-refactoring/" class="post-title-link" itemprop="url">javascript-avoid-comments-with-refactoring</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-03-02 13:19:36" itemprop="dateCreated datePublished" datetime="2024-03-02T13:19:36+08:00">2024-03-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-06-02 16:59:17" itemprop="dateModified" datetime="2024-06-02T16:59:17+08:00">2024-06-02</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="javascript-avoid-comments-with-refactoring"><a href="#javascript-avoid-comments-with-refactoring" class="headerlink" title="javascript-avoid-comments-with-refactoring"></a>javascript-avoid-comments-with-refactoring</h1><p>下面这段代码是今天在Youtube上看到的一个视频中的代码, 代码的功能是从一个字符串数组中找出所有最长的字符串：<br><code>input</code>: [“aba”, “aa”, “ad”, “vcd”, “aba”]<br><code>output</code>: [“aba”, “vcd”, “aba”]<br>可以看到这段代码中有很多注释，我们的目的是优化这段代码，让代码可以<code>self explanation</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gets all longest strings</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">longestString</span>(<span class="params">inputArray</span>) &#123;</span><br><span class="line">  <span class="comment">// initialize the longest string to first value</span></span><br><span class="line">  <span class="keyword">let</span> &#123; length &#125; = inputArray[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; inputArray.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="comment">// checks if current string is longer than current longest</span></span><br><span class="line">    <span class="keyword">if</span> (length &lt; inputArray[i].<span class="property">length</span>) &#123;</span><br><span class="line">      length = inputArray[i].<span class="property">length</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// filters out any values not equal to the longest string</span></span><br><span class="line">  <span class="keyword">const</span> strs = inputArray.<span class="title function_">filter</span>(<span class="function">(<span class="params">word</span>) =&gt;</span> word.<span class="property">length</span> === length);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// return the longest strings</span></span><br><span class="line">  <span class="keyword">return</span> strs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="命名优化"><a href="#命名优化" class="headerlink" title="命名优化"></a>命名优化</h2><p>可以从以下几个方面入手：</p>
-<ol>
-<li>函数名字不够清晰，<code>longestString</code>是单数形式，且没有动词，一般函数名字都应该加动词，可以改为<code>getLongestStrings</code> - 这样我们就知道，这个函数返回的是多个字符串。而且是从输入参数中<code>get</code>而来的。</li>
-<li>函数的参数名字不够清晰，<code>inputArray</code>是一个数组，但是我们不知道这个数组的内容是什么，而且<code>input</code>这个单词有点多余，参数当然是<code>input</code>的，没必要再加上<code>input</code>这个单词。可以改为<code>stringArray</code>。</li>
-</ol>
-<p>此时，我们的代码变成了这样：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>原来的代码中有一个<code>length</code>变量，这个变量的名字不够清晰，并没有说明是什么长度，也无法表明是最大长度，可以改为<code>longestStringLength</code>。</li>
-<li>原代码中使用的是经典的<code>for</code>循环，在Modern JavaScript中，我们更推荐函数式编程，所以可以改为<code>for...of</code>循环或者使用<code>Array.prototype.forEach</code>，这样代码更加简洁。</li>
-</ol>
-<p>此时代码变成下面的样子。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> longestStringLength = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  stringArray.<span class="title function_">forEach</span>(<span class="function">(<span class="params">str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (longestStringLength &lt; str.<span class="property">length</span>) &#123;</span><br><span class="line">      longestStringLength = str.<span class="property">length</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> longestStrings = stringArray.<span class="title function_">filter</span>(</span><br><span class="line">    <span class="function">(<span class="params">word</span>) =&gt;</span> word.<span class="property">length</span> === longestStringLength</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> longestStrings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><p>此时代码中有一个<code>forEach</code>，有一个<code>filter</code>，这两个函数都是遍历数组的，所以实际上我们遍历了两次数组，不够高效，将其改为一次遍历。此时代码变成下面的样子。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> longestStringLength = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> longestStrings = [];</span><br><span class="line"></span><br><span class="line">  stringArray.<span class="title function_">forEach</span>(<span class="function">(<span class="params">str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (str.<span class="property">length</span> &gt; longestStringLength) &#123;</span><br><span class="line">      longestStringLength = str.<span class="property">length</span>;</span><br><span class="line">      longestStrings = [str];</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (str.<span class="property">length</span> === longestStringLength) &#123;</span><br><span class="line">      longestStrings.<span class="title function_">push</span>(str);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> longestStrings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用reduce优化"><a href="#使用reduce优化" class="headerlink" title="使用reduce优化"></a>使用<code>reduce</code>优化</h2><p>多数数组的遍历方法都可以使用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">reduce</a>来实现，所以我们可以将上面的代码改为使用<code>reduce</code>来实现。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getLongestStrings</span>(<span class="params">stringArray</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> stringArray.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, str</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (str.<span class="property">length</span> &gt; acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> &#123; <span class="attr">maxLength</span>: str.<span class="property">length</span>, <span class="attr">longestStrings</span>: [str] &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (str.<span class="property">length</span> === acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">      acc.<span class="property">longestStrings</span>.<span class="title function_">push</span>(str);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> acc;</span><br><span class="line">  &#125;, &#123; <span class="attr">maxLength</span>: <span class="number">0</span>, <span class="attr">longestStrings</span>: [] &#125;).<span class="property">longestStrings</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>坦率的说，使用<code>reduce</code>这一版的可读性不如上一版，大家酌情使用。</p>
-<p><code>reduce</code>通常用来处理比较简单的逻辑，比如累加一个数组中所有的数字。在这种情况下，<code>reduce</code>通常只接受一个参数，就是待处理的数组。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sum = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc + cur, <span class="number">0</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(sum); <span class="comment">// 10</span></span><br></pre></td></tr></table></figure>
-
-<p>如果逻辑比较复杂，那么reduce就要使用多个参数，比如上面的例子，我们实际上传入了如下两个参数，只不过我们把这两个参数封装到了一个对象中。</p>
-<ul>
-<li>longesStringLength - 用来记录当前最长的字符串的长度</li>
-<li>longestStrings - 用来记录当前最长的字符串</li>
-</ul>
-<p>处理的时候数组<code>longestStrings</code>是不断变化的，如果当前字符串的长度等于<code>longestStringLength</code>，那么就把当前字符串加入到<code>longestStrings</code>中。(此过程数组元素不断增多，原有的元素还在)，如果当前字符串的长度大于<code>longestStringLength</code>，那么就把<code>longestStrings</code>清空，然后把当前字符串加入到<code>longestStrings</code>中。(此过程原有数组元素被清空，只有当前元素)。</p>
-<p>此外，我们还注意到，第一个if分支有return，而第二个没有，有点奇怪，其实原本可以这样写。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (str.<span class="property">length</span> &gt; acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">  acc.<span class="property">maxLength</span> = str.<span class="property">length</span>;</span><br><span class="line">  acc.<span class="property">longestStrings</span> = [str];</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (str.<span class="property">length</span> === acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">  acc.<span class="property">longestStrings</span>.<span class="title function_">push</span>(str);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> acc;</span><br></pre></td></tr></table></figure>
-<p>但是，当<code>str.length &gt; acc.maxLength</code>时，直接返回一个新对象也可以，这个对象会作为reduce的下一次迭代的第一个参数。</p>
-<p>其实再进一步，我们可以在if-else中也返回一个新对象。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (str.<span class="property">length</span> &gt; acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123; <span class="attr">maxLength</span>: str.<span class="property">length</span>, <span class="attr">longestStrings</span>: [str] &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (str.<span class="property">length</span> === acc.<span class="property">maxLength</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="attr">maxLength</span>: acc.<span class="property">maxLength</span>,</span><br><span class="line">    <span class="attr">longestStrings</span>: [...acc.<span class="property">longestStrings</span>, str],</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// str.length &lt; acc.maxLength</span></span><br><span class="line"><span class="keyword">return</span> acc;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1104,7 +1089,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">188</span>
+          <span class="site-state-item-count">189</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

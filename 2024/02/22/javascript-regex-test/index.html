@@ -28,7 +28,7 @@
 <meta property="og:description" content="javascript-regex-test简介javascript中test是Regex对象上的一个方法，用来检测字符串是否满足某种规则，举个例子：判断一个字符串中是否包含单词hello。 12345678const regex &#x3D; new RegExp(&amp;#x27;hello&amp;#x27;);const str &#x3D; &amp;#x27;hello, world!&amp;#x27;;if (regex.test(">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-22T11:55:24.000Z">
-<meta property="article:modified_time" content="2024-02-22T12:59:58.095Z">
+<meta property="article:modified_time" content="2024-11-12T07:33:50.744Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="test">
@@ -209,10 +209,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-02-22 19:55:24 / Modified: 20:59:58" itemprop="dateCreated datePublished" datetime="2024-02-22T19:55:24+08:00">2024-02-22</time>
+              <time title="Created: 2024-02-22 19:55:24" itemprop="dateCreated datePublished" datetime="2024-02-22T19:55:24+08:00">2024-02-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-12 15:33:50" itemprop="dateModified" datetime="2024-11-12T15:33:50+08:00">2024-11-12</time>
+              </span>
 
           
 
@@ -252,10 +258,11 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="regexp">/undefined/</span>.<span class="title function_">test</span>()); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="全局匹配"><a href="#全局匹配" class="headerlink" title="全局匹配"></a>全局匹配</h2><p>默认情况下，<code>test</code>只会匹配第一个满足条件的字符串，如果要全局匹配，可以在正则表达式后面加上<code>/g</code>标志。</p>
-<p>注意：你永远不需要在<code>test</code>方法上加<code>/g</code>标志，因为<code>test</code>方法只返回一个布尔值，而不是匹配到的字符串。<br>使用<code>/ g</code>标志会改变正则表达式的<code>lastIndex</code>属性，这个属性会影响到<code>test</code>方法的行为，导致每次test匹配都从<code>lastIndex</code>开始，而不是从字符串的开头开始。</p>
+<p>注意：你永远不需要在<code>test</code>方法上加<code>/g</code>标志，因为<code>test</code>方法只返回一个布尔值，而不是匹配到的字符串。<br>使用<code>/g</code>标志会改变正则表达式的<code>lastIndex</code>属性，这个属性会影响到<code>test</code>方法的行为，导致每次test匹配都从<code>lastIndex</code>开始，而不是从字符串的开头开始。</p>
+<p>下面的代码中，为何第二次调用<code>test</code>方法返回<code>false</code>呢？</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/foo/g</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// lastIndex = 0;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(regex.<span class="title function_">test</span>(<span class="string">&#x27;foo&#x27;</span>)); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// lastIndex = 3;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(regex.<span class="title function_">test</span>(<span class="string">&#x27;foo&#x27;</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
 
-<p>分析一下：第一次匹配开始之前，lastIndex &#x3D; 0, 指向字符串开头，第一次匹配成功后，lastIndex &#x3D; 3, 下一次匹配从3开始，但是后面已经没有字符串了，所以导致第二次匹配失败！崩溃吗？</p>
+<p>分析一下：第一次匹配开始之前，lastIndex &#x3D; 0, 指向字符串开头，第一次匹配成功后，lastIndex &#x3D; 3, 下一次匹配从则从下标3开始，但是字符串<code>foo</code>长度为3，后面已经没有字符了，所以导致第二次匹配失败！崩溃吗？</p>
 <p><code>/g</code>选项通常用于<code>String.prototype.replace</code>方法。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&#x27;foobarfoo&#x27;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">replace</span>(<span class="regexp">/foo/</span>, <span class="string">&#x27;&#x27;</span>)); <span class="comment">// barfoo, 只替换了第一个foo</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">replace</span>(<span class="regexp">/foo/g</span>, <span class="string">&#x27;&#x27;</span>)); <span class="comment">// bar, 替换了所有的foo</span></span><br></pre></td></tr></table></figure>
 
@@ -364,7 +371,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">188</span>
+          <span class="site-state-item-count">189</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
