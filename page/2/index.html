@@ -181,6 +181,241 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/20/angular-router-guard/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/20/angular-router-guard/" class="post-title-link" itemprop="url">angular-router-guard</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-10-20 17:26:37 / Modified: 21:08:09" itemprop="dateCreated datePublished" datetime="2024-10-20T17:26:37+08:00">2024-10-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="What-is-Angular-Router-Guard"><a href="#What-is-Angular-Router-Guard" class="headerlink" title="What is Angular Router Guard?"></a>What is Angular Router Guard?</h2><p>Router Guard is a feature in Angular Router that allows you to run some code before the route is activated. It can be used to protect routes from unauthorized access, redirect users to a login page, or perform any other action before the route is activated.</p>
+<h2 id="canActivate"><a href="#canActivate" class="headerlink" title="canActivate"></a>canActivate</h2><p>Use case: Only allow authenticated users to access the <code>/product</code> page, otherwise redirect them to the login page.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">canActivate</span>: [<span class="title class_">AuthGuard</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;login&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">LoginComponent</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// auth-guard.service.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AuthGuard</span> <span class="keyword">implements</span> <span class="title class_">CanActivate</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> authService: AuthService, <span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">canActivate</span>(<span class="attr">route</span>: <span class="title class_">ActivatedRouteSnapshot</span>, <span class="attr">state</span>: <span class="title class_">RouterStateSnapshot</span>): <span class="title class_">MaybeAsync</span>&lt;<span class="title class_">GuardResult</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">authService</span>.<span class="title function_">isAuthenticated</span>()) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([<span class="string">&#x27;login&#x27;</span>]);</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AuthService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">isAuthenticated</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Put authentication logic here</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="canActivateChild"><a href="#canActivateChild" class="headerlink" title="canActivateChild"></a>canActivateChild</h2><p>Similar to <code>canActivate</code>, but it is used to protect child routes.<br>In the following example, only authenticated users can access the child routes of the <code>/product</code> page.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123; <span class="attr">path</span>: <span class="string">&#x27;detail&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductDetailComponent</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">path</span>: <span class="string">&#x27;edit&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductEditComponent</span> &#125;,</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">canActivateChild</span>: [<span class="title class_">AuthGuard</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;login&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">LoginComponent</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="canDeactivate"><a href="#canDeactivate" class="headerlink" title="canDeactivate"></a>canDeactivate</h2><p>Use case: Confirm with the user before leaving the page. For example, make sure the user wants to leave the page without saving changes.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;post&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">PostComponent</span>,</span><br><span class="line">    <span class="attr">canDeactivate</span>: [<span class="title class_">SaveGuard</span>],</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// save-guard.service.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SaveGuard</span> <span class="keyword">implements</span> <span class="title class_">CanDeactivate</span>&lt;<span class="built_in">any</span>&gt; &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> saveService: SaveService</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">canDeactivate</span>(<span class="attr">component</span>: <span class="built_in">any</span>, <span class="attr">currentRoute</span>: <span class="title class_">ActivatedRouteSnapshot</span>, <span class="attr">currentState</span>: <span class="title class_">RouterStateSnapshot</span>, <span class="attr">nextState</span>: <span class="title class_">RouterStateSnapshot</span>): <span class="title class_">MaybeAsync</span>&lt;<span class="title class_">GuardResult</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">saveService</span>.<span class="title function_">hasSavedData</span>()) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="title function_">confirm</span>(<span class="string">&#x27;You have unsaved changes. Do you really want to leave?&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// save.service.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SaveService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">hasSavedData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Put logic to check if data is saved</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="canLoad"><a href="#canLoad" class="headerlink" title="canLoad"></a>canLoad</h2><p>Use case: Guard when calling <code>loadChildren</code> in the route configuration. Note that <code>canLoad</code> not works for <code>loadComponent</code>.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;premium&#x27;</span>,</span><br><span class="line">    <span class="attr">canLoad</span>: [<span class="title class_">PremiumFeatureGuard</span>], <span class="comment">// Apply PremiumFeatureGuard to prevent lazy loading</span></span><br><span class="line">    <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./premium-feature.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">PremiumFeatureModule</span>)</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>Note that <code>canLoad</code> is deprecated, use <code>canMatch</code> instead.</p>
+<h2 id="canMatch"><a href="#canMatch" class="headerlink" title="canMatch"></a>canMatch</h2><p>Use case: Guard when matching the route. If the guard returns false, the route will not be matched.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductComponent</span>),</span><br><span class="line">  <span class="attr">canMatch</span>: [<span class="title class_">CanMatchGuard</span>],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// can-match.guard.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanMatchGuard</span> <span class="keyword">implements</span> <span class="title class_">CanMatch</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">canMatch</span>(<span class="attr">route</span>: <span class="title class_">Route</span>, <span class="attr">segments</span>: <span class="title class_">UrlSegment</span>[]): <span class="title class_">MaybeAsync</span>&lt;<span class="title class_">GuardResult</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/18/angular-router-style/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/18/angular-router-style/" class="post-title-link" itemprop="url">angular-router-style</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-10-18 21:03:34 / Modified: 21:16:10" itemprop="dateCreated datePublished" datetime="2024-10-18T21:03:34+08:00">2024-10-18</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>This post will show you how to style the active link in Angular Router with <code>routerLinkActive</code> and <code>routerLinkActiveOptions</code>.</p>
+<h2 id="routerLinkActive"><a href="#routerLinkActive" class="headerlink" title="routerLinkActive"></a><code>routerLinkActive</code></h2><p><code>routerLinkActive</code> is a directive that adds a CSS class to the element when the link’s route becomes active. </p>
+<p>We set a class name <code>active</code> to the active link, and apply a red background color to the active link. When user click the home or about link, the background color of the active link will change to red.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.active</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="routerLinkActiveOptions"><a href="#routerLinkActiveOptions" class="headerlink" title="routerLinkActiveOptions"></a><code>routerLinkActiveOptions</code></h2><p><code>routerLinkActiveOptions</code> is an input property of <code>routerLinkActive</code> directive that allows you to set the options for the active link. It provides a finer-grained control over the behavior of the active link.</p>
+<p>Let’s take a look at the definition of <code>routerLinkActiveOptions</code>:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">routerLinkActiveOptions</span>: &#123;</span><br><span class="line">        <span class="attr">exact</span>: <span class="built_in">boolean</span>;</span><br><span class="line">&#125; | <span class="title class_">IsActiveMatchOptions</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">declare</span> <span class="keyword">interface</span> <span class="title class_">IsActiveMatchOptions</span> &#123;</span><br><span class="line">    <span class="attr">matrixParams</span>: <span class="string">&#x27;exact&#x27;</span> | <span class="string">&#x27;subset&#x27;</span> | <span class="string">&#x27;ignored&#x27;</span>;</span><br><span class="line">    <span class="attr">queryParams</span>: <span class="string">&#x27;exact&#x27;</span> | <span class="string">&#x27;subset&#x27;</span> | <span class="string">&#x27;ignored&#x27;</span>;</span><br><span class="line">    <span class="attr">paths</span>: <span class="string">&#x27;exact&#x27;</span> | <span class="string">&#x27;subset&#x27;</span>;</span><br><span class="line">    <span class="attr">fragment</span>: <span class="string">&#x27;exact&#x27;</span> | <span class="string">&#x27;ignored&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Scenario-1-exact-true"><a href="#Scenario-1-exact-true" class="headerlink" title="Scenario 1: exact: true"></a>Scenario 1: <code>exact: true</code></h3><p>When <code>exact: true</code>, the active link will only be set when the URL is exactly the same as the link’s URL.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span> [<span class="attr">routerLinkActiveOptions</span>]=<span class="string">&quot;&#123;exact: true&#125;&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span> [<span class="attr">routerLinkActiveOptions</span>]=<span class="string">&quot;&#123;exact: true&#125;&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>With this settings, when user input <code>/home/123</code> in the browser, the home link will not be active, since <code>/home</code> is not exactly the same as <code>/home/123</code>.</p>
+<h3 id="Scenario-2-match-fragment"><a href="#Scenario-2-match-fragment" class="headerlink" title="Scenario 2: match fragment"></a>Scenario 2: match fragment</h3><p>When <code>fragment: &#39;exact&#39;</code>, the active link will only be set when the URL’s fragment is exactly the same as the link’s fragment.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">isActiveMatchOptions</span>: <span class="title class_">IsActiveMatchOptions</span> = &#123;</span><br><span class="line">  <span class="attr">matrixParams</span>: <span class="string">&#x27;exact&#x27;</span>,</span><br><span class="line">  <span class="attr">queryParams</span>: <span class="string">&#x27;exact&#x27;</span>,</span><br><span class="line">  <span class="attr">paths</span>: <span class="string">&#x27;exact&#x27;</span>,</span><br><span class="line">  <span class="attr">fragment</span>: <span class="string">&#x27;exact&#x27;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span> [<span class="attr">routerLinkActiveOptions</span>]=<span class="string">&quot;isActiveMatchOptions&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span> <span class="attr">routerLinkActive</span>=<span class="string">&quot;active&quot;</span> [<span class="attr">routerLinkActiveOptions</span>]=<span class="string">&quot;isActiveMatchOptions&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>With this settings, when user input <code>/home#section1</code> in the browser, the home link will not be active, since the fragment is not exactly the same as the link’s fragment.</p>
+<p>You can also config the <code>matrixParams</code>, <code>queryParams</code>, and <code>paths</code> in the <code>IsActiveMatchOptions</code> object to control the active link behavior.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/05/android-grade-settings/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/05/android-grade-settings/" class="post-title-link" itemprop="url">android-grade-settings</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-10-05 21:31:16" itemprop="dateCreated datePublished" datetime="2024-10-05T21:31:16+08:00">2024-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-10-06 08:55:16" itemprop="dateModified" datetime="2024-10-06T08:55:16+08:00">2024-10-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Today I got the following error after upgrade to Android Studio LadyBug.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Your build is currently configured to use Java 21.0.3 and Gradle 8.0.</span><br></pre></td></tr></table></figure>
+<p>So I reinstall the old version android studio Koala and the error still exists. So I google it and found the following solution on stackoverflow.</p>
+<ol>
+<li>Open File | Settings | Build, Execution, Deployment | Build Tools | Gradle</li>
+<li>Downgrade the JDK version to previous version, for example jbr-17.</li>
+</ol>
+<p><img src="/../images/android-studio-gradle-jdk.png" alt="android-grade-settings"></p>
+<p>The reason that old version still not work is because after upgrade Android Studio to LadyBug, it automatically set Java 21.0.3 and Gradle 8.0. Even if you downgrade the Android Studio, the settings still remain the same. So you need to manually change the settings to make it work.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/04/android-sdk-location/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -735,231 +970,6 @@ To verify whether the image was in the final build, you can run the following co
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/28/npm-install-production/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/28/npm-install-production/" class="post-title-link" itemprop="url">npm-install-production</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-09-28 12:37:23 / Modified: 12:38:13" itemprop="dateCreated datePublished" datetime="2024-09-28T12:37:23+08:00">2024-09-28</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>The <code>npm install --production</code> command is used to install only the dependencies listed under the <code>dependencies</code> section in the <code>package.json</code> file, excluding the <code>devDependencies</code>. This is typically used in production environments where you want to avoid installing unnecessary development tools and libraries.</p>
-<p>Here is a brief explanation of when and why you might use <code>npm install --production</code>:</p>
-<ol>
-<li><p><strong>Production Deployment</strong>: When deploying an application to a production environment, you often want to minimize the size of the deployment package and reduce the number of installed packages to only those necessary for running the application. This helps in improving performance and security.</p>
-</li>
-<li><p><strong>Server Environments</strong>: In server environments where the application is running, you generally do not need development tools like testing frameworks, linters, or build tools. Using <code>npm install --production</code> ensures that only the essential packages are installed.</p>
-</li>
-<li><p><strong>Docker Images</strong>: When building Docker images for your application, using <code>npm install --production</code> can help create smaller and more efficient images by excluding development dependencies.</p>
-</li>
-</ol>
-<p>Example usage:</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --production</span><br></pre></td></tr></table></figure>
-
-<p>This command will read the <code>package.json</code> file and install only the packages listed under <code>dependencies</code>, ignoring those under <code>devDependencies</code>.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/28/rxjs-function-timeout/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/28/rxjs-function-timeout/" class="post-title-link" itemprop="url">rxjs-function-timeout</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-09-28 12:11:46 / Modified: 12:37:05" itemprop="dateCreated datePublished" datetime="2024-09-28T12:11:46+08:00">2024-09-28</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In <code>RxJS</code>, there is a <a target="_blank" rel="noopener" href="https://rxjs.dev/api/index/function/timeout"><code>timeout</code></a> operator, it’s used to throw an error if the source observable does not emit a value within a specified timeout duration.</p>
-<h2 id="Use-case"><a href="#Use-case" class="headerlink" title="Use case"></a>Use case</h2><p>In Angular, the HttpClient service is used to make HTTP requests. Sometimes, we want to set a timeout for the request, if the request does not complete within the specified time, we want to cancel the request and show an error message to the user.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; catchError, timeout &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs/operators&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; throwError &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ApiService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> http: HttpClient</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;https://example.com/api/data&#x27;</span>).<span class="title function_">pipe</span>(</span><br><span class="line">      <span class="title function_">timeout</span>(<span class="number">10000</span>), <span class="comment">// 10 seconds</span></span><br><span class="line">      <span class="title function_">catchError</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// Handle timeout or other errors</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Request timed out or failed&#x27;</span>, error);</span><br><span class="line">        <span class="keyword">return</span> <span class="title function_">throwError</span>(error);</span><br><span class="line">      &#125;)</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>But, wait, what if I want to add this timeout for all my requests? Do I need to add the <code>timeout</code> operator to every request? The answer is no, you can create an interceptor to add the <code>timeout</code> operator to all requests.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  <span class="title class_">HttpEvent</span>,</span><br><span class="line">  <span class="title class_">HttpHandler</span>,</span><br><span class="line">  <span class="title class_">HttpInterceptor</span>,</span><br><span class="line">  <span class="title class_">HttpRequest</span>,</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Observable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; timeout &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs/operators&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">DEFAULT_TIMEOUT</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="built_in">number</span>&gt;(<span class="string">&#x27;defaultTimeout&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>()</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TimeoutInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HttpInterceptor</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="meta">@Inject</span>(DEFAULT_TIMEOUT) <span class="keyword">protected</span> defaultTimeout: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">intercept</span>(</span><br><span class="line">    <span class="attr">req</span>: <span class="title class_">HttpRequest</span>&lt;<span class="built_in">any</span>&gt;,</span><br><span class="line">    <span class="attr">next</span>: <span class="title class_">HttpHandler</span></span><br><span class="line">  ): <span class="title class_">Observable</span>&lt;<span class="title class_">HttpEvent</span>&lt;<span class="built_in">any</span>&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> next.<span class="title function_">handle</span>(req).<span class="title function_">pipe</span>(<span class="title function_">timeout</span>(<span class="variable language_">this</span>.<span class="property">defaultTimeout</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Don’t forget to add the interceptor to the providers array in the <code>AppModule</code>.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="variable constant_">HTTP_INTERCEPTORS</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">TimeoutInterceptor</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./timeout.interceptor&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">provide</span>: <span class="variable constant_">HTTP_INTERCEPTORS</span>,</span><br><span class="line">      <span class="attr">useClass</span>: <span class="title class_">TimeoutInterceptor</span>,</span><br><span class="line">      <span class="attr">multi</span>: <span class="literal">true</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123; <span class="attr">provide</span>: <span class="variable constant_">DEFAULT_TIMEOUT</span>, <span class="attr">useValue</span>: <span class="number">30000</span> &#125;</span><br><span class="line">  ],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Now, all your HTTP requests will have a timeout of 10 seconds.</p>
-<p>But, what if I want to set different timeout values for some specific requests? You can add a custom header to the request and check it in the interceptor, if custom header <code>timeout</code> exists, use the custom timeout value, otherwise use the default timeout value.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  <span class="title class_">HttpEvent</span>,</span><br><span class="line">  <span class="title class_">HttpHandler</span>,</span><br><span class="line">  <span class="title class_">HttpInterceptor</span>,</span><br><span class="line">  <span class="title class_">HttpRequest</span>,</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Observable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>()</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TimeoutInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HttpInterceptor</span> &#123;</span><br><span class="line">  <span class="title function_">intercept</span>(</span><br><span class="line">    <span class="attr">req</span>: <span class="title class_">HttpRequest</span>&lt;<span class="built_in">any</span>&gt;,</span><br><span class="line">    <span class="attr">next</span>: <span class="title class_">HttpHandler</span></span><br><span class="line">  ): <span class="title class_">Observable</span>&lt;<span class="title class_">HttpEvent</span>&lt;<span class="built_in">any</span>&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> timeoutValue = req.<span class="property">headers</span>.<span class="title function_">get</span>(<span class="string">&#x27;timeout&#x27;</span>) || <span class="variable language_">this</span>.<span class="property">defaultTimeout</span>;</span><br><span class="line">    <span class="keyword">const</span> timeoutValueNumeric = <span class="title class_">Number</span>(timeoutValue);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> next.<span class="title function_">handle</span>(req).<span class="title function_">pipe</span>(<span class="title function_">timeout</span>(timeoutValueNumeric));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Now, you can set the timeout value in the request headers.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpHeaders</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> headers = <span class="keyword">new</span> <span class="title class_">HttpHeaders</span>().<span class="title function_">set</span>(<span class="string">&#x27;timeout&#x27;</span>, <span class="string">&#x27;5000&#x27;</span>); <span class="comment">// 5 seconds</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">get</span>(<span class="string">&#x27;https://example.com/api/data&#x27;</span>, &#123; headers &#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://rxjs.dev/api/index/function/timeout">https://rxjs.dev/api/index/function/timeout</a></li>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout">https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/20/jest-mockxxxonce/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/20/jest-mockxxxonce/" class="post-title-link" itemprop="url">jest-mockXXXOnce</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-09-20 19:24:41 / Modified: 19:52:04" itemprop="dateCreated datePublished" datetime="2024-09-20T19:24:41+08:00">2024-09-20</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>There are lots of mockXXXOnce functions in Jest API, for example:</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn">mockImplementationOnce</a></li>
-<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockreturnvalueoncevalue">mockReturnValueOnce</a></li>
-<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockresolvedvalueoncevalue">mockResolvedValueOnce</a></li>
-</ul>
-<p>These functions are only mocked on the first call, all the subsequent calls will use the original implementations or return the original values.</p>
-<p>Be careful when using such functions, it may not be what you want, take the following code as example:</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;jest-demo&#x27;</span>;</span><br><span class="line">  lastTime = <span class="title class_">Date</span>.<span class="title function_">now</span>();</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">getIdleTime</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Date</span>.<span class="title function_">now</span>() - <span class="variable language_">this</span>.<span class="property">lastTime</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">getDuration</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="title function_">getIdleTime</span>() &gt; <span class="number">5</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;5+ hours&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="title function_">getIdleTime</span>() &gt;= <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;1 ~ 5 hours&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;in an hour&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Here are the test codes, the first one pass test, but the second one will failed. Do you know why?</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">`should return 5+ hours`</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> fixture = <span class="title class_">TestBed</span>.<span class="title function_">createComponent</span>(<span class="title class_">AppComponent</span>);</span><br><span class="line">  <span class="keyword">const</span> component = fixture.<span class="property">componentInstance</span>;</span><br><span class="line">  jest.<span class="title function_">spyOn</span>(component, <span class="string">&#x27;getIdleTime&#x27;</span>).<span class="title function_">mockImplementationOnce</span>(<span class="function">() =&gt;</span> <span class="number">6</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="title function_">getDuration</span>()).<span class="title function_">toBe</span>(<span class="string">&#x27;5+ hours&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">it</span>(<span class="string">`should return 1 ~ 5 hours`</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> fixture = <span class="title class_">TestBed</span>.<span class="title function_">createComponent</span>(<span class="title class_">AppComponent</span>);</span><br><span class="line">  <span class="keyword">const</span> component = fixture.<span class="property">componentInstance</span>;</span><br><span class="line">  jest.<span class="title function_">spyOn</span>(component, <span class="string">&#x27;getIdleTime&#x27;</span>).<span class="title function_">mockImplementationOnce</span>(<span class="function">() =&gt;</span> <span class="number">4</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="title function_">getDuration</span>()).<span class="title function_">toBe</span>(<span class="string">&#x27;1 ~ 5 hours&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>Because the first test case only reach the first <code>if</code> branch in <code>getDuration</code> function, it only call <code>getIdleTime</code> once. So there is no problem.</p>
-<p>But the second test case need to reach the second <code>if</code> branch in <code>getDuration</code> function, but the mock only take effect in the first if branch, the second branch will still use the original implementation of <code>getIdleTime</code> function, so the test failed.</p>
-<p>To fix this issue, you can use <code>mockImplementation</code> instead of <code>mockImplementationOnce</code> in the second test case.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1029,14 +1039,14 @@ To verify whether the image was in the final build, you can run the following co
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">191</span>
+          <span class="site-state-item-count">194</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">273</span>
+        <span class="site-state-item-count">276</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
