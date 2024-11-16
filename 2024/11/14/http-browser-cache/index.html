@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Introduction缓存是前端开发中非常重要的概念，它可以提高网站的性能，减少服务器的负担。本文主要介绍Http和浏览器缓存的相关知识。 不知道各位读者是否有这样的体验：  某个网站第一次打开的时候特别慢，再次打开的时候就快很多。 登录某个网站后，下次再访问的时候自动就是登录状态了。  其实以上现象都是缓存的功劳。 Http Cache缓存相关的头部字段ExpiresExpires是一个HTT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="http-browser-cache">
+<meta property="og:url" content="http://example.com/2024/11/14/http-browser-cache/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="Introduction缓存是前端开发中非常重要的概念，它可以提高网站的性能，减少服务器的负担。本文主要介绍Http和浏览器缓存的相关知识。 不知道各位读者是否有这样的体验：  某个网站第一次打开的时候特别慢，再次打开的时候就快很多。 登录某个网站后，下次再访问的时候自动就是登录状态了。  其实以上现象都是缓存的功劳。 Http Cache缓存相关的头部字段ExpiresExpires是一个HTT">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-14T09:53:06.000Z">
+<meta property="article:modified_time" content="2024-11-16T03:32:12.112Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="browser">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="cache">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/11/14/http-browser-cache/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>http-browser-cache | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/14/http-browser-cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          http-browser-cache
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-14 17:53:06" itemprop="dateCreated datePublished" datetime="2024-11-14T17:53:06+08:00">2024-11-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-16 11:32:12" itemprop="dateModified" datetime="2024-11-16T11:32:12+08:00">2024-11-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>缓存是前端开发中非常重要的概念，它可以提高网站的性能，减少服务器的负担。本文主要介绍Http和浏览器缓存的相关知识。</p>
+<p>不知道各位读者是否有这样的体验：</p>
+<ol>
+<li>某个网站第一次打开的时候特别慢，再次打开的时候就快很多。</li>
+<li>登录某个网站后，下次再访问的时候自动就是登录状态了。</li>
+</ol>
+<p>其实以上现象都是缓存的功劳。</p>
+<h1 id="Http-Cache"><a href="#Http-Cache" class="headerlink" title="Http Cache"></a>Http Cache</h1><h1 id="缓存相关的头部字段"><a href="#缓存相关的头部字段" class="headerlink" title="缓存相关的头部字段"></a>缓存相关的头部字段</h1><h2 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h2><p><code>Expires</code>是一个HTTP响应头部字段，用于指定资源的过期时间。它的值是一个GMT格式的时间字符串。以下代码表示资源的过期时间是2024年11月16日14点10分23秒。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expires:Sat, 16 Nov 2024 14:10:23 GMT</span><br></pre></td></tr></table></figure>
+<p><code>Expires</code>是HTTP&#x2F;1.0的标准，它有一个问题，就是我们判断缓存过期时，浏览器会使用当前系统时间与<code>Expires</code>字段的时间进行比较。如果系统时间大于<code>Expires</code>字段的时间，那么缓存就会被认为过期了。但是当前系统时间是可以人为修改的，这就会导致缓存过期时间不准确。</p>
+<h2 id="Cache-Control"><a href="#Cache-Control" class="headerlink" title="Cache-Control"></a>Cache-Control</h2><h3 id="max-age"><a href="#max-age" class="headerlink" title="max-age"></a>max-age</h3><p><code>max-age</code>的值是一个整数，单位是秒，表示缓存会在xxx秒后过期。以下代码表示资源会在3600秒后过期。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cache-control:max-age=3600</span><br></pre></td></tr></table></figure>
+<p>那么<code>max-age</code>中指定的3600秒参照的是什么时间呢？它参照的是服务器生成Response的时间，而不是浏览器收到Response的时间。那么服务器生成Response的时间在响应头中有吗？有的，就是<code>Date</code>字段。<code>Date</code>字段表示服务器生成Response的时间。所以缓存的的过期时间是<code>Date</code>字段的时间加上<code>max-age</code>的值。</p>
+<p><strong>ExpireTime &#x3D; Date + max-age</strong></p>
+<p>注意：如果<code>max-age</code>和<code>Expires</code>同时存在，那么<code>max-age</code>的优先级更高，<code>Expires</code>会被忽略。</p>
+<h3 id="no-cache"><a href="#no-cache" class="headerlink" title="no-cache"></a>no-cache</h3><p>注意：这个字段的意思不是不使用缓存！<br>这个字段的意思是可以使用缓存，但是使用前需要向服务器验证缓存是否过期。也就是协商缓存。</p>
+<h3 id="no-store"><a href="#no-store" class="headerlink" title="no-store"></a>no-store</h3><p>不使用缓存，每次都需要向服务器请求资源。</p>
+<h3 id="must-revalidate"><a href="#must-revalidate" class="headerlink" title="must-revalidate"></a>must-revalidate</h3><p>在缓存过期前，直接使用缓存，但是过期后需要向服务器验证缓存是否过期。</p>
+<h2 id="Last-Modified"><a href="#Last-Modified" class="headerlink" title="Last-Modified"></a>Last-Modified</h2><p><code>Last-Modified</code>是一个HTTP响应头部字段，用于指定资源的最后修改时间。它的值是一个GMT格式的时间字符串。以下代码表示资源的最后修改时间是2024年11月16日14点10分23秒。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">last-modified:Sat, 16 Nov 2024 14:10:23 GMT</span><br></pre></td></tr></table></figure>
+<p>当客户端再次请求资源时，会将上次请求时服务器返回的<code>Last-Modified</code>值放在请求头中的<code>If-Modified-Since</code>字段中，服务器会根据这个值判断资源是否发生了变化。如果资源没有发生变化，服务器会返回<code>304 Not Modified</code>状态码，表示资源没有发生变化，客户端可以使用缓存。</p>
+<h2 id="ETag"><a href="#ETag" class="headerlink" title="ETag"></a>ETag</h2><p><code>ETag</code>是一个HTTP响应头部字段，用于指定资源的唯一标识。它的值是一个字符串。服务器会根据资源的内容生成一个唯一的字符串（注意，生成算法因服务器而异），然后将这个字符串作为<code>ETag</code>的值。当客户端再次请求资源时，会将上次请求时服务器返回的<code>ETag</code>值放在请求头中的<code>If-None-Match</code>字段中，服务器会根据这个值判断资源是否发生了变化。如果资源没有发生变化，服务器会返回<code>304 Not Modified</code>状态码，表示资源没有发生变化，客户端可以使用缓存。</p>
+<h3 id="ETag相比Last-Modified的优点"><a href="#ETag相比Last-Modified的优点" class="headerlink" title="ETag相比Last-Modified的优点"></a>ETag相比Last-Modified的优点</h3><h4 id="精确性："><a href="#精确性：" class="headerlink" title="精确性："></a>精确性：</h4><ul>
+<li>ETag 可以提供比 Last-Modified 更精确的资源版本标识。Last-Modified 是基于时间戳的，而时间戳的精度通常是秒级，这意味着如果一个资源在一秒内发生变化多次，Last-Modified 就无法区分这些变化。</li>
+<li>ETag 是一个可以由服务器自由定义的字符串，它可以唯一标识一个资源的特定版本，甚至可以包括内容的哈希值，从而确保即使是微小的变化也能被准确识别。</li>
+</ul>
+<h4 id="灵活性："><a href="#灵活性：" class="headerlink" title="灵活性："></a>灵活性：</h4><ul>
+<li>ETag 允许更灵活的缓存控制策略。它可以是强验证器（保证内容完全一致）或弱验证器（允许一定程度上的差异，如压缩、格式转换等），这取决于服务器如何生成 ETag。</li>
+<li>例如，当资源的内容没有变化，但是某些元数据发生了变化（比如编码方式），服务器可以选择更新 ETag 或者不更新，这取决于是否希望客户端重新获取资源。</li>
+</ul>
+<h4 id="避免时间戳问题："><a href="#避免时间戳问题：" class="headerlink" title="避免时间戳问题："></a>避免时间戳问题：</h4><ul>
+<li>由于 Last-Modified 基于时间，它可能会遇到时钟不同步的问题。如果客户端和服务器之间的系统时钟存在较大偏差，那么基于 Last-Modified 的缓存验证可能会出错。</li>
+<li>ETag 不依赖于时间戳，因此不受时钟同步问题的影响。</li>
+</ul>
+<h4 id="支持非文件资源："><a href="#支持非文件资源：" class="headerlink" title="支持非文件资源："></a>支持非文件资源：</h4><ul>
+<li>对于动态生成的内容（例如数据库查询结果），可能没有明确的最后修改时间，此时使用 ETag 更为合适。服务器可以根据内容的状态生成一个唯一的 ETag。</li>
+</ul>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching">https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/book/6994678547826606095/section/6997029635766616077?scrollMenuIndex=1">https://juejin.cn/book/6994678547826606095/section/6997029635766616077?scrollMenuIndex=1</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/browser/" rel="tag"># browser</a>
+              <a href="/tags/http/" rel="tag"># http</a>
+              <a href="/tags/cache/" rel="tag"># cache</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/11/14/javascript-var-let-const/" rel="prev" title="javascript-var-let-const">
+      <i class="fa fa-chevron-left"></i> javascript-var-let-const
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/11/16/software-architecture-design-principle/" rel="next" title="software-architecture-design-principle">
+      software-architecture-design-principle <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Http-Cache"><span class="nav-number">2.</span> <span class="nav-text">Http Cache</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%9B%B8%E5%85%B3%E7%9A%84%E5%A4%B4%E9%83%A8%E5%AD%97%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">缓存相关的头部字段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Expires"><span class="nav-number">3.1.</span> <span class="nav-text">Expires</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cache-Control"><span class="nav-number">3.2.</span> <span class="nav-text">Cache-Control</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#max-age"><span class="nav-number">3.2.1.</span> <span class="nav-text">max-age</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#no-cache"><span class="nav-number">3.2.2.</span> <span class="nav-text">no-cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#no-store"><span class="nav-number">3.2.3.</span> <span class="nav-text">no-store</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#must-revalidate"><span class="nav-number">3.2.4.</span> <span class="nav-text">must-revalidate</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Last-Modified"><span class="nav-number">3.3.</span> <span class="nav-text">Last-Modified</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ETag"><span class="nav-number">3.4.</span> <span class="nav-text">ETag</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ETag%E7%9B%B8%E6%AF%94Last-Modified%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">3.4.1.</span> <span class="nav-text">ETag相比Last-Modified的优点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B2%BE%E7%A1%AE%E6%80%A7%EF%BC%9A"><span class="nav-number">3.4.1.1.</span> <span class="nav-text">精确性：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%81%B5%E6%B4%BB%E6%80%A7%EF%BC%9A"><span class="nav-number">3.4.1.2.</span> <span class="nav-text">灵活性：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E6%97%B6%E9%97%B4%E6%88%B3%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">3.4.1.3.</span> <span class="nav-text">避免时间戳问题：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E9%9D%9E%E6%96%87%E4%BB%B6%E8%B5%84%E6%BA%90%EF%BC%9A"><span class="nav-number">3.4.1.4.</span> <span class="nav-text">支持非文件资源：</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">209</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">281</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -181,7 +181,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/22/Android-dependencies/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/03/stopPropagation-vs-stopImmediatePropagation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -195,7 +195,300 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/04/22/Android-dependencies/" class="post-title-link" itemprop="url">Android dependencies</a>
+            <a href="/2023/08/03/stopPropagation-vs-stopImmediatePropagation/" class="post-title-link" itemprop="url">stopPropagation-vs-stopImmediatePropagation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-03 21:39:35" itemprop="dateCreated datePublished" datetime="2023-08-03T21:39:35+08:00">2023-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 10:02:19" itemprop="dateModified" datetime="2024-04-20T10:02:19+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="JavaScript事件模型"><a href="#JavaScript事件模型" class="headerlink" title="JavaScript事件模型"></a>JavaScript事件模型</h2><p>在JavaScript中，有两种事件的传递方向，一种是由内层元素向外层元素传递，也叫自底向上的方式，称作事件冒泡，好比水中的气泡由水底向水面上升的过程。另一种叫做事件捕获，方向刚好相反，从外层元素向内层元素传递，也叫自顶向下。</p>
+<p>目前主流的浏览器都支持这两种事件传递方式，但是在IE8及以下版本的浏览器中，只支持事件冒泡，不支持事件捕获。</p>
+<p>所以DOM中的事件处理分为以下三个阶段</p>
+<ul>
+<li>capture（捕获阶段），事件由外层向内层传递</li>
+<li>target（命中阶段），事件到达目标元素</li>
+<li>bubbling（冒泡阶段），事件由内层向外层传递</li>
+</ul>
+<p><img src="/../images/event-dispatch-modal.jpg"></p>
+<p>那么如何指定事件的传递方式呢？我们可以通过addEventListener的第三个参数来指定，比如下面的代码：<br>当useCapture为true时，事件传递方式为事件捕获，当useCapture为false时，事件传递方式为事件冒泡。默认值为false，使用事件冒泡模式。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addEventListener</span>(type, listener, useCapture)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Event-stopPropagation"><a href="#Event-stopPropagation" class="headerlink" title="Event.stopPropagation"></a>Event.stopPropagation</h1><ol>
+<li>当事件传递方式为捕获模式时，<code>event.stopPropagation()</code>会阻止事件继续向下（内层元素）传递。</li>
+<li>当事件传递方式为冒泡模式时，<code>event.stopPropagation()</code>会阻止事件继续向上（外层元素）传递。</li>
+</ol>
+<p>代码示例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span></span><br><span class="line">  div1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span></span><br><span class="line">    div2</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div3&quot;</span>&gt;</span></span><br><span class="line">      div3</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div1&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div2 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div2&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="keyword">const</span> div3 = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#div3&quot;</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bindEventListener</span>(<span class="params">element, event, listener, useCapture</span>) &#123;</span><br><span class="line">  element.<span class="title function_">addEventListener</span>(event, listener, useCapture);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler1</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler2</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clickHandler3</span>(<span class="params">event</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> text = event.<span class="property">currentTarget</span>.<span class="property">id</span> + <span class="string">&quot; clicked&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/event-bubble.jpg"></p>
+<p>点击<code>div3</code>，输出如下，因为采用的是冒泡模式，所以事件会从内层元素向外层元素传递。即<code>div3</code>最先捕获事件，然后是冒泡给<code>div2</code>，最后是<code>div1</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler3中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向上（外层元素）传递。</p>
+<p>将事件处理函数改为捕获模式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div2, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">true</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div3, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p>再次点击div3，输出如下，因为采用的是捕获模式，所以事件会从外层元素向内层元素传递。即<code>div1</code>最先捕获事件，然后是<code>div2</code>，最后是<code>div3</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div2 clicked</span><br><span class="line">div3 clicked</span><br></pre></td></tr></table></figure>
+<p>如果我们在clickHandler1中加入<code>event.stopPropagation()</code>，再次点击div3，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopPropagation()</code>阻止了事件继续向下（内层元素）传递。</p>
+<h1 id="Event-stopImmediatePropagation"><a href="#Event-stopImmediatePropagation" class="headerlink" title="Event.stopImmediatePropagation"></a>Event.stopImmediatePropagation</h1><p>如果将上述代码中的<code>event.stopPropagation()</code>改为<code>event.stopImmediatePropagation()</code>，你会发现，输出的结果是一样的，这说明<code>event.stopImmediatePropagation()</code>与<code>event.stopPropagation()</code>的作用是一样的，都是阻止事件继续传递。既然作用是一样的，那么为什么还要有<code>event.stopImmediatePropagation()</code>呢？这是因为<code>event.stopImmediatePropagation()</code>还有一个额外的功能，就是阻止事件处理函数队列中的其他函数执行，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler1, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler2, <span class="literal">false</span>);</span><br><span class="line"><span class="title function_">bindEventListener</span>(div1, <span class="string">&quot;click&quot;</span>, clickHandler3, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>当我们点击div1时，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+
+<p>当多个事件处理函数绑定到同一个元素的同一个事件时，事件处理函数的执行顺序是按照绑定的顺序执行的，比如上面的代码，clickHandler1会先于clickHandler2执行，clickHandler2会先于clickHandler3执行。如果我们在clickHandler1中加入<code>event.stopImmediatePropagation()</code>，再次点击div1，输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">div1 clicked</span><br></pre></td></tr></table></figure>
+<p>可见，<code>event.stopImmediatePropagation()</code>阻止了事件处理函数队列中的其他函数执行。clickHandler2和clickHandler3都被阻止了执行。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation">Event.stopPropagation()</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation">Event.stopImmediatePropagation()</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/02/event-target-vs-event-currentTarget/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/02/event-target-vs-event-currentTarget/" class="post-title-link" itemprop="url">event.target-vs-event.currentTarget</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-02 09:58:58" itemprop="dateCreated datePublished" datetime="2023-08-02T09:58:58+08:00">2023-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 09:55:35" itemprop="dateModified" datetime="2024-04-20T09:55:35+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是Event-target和Event-currentTarget"><a href="#什么是Event-target和Event-currentTarget" class="headerlink" title="什么是Event.target和Event.currentTarget"></a>什么是Event.target和Event.currentTarget</h1><p>这个两个target在JavaScript事件处理中十分重要，来看一下他们之间的区别。</p>
+<ul>
+<li><code>event.target</code>：触发事件的元素</li>
+<li><code>event.currentTarget</code>：绑定事件的元素</li>
+</ul>
+<p>二者之间的区别只有在元素嵌套的时候，才会有所体现。比如下面的代码：<br>外层div1绑定了click事件，内层div2没有绑定任何事件。当我们点击div2的时候，会输出什么呢？</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span>div 1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span>&gt;</span>div2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div1 = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;div1&quot;</span>);</span><br><span class="line">div1.<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">target</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">currentTarget</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/target-vs-currentTarget_1.jpg" alt="event-target-vs-event-currentTarget"></p>
+<ul>
+<li>当我们点击<code>div2</code>的时候，<code>event.target</code>是<code>div2</code>，<code>event.currentTarget</code>是<code>div1</code>。</li>
+<li>当我们点击<code>div1</code>的时候，<code>event.target</code>是<code>div1</code>，<code>event.currentTarget</code>也是<code>div1</code>。</li>
+</ul>
+<p>由此可见，<code>event.target</code>永远是触发事件的元素，而<code>event.currentTarget</code>永远是绑定事件的元素。 </p>
+<h1 id="如何禁止子元素触发事件"><a href="#如何禁止子元素触发事件" class="headerlink" title="如何禁止子元素触发事件"></a>如何禁止子元素触发事件</h1><p>那么问题来了，有些时候我们不像让内部元素（子元素）触发事件，而是想让外部元素（父元素）触发事件，这个时候我们应该怎么做呢？考虑如下场景，假设现在我们要实现一个Card，这个Card内部有很多子元素，现在用户有一个需求，让Card实现拖拽功能，那么我们需要监听Card的<code>dragenter</code>事件，但是我们不想让Card内部的子元素触发<code>dragenter</code>事件，这个时候我们应该怎么做呢？我们可以通过判断<code>event.currentTarget</code>来实现这个功能，因为<code>event.currentTarget</code>会指向card本身，而不是其内部的子元素。</p>
+<p>其实还有一个更加彻底的办法就是使用CSS的<code>pointer-events</code>属性，这个属性可以控制元素是否可以触发鼠标事件，比如上面的例子，我们可以这样禁止div2触发click事件：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div1&quot;</span>&gt;</span>div 1</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;div2&quot;</span> <span class="attr">style</span>=<span class="string">&quot;pointer-events: none;&quot;</span>&gt;</span>div2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这下我们再次点击div2时，输出就变成了下面这样：可见div2没有触发click事件，而是由它的父元素div1触发了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">target: div 1</span><br><span class="line">currentTarget: div 1</span><br></pre></td></tr></table></figure>
+
+<p>需要注意：pointer-events属性是CSS3中的属性，IE11及以下版本不支持。并且它具有传递性，比如我们在div2上设置了<code>pointer-events: none;</code>，那么div2及其子元素都不会触发鼠标事件。</p>
+<h1 id="Event-relatedTarget"><a href="#Event-relatedTarget" class="headerlink" title="Event.relatedTarget"></a>Event.relatedTarget</h1><p>Event中除了这两个target之外，其实还有一个<code>relatedTarget</code>属性，这个属性在不同的事件中有不同的含义，比如在<code>mouseover</code>事件中，<code>relatedTarget</code>表示鼠标移入的元素，而在<code>mouseout</code>事件中，<code>relatedTarget</code>表示鼠标移出的元素。两外html5中的drag and drop api也会用到这个属性，比如在<code>dragenter</code>事件中，<code>relatedTarget</code>表示被拖拽元素正在进入的元素，而在<code>dragleave</code>事件中，<code>relatedTarget</code>表示被拖拽元素正在离开的元素。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/10086427/what-is-the-exact-difference-between-currenttarget-property-and-target-property">Event.target vs Event.currentTarget</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/target">Event.target</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget">Event.currentTarget</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Event/relatedTarget">Event.relatedTarget</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events">Pointer Events</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/22/element-style-vs-window-getComputedStyle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/22/element-style-vs-window-getComputedStyle/" class="post-title-link" itemprop="url">element.style vs window.getComputedStyle</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-22 17:03:44" itemprop="dateCreated datePublished" datetime="2023-07-22T17:03:44+08:00">2023-07-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 09:51:23" itemprop="dateModified" datetime="2024-04-20T09:51:23+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="element-style-vs-window-getComputedStyle"><a href="#element-style-vs-window-getComputedStyle" class="headerlink" title="element.style vs window.getComputedStyle"></a>element.style vs window.getComputedStyle</h1><p>这两种方式都可以获取元素的样式，但是它们之间有什么区别呢？首先让我们看看在前端开发中，有哪几种方式可以设置样式。</p>
+<h2 id="inline-style-内联样式"><a href="#inline-style-内联样式" class="headerlink" title="inline style(内联样式)"></a>inline style(内联样式)</h2><p>内联样式是指直接在元素上设置样式，比如下面的代码中，<code>&lt;div&gt;</code>元素上设置了<code>style</code>属性，这就是内联样式。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&quot;color: red;&quot;</span>&gt;</span>Hello World!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="inner-style-内部样式"><a href="#inner-style-内部样式" class="headerlink" title="inner style(内部样式)"></a>inner style(内部样式)</h2><p>内部样式是指在<code>&lt;head&gt;</code>标签中添加<code>&lt;style&gt;</code>标签，然后在<code>&lt;style&gt;</code>标签中添加样式，比如下面的代码中<code>div &#123;color: red;&#125;</code>就是内部样式。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-tag">div</span> &#123;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">color</span>: red;</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">  </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="external-stylesheet-外部样式表"><a href="#external-stylesheet-外部样式表" class="headerlink" title="external stylesheet(外部样式表)"></a>external stylesheet(外部样式表)</h2><p>外部样式表是指将样式单独放在一个文件中，然后在<code>&lt;head&gt;</code>标签中使用<code>&lt;link&gt;</code>标签引入，比如下面的代码中，<code>&lt;link&gt;</code>标签引入了<code>style.css</code>这个文件，这就是外部样式表。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- index.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;style.css&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style.css */</span></span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="element-style-和-window-getComputedStyle的区别"><a href="#element-style-和-window-getComputedStyle的区别" class="headerlink" title="element.style 和 window.getComputedStyle的区别"></a>element.style 和 window.getComputedStyle的区别</h2><p>再来看<code>element.style</code>和<code>window.getComputedStyle</code>的区别：</p>
+<ol>
+<li><code>element.style</code>只能获取内联样式，</li>
+<li><code>window.getComputedStyle</code>可以获取内联样式、内部样式和外部样式表。</li>
+</ol>
+<p>所以大多数情况下，我们都是使用<code>window.getComputedStyle</code>来获取元素的样式。</p>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p>下面的代码中，<code>style.css</code>文件中设置了外部样式表。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;style.css&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;my-div&quot;</span>&gt;</span>Hello World!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style.css */</span></span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> div = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;my-div&quot;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(div.<span class="property">style</span>.<span class="property">color</span>); <span class="comment">// &quot;&quot; - empty string. 因为div元素上没有设置内联样式。</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">window</span>.<span class="title function_">getComputedStyle</span>(div).<span class="property">color</span>); <span class="comment">// rgb(0, 0, 255)</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，<code>element.style</code>只能获取内联样式，而<code>window.getComputedStyle</code>可以获取内联样式、内部样式和外部样式表。</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style">MDN - HTMLElement.style</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle">MDN - window.getComputedStyle()</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/22/Angular-template-reference-variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/22/Angular-template-reference-variables/" class="post-title-link" itemprop="url">Angular template reference variables</a>
         </h2>
 
         <div class="post-meta">
@@ -206,7 +499,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2023-04-22 17:28:14 / Modified: 18:13:34" itemprop="dateCreated datePublished" datetime="2023-04-22T17:28:14+08:00">2023-04-22</time>
+              <time title="Created: 2023-07-22 11:02:12 / Modified: 17:01:25" itemprop="dateCreated datePublished" datetime="2023-07-22T11:02:12+08:00">2023-07-22</time>
             </span>
 
           
@@ -220,204 +513,204 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Android-dependencies-conflict-resolve"><a href="#Android-dependencies-conflict-resolve" class="headerlink" title="Android dependencies conflict resolve"></a>Android dependencies conflict resolve</h1><p>今天在编译Android应用“草书字典”时突然发现以下错误：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-18.0 (com.google.guava:guava:18.0) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)</span><br></pre></td></tr></table></figure>
-<p>大意是说<code>com.google.common.util.concurrent.ListenableFuture</code>这个class出现在不同的package中，属于重复依赖，gradle无法处理，要手动处理一下。</p>
-<p>在<code>app.gradle</code>文件中加入如下一行就好了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation &#x27;com.google.guava:guava:27.0.1-android&#x27;</span><br></pre></td></tr></table></figure>
+          <h1 id="Angular-template-reference-variables"><a href="#Angular-template-reference-variables" class="headerlink" title="Angular template reference variables"></a>Angular template reference variables</h1><p>Template reference variables - 模板引用变量，是指在模板中声明的变量，它可以在模板中的任何地方使用，比如在模板中的表单元素中，可以使用模板引用变量来获取表单元素的值。模板引用变量的名字以<code>#</code>开头，比如<code>#name</code>，<code>#age</code>等。模板引用变量的作用域是模板，不能在组件中使用。</p>
+<p>模板引用变量可以引用如下内容</p>
+<ul>
+<li>A DOM element in a template</li>
+<li>a directive or component</li>
+<li>a TemplateRef from an ng-template</li>
+<li>a web component</li>
+</ul>
+<h2 id="Syntax"><a href="#Syntax" class="headerlink" title="Syntax"></a>Syntax</h2><p>模板引用变量以<code>#</code>开头，比如下面的代码中，<code>#phone</code>就是一个模板引用变量, 它引用了<code>&lt;input&gt;</code>元素。就是说，我们可以通过<code>#phone</code>这个模板引用变量来获取<code>&lt;input&gt;</code>元素的值。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 
-      
-    </div>
+<h2 id="引用DOM元素"><a href="#引用DOM元素" class="headerlink" title="引用DOM元素"></a>引用DOM元素</h2><p>下面的代码使用<code>#phone</code>变量引用了<code>input</code>元素，在点击button的时候，获取input元素的值，并调用相应的方法。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;callPhone(phone.value)&quot;</span>&gt;</span>Call<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>如果想在页面上显示input中输入的值，可以使用双向绑定，如下所示：注意这里添加了<code>ngModel</code>，没有这个的话，<code>phone.value</code>是获取不到值的，因为初始的时候输入框并并没有值，而且input值改变的时候，phone.value也无法感知更新。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">ngModel</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;phone.value&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>引用DOM元素应该是模板变量最常用的场景了，有了它，我们就可以不用再使用<code>document.getElementById()</code>这样的方法来获取DOM元素了。</p>
+<h2 id="使用模板变量创建ViewChild"><a href="#使用模板变量创建ViewChild" class="headerlink" title="使用模板变量创建ViewChild"></a>使用模板变量创建<code>ViewChild</code></h2><p>模板引用变量可以用来创建<code>ViewChild</code>，比如下面的代码中，<code>#phone</code>就是一个模板引用变量，它引用了<code>&lt;input&gt;</code>元素，然后我们就可以在组件中使用<code>@ViewChild</code>装饰器来获取<code>&lt;input&gt;</code>元素。</p>
+<p>template.html代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> #<span class="attr">phone</span> <span class="attr">placeholder</span>=<span class="string">&quot;phone number&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+<p>component.ts代码</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ViewChild</span>(<span class="string">&#x27;phone&#x27;</span>) <span class="attr">phone</span>: <span class="title class_">ElementRef</span>;</span><br></pre></td></tr></table></figure>
+<p>这样我们就可以在组件中调用input元素的方法，比如点击某个按钮时，让input元素获取焦点。</p>
+  <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">focusPhone</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">phone</span>.<span class="property">nativeElement</span>.<span class="title function_">focus</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/16/Hexo-Usage/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
+<h2 id="引用Component"><a href="#引用Component" class="headerlink" title="引用Component"></a>引用Component</h2><p>模板引用变量可以引用组件，比如下面的代码中，<code>#child</code>就是一个模板引用变量，它引用了<code>&lt;child-component&gt;</code>组件，然后我们就可以在模板中使用<code>#child</code>这个模板引用变量来调用<code>&lt;child-component&gt;</code>组件中的方法和属性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">child-component</span> #<span class="attr">child</span>&gt;</span><span class="tag">&lt;/<span class="name">child-component</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;child.childMethod()&quot;</span>&gt;</span>Call child method<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/16/Hexo-Usage/" class="post-title-link" itemprop="url">Hexo Usage</a>
-        </h2>
+<h2 id="引用Directive"><a href="#引用Directive" class="headerlink" title="引用Directive"></a>引用Directive</h2><p><code>Directive</code>中有一个属性：<code>exportAs</code>, 这个属性对应的值，就是模板引用变量中可以使用的名字。<br>下面是一个自定Directive，用来给某一段文字添加背景色。</p>
+  <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHighlight]&#x27;</span>,</span><br><span class="line">  <span class="attr">exportAs</span>: <span class="string">&#x27;highlightDirective&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HighlightDirective</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="title function_">setAttribute</span>(<span class="string">&#x27;style&#x27;</span>, <span class="string">&#x27;background-color: yellow;&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">setBackgroundColor</span>(<span class="params">color: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="title function_">setAttribute</span>(<span class="string">&#x27;style&#x27;</span>, <span class="string">`background-color: <span class="subst">$&#123;color&#125;</span>;`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面是使用这个自定义指令的component对应的模板代码：页面加载后，文字的背景色为黄色，点击按钮后，文字的背景色变为红色。注意<code>#highlight=&quot;highlightDirective&quot;</code>这句话，<code>highlight</code>是模板引用变量，<code>highlightDirective</code>是<code>Directive</code>中<code>exportAs</code>属性对应的值。这样就把模板变量和其引用的指令关联起来了。</p>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHighlight</span> #<span class="attr">highlight</span>=<span class="string">&quot;highlightDirective&quot;</span>&gt;</span>test-component works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;highlight.setBackgroundColor(&#x27;red&#x27;)&quot;</span>&gt;</span>Reset color<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-04-16 22:03:56" itemprop="dateCreated datePublished" datetime="2023-04-16T22:03:56+08:00">2023-04-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-15 19:59:59" itemprop="dateModified" datetime="2023-11-15T19:59:59+08:00">2023-11-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Hexo-Usage"><a href="#Hexo-Usage" class="headerlink" title="Hexo Usage"></a>Hexo Usage</h1><h2 id="How-to-Write-a-new-post"><a href="#How-to-Write-a-new-post" class="headerlink" title="How to Write a new post"></a>How to Write a new post</h2><ol>
-<li>Generate new post in your terminal: <code>hexo new &quot;Your post name&quot;</code></li>
-<li>Open your project by <code>vscode</code>, then open file: <code>source\_post\Your post name.md</code></li>
-<li>Edit your post with vscode, hexo support <code>markdown</code> and <code>ejs</code> files</li>
-</ol>
-<h2 id="Clean-cache"><a href="#Clean-cache" class="headerlink" title="Clean cache"></a>Clean cache</h2><ol>
-<li>After finish editing, you can type <code>hexo clean</code> in your terminal to clean the cache, <code>clean</code> is short for <code>clean</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h2><ol>
-<li>After finish editing, you can type <code>hexo g</code> in your terminal to generate static files, <code>g</code> is short for <code>generate</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Publish-your-post"><a href="#Publish-your-post" class="headerlink" title="Publish your post"></a>Publish your post</h2><ol>
-<li>Type <code>hexo d</code> to deploy your post to github.io, <code>d</code> is short for <code>deploy</code> here.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="View-your-post"><a href="#View-your-post" class="headerlink" title="View your post"></a>View your post</h2><ol>
-<li>open <code>zdd.github.io</code> to see your post, good job!</li>
-</ol>
-<p>you can use <code>npm run deploy</code> to combine generate and deploy in a single command.</p>
-<h2 id="View-post-locally"><a href="#View-post-locally" class="headerlink" title="View post locally"></a>View post locally</h2><ol>
-<li>Run <code>hexo s</code> in terminal, then open <code>localhost:4000</code> to see your post, this is very convenient to check your post before publish.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="404-File-not-found"><a href="#404-File-not-found" class="headerlink" title="404 File not found"></a>404 File not found</h2><p>When you encounter the 404 error, make sure to do the following</p>
-<ol>
-<li>Check your <code>source\_post\Your post name.md</code> file name, make sure it is the same as the title in the file.</li>
-<li>run <code>hexo clean</code> to clean the cache</li>
-<li>run <code>hexo g</code> to generate static files</li>
-<li>run <code>hexo d</code> to deploy your post to github.io</li>
-</ol>
-<h2 id="Tags-not-working"><a href="#Tags-not-working" class="headerlink" title="Tags not working"></a>Tags not working</h2><ol>
-<li>Make sure you have a <code>tags</code> folder under <code>source</code> folder</li>
-<li>Install easy tag plugin by <code>npm install hexo-easy-tags-plugin --save</code></li>
-<li>Delete <code>.deploy_git</code> folder</li>
-<li>Run <code>hexo clean</code> to clean the cache</li>
-<li>Run <code>hexo g</code> to generate static files</li>
-<li>Run <code>hexo d</code> to deploy your post to github.io</li>
-<li>Force refresh your browser by <code>Ctrl + F5</code></li>
-</ol>
-<h2 id="How-to-add-tags"><a href="#How-to-add-tags" class="headerlink" title="How to add tags"></a>How to add tags</h2><ol>
-<li>Run <code>hexo new post &quot;tags&quot;</code></li>
-<li>Make sure tags&#x2F;index.md has the following content<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: tags</span><br><span class="line">date: 2023-06-30 23:21:34</span><br><span class="line"><span class="section">type: &quot;tags&quot;</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Add-multiple-tags-for-a-post"><a href="#Add-multiple-tags-for-a-post" class="headerlink" title="Add multiple tags for a post"></a>Add multiple tags for a post</h2><ol>
-<li>Add tags in the front matter of your post, for example:<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: Hexo Usage</span><br><span class="line">date: 2023-04-16 22:03:56</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">-</span> hexo</span><br><span class="line"><span class="section">- blog</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/16/ng-template/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/04/16/ng-template/" class="post-title-link" itemprop="url">ng-template</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-04-16 21:32:39" itemprop="dateCreated datePublished" datetime="2023-04-16T21:32:39+08:00">2023-04-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-18 21:09:10" itemprop="dateModified" datetime="2024-09-18T21:09:10+08:00">2024-09-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="ng-template"><a href="#ng-template" class="headerlink" title="ng-template"></a>ng-template</h1><p>顾名思义，<code>ng-template</code>是一个模板元素，通常与结构化指令<code>ng-if</code>, <code>ng-for</code>, <code>ng-switch</code>及模板变量配合使用.</p>
-<h2 id="ng-template配合ng-if"><a href="#ng-template配合ng-if" class="headerlink" title="ng-template配合ng-if"></a>ng-template配合ng-if</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>在实际编程中，我们一般不用上面的写法，而是采用指令的简写形式，也就是用<code>*ngIf</code>代替<code>[ngIf]</code>。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这段代码编译后的结果和第一段代码是相同的。关于指令的简写形式，请参考这篇。注意：在<code>ng-template</code>上使用指令的简写形式是无效的，必须使用属性绑定的方式，下面的代码无法正常工作。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="作为elseBlock使用"><a href="#作为elseBlock使用" class="headerlink" title="作为elseBlock使用"></a>作为elseBlock使用</h2><p>假设有如下需求，当<code>condition</code>为<code>true</code>时，显示<code>Hello, world!</code>，否则显示<code>Goodbye, world!</code>, 该如何实现呢？<br>我们可以在<code>ngIf</code>指令后面添加<code>else</code>关键字，然后在<code>else</code>后面添加一个模板引用变量，然后定义一个<code>ng-template</code>并用该模版变量标识之，如下所示：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition else otherTemplate&quot;</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">otherTemplate</span>&gt;</span>Goodbye, world!<span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>如果你使用的是Angular17及以上版本，那么你可以使用<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/06/16/what-s-new-in-angular-17/">built-in control flow</a>语法。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@if(condition) &#123;</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#125; @else &#123;</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Goodbye, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="If-then-else"><a href="#If-then-else" class="headerlink" title="If-then-else"></a>If-then-else</h2><p>如果两个分支对应的模板都很大，那么可以采用这种方式，使结构更清晰，代码更易读。</p>
+<h2 id="引用TemplateRef"><a href="#引用TemplateRef" class="headerlink" title="引用TemplateRef"></a>引用TemplateRef</h2><p>模板引用变量可以引用<code>&lt;ng-template&gt;</code>元素，这种情形经常出现在条件渲染中，就是根据不同的条件渲染不同的内容，比如下面的代码中，当<code>condition</code>为<code>true</code>时，渲染<code>thenBlock</code>，当<code>condition</code>为<code>false</code>时，渲染<code>elseBlock</code>。这里面的<code>thenBlock</code>和<code>elseBlock</code>引用的都是<code>&lt;ng-template&gt;</code>元素。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span>Content to render when condition is true.<span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span>Content to render when condition is false.<span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>同样的，如果你使用的是Angular17及以上版本，那么你可以使用<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/06/16/what-s-new-in-angular-17/">built-in control flow</a>语法。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@if(condition) &#123;</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#125; @else &#123;</span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Goodbye, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看到了吗，built-in control flow语法的可读性更强，更符合人类的思维方式。</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/api/core/ng-template#">Angular ng-template</a></li>
-<li><code>ng-container</code> - <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/07/09/angular-ng-container/">https://zdd.github.io/2024/07/09/angular-ng-container/</a></li>
+
+<h2 id="引用Web-Component"><a href="#引用Web-Component" class="headerlink" title="引用Web Component"></a>引用Web Component</h2><p>模板引用变量可以引用Web Component，比如下面的代码中，<code>#wc</code>就是一个模板引用变量，它引用了<code>&lt;my-custom-element&gt;</code>元素，然后我们就可以在模板中使用<code>#wc</code>这个模板引用变量来调用<code>&lt;my-custom-element&gt;</code>元素中的方法和属性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">my-custom-element</span> #<span class="attr">wc</span>&gt;</span><span class="tag">&lt;/<span class="name">my-custom-element</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;wc.webComponentMethod()&quot;</span>&gt;</span>Call web component method<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/19/Event-delegate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/19/Event-delegate/" class="post-title-link" itemprop="url">Event-delegate</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-19 09:53:38" itemprop="dateCreated datePublished" datetime="2023-07-19T09:53:38+08:00">2023-07-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 08:57:36" itemprop="dateModified" datetime="2024-04-20T08:57:36+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是事件代理（也叫事件委托）"><a href="#什么是事件代理（也叫事件委托）" class="headerlink" title="什么是事件代理（也叫事件委托）"></a>什么是事件代理（也叫事件委托）</h2><p>事件代理是利用事件冒泡，只指定一个事件处理程序，就可以管理某一类型的所有事件。比如，我们有一个<code>ul</code>元素，里面有很多<code>li</code>元素，我们想要给每个<code>li</code>元素添加点击事件。有两种方法可以完成这件事：</p>
+<ol>
+<li>给每个<code>li</code>元素都添加一个点击事件，弊端是如果<code>li</code>元素很多的话，就会导致代码很冗余，如果后面还有新的<code>li</code>元素添加进来，还需要给新的<code>li</code>元素添加点击事件，导致代码很难维护。</li>
+<li>给<code>ul</code>元素添加一个点击事件，然后在事件处理程序中判断点击的是哪个<code>li</code>元素，然后执行对应的操作即可，简洁高效。<code>这种方法就是事件代理</code>。</li>
+</ol>
+<h2 id="事件代理的原理"><a href="#事件代理的原理" class="headerlink" title="事件代理的原理"></a>事件代理的原理</h2><p>事件代理的原理是利用事件冒泡，将本应由被点击元素处理了的事件委托给其父元素来处理，这样就可以在事件处理程序中判断点击的是哪个元素，然后执行对应的操作。<br>不支持事冒泡的事件无法使用事件代理，比如<code>blur</code>、<code>focus</code>、<code>load</code>、<code>unload</code>等事件。</p>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p>下面代码为<code>ul</code>元素添加了一个点击事件，然后在事件处理程序中判断点击的是哪个<code>li</code>元素，然后执行对应的操作。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">&quot;list&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 4<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>item 5<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> list = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;list&#x27;</span>);</span><br><span class="line">list.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (e.<span class="property">target</span> &amp;&amp; e.<span class="property">target</span>.<span class="property">nodeName</span> === <span class="string">&#x27;LI&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">target</span>.<span class="property">innerHTML</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>而下面的代码为table元素添加了点击事件，然后在事件处理程序中判断点击的是哪个<code>td</code>元素，然后执行对应的操作。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span> <span class="attr">id</span>=<span class="string">&quot;my-table&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>2<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>3<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span>&gt;</span>4<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> table = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;my-table&quot;</span>);</span><br><span class="line">table.<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// Only handle click on td element.</span></span><br><span class="line">  <span class="keyword">if</span> (e.<span class="property">target</span>.<span class="property">tagName</span>.<span class="title function_">toLowerCase</span>() === <span class="string">&quot;td&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">      <span class="string">`You clicked on td element with value <span class="subst">$&#123;e.target.innerHTML&#125;</span>`</span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="为啥突然想到这个呢？"><a href="#为啥突然想到这个呢？" class="headerlink" title="为啥突然想到这个呢？"></a>为啥突然想到这个呢？</h2><p>因为最近在做一个drag and drop的app，需要在拖拽的时候显示preview（被拖拽元素跟着鼠标走），需要一个操作就是克隆被拖拽的元素，而cloneNode这个方法是无法克隆事件的（只能克隆inline事件，无法克隆通过属性或者event listener添加的事件），而如果使用的是事件代理模式，则不存在这个问题。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/13/Enable-CORS-from-backend-with-Node-and-Express/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/13/Enable-CORS-from-backend-with-Node-and-Express/" class="post-title-link" itemprop="url">Enable CORS from backend with Node and Express</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-13 21:51:11" itemprop="dateCreated datePublished" datetime="2023-07-13T21:51:11+08:00">2023-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-22 09:09:42" itemprop="dateModified" datetime="2023-07-22T09:09:42+08:00">2023-07-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Enable-CORS-from-backend-with-Node-and-Express"><a href="#Enable-CORS-from-backend-with-Node-and-Express" class="headerlink" title="Enable CORS from backend with Node and Express"></a>Enable CORS from backend with Node and Express</h1><p>本文介绍如何在Node和Express中启用CORS。从后端解决前端项目中常见的跨域问题。想必每个做过前端开发的同学都对下面这个错误很熟悉：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to XMLHttpRequest at &#x27;http://localhost:3000/api/xxx&#x27; from origin &#x27;http://localhost:4200&#x27; has been blocked by CORS policy: No &#x27;Access-Control-Allow-Origin&#x27; header is present on the requested resource.</span><br></pre></td></tr></table></figure>
+<p>这个错误是由于浏览器的同源策略导致的，同源策略是浏览器的一种安全策略，它要求浏览器只能向同源网址发送请求，同源网址指的是协议、域名、端口号都相同的网址。比如，<code>http://localhost:4200</code>(4200是Angular项目常用端口)和<code>http://localhost:3000</code>（3000是Node.js项目常用端口）就不是同源网址，因为它们的端口号不同。同源策略的目的是为了防止恶意的网站窃取数据，但是对于前端开发来说，这个策略有时候就显得有点过于严格了，比如我们在开发时，前端项目和后端项目往往是分开的，前端项目一般运行在<code>http://localhost:4200</code>，而后端项目一般运行在<code>http://localhost:3000</code>，这样就导致了前端项目无法向后端项目发送请求，从而导致了上面的错误。那么如何解决这个问题呢？我们可以在后端项目中启用CORS，从而解决这个问题。下面我们就来看看如何在Node和Express中启用CORS。</p>
+<h2 id="什么是CORS"><a href="#什么是CORS" class="headerlink" title="什么是CORS"></a>什么是CORS</h2><p>CORS是Cross-Origin Resource Sharing的缩写，中文名是跨域资源共享，它是一种机制，它使用额外的HTTP头来告诉浏览器，允许运行在一个源上的Web应用访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域HTTP请求。<br>以下是几种跨域常见的场景：</p>
+<ol>
+<li>域名不同<br><code>remotehost</code> vs <code>localhost</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:4200 和 http://remotehost:3000</span><br></pre></td></tr></table></figure></li>
+<li>协议不同<br><code>http</code> vs <code>https</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 https://localhost:3000</span><br></pre></td></tr></table></figure></li>
+<li>端口不同<br><code>3000</code> vs <code>4200</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 http://localhost:4200</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="解决跨域"><a href="#解决跨域" class="headerlink" title="解决跨域"></a>解决跨域</h2><ol>
+<li>创建一个Express项目并安装cors<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm init</span><br><span class="line">npm install express --save</span><br><span class="line">npm install cors --save</span><br></pre></td></tr></table></figure></li>
+<li>在项目根目录下创建<code>server.js</code>文件，添加如下内容，这个服务器提供两个接口，一个是<code>/</code>，一个是<code>/users</code>，其中<code>/users</code>接口返回一个用户列表。而且在<code>server.js</code>中启用了CORS，允许<code>http://localhost:4200</code>这个地址访问该服务提供的接口。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">&#x27;cors&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Enable CORS</span></span><br><span class="line"><span class="keyword">let</span> corsOptions = &#123;</span><br><span class="line"> origin : [<span class="string">&#x27;http://localhost:4200&#x27;</span>], <span class="comment">// 前端项目地址</span></span><br><span class="line">&#125;;</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>(corsOptions));</span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> res.<span class="title function_">send</span>(<span class="string">&#x27;Hello World!&#x27;</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/users&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> <span class="keyword">const</span> users = [</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Jane&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span>&#125;,</span><br><span class="line"> ];</span><br><span class="line"></span><br><span class="line"> res.<span class="title function_">json</span>(users);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li>启动项目<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node server.js</span><br></pre></td></tr></table></figure></li>
+<li>新建一个前端项目（Angular），启动项目后运行在localhost:4200,通过前端访问这个api时就不会有跨域问题了。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">UsersModel</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./users.model&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClient</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/common/http&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-users&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./users.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./users.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">UsersComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">users</span>: <span class="title class_">UsersModel</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> http: HttpClient</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">UsersModel</span>[]&gt;(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>)</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">users: UsersModel[]</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">users</span> = users;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>记得在app.module.ts中启用HttpClientModule<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClientModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">   <span class="attr">declarations</span>: [</span><br><span class="line">   <span class="title class_">AppComponent</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">imports</span>: [</span><br><span class="line">     <span class="title class_">HttpClientModule</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">providers</span>: [],</span><br><span class="line">   <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure></li>
 </ol>
 
       
@@ -438,7 +731,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/04/10/Hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -452,7 +745,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/04/10/Hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+            <a href="/2023/07/12/Communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
         </h2>
 
         <div class="post-meta">
@@ -462,8 +755,15 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-04-10 19:58:22" itemprop="dateCreated datePublished" datetime="2023-04-10T19:58:22+08:00">2023-04-10</time>
+              <time title="Created: 2023-07-12 18:44:28" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-18 21:17:47" itemprop="dateModified" datetime="2024-09-18T21:17:47+08:00">2024-09-18</time>
+              </span>
 
           
 
@@ -476,19 +776,464 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
+<h2 id="Create-a-service"><a href="#Create-a-service" class="headerlink" title="Create a service"></a>Create a service</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params">message: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<h2 id="Directive-Send-message"><a href="#Directive-Send-message" class="headerlink" title="Directive(Send message)"></a>Directive(Send message)</h2><p>该指令使用上面定义的service发送消息</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<h2 id="Directive-Receive-message"><a href="#Directive-Receive-message" class="headerlink" title="Directive(Receive message)"></a>Directive(Receive message)</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<h2 id="AppModule"><a href="#AppModule" class="headerlink" title="AppModule"></a>AppModule</h2><p>我们需要在appModule中声明这两个指令</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/04/html5-drag-and-drop-events/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/04/html5-drag-and-drop-events/" class="post-title-link" itemprop="url">html5 drag and drop events</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-04 19:38:03" itemprop="dateCreated datePublished" datetime="2023-07-04T19:38:03+08:00">2023-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-11 20:44:35" itemprop="dateModified" datetime="2024-11-11T20:44:35+08:00">2024-11-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="html5-drag-and-drop-events"><a href="#html5-drag-and-drop-events" class="headerlink" title="html5 drag and drop events"></a>html5 drag and drop events</h1><p>html5中的拖放事件有以下几个：</p>
+<ul>
+<li>dragstart</li>
+<li>drag</li>
+<li>dragleave</li>
+<li>dragenter</li>
+<li>dragover</li>
+<li>drop</li>
+<li>dragend</li>
+</ul>
+<p>我们将从以下几个方面依次讲解这些事件，包括事件的触发条件，事件的触发源头，事件的触发频率等</p>
+<h2 id="dragstart"><a href="#dragstart" class="headerlink" title="dragstart"></a>dragstart</h2><p>触发条件：当用户开始拖动一个元素时，会触发<code>dragstart</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。</p>
+<h2 id="drag"><a href="#drag" class="headerlink" title="drag"></a>drag</h2><p>触发条件：当用户拖动一个元素时，会触发<code>drag</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：多次。  </p>
+<h2 id="dragleave"><a href="#dragleave" class="headerlink" title="dragleave"></a>dragleave</h2><p>触发条件：当用户拖动一个元素，离开了一个可放置的目标元素时，会触发<code>dragleave</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragenter"><a href="#dragenter" class="headerlink" title="dragenter"></a>dragenter</h2><p>触发条件：当用户拖动一个元素，进入了一个可放置的目标元素时，会触发<code>dragenter</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragover"><a href="#dragover" class="headerlink" title="dragover"></a>dragover</h2><p>触发条件：当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发<code>dragover</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：多次。  </p>
+<h2 id="drop"><a href="#drop" class="headerlink" title="drop"></a>drop</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>drop</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragend"><a href="#dragend" class="headerlink" title="dragend"></a>dragend</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>dragend</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。  </p>
+<h2 id="实例讲解"><a href="#实例讲解" class="headerlink" title="实例讲解"></a>实例讲解</h2><p>下面以一个实际例子来讲解事件发生的顺序，如下图，页面上有两个容器，Container A和Container B，container A中有一个元素Child，container B中没有元素。我们将container A中的Child元素拖动到container B中，观察事件的触发顺序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|     Container A   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|      Child        |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">+--------|----------+</span><br><span class="line">         |</span><br><span class="line">        \/</span><br><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|    Container B    |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>首先触发的事件是 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragstart_event">dragstart</a>，触发源头是被拖动的元素，触发频率是一次。我们可以通过打印<code>event.target</code>来验证这一点。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">dragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">stopPropagation</span>(); <span class="comment">// 阻止事件冒泡，也就是阻止事件向父元素传递。</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;drag start...&quot;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">target</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">  e.<span class="property">dataTransfer</span>.<span class="title function_">setData</span>(<span class="string">&quot;text&quot;</span>, e.<span class="property">target</span>.<span class="property">id</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+事件处理函数中的<code>e.target</code>是指触发该事件的元素，比如当用户点击某一个按钮时会触发<code>click</code>事件，那么按钮就是click事件的e.target。而<code>this</code>是指注册事件处理函数的元素，大部分情况下这二者是相同的，但是也有例外，详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/08/02/event-target-vs-event-currentTarget/">这里</a>。</li>
+</ol>
+<p><code>dragstart</code>不同于其他拖拽处理函数的地方是，它是唯一可以设置transfer data的地方。我们可以通过<code>e.dataTransfer.setData</code>方法来设置transfer data，该方法接受两个参数，第一个参数是transfer data的类型，第二个参数是transfer data的值。这里我们设置transfer data的类型为<code>text</code>，值为被拖动元素的id。</p>
+<ol start="2">
+<li><p>然后触发的事件是<code>drag</code>，触发源头是被拖动的元素，该事件会在拖动过程中一直触发。在实际应用中，一般不监听这个事件，因为它没啥用，而且触发太频繁。</p>
+</li>
+<li><p>接下来触发的事件是<code>dragenter</code>，当用户拖动一个元素到一个可放置的目标时，会触发该事件，只会触发一次。由于Container A也是一个可放置的区域，而刚开始拖动时Child就已经位于Container A中，所以会触发<code>dragenter</code>事件。</p>
+</li>
+<li><p>然后触发的事件是<code>dragover</code>，当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发该事件，会在拖动过程中一直触发。与其他事件处理函数不同，该函数有如下两个特点。</p>
+<ol>
+<li>该事件在放置目标区域上触发，而不是被拖拽的元素上触发。</li>
+<li>这个事件是需要阻止默认行为的，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</li>
+</ol>
+</li>
+<li><p>接下来，如果用户在目标区域释放了鼠标，那么会触发<code>drop</code>事件，该事件会在放置目标区域上触发，只会触发一次。我们可以通过<code>e.dataTransfer.getData</code>来获取transfer data，该方法接受一个参数，表示要获取的transfer data的类型，这里我们传入<code>text</code>，表示获取类型为<code>text</code>的transfer data。如果我们在<code>dragstart</code>事件处理函数中设置了transfer data，那么在<code>drop</code>事件处理函数中就可以获取到transfer data了。</p>
+</li>
+<li><p>如果用户在目标区没有释放鼠标，而是继续拖动，直到离开目标区域，那么会触发<code>dragleave</code>事件，该事件会在放置目标区域上触发，只会触发一次。反之，如果用户在目标区域释放了鼠标，那么该事件不会触发。也就是说，对于同一个目标区域而言，<code>dragleave</code>事件和<code>drop</code>事件是互斥的，只会触发其中一个。</p>
+</li>
+</ol>
+<p>注意：<code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
+<h2 id="总结如下："><a href="#总结如下：" class="headerlink" title="总结如下："></a>总结如下：</h2><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>触发条件</th>
+<th>触发源头</th>
+<th>触发频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dragstart</td>
+<td>当用户开始拖动一个元素时</td>
+<td>被拖动的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>drag</td>
+<td>当用户拖动一个元素时</td>
+<td>被拖动的元素</td>
+<td>多次</td>
+</tr>
+<tr>
+<td>dragleave</td>
+<td>当用户拖动一个元素，离开了一个可放置的目标元素时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragenter</td>
+<td>当用户拖动一个元素，进入了一个可放置的目标元素时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragover</td>
+<td>当用户拖动一个元素，悬停在一个可放置的目标元素上时</td>
+<td>目标区域对应的元素</td>
+<td>多次</td>
+</tr>
+<tr>
+<td>drop</td>
+<td>当用户拖动一个元素，释放鼠标按钮时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragend</td>
+<td>当用户拖动一个元素，释放鼠标按钮时</td>
+<td>被拖动的元素</td>
+<td>一次</td>
+</tr>
+</tbody></table>
+<h2 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h2><ol>
+<li><p><code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
+</li>
+<li><p>在处理从一个区域拖拽到另一个区域的情况时比较简单，比如常见的左右两个列表，将一个元素从左侧列表拖拽到右侧列表。这时候被拖拽的元素和放置目标之间的界限比较明显，处理起来比较容易，也就是说被拖拽的元素响应以下事件即可：</p>
+<ul>
+<li>dragstart</li>
+<li>drag</li>
+<li>dragend</li>
+</ul>
+<p>而放置目标响应以下事件即可：</p>
+<ul>
+<li>dragenter</li>
+<li>dragover</li>
+<li>drop</li>
+<li>dragleave</li>
+</ul>
+</li>
+<li><p>但是如果处理一组元素之间的互相拖拽及排序，那就比较麻烦，比如一个相册列表，或者一个瀑布流布局，或者masonry布局，就是一个大容器，里面有如果子元素，我们可以拖拽任意一个元素到其他位置，在拖拽过程中要有placeholder，其他元素要给被拖拽的元素让路。这种情况下，每个元素都要响应所有事件，所以一个必要的操作就是判断被拖拽的元素和放置目标是否是同一个元素，如果是同一个元素，那么就不需要做任何处理，否则就需要做相应的处理。这里有一个技巧，可以使用<code>e.target</code>和<code>e.currentTarget</code>来判断被拖拽的元素和放置目标是否是同一个元素，常见的做法如下：</p>
+</li>
+</ol>
+<ul>
+<li>在<code>dragstart</code>函数中记录被拖拽的元素<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> dragSrcEl = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  dragSrcEl = <span class="variable language_">this</span>; <span class="comment">// record the dragged element</span></span><br><span class="line">  dragSrcEl.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;dragging&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>在<code>dragenter</code>, <code>dragover</code>, <code>dragleave</code>, <code>drop</code>等方法中判断被拖拽元素是否等于this，如果是，那么说明是同一个元素，直接return，如果不是，再进行具体的处理工作。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragEnter</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  <span class="comment">// this event also triggered on the dragged item itself, we should ignore this case.</span></span><br><span class="line">  <span class="keyword">if</span> (dragSrcEl === <span class="variable language_">this</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// do something...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="4">
+<li><p>在<code>dragover</code>事件处理函数中，需要阻止默认行为，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragOver</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>drop</code>事件处理函数中，需要阻止默认行为，否则会导致浏览器打开被拖拽的元素。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDrop</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/01/Array-like-object/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/01/Array-like-object/" class="post-title-link" itemprop="url">Array-like object</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-01 07:34:21" itemprop="dateCreated datePublished" datetime="2023-07-01T07:34:21+08:00">2023-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-20 08:54:23" itemprop="dateModified" datetime="2024-04-20T08:54:23+08:00">2024-04-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="What-is-array-like-object"><a href="#What-is-array-like-object" class="headerlink" title="What is array-like object?"></a>What is array-like object?</h2><p>Array-like object is an object that has a <code>length</code> property and indexed elements. For example, <code>arguments</code> is an array-like object.</p>
+<p>Has indexed access to the elements and a non-negative length property to know the number of elements in it. These are the only similarities it has with an array.<br>Doesn’t have any of the Array methods like push, pop, join, map, etc.</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike[<span class="number">1</span>]); <span class="comment">// &#x27;b&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">length</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">push</span>); <span class="comment">// Uncaught TypeError: arrayLike.push is not a function</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="What-is-the-difference-between-array-and-array-like-object"><a href="#What-is-the-difference-between-array-and-array-like-object" class="headerlink" title="What is the difference between array and array-like object?"></a>What is the difference between array and array-like object?</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>length属性</th>
+<th>索引访问</th>
+<th>有Array.prototype方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Array</td>
+<td>✔️</td>
+<td>✔️</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>Array-like object</td>
+<td>✔️</td>
+<td>✔️</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h2 id="Which-type-in-JavaScript-is-array-like-object"><a href="#Which-type-in-JavaScript-is-array-like-object" class="headerlink" title="Which type in JavaScript is array-like object?"></a>Which type in JavaScript is array-like object?</h2><p>There are many types in JavaScript are array-like object, including:</p>
+<ol>
+<li><code>arguments</code> in a function</li>
+<li><code>NodeList</code>(and other DOM collections)</li>
+<li><code>HTMLCollection</code></li>
+</ol>
+<h3 id="arguments-in-a-function"><a href="#arguments-in-a-function" class="headerlink" title="arguments in a function"></a>arguments in a function</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="NodeList-and-other-DOM-collections"><a href="#NodeList-and-other-DOM-collections" class="headerlink" title="NodeList(and other DOM collections)"></a>NodeList(and other DOM collections)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nodeList = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;div&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(nodeList); <span class="comment">// NodeList(3) [div, div, div]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="HTMLCollection"><a href="#HTMLCollection" class="headerlink" title="HTMLCollection"></a>HTMLCollection</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> htmlCollection = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(htmlCollection); <span class="comment">// HTMLCollection(3) [div.container, div.container, div.container]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="How-to-convert-array-like-object-to-array"><a href="#How-to-convert-array-like-object-to-array" class="headerlink" title="How to convert array-like object to array?"></a>How to convert array-like object to array?</h2><p>There are several ways to convert array-like object to array.</p>
+<h3 id="Array-from-…"><a href="#Array-from-…" class="headerlink" title="Array.from(…)"></a>Array.from(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="title function_">from</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Use-ES6-spread-operator"><a href="#Use-ES6-spread-operator" class="headerlink" title="Use ES6 spread operator"></a>Use ES6 spread operator</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = [...arrayLike];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Array-prototype-slice-call-…"><a href="#Array-prototype-slice-call-…" class="headerlink" title="Array.prototype.slice.call(…)"></a>Array.prototype.slice.call(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">slice</span>.<span class="title function_">call</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><ol>
+<li>Array-like object is an object that has a <code>length</code> property</li>
+<li>Array-like object has indexed access to the elements, you access the elements by using <code>arrayLike[n]</code></li>
+<li>Array-like object doesn’t have any of the Array methods like push, pop, join, map, etc.</li>
+<li>You can convert array-like object to array by using <code>Array.from(...)</code>, ES6 spread operator or <code>Array.prototype.slice.call(...)</code>.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/29/How-to-get-DOM-element-on-page/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/29/How-to-get-DOM-element-on-page/" class="post-title-link" itemprop="url">How to get DOM element on page</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-29 20:14:35" itemprop="dateCreated datePublished" datetime="2023-06-29T20:14:35+08:00">2023-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-01 07:32:28" itemprop="dateModified" datetime="2023-07-01T07:32:28+08:00">2023-07-01</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-to-get-DOM-elements-on-page"><a href="#How-to-get-DOM-elements-on-page" class="headerlink" title="How to get DOM elements on page"></a>How to get DOM elements on page</h1><p>获取Dom元素总体来说有两类方法：</p>
+<ul>
+<li>getElementByXXX</li>
+<li>queryXXX</li>
+</ul>
+<p>这两种方法都是从document对象开始查找，所以可以直接使用，不需要先获取document对象。</p>
+<h2 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h2><h3 id="getElementById"><a href="#getElementById" class="headerlink" title="getElementById"></a>getElementById</h3><p>这是最常用的方法，如果你的元素有id属性，那么可以使用这个方法获取元素，返回的是一个Element对象。如果没有找到，则返回null。<br>html代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;root&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> (element) &#123;</span><br><span class="line">  <span class="comment">// do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="getElementsByClassName"><a href="#getElementsByClassName" class="headerlink" title="getElementsByClassName"></a>getElementsByClassName</h3><p>这个方法可以获取到所有class属性中包含指定类名的元素，返回的是一个<a target="_blank" rel="noopener" href="https://daily.dev/blog/why-do-you-need-to-know-about-array-like-objects"><code>array-like</code></a>对象HTMLCollection，可以使用Array.from()方法将其转换为数组。<br>html代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，这个方法返回的是一个动态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合也会跟着改变。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>A<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>B<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>C<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 初始时，页面上有三个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttons = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(3) [button, button, button]</span></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 添加一个按钮, 此时再打印buttons，则输出四个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttonD = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">innerHTML</span> = <span class="string">&quot;D&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">className</span> = <span class="string">&quot;button&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(buttonD);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(4) [button, button, button, button]</span></span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="query方法"><a href="#query方法" class="headerlink" title="query方法"></a>query方法</h2><p>query类的方法参数是CSS选择器，比如 </p>
+<ul>
+<li>“#root” - 查找id为root的结点，</li>
+<li>“.container” - 查找class为container的结点，</li>
+<li>“div” - 查找所有div结点。</li>
+</ul>
+<h3 id="querySelector"><a href="#querySelector" class="headerlink" title="querySelector"></a>querySelector</h3><p>这个方法可以获取到第一个匹配的元素，它的返回值类型是Element。如果没有匹配的元素，返回null。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="querySelectorAll"><a href="#querySelectorAll" class="headerlink" title="querySelectorAll"></a>querySelectorAll</h3><p>这个方法可以获取到所有匹配的元素，返回的是一个类数组对象NodeList，可以使用Array.from()方法将其转换为数组。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
+
+<p>querySelectorAll方法返回的是一个静态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合不会跟着改变。</p>
+<p>需要注意的是，尽管querySelectorAll方法返回的NodeList是静态的，但是NodeList在有些情况下却是动态的，比如 <code>Node.childNodes</code> 返回的就是一个动态的NodeList。</p>
+<h2 id="总结成如下表格"><a href="#总结成如下表格" class="headerlink" title="总结成如下表格"></a>总结成如下表格</h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值类型</th>
+<th>返回值个数</th>
+<th>查不到时返回值</th>
+<th>返回值状态：动态&#x2F;静态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>getElementById</td>
+<td>Element</td>
+<td>1</td>
+<td>null</td>
+<td>-</td>
+</tr>
+<tr>
+<td>getElementsByClassName</td>
+<td>HTMLCollection</td>
+<td>0~n</td>
+<td>空的HTMLCollection</td>
+<td>动态</td>
+</tr>
+<tr>
+<td>querySelector</td>
+<td>Element</td>
+<td>1</td>
+<td>null</td>
+<td>-</td>
+</tr>
+<tr>
+<td>querySelectorAll</td>
+<td>NodeList</td>
+<td>0~n</td>
+<td>空的NodeList</td>
+<td>静态</td>
+</tr>
+</tbody></table>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementById">getElementById</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementsByClassName">getElementsByClassName</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelector">querySelector</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelectorAll">querySelectorAll</a>  </p>
 
       
     </div>
@@ -507,7 +1252,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/19/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span>
+    <a class="extend prev" rel="prev" href="/page/19/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/21/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -573,14 +1318,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">194</span>
+          <span class="site-state-item-count">209</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">276</span>
+        <span class="site-state-item-count">281</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
