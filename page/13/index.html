@@ -181,6 +181,543 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/angular-bootstrap-standalone-component/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/20/angular-bootstrap-standalone-component/" class="post-title-link" itemprop="url">bootstrap-standalone-component</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-20 12:39:46" itemprop="dateCreated datePublished" datetime="2024-04-20T12:39:46+08:00">2024-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-06 20:46:25" itemprop="dateModified" datetime="2024-06-06T20:46:25+08:00">2024-06-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>你也许在Angular的文档或者某些博客中看到过这样一句话：<br><code> Every application has at least one Angular module, the root module, which must be present for bootstrapping the application on launch. By convention and by default, this NgModule is named AppModule</code></p>
+<p>在Angular 14之前，这句话是正确的。但是从Angular 14开始，你可以不用<code>AppModule</code>，因为<code>standalone component</code>可以替代它。下面我们来看看，如何移除<code>AppModule</code>。</p>
+<h2 id="创建一个Angular项目"><a href="#创建一个Angular项目" class="headerlink" title="创建一个Angular项目"></a>创建一个Angular项目</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new my-app</span><br></pre></td></tr></table></figure>
+
+<h2 id="将app-component设置为standalone"><a href="#将app-component设置为standalone" class="headerlink" title="将app component设置为standalone"></a>将app component设置为standalone</h2><p>首先要将<code>app.component.ts</code>中的<code>standalone</code>设置为<code>true</code>。如果使用了router，还需要将RouterModule导入到component中。否则在html中使用<code>router-outlet</code>或者<code>routerLink</code>会报错。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// set standalone to true</span></span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterModule</span>], <span class="comment">// import RouterModule if you use router</span></span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./app.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;angular-router&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建routes文件"><a href="#创建routes文件" class="headerlink" title="创建routes文件"></a>创建routes文件</h2><p>新建一个app-routes.ts文件，用来定义路由，就是将原本在<code>app-routing.module.ts</code>中定义的路由移到这个文件中。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HomeComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./home/home.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AboutComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./about/about.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NotFoundComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./not-found/not-found.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="删除AppModule"><a href="#删除AppModule" class="headerlink" title="删除AppModule"></a>删除AppModule</h2><p>经过上面的改造，我们已经将<code>AppModule</code>中的内容移到了<code>AppComponent</code>中，现在可以删除<code>AppModule</code>了。</p>
+<ol>
+<li>删除app module文件：<code>src/app/app.module.ts</code>。</li>
+<li>删除route文件：<code>src/app/app-routing.module.ts</code>。（如果创建项目时选择了router）</li>
+</ol>
+<h2 id="修改main-ts"><a href="#修改main-ts" class="headerlink" title="修改main.ts"></a>修改main.ts</h2><p>最后，我们还需要修改<code>main.ts</code>，<code>main.ts</code>是app的入口文件，它本来引入的是<code>AppModule</code>，我们需要修改它来引入<code>standalone component</code>。</p>
+<ol>
+<li>将<code>bootstrapModule</code>替换为<code>bootstrapApplication</code>。</li>
+<li>将<code>AppModule</code>替换为<code>AppComponent</code>。</li>
+<li>引入<code>importProvidersFrom</code>来加载路由。</li>
+</ol>
+<p>修改前</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>修改后</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;enableProdMode, importProvidersFrom&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;environment&#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;routes&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.routes&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;bootstrapApplication&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/platform-browser&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AppComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./app/app.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    importProvidersFrom(<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes))</span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<h2 id="Angular-17"><a href="#Angular-17" class="headerlink" title="Angular 17+"></a>Angular 17+</h2><p>从Angular 17开始，使用Angular CLI创建的app默认就是standalone component，不需要再做上面的修改。一个新的Angular 17+项目结构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">my-app/</span><br><span class="line">├─ node-modules/</span><br><span class="line">├─ src/</span><br><span class="line">│  ├─ app/</span><br><span class="line">│  │  ├─ app.component.css</span><br><span class="line">│  │  ├─ app.component.html</span><br><span class="line">│  │  ├─ app.component.ts</span><br><span class="line">│  │  ├─ app.config.ts</span><br><span class="line">│  │  ├─ app.routes.ts</span><br><span class="line">│  ├─ index.html</span><br><span class="line">│  ├─ main.ts</span><br><span class="line">├─ angular.json</span><br><span class="line">├─ package.json</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">RouterOutlet</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterOutlet</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./app.component.css&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;my-app&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.config.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ApplicationConfig</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; provideRouter &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; routes &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.routes&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title function_">provideRouter</span>(routes)]</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Routes</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; bootstrapApplication &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; appConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.config&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/to-do-list/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/20/to-do-list/" class="post-title-link" itemprop="url">to-do-list</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-20 12:22:05" itemprop="dateCreated datePublished" datetime="2024-04-20T12:22:05+08:00">2024-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-18 21:24:53" itemprop="dateModified" datetime="2024-09-18T21:24:53+08:00">2024-09-18</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="To-Do-List"><a href="#To-Do-List" class="headerlink" title="To Do List"></a>To Do List</h2><ol>
+<li><p><code>typescript</code> tag not found on github pages tags.</p>
+</li>
+<li><p>Angular, AOT vs JIT and Ivy</p>
+</li>
+<li><p>Angular, How <code>ngc</code> works?</p>
+</li>
+<li><p>Angular, ngc vs ngcc.</p>
+</li>
+<li><p>Angular change detection</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://angularindepth.com/posts/1513/from-zone-js-to-zoneless-angular-and-back-how-it-all-works">https://angularindepth.com/posts/1513/from-zone-js-to-zoneless-angular-and-back-how-it-all-works</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/">https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/</a></li>
+<li><a target="_blank" rel="noopener" href="https://justangular.com/blog/a-new-era-for-angular-zoneless-change-detection?source=post_page-----babdeb6bc84e--------------------------------">https://justangular.com/blog/a-new-era-for-angular-zoneless-change-detection?source=post_page-----babdeb6bc84e--------------------------------</a></li>
+<li></li>
+</ol>
+</li>
+<li><p>Angular zone</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://dev.to/vivekdogra02/angular-zonejs-change-detection-understanding-the-core-concepts-16ek">https://dev.to/vivekdogra02/angular-zonejs-change-detection-understanding-the-core-concepts-16ek</a></li>
+<li><a target="_blank" rel="noopener" href="https://angularindepth.com/posts/1135/i-reverse-engineered-zones-zone-js-and-here-is-what-ive-found">https://angularindepth.com/posts/1135/i-reverse-engineered-zones-zone-js-and-here-is-what-ive-found</a></li>
+<li><a target="_blank" rel="noopener" href="https://justangular.com/blog/a-change-detection-zone-js-zoneless-local-change-detection-and-signals-story">https://justangular.com/blog/a-change-detection-zone-js-zoneless-local-change-detection-and-signals-story</a></li>
+<li><a target="_blank" rel="noopener" href="https://justangular.com/blog/its-ok-to-use-function-calls-in-angular-templates">https://justangular.com/blog/its-ok-to-use-function-calls-in-angular-templates</a></li>
+</ol>
+</li>
+<li><p>Angular polyfill(under project root)</p>
+</li>
+<li><p>Angular data binding.</p>
+</li>
+<li><p>What’s new in Angular 15</p>
+</li>
+<li><p>What’s new in Angular 16</p>
+</li>
+<li><p>What’s new in Angular 17</p>
+</li>
+<li><p><code>angular.json</code> - <code>projects</code> - <code>architect</code> - <code>build</code> - <code>options</code> - <code>tsConfig</code></p>
+</li>
+<li><p>Angular router: <code>resolver</code> &#x3D; <a target="_blank" rel="noopener" href="https://medium.com/@singhkrishnapal0818/angular-resolver-with-example-cf23f6d38f7f">https://medium.com/@singhkrishnapal0818/angular-resolver-with-example-cf23f6d38f7f</a></p>
+</li>
+<li><p>Never use function call in angular template: <a target="_blank" rel="noopener" href="https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496">https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://medium.com/ngconf/accessing-route-params-in-angular-1f8e12770617">https://medium.com/ngconf/accessing-route-params-in-angular-1f8e12770617</a></p>
+</li>
+<li><p>Angular service scope providedIn: ‘root’, ‘platform’, ‘any’ - <a target="_blank" rel="noopener" href="https://dev.to/christiankohler/improved-dependeny-injection-with-the-new-providedin-scopes-any-and-platform-30bb">https://dev.to/christiankohler/improved-dependeny-injection-with-the-new-providedin-scopes-any-and-platform-30bb</a>, <a target="_blank" rel="noopener" href="https://angular.io/guide/providers#limiting-provider-scope-with-components">https://angular.io/guide/providers#limiting-provider-scope-with-components</a></p>
+</li>
+<li><p>Good angular post:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://justangular.com/blog">https://justangular.com/blog</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.angular.io/">https://blog.angular.io/</a></li>
+<li><a target="_blank" rel="noopener" href="https://angulararchitects.io/en/blog">https://angulararchitects.io/en/blog</a></li>
+</ol>
+</li>
+<li><p>What is browserlist in Angular: <a target="_blank" rel="noopener" href="https://github.com/browserslist/browserslist">https://github.com/browserslist/browserslist</a></p>
+</li>
+<li><p>Angular, what is matrix parameters: <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/2048121/url-matrix-parameters-vs-query-parameters">https://stackoverflow.com/questions/2048121/url-matrix-parameters-vs-query-parameters</a></p>
+</li>
+</ol>
+<h2 id="SSR-in-Angular"><a href="#SSR-in-Angular" class="headerlink" title="SSR in Angular"></a>SSR in Angular</h2><p>多页应用<br><a target="_blank" rel="noopener" href="http://www.guoxue.com/shibu/24shi/hansu/hsu_002.htm">http://www.guoxue.com/shibu/24shi/hansu/hsu_002.htm</a></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@nishtha.viitorcloud/ssr-server-side-rendering-in-angular-a68bee12cb0d">https://medium.com/@nishtha.viitorcloud/ssr-server-side-rendering-in-angular-a68bee12cb0d</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@mbleigh/when-should-i-server-side-render-c2a383ff2d0f">https://medium.com/@mbleigh/when-should-i-server-side-render-c2a383ff2d0f</a></li>
+<li><a target="_blank" rel="noopener" href="https://solutionshub.epam.com/blog/post/what-is-server-side-rendering">https://solutionshub.epam.com/blog/post/what-is-server-side-rendering</a></li>
+</ol>
+<h2 id="Module-Federation"><a href="#Module-Federation" class="headerlink" title="Module Federation"></a>Module Federation</h2><ol>
+<li>code example: <a target="_blank" rel="noopener" href="https://github.com/module-federation/module-federation-examples">https://github.com/module-federation/module-federation-examples</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/swlh/webpack-5-module-federation-a-game-changer-to-javascript-architecture-bcdd30e02669">https://medium.com/swlh/webpack-5-module-federation-a-game-changer-to-javascript-architecture-bcdd30e02669</a> - need pay</li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@scriptedalchemy/understanding-webpack-module-federation-a-deep-dive-efe5c55bf366">https://medium.com/@scriptedalchemy/understanding-webpack-module-federation-a-deep-dive-efe5c55bf366</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.angulararchitects.io/en/blog/micro-frontends-with-modern-angular-part-1-standalone-and-esbuild/">https://www.angulararchitects.io/en/blog/micro-frontends-with-modern-angular-part-1-standalone-and-esbuild/</a></li>
+<li><a target="_blank" rel="noopener" href="https://module-federation.io/">https://module-federation.io/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-ei6RqZilYI">https://www.youtube.com/watch?v=-ei6RqZilYI</a></li>
+<li><a target="_blank" rel="noopener" href="https://vugar-005.medium.com/module-federation-series-part-1-a-little-in-depth-258f331bc11e">https://vugar-005.medium.com/module-federation-series-part-1-a-little-in-depth-258f331bc11e</a></li>
+</ol>
+<h2 id="Native-module-federation"><a href="#Native-module-federation" class="headerlink" title="Native module federation"></a>Native module federation</h2><p><a target="_blank" rel="noopener" href="https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/README.md">https://github.com/angular-architects/module-federation-plugin/blob/main/libs/native-federation/README.md</a></p>
+<h3 id="Angular-Elements"><a href="#Angular-Elements" class="headerlink" title="Angular Elements"></a>Angular Elements</h3><p>Angular elements are Angular components packaged as custom elements (also called Web Components), a web standard for defining new HTML elements in a framework-agnostic way</p>
+<h3 id="Pure-ESM-package"><a href="#Pure-ESM-package" class="headerlink" title="Pure ESM package"></a>Pure ESM package</h3><p><a target="_blank" rel="noopener" href="https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c">https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c</a></p>
+<h3 id="Angular-CLI"><a href="#Angular-CLI" class="headerlink" title="Angular CLI"></a>Angular CLI</h3><p><a target="_blank" rel="noopener" href="https://angular.dev/cli">https://angular.dev/cli</a></p>
+<h3 id="dynamic-import"><a href="#dynamic-import" class="headerlink" title="dynamic import"></a>dynamic import</h3><p><a target="_blank" rel="noopener" href="https://medium.com/unalai/%E8%AA%8D%E8%AD%98-dynamic-import-3a6f75da2fc9">https://medium.com/unalai/%E8%AA%8D%E8%AD%98-dynamic-import-3a6f75da2fc9</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import</a></p>
+<h3 id="Angular-lazy-loading"><a href="#Angular-lazy-loading" class="headerlink" title="Angular lazy loading"></a>Angular lazy loading</h3><p><a target="_blank" rel="noopener" href="https://angular.dev/guide/ngmodules/lazy-loading">https://angular.dev/guide/ngmodules/lazy-loading</a></p>
+<h3 id="Write-tools"><a href="#Write-tools" class="headerlink" title="Write tools"></a>Write tools</h3><p>ASCII tree<br>markdown table generator, convert table cell contains multiple lines of code to markdown text, see <code>What&#39;s new in angular 17 for details</code></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/18/angular-router/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/18/angular-router/" class="post-title-link" itemprop="url">angular-router</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-18 20:23:16" itemprop="dateCreated datePublished" datetime="2024-04-18T20:23:16+08:00">2024-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-10-18 21:20:26" itemprop="dateModified" datetime="2024-10-18T21:20:26+08:00">2024-10-18</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文讲解一下如何在<code>Angular</code>项目中使用<code>router</code>。</p>
+<h2 id="创建一个Angular项目"><a href="#创建一个Angular项目" class="headerlink" title="创建一个Angular项目"></a>创建一个Angular项目</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new angular-router</span><br></pre></td></tr></table></figure>
+<p>在创建过程中，<code>Angular CLI</code>会询问是否使用router，选择<code>Yes</code>。</p>
+<h2 id="创建三个组件。"><a href="#创建三个组件。" class="headerlink" title="创建三个组件。"></a>创建三个组件。</h2><p>使用<code>WebStorm</code>或者<code>VSCode</code>打开上面创建的项目，呼出<code>Terminal</code>，执行以下命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ng generate component home</span><br><span class="line">ng generate component product</span><br><span class="line">ng generate component about</span><br></pre></td></tr></table></figure>
+<p>然后打开<code>app-routing.module.ts</code>文件，创建路由。注意，path不能以<code>/</code>开头。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>, <span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HomeComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./home/home.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product/product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">AboutComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./about/about.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Add Routes here</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">redirectTo</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">pathMatch</span>: <span class="string">&#x27;full&#x27;</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes)],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">RouterModule</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppRoutingModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加导航链接"><a href="#添加导航链接" class="headerlink" title="添加导航链接"></a>添加导航链接</h2><p>打开<code>app.component.html</code>文件，添加导航链接。注意，<code>routerLink</code>的值要和<code>path</code>一致。如果是根路由，可以使用<code>/</code>。文档末尾的<code>router-outlet</code>是用来显示路由对应的组件的。当点击某一个链接的时候，Angular会找到对应的组件，并将其加载到<code>router-outlet</code>中。所以<code>router-outlet</code>相当于一个占位符，与html中的<code>slot</code>类似。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Angular Router Demo<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/product&quot;</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h2><p>在<code>Terminal</code>中执行以下命令。打开浏览器，输入<code>http://localhost:4200</code>，就可以看到导航链接了。依次点击页面上的Home，Product，About链接，可以看到页面跳转了，并且浏览器中的地址也发生了变化。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加404页面"><a href="#添加404页面" class="headerlink" title="添加404页面"></a>添加404页面</h2><p>如果我们在浏览器中随意输入一个不存在的路径，比如<code>http://localhost:4200/abc</code>，会发现页面是空白的。这是因为我们没有处理404页面。我们可以在<code>app-routing.module.ts</code>中添加一个<code>**</code>路径，用来匹配所有路径，然后将其重定向到一个<code>404</code>组件。</p>
+<h3 id="创建404页面组件"><a href="#创建404页面组件" class="headerlink" title="创建404页面组件"></a>创建404页面组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component not-found</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改404页面内容"><a href="#修改404页面内容" class="headerlink" title="修改404页面内容"></a>修改404页面内容</h3><p>打开<code>not-found.component.html</code>，输入以下内容。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>404: Not Found!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加404路由"><a href="#添加404路由" class="headerlink" title="添加404路由"></a>添加404路由</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>此时，如果在浏览器里面输入一个不存在的路径，比如<code>http://localhost:4200/abc</code>，则会显示<code>404: Not Found!</code>。</p>
+<h2 id="嵌套路由"><a href="#嵌套路由" class="headerlink" title="嵌套路由"></a>嵌套路由</h2><p>如果我们想要在<code>product</code>组件中添加两个子路由，<code>product-a</code>和<code>product-a</code>，可以在<code>app-routing.module.ts</code>中添加如下代码。</p>
+<h3 id="新建两个组件"><a href="#新建两个组件" class="headerlink" title="新建两个组件"></a>新建两个组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ng generate component product-a</span><br><span class="line">ng generate component product-b</span><br></pre></td></tr></table></figure>
+
+<h3 id="在product页面添加router-outlet"><a href="#在product页面添加router-outlet" class="headerlink" title="在product页面添加router-outlet"></a>在product页面添加router-outlet</h3><p>这个<code>router-outlet</code>用来显示ProductA和ProductB对应的的组件。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>product works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加子路由"><a href="#添加子路由" class="headerlink" title="添加子路由"></a>添加子路由</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="comment">// pathMatch: &#x27;full&#x27;, 注意这一句不能写！否则子路由无法匹配，会导致404！</span></span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about-me&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutmeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>此时，如果在浏览器中输入<code>http://localhost:4200/product/a</code>，会显示<code>ProductA works!</code>，输入<code>http://localhost:4200/product/b</code>，会显示<code>ProductB works!</code>。同时也会显示<code>product works!</code>，因为<code>product.component.html</code>中除了有<code>&lt;router-outlet&gt;&lt;/router-outlet&gt;</code>。还有<code>&lt;p&gt;product works!&lt;/p&gt;</code>。</p>
+<h2 id="严格匹配"><a href="#严格匹配" class="headerlink" title="严格匹配"></a>严格匹配</h2><p>上面的例子中，product的path不能使用严格匹配选项<code>pathMath: &#39;full&#39;</code>，否则子路由无法匹配，会导致404。这是为什么呢？<br>因为匹配子路由的时候，必须先匹配父级路由，而由于父级路由使用了<code>pathMatch: &#39;full&#39;</code>，所以无法匹配，父级路由无法匹配导致子路由的匹配无法进行，所以导致了404！</p>
+<p>如果你非要使用<code>pathMatch: &#39;full&#39;</code>，可以如下定义路由表。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">pathMatch</span>: <span class="string">&#x27;full&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product/a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product/b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about-me&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutmeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>这样就可以使用<code>pathMatch: &#39;full&#39;</code>了。但是这么做也有一个弊端，就是a和b从逻辑上讲不再是product子路由了。而是平级路由，只不过路径中包含了字符串<code>product</code>而已。这会导致product页面的内容无法显示。通常父级路由都会显示一些公共信息，差异化的信息放到子路由中。如果你使用了<code>pathMatch: &#39;full&#39;</code>，则会导致父级页面内容无法显示。请酌情使用此方法。</p>
+<p>注意，如果你使用了嵌套路由，或者lazy load, 请谨慎使用<code>pathMatch: &#39;full&#39;</code>。详情请看这里：<a target="_blank" rel="noopener" href="https://dev.to/raj_sekhar/angular-route-pathmatch-full-when-to-not-use-4mb1">detail</a></p>
+<h2 id="路由拆分"><a href="#路由拆分" class="headerlink" title="路由拆分"></a>路由拆分</h2><p>如果product中的子路由越来越多，都放到一个文件中会显得很臃肿。这时候我们可以将子路由拆分到单独的文件中。将子路由定义到product组件中。</p>
+<h3 id="基于NgModule的路由拆分"><a href="#基于NgModule的路由拆分" class="headerlink" title="基于NgModule的路由拆分"></a>基于NgModule的路由拆分</h3><p>进入<code>product</code>文件夹，执行以下命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ng generate module product-routing --flat</span><br><span class="line">ng generate module product --flat</span><br></pre></td></tr></table></figure>
+<p><code>--flat</code>选项表示不创建文件夹。</p>
+<p>在<code>product-routing.module.ts</code>中添加如下代码。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-routing.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CommonModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductBComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-b/product-b.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductAComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-a/product-a.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">RouterModule</span>, <span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="comment">// 注意这里不能写product，因为`app-routing.module.ts`中已经定义了product路由, 并且指定了path: &#x27;product&#x27;</span></span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;a&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductAComponent</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;b&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductBComponent</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">CommonModule</span>,</span><br><span class="line">    <span class="title class_">RouterModule</span>.<span class="title function_">forChild</span>(routes),</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">RouterModule</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductRoutingModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>product.module.ts文件中添加如下代码，导入<code>ProductRoutingModule</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CommonModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;./product.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductRoutingModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;./product-routing.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductAComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../product-a/product-a.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductBComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../product-b/product-b.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">ProductComponent</span>,</span><br><span class="line">    <span class="title class_">ProductAComponent</span>,</span><br><span class="line">    <span class="title class_">ProductBComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">CommonModule</span>,</span><br><span class="line">    <span class="title class_">ProductRoutingModule</span></span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductModule</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改app-routing.module.ts<br>注意，这里必须使用loadChildren, 否则子路由无法显示。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>这样就可以将product中的子路由拆分到单独的文件中了。</p>
+<h3 id="基于Standalone组件的路由拆分"><a href="#基于Standalone组件的路由拆分" class="headerlink" title="基于Standalone组件的路由拆分"></a>基于Standalone组件的路由拆分</h3><p>如果你的组件是standalone的，没有对应的module文件，那么可以使用如下方法拆分路由。注意<code>loadChildren</code>中加载的是<code>路由文件</code>，而不是module文件，也不是component文件。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routers.ts</span></span><br><span class="line">&#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.routers&#x27;</span>).<span class="title function_">then</span>(<span class="function">(<span class="params">routes</span>) =&gt;</span> routes.<span class="property">productRouters</span>)&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>在Product组件文件夹下新建路由文件<code>product.routers.ts</code>，添加如下代码。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.routers.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductDetailComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-detail/product-detail.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">productRouters</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product-detail&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductDetailComponent</span>&#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>注意这种方式下，点击product-detail链接时，会显示product-detail组件。<code>product</code>组件的内容不会显示。</p>
+<p>如果要显示<code>product</code>组件的内容，需要将<code>product-detail</code>组件定义为<code>product</code>组件的子路由。如下所示。这种方式在导航时很方便，比如左侧是导航菜单，点击不同菜单显示不同的组件。对于整个页面来说，导航菜单一直显示，而右侧的内容会随着导航的变化而变化。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.routers.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/router&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductDetailComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-detail/product-detail.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">productRouters</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductComponent</span>, <span class="attr">children</span>: [</span><br><span class="line">      &#123;<span class="attr">path</span>: <span class="string">&#x27;product-detail&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductDetailComponent</span>&#125;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h2 id="监听路由变化"><a href="#监听路由变化" class="headerlink" title="监听路由变化"></a>监听路由变化</h2><p>如果我们想要在路由变化的时候做一些事情，比如打印路由信息，可以在<code>app.component.ts</code>中添加如下代码。此时会监听整个app所有路由的变化，如果只想监控某个组件的路由变化，那么可以在该组件中添监听代码。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;&#125;</span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="property">events</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Route:&#x27;</span>, event);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>路由变化时会依次触发以下事件：</p>
+<ul>
+<li>NavigationStart</li>
+<li>RoutesRecognized</li>
+<li>GuardsCheckStart</li>
+<li>ChildActivationStart</li>
+<li>ActivationStart</li>
+<li>GuardsCheckEnd</li>
+<li>ResolveStart</li>
+<li>ResolveEnd</li>
+<li>ActivationEnd</li>
+<li>ChildActivationEnd</li>
+<li>NavigationEnd</li>
+</ul>
+<p>我们一般在<code>NavigationEnd</code>事件中做一些事情。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">router.<span class="property">events</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (event <span class="keyword">instanceof</span> <span class="title class_">NavigationEnd</span>) &#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：<p style="color:#d7520e;">即使使用了<code>skipLocationChange</code>选项，也可以通过以上方法获取完整的路由信息，因为<code>skipLocationChange</code>只是不改变浏览器地址栏的URL，但是路由信息还是会变化的。<p></p>
+<h2 id="获取路由信息"><a href="#获取路由信息" class="headerlink" title="获取路由信息"></a>获取路由信息</h2><p>如果想要获取路由对应的url，路由中的参数等信息，可以在组件中注入<a target="_blank" rel="noopener" href="https://angular.io/api/router/ActivatedRoute">ActivatedRoute</a>服务。</p>
+<h3 id="使用ActivatedRoute-snapshot获取路由信息"><a href="#使用ActivatedRoute-snapshot获取路由信息" class="headerlink" title="使用ActivatedRoute.snapshot获取路由信息"></a>使用<code>ActivatedRoute.snapshot</code>获取路由信息</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routers.ts</span></span><br><span class="line">&#123; <span class="attr">path</span>: <span class="string">&#x27;product/:id&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductDetailComponent</span> &#125;,</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>This is product: &#123;&#123;id&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductDetailComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span> = -<span class="number">1</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> activatedRoute: ActivatedRoute</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> id = <span class="variable language_">this</span>.<span class="property">activatedRoute</span>.<span class="property">snapshot</span>.<span class="property">paramMap</span>.<span class="title function_">get</span>(<span class="string">&#x27;id&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span> (id) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">id</span> = <span class="built_in">parseInt</span>(id);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用ActivatedRoute-params订阅路由变化"><a href="#使用ActivatedRoute-params订阅路由变化" class="headerlink" title="使用ActivatedRoute.params订阅路由变化"></a>使用<code>ActivatedRoute.params</code>订阅路由变化</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductDetailComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span> = -<span class="number">1</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> activatedRoute: ActivatedRoute</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activatedRoute</span>.<span class="property">params</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">params</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">id</span> = <span class="built_in">parseInt</span>(params.<span class="property">id</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p style="color:#d7520e;">snapshop和params的区别:</p>
+
+<ul>
+<li><code>snapshot</code>只会获取一次路由信息，它是静态的，获取之后就不会再变化了。</li>
+<li><code>params</code>会订阅路由变化，当路由变化时，会重新获取路由信息。</li>
+</ul>
+<p style="color:#d7520e;">params和queryParams的区别：</p>
+
+<ul>
+<li>params: 获取路由中的参数，比如<code>/product/1</code>中的<code>1</code>。</li>
+<li>queryParams: 获取路由中的查询参数，比如<code>/product?id=1&amp;name=zdd</code>中的<code>id</code>, <code>name</code>。</li>
+<li>matrixParameters: 获取路由中的矩阵参数，比如<code>/product;id=1;name=zdd</code>中的<code>id</code>, <code>name</code>。</li>
+</ul>
+<p>queryParams和matrixParameters的区别</p>
+<ul>
+<li>queryParams: 使用<code>?</code>开头，使用<code>&amp;</code>分隔每组参数，比如<code>/product?id=1&amp;name=zdd</code>。</li>
+<li>matrixParameters: 使用<code>;</code>开头，使用<code>;</code>分隔每组参数，比如<code>/product;id=1;name=zdd</code>。</li>
+<li>两者都以<code>=</code>分隔键值对。</li>
+</ul>
+<h2 id="路由守卫"><a href="#路由守卫" class="headerlink" title="路由守卫"></a>路由守卫</h2><p>待整理</p>
+<h2 id="路由传递数据"><a href="#路由传递数据" class="headerlink" title="路由传递数据"></a>路由传递数据</h2><h3 id="定义Router时发送数据"><a href="#定义Router时发送数据" class="headerlink" title="定义Router时发送数据"></a>定义Router时发送数据</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routers.ts</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, </span><br><span class="line">  <span class="attr">component</span>: <span class="title class_">ProductComponent</span>, </span><br><span class="line">  <span class="attr">data</span>: &#123;<span class="attr">category</span>: <span class="string">&#x27;digital&#x27;</span>&#125; <span class="comment">// send data to component</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<h3 id="组件中接收数据"><a href="#组件中接收数据" class="headerlink" title="组件中接收数据"></a>组件中接收数据</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> activatedRoute: ActivatedRoute</span>) &#123;&#125;</span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;category&#125; = <span class="variable language_">this</span>.<span class="property">activatedRoute</span>.<span class="property">snapshot</span>.<span class="property">data</span>;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(category);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// or </span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activatedRoute</span>.<span class="property">data</span>.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;category&#125; = data;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(category);</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="navigation时发送数据"><a href="#navigation时发送数据" class="headerlink" title="navigation时发送数据"></a><code>navigation</code>时发送数据</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([<span class="string">&#x27;/product&#x27;</span>], &#123;<span class="attr">state</span>: &#123;<span class="attr">category</span>: <span class="string">&#x27;digital&#x27;</span>&#125;&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="组件中接收数据-1"><a href="#组件中接收数据-1" class="headerlink" title="组件中接收数据"></a>组件中接收数据</h3><p>After Angular 16, must call this on constructor or you will get null, see <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/54891110/router-getcurrentnavigation-always-returns-null">here</a> for detail</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> state = <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">getCurrentNavigation</span>()?.<span class="property">extras</span>.<span class="property">state</span>;</span><br><span class="line">    <span class="keyword">const</span> &#123;category&#125; = state || &#123;<span class="attr">category</span>: <span class="string">&#x27;none&#x27;</span>&#125;;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(category);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="定义routerLink时发送数据"><a href="#定义routerLink时发送数据" class="headerlink" title="定义routerLink时发送数据"></a>定义<code>routerLink</code>时发送数据</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#x27;/product&#x27;]&quot;</span> [<span class="attr">state</span>]=<span class="string">&quot;&#123;category: &#x27;digital&#x27;&#125;&quot;</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="组件中接收数据-2"><a href="#组件中接收数据-2" class="headerlink" title="组件中接收数据"></a>组件中接收数据</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> state = <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">getCurrentNavigation</span>()?.<span class="property">extras</span>.<span class="property">state</span>;</span><br><span class="line">    <span class="keyword">const</span> &#123;category&#125; = state || &#123;<span class="attr">category</span>: <span class="string">&#x27;none&#x27;</span>&#125;;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(category);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="保持Fragment不变"><a href="#保持Fragment不变" class="headerlink" title="保持Fragment不变"></a>保持Fragment不变</h2><p>Url中<code>#</code>后面紧跟的内容为<code>Fragment</code>，比如<code>http://localhost:4200/book#b123</code>中的<code>b123</code>就是<code>Fragment</code>。</p>
+<p>首先在Component中定义Fragment变量</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  bookId = <span class="string">&#x27;b123&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="在routerLink中添加Fragment"><a href="#在routerLink中添加Fragment" class="headerlink" title="在routerLink中添加Fragment"></a>在routerLink中添加Fragment</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#x27;book&#x27;, &#123;&#125;]&quot;</span> [<span class="attr">fragment</span>]=<span class="string">&quot;bookId&quot;</span>&gt;</span>Book<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="在navigate中添加Fragment"><a href="#在navigate中添加Fragment" class="headerlink" title="在navigate中添加Fragment"></a>在navigate中添加Fragment</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([<span class="string">&#x27;book&#x27;</span>], &#123;<span class="attr">fragment</span>: <span class="variable language_">this</span>.<span class="property">bookId</span>&#125;);</span><br></pre></td></tr></table></figure>
+<p>激活后路由为：<code>http://localhost:4200/book#b123</code></p>
+<h3 id="保持Fragment不变-1"><a href="#保持Fragment不变-1" class="headerlink" title="保持Fragment不变"></a>保持Fragment不变</h3><p>当我们从一个带Fragment的路由跳转到其他路由时（比如辅助路由），Fragment会丢失。如果我们想要保持Fragment不变，可以在navigate中添加<code>preserveFragment</code>选项。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">primary</span>: <span class="string">&#x27;book/book1/book2&#x27;</span>, <span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;, &#123;<span class="attr">preserveFragment</span>: <span class="literal">true</span>&#125;]);</span><br></pre></td></tr></table></figure>
+
+<p>此时路由变为：<code>http://localhost:4200/book(detail:book-detail//list:book-list)#b123</code> - 注意Fragment在url末尾。</p>
+<p>注意关闭辅助路由时，也要添加此选项，否则Fragment仍会丢失。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="literal">null</span>&#125;&#125;], &#123;<span class="attr">preserveFragment</span>: <span class="literal">true</span>&#125;); </span><br></pre></td></tr></table></figure>
+
+<p>此时路由变为：<code>http://localhost:4200/book(detail:book-detail)#b123</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">detail</span>: <span class="literal">null</span>&#125;&#125;], &#123;<span class="attr">preserveFragment</span>: <span class="literal">true</span>&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>此时路由变为：<code>http://localhost:4200/book#b123</code></p>
+<h2 id="路由三要素"><a href="#路由三要素" class="headerlink" title="路由三要素"></a>路由三要素</h2><ol>
+<li>路由对应的路径及组件 - Routes配置文件</li>
+<li>路由显示的位置 - Outlet</li>
+<li>路由的触发方式<ul>
+<li>点击触发，比如<code>routerLink</code>, <code>button</code>等。</li>
+<li>编程触发，比如<code>navigate</code>， <code>navigateByUrl</code>等。</li>
+<li>动态加载，比如动态创建组件并加载。</li>
+</ul>
+</li>
+</ol>
+<h2 id="待商榷："><a href="#待商榷：" class="headerlink" title="待商榷："></a>待商榷：</h2><ol>
+<li>没有module时如何拆分router文件？ - 可以直接使用路由module文件，不需要组件对应的module文件。目前standalone组件无法做到路由文件的拆分，必须有module支持。</li>
+<li><a target="_blank" rel="noopener" href="https://www.angulararchitects.io/en/blog/routing-and-lazy-loading-with-standalone-components/">https://www.angulararchitects.io/en/blog/routing-and-lazy-loading-with-standalone-components/</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/17/angular-router-nested-routes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/17/angular-router-nested-routes/" class="post-title-link" itemprop="url">angular-router-nested_routes</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-17 20:47:50" itemprop="dateCreated datePublished" datetime="2024-04-17T20:47:50+08:00">2024-04-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-13 11:18:59" itemprop="dateModified" datetime="2024-11-13T11:18:59+08:00">2024-11-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular中如何实现嵌套路由。"><a href="#Angular中如何实现嵌套路由。" class="headerlink" title="Angular中如何实现嵌套路由。"></a>Angular中如何实现嵌套路由。</h1><p>需求，一个Angular App，根路由包含三个组件，<code>home</code>, <code>product</code>, <code>about</code>。 <code>product</code>组件下有两个子路由<code>product-list</code>和<code>product-detail</code>。如何实现这个需求呢？</p>
+<p>首先定义路由文件：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Routes</span>, <span class="title class_">RouterModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HomeComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./home/home.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AboutComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./about/about.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HelpComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./help/help.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AbcComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./home/abc/abc.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">DefComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./home/def/def.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">    </span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">AboutComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HelpComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;product-list&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">AbcComponent</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;product-detail&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">DefComponent</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterModule</span>.<span class="title function_">forRoot</span>(routes)],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">RouterModule</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppRoutingModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在template文件中定义导航链接：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/home&quot;</span>&gt;</span>Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/about&quot;</span>&gt;</span>About<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/product&quot;</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后在根模块中引入路由模块：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppRoutingModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-routing.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HomeComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./home.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AboutComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./about.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./product.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">AboutComponent</span>,</span><br><span class="line">    <span class="title class_">ProductComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">AppRoutingModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在<code>product</code>组件的模板文件中定义子路由导航：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/product/product-list&quot;</span>&gt;</span>Product List<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">routerLink</span>=<span class="string">&quot;/product/product-detail&quot;</span>&gt;</span>Product Detail<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span>&gt;</span><span class="tag">&lt;/<span class="name">router-outlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/15/javascript-design-pattern-strategy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -834,362 +1371,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/11/javascript-tricks/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/11/javascript-tricks/" class="post-title-link" itemprop="url">javascript tricks</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-11 22:31:09" itemprop="dateCreated datePublished" datetime="2024-04-11T22:31:09+08:00">2024-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-23 20:36:28" itemprop="dateModified" datetime="2024-04-23T20:36:28+08:00">2024-04-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Tricks"><a href="#JavaScript-Tricks" class="headerlink" title="JavaScript Tricks"></a>JavaScript Tricks</h1><h2 id="1-typeof-null-39-object-39-This-is-a-known-bug-in-JavaScript"><a href="#1-typeof-null-39-object-39-This-is-a-known-bug-in-JavaScript" class="headerlink" title="1. typeof null === &#39;object&#39;. This is a known bug in JavaScript."></a>1. <code>typeof null === &#39;object&#39;</code>. This is a known bug in JavaScript.</h2><h2 id="2-typeof-NaN-39-number-39-But-this-is-true"><a href="#2-typeof-NaN-39-number-39-But-this-is-true" class="headerlink" title="2. typeof NaN === &#39;number&#39;. But, this is true."></a>2. <code>typeof NaN === &#39;number&#39;</code>. But, this is true.</h2><h2 id="3-perform-a-shallow-copy-only-the-first-level-is-copied-by-value-other-levels-is-copied-by-reference"><a href="#3-perform-a-shallow-copy-only-the-first-level-is-copied-by-value-other-levels-is-copied-by-reference" class="headerlink" title="3. ... perform a shallow copy(only the first level is copied by value, other levels is copied by reference)."></a>3. <code>...</code> perform a shallow copy(only the first level is copied by value, other levels is copied by reference).</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>]];</span><br><span class="line"><span class="keyword">const</span> newArr = [...arr];</span><br><span class="line"></span><br><span class="line">newArr[<span class="number">1</span>] = <span class="number">3</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 2, [3, 4]]</span></span><br><span class="line"></span><br><span class="line">newArr[<span class="number">2</span>][<span class="number">0</span>] = <span class="number">5</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 2, [5, 4]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-There-is-no-pass-by-reference-in-JavaScript-only-pass-by-value"><a href="#4-There-is-no-pass-by-reference-in-JavaScript-only-pass-by-value" class="headerlink" title="4. There is no pass by reference in JavaScript, only pass by value."></a>4. There is no pass by reference in JavaScript, only pass by value.</h2><h2 id="5-In-JavaScript-everything-is-object-this-is-not-true"><a href="#5-In-JavaScript-everything-is-object-this-is-not-true" class="headerlink" title="5. In JavaScript, everything is object - this is not true."></a>5. In JavaScript, everything is object - this is not true.</h2><h2 id="6-type-print-or-window-print-in-Browser-console-you-will-get-a-print-dialog"><a href="#6-type-print-or-window-print-in-Browser-console-you-will-get-a-print-dialog" class="headerlink" title="6. type print or window.print in Browser console, you will get a print dialog."></a>6. type <code>print</code> or <code>window.print</code> in <code>Browser console</code>, you will get a print dialog.</h2><h2 id="7-0-can-be-used-to-remove-the-fractional-part-of-a-number"><a href="#7-0-can-be-used-to-remove-the-fractional-part-of-a-number" class="headerlink" title="7. |0 can be used to remove the fractional part of a number."></a>7. <code>|0</code> can be used to remove the fractional part of a number.</h2><p>It has the same effect as <code>Math.floor()</code>.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">3.14</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(num | <span class="number">0</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Math</span>.<span class="title function_">floor</span>(num)); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="8-can-be-used-to-convert-a-value-to-a-boolean"><a href="#8-can-be-used-to-convert-a-value-to-a-boolean" class="headerlink" title="8. !! can be used to convert a value to a boolean."></a>8. <code>!!</code> can be used to convert a value to a boolean.</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(!!a); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(!!<span class="number">0</span>); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="9-How-to-quit-node-js-REPL"><a href="#9-How-to-quit-node-js-REPL" class="headerlink" title="9. How to quit node.js REPL?"></a>9. How to quit node.js REPL?</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; .<span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; process.exit()</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/11/jest-usefaketimer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/11/jest-usefaketimer/" class="post-title-link" itemprop="url">jest-useFakeTimer</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-11 21:45:06" itemprop="dateCreated datePublished" datetime="2024-04-11T21:45:06+08:00">2024-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-06-19 20:51:40" itemprop="dateModified" datetime="2024-06-19T20:51:40+08:00">2024-06-19</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Jest-useFakeTimer"><a href="#Jest-useFakeTimer" class="headerlink" title="Jest useFakeTimer"></a>Jest useFakeTimer</h1><p>Jest’s useFakeTimers function is used to mock timers in JavaScript. This is particularly useful when you have code that uses setTimeout, setInterval, or Date objects, and you want to control the passage of time in your tests.</p>
-<h2 id="Basic-Usage"><a href="#Basic-Usage" class="headerlink" title="Basic Usage"></a>Basic Usage</h2><p>To use Jest’s useFakeTimers function, you need to call it before the code you want to test. You can then advance the timers using the advanceTimersByTime function.</p>
-<h2 id="Advance-Timers"><a href="#Advance-Timers" class="headerlink" title="Advance Timers"></a>Advance Timers</h2><p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-all-timers"><a href="#Run-all-timers" class="headerlink" title="Run all timers"></a>Run all timers</h2><p>Jest.runAllTimers() will run all pending timers. This is useful when you have multiple timers that need to be run in sequence. (Note, it will not work for nested timers)</p>
-<p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">somethingDone = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">doSomethingAfter1Second</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">somethingDone</span> = <span class="literal">false</span>;</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// other timers...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-only-pending-timers"><a href="#Run-only-pending-timers" class="headerlink" title="Run only pending timers"></a>Run only pending timers</h2><p>There are also scenarios where you might have a recursive timer – that is a timer that sets a new timer in its own callback.</p>
-<p>Jest.runOnlyPendingTimers() will only run the timers that are currently pending. This is useful when you want to run the timers that are currently in the queue, but not the ones that are scheduled to run in the future.</p>
-<p>If you use <code>jest.runAllTimers</code> here, it will run all the timers and end up with an infinite loop.</p>
-<p>待测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">firstRound = <span class="literal">false</span>;</span><br><span class="line">secondRound = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">infiniteTimerGame</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">firstRound</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// Schedule the next game in 10 seconds</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">secondRound</span> = <span class="literal">true</span>;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">    &#125;, <span class="number">10000</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test infiniteTimerGame&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">infiniteTimerGame</span>();</span><br><span class="line">  <span class="comment">// This will only run the timers that are currently pending(the outer timer)</span></span><br><span class="line">  jest.<span class="title function_">runOnlyPendingTimers</span>(); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">firstRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// or jest.runOnlyPendingTimers(); This will run the newly created timer</span></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">10000</span>); </span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">secondRound</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Selective-faking"><a href="#Selective-faking" class="headerlink" title="Selective faking"></a>Selective faking</h2><p>Sometimes your code may require to avoid overwriting the original implementation of one or another API. If that is the case, you can use <code>doNotFake</code> option. For example, here is how you could provide a custom mock function for <code>performance.mark()</code> in jsdom environment:</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mockPerformanceMark = jest.<span class="title function_">fn</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span> = mockPerformanceMark;</span><br><span class="line"></span><br><span class="line"><span class="title function_">test</span>(<span class="string">&#x27;allows mocking `performance.mark()`&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>(&#123;<span class="attr">doNotFake</span>: [<span class="string">&#x27;performance&#x27;</span>]&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">expect</span>(<span class="variable language_">window</span>.<span class="property">performance</span>.<span class="property">mark</span>).<span class="title function_">toBe</span>(mockPerformanceMark);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Restore-timers"><a href="#Restore-timers" class="headerlink" title="Restore timers"></a>Restore timers</h2><p>After you have finished testing, you should restore the original timers using jest.useRealTimers(), This can be done by invoking jest.useRealTimers() in the afterEach hook.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">afterEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>You can also do this at the end of a test:</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test doSomethingAfter1Second&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> component = <span class="keyword">new</span> <span class="title class_">Component</span>();</span><br><span class="line">  component.<span class="title function_">doSomethingAfter1Second</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">advanceTimersByTime</span>(<span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">somethingDone</span>).<span class="title function_">toBe</span>(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">  jest.<span class="title function_">useRealTimers</span>(); <span class="comment">// restore to use real timers</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/09/javascript-design-pattern-adapter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/09/javascript-design-pattern-adapter/" class="post-title-link" itemprop="url">javascript-design-pattern-adapter</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-09 18:45:26" itemprop="dateCreated datePublished" datetime="2024-04-09T18:45:26+08:00">2024-04-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-11 20:40:17" itemprop="dateModified" datetime="2024-04-11T20:40:17+08:00">2024-04-11</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="现实的例子"><a href="#现实的例子" class="headerlink" title="现实的例子"></a>现实的例子</h1><p>现实生活中适配器的例子，比如笔记本电脑的电源适配器，可以将 220V 电压转换为笔记本电脑需要的 12V 电压。在软件设计模式中，适配器模式也是类似的，它可以将一个类的接口转换为另一个类的接口，让原本由于接口不兼容而不能一起工作的类可以一起工作。</p>
-<h1 id="适配器模式解决什么问题"><a href="#适配器模式解决什么问题" class="headerlink" title="适配器模式解决什么问题"></a>适配器模式解决什么问题</h1><p>接口不兼容问题：当一个类的接口与另一个类的接口不兼容时，可以使用适配器模式将一个类的接口转换为另一个类的接口。比如新开发的系统要接入旧系统的某些功能时，就可以使用适配器模式。</p>
-<h1 id="示例讲解"><a href="#示例讲解" class="headerlink" title="示例讲解"></a>示例讲解</h1><p>有一个类<code>Target</code>，它有一个<code>operation</code>方法，但是现在需要将使用一个类<code>Adaptee</code>的<code>specificOperation</code>方法。此时可以借助<code>Adapter</code>模式，我们创建一个类<code>Adapter</code>，继承<code>Target</code>类，并持有一个<code>Adaptee</code>类的实例。在<code>Adapter</code>类的<code>operation</code>方法中，调用<code>Adaptee</code>的<code>specificOperation</code>方法。</p>
-<p><img src="/../images/js-design-pattern-adapter.png" alt="UML"></p>
-<h2 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Target</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="title function_">operation</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Target: The default operation.`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Adaptee</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="title function_">specificOperation</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Adaptee: Specific operation.&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Adapter</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Target</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">adaptee</span>: <span class="title class_">Adaptee</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">adaptee: Adaptee</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>();</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">adaptee</span> = adaptee;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="title function_">operation</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">adaptee</span>.<span class="title function_">specificOperation</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// test code</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">clientCode</span>(<span class="params">target: Target</span>) &#123;</span><br><span class="line">  target.<span class="title function_">operation</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> target = <span class="keyword">new</span> <span class="title class_">Target</span>();</span><br><span class="line"><span class="title function_">clientCode</span>(target);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> adaptee = <span class="keyword">new</span> <span class="title class_">Adaptee</span>();</span><br><span class="line"><span class="keyword">const</span> adapter = <span class="keyword">new</span> <span class="title class_">Adapter</span>(adaptee);</span><br><span class="line"><span class="title function_">clientCode</span>(adapter);</span><br></pre></td></tr></table></figure>
-
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/07/javascript-design-pattern/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/07/javascript-design-pattern/" class="post-title-link" itemprop="url">javascript-design-pattern</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-07 20:12:50" itemprop="dateCreated datePublished" datetime="2024-04-07T20:12:50+08:00">2024-04-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-02 21:41:23" itemprop="dateModified" datetime="2024-08-02T21:41:23+08:00">2024-08-02</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Creational-Design-Patterns"><a href="#Creational-Design-Patterns" class="headerlink" title="Creational Design Patterns"></a>Creational Design Patterns</h1><h2 id="Factory-Method"><a href="#Factory-Method" class="headerlink" title="Factory Method"></a>Factory Method</h2><p>Define an interface for creating an object, but let subclasses decide which class to instantiate. Lets a class defer instantiation to subclasses.</p>
-<h2 id="Abstract-Factory"><a href="#Abstract-Factory" class="headerlink" title="Abstract Factory"></a>Abstract Factory</h2><p>Provides an interface for creating families of related or dependent objects without specifying their concrete class.</p>
-<h2 id="Builder"><a href="#Builder" class="headerlink" title="Builder"></a>Builder</h2><p>Separate the construction of a complex object from its representing so that the same construction process can create different representations.</p>
-<h2 id="Prototype"><a href="#Prototype" class="headerlink" title="Prototype"></a>Prototype</h2><p>Specify the kinds of objects to create using a prototypical instance, and create new objects by copying this prototype.</p>
-<h2 id="Singleton"><a href="#Singleton" class="headerlink" title="Singleton"></a>Singleton</h2><p>Ensure a class only has one instance and provide a global point of access to it. <a target="_blank" rel="noopener" href="https://zdd.github.io/2023/11/18/javascript-singleton-mode/">implementation</a></p>
-<h3 id="Application-scenarios"><a href="#Application-scenarios" class="headerlink" title="Application scenarios:"></a>Application scenarios:</h3><ol>
-<li><p>Logging: Singleton can be used to create a single log object that writes to a log file. This object can be used across the application without creating additional instances. </p>
-</li>
-<li><p>Database Connections: Singleton can be used to create a single database connection that is shared across the application. This can help to prevent an over-allocation of resources. </p>
-</li>
-<li><p>Configuration Settings: If your application has a set of configuration settings that need to be accessed in multiple places, a Singleton can be used to store these settings in one location. </p>
-</li>
-<li><p>Caching: Singleton can be used to create a cache that is accessible throughout the application. This can be useful for storing data that is expensive or time-consuming to fetch.  </p>
-</li>
-<li><p>Shared Resource Access: If your application needs to control access to a shared resource, such as a printer or a file, you can use a Singleton to ensure that only one object is able to access the resource at a time.</p>
-</li>
-</ol>
-<h1 id="Structural-Design-Patterns"><a href="#Structural-Design-Patterns" class="headerlink" title="Structural Design Patterns"></a>Structural Design Patterns</h1><h2 id="Adapter"><a href="#Adapter" class="headerlink" title="Adapter"></a>Adapter</h2><p>Convert the interface of a class into another interface clients expect. Lets classes work together that couldn’t otherwise because of incompatible interfaces. <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/09/javascript-design-pattern-adapter/">implementation</a></p>
-<h2 id="Bridge"><a href="#Bridge" class="headerlink" title="Bridge"></a>Bridge</h2><p>Decouple an abstraction from its implementation so that the two can vary independently.</p>
-<h2 id="Composite"><a href="#Composite" class="headerlink" title="Composite"></a>Composite</h2><p>Compose objects into tree structures to represent part-whole hierarchies. Lets clients treat individual objects and compositions of objects uniformly.</p>
-<h2 id="Decorator"><a href="#Decorator" class="headerlink" title="Decorator"></a>Decorator</h2><p>Attach additional responsibilities to an object dynamically. Provide a flexible alternative to extending functionality.</p>
-<h2 id="Facade"><a href="#Facade" class="headerlink" title="Facade"></a>Facade</h2><p>Provide unified interface to a set of interfaces in a subsystem. Defines a high-level interface that makes the subsystem easier to use.</p>
-<h2 id="Flyweight"><a href="#Flyweight" class="headerlink" title="Flyweight"></a>Flyweight</h2><p>Using sharing to support large numbers of fine grained objects efficiently.</p>
-<h2 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h2><p>Provide a surrogate or placeholder for another object to control access to it.</p>
-<h1 id="Behavioral-Design-Patterns"><a href="#Behavioral-Design-Patterns" class="headerlink" title="Behavioral Design Patterns"></a>Behavioral Design Patterns</h1><h2 id="Chain-of-Responsibility"><a href="#Chain-of-Responsibility" class="headerlink" title="Chain of Responsibility"></a>Chain of Responsibility</h2><p>Avoid coupling the sender of a request to its receiver by giving more than one object a chance to handle the request. Chian the receiving objects and pass the request along the chain until an object handles it.</p>
-<h2 id="Command"><a href="#Command" class="headerlink" title="Command"></a>Command</h2><p>Encapsulate a request as an object, thereby letting you parameterize clients with queues, queue or log requests, ans support undoable operations.</p>
-<h2 id="Interpreter"><a href="#Interpreter" class="headerlink" title="Interpreter"></a>Interpreter</h2><p>Given a language, define a representation for its grammar along with an interpreter that uses the representation to interpret sentences in the language.</p>
-<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.</p>
-<h2 id="Mediator"><a href="#Mediator" class="headerlink" title="Mediator"></a>Mediator</h2><p>Define an object that encapsulates how a set of objects interact. Promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.</p>
-<h2 id="Memento"><a href="#Memento" class="headerlink" title="Memento"></a>Memento</h2><p>Without violating encapsulation, capture and externalize an object’s internal state so that the object can be restored to this state later.</p>
-<h2 id="Observer"><a href="#Observer" class="headerlink" title="Observer"></a>Observer</h2><p>Define a one-to-many dependency between objects so that when on object changes state, all its dependents are notified and updated automatically.(<strong>Also known as Publish&#x2F;Subscribe or Event-Subscriber pattern</strong>)<br><a target="_blank" rel="noopener" href="https://zdd.github.io/2023/11/18/javascript-design-pattern-observer/">implementation</a></p>
-<h3 id="Application-scenarios-1"><a href="#Application-scenarios-1" class="headerlink" title="Application scenarios"></a>Application scenarios</h3><ol>
-<li><p>Event Handling: This is the most common use case in JavaScript. DOM events like clicks, key presses, form submissions etc., are handled using the Observer pattern.  </p>
-</li>
-<li><p>Model-View-Controller (MVC) Architecture: In MVC architecture, the model notifies the view and the controller about changes in the data. This is done using the Observer pattern.  </p>
-</li>
-<li><p>Web Sockets: Web sockets use the Observer pattern to listen for new messages from the server and update the UI accordingly.  </p>
-</li>
-<li><p>React&#x2F;Redux: In Redux, the store is the subject and the React components are the observers. When the state in the store changes, the components are notified to re-render.  </p>
-</li>
-<li><p>Angular: Angular uses the Observer pattern in its event system and its HTTP module.</p>
-</li>
-</ol>
-<h2 id="State"><a href="#State" class="headerlink" title="State"></a>State</h2><p>Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.</p>
-<h2 id="Strategy"><a href="#Strategy" class="headerlink" title="Strategy"></a>Strategy</h2><p>Define a family of algorithms, encapsulate each one, and make them interchangeable. Lets the algorithm vary independently from clients that use it. <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/15/javascript-design-pattern-strategy/">implementation</a></p>
-<h2 id="Template-Method"><a href="#Template-Method" class="headerlink" title="Template Method"></a>Template Method</h2><p>Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Lets subclasses redefine certain steps of an algorithm without changing the algorithm’s structure.</p>
-<h2 id="Visitor"><a href="#Visitor" class="headerlink" title="Visitor"></a>Visitor</h2><p>Represent an operation to be performed on the elements of an object structure. Lets ou define a new operation without changing the classes of the elements on which it operates.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1255,14 +1440,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">210</span>
+          <span class="site-state-item-count">214</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">285</span>
+        <span class="site-state-item-count">290</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

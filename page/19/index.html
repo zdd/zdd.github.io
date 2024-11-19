@@ -181,6 +181,447 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/21/test-async-task-with-angular-and-jest/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/21/test-async-task-with-angular-and-jest/" class="post-title-link" itemprop="url">Test async task with angular and jest</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-21 09:58:48" itemprop="dateCreated datePublished" datetime="2023-11-21T09:58:48+08:00">2023-11-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-07-10 20:30:36" itemprop="dateModified" datetime="2024-07-10T20:30:36+08:00">2024-07-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Test-async-task-with-Angular-Jest"><a href="#Test-async-task-with-Angular-Jest" class="headerlink" title="Test async task with Angular + Jest"></a>Test async task with Angular + Jest</h1><p>在前端开发中，Unit Test是很重要的一个环节，而异步任务测试又是Unit Test不可避免的一个环节。本文将介绍如何使用Angular + Jest来测试异步任务。</p>
+<h2 id="待测试函数返回一个Promise"><a href="#待测试函数返回一个Promise" class="headerlink" title="待测试函数返回一个Promise"></a>待测试函数返回一个Promise</h2><p>这是最简单的情况了，直接使用<code>async/await</code>即可。</p>
+<p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getPromise</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test getPromise&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> service.<span class="title function_">getPromise</span>();</span><br><span class="line">  <span class="title function_">expect</span>(result).<span class="title function_">toBe</span>(<span class="number">1</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在实际项目中不会有这么简单的情况，大部分都是一个async函数，里面await了其他异步操作，比如下面代码中的handleData，我们该如何测试它呢？</p>
+<p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="title function_">handleData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="variable language_">this</span>.<span class="title function_">getData</span>();</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    data,</span><br><span class="line">    <span class="attr">timestamp</span>: <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>(),</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先来分析一下，<code>handleData</code>是一个async方法，而async方法一定返回一个Promise(如果函数实际返回值不是Promise，那么async方法会用Promise包裹该返回值)，所以我们还是可以直接使用<code>async/await</code>来测试。</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> data = <span class="keyword">await</span> component.<span class="title function_">handleData</span>();</span><br><span class="line">  <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>最新版的Angular推荐使用<code>waitForAsync</code>来测试异步任务，所以我们也可以使用waitForAsync来测试。(注意<code>waitForAsync</code>中不能使用await。)</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="title function_">waitForAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">handleData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以使用<code>fakeAsync</code>来测试，这个情景使用<code>fakeAsync</code>来测试有点大材小用，仅作示例。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test handle data&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  service.<span class="title function_">handleData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">expect</span>(data.<span class="property">data</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="title function_">flush</span>();</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>注意不要忘记<code>flush()</code>操作，否则会产生如下错误：<code>Error: 1 timer(s) still in the queue.</code></p>
+<h2 id="待测试函数包含异步操作，但是没有返回Promise。"><a href="#待测试函数包含异步操作，但是没有返回Promise。" class="headerlink" title="待测试函数包含异步操作，但是没有返回Promise。"></a>待测试函数包含异步操作，但是没有返回Promise。</h2><p>以上情况还是有些简单，实际应用中，经常是一个函数中间夹杂着某些异步操作用来获取数据，然后对数据进行处理，最后可能也不返回Promise，对于这种情况，我们应该使用<code>fakeAsync</code>来测试。<br>fakeAsync内部有三个方法可以控制异步操作</p>
+<ul>
+<li>tick: 让时间快进</li>
+<li>flush: 让所有异步操作立即执行</li>
+<li>flushMicrotasks: 让所有微任务立即执行</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>作用</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tick</td>
+<td>用于控制时间流逝</td>
+<td>想要精细控制每个timer的执行时机，tick在执行前会清空micro task队列，如果代码中有promise，tick之后，promise都会执行完毕。</td>
+</tr>
+<tr>
+<td>flush</td>
+<td>执行所有异步操作，不论是macro task还是micro task</td>
+<td>这个最常用，无脑操作，将所有异步操作执行完，比如setTimeout和promise等，flush之后就可以expect了</td>
+</tr>
+<tr>
+<td>flushMicrotasks</td>
+<td>这个只执行micro task，对于前端来说，就是promise了，不会影响timer</td>
+<td>如果代码中没有用到timer，可以使用这个。</td>
+</tr>
+</tbody></table>
+<p>下面看几个列子，分别讲解一下如何使用这三个方法来进行测试。</p>
+<h3 id="待测试函数只包含Macro-Task"><a href="#待测试函数只包含Macro-Task" class="headerlink" title="待测试函数只包含Macro Task"></a>待测试函数只包含Macro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">10</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">11</span>;</span><br><span class="line">  &#125;, <span class="number">100</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">num</span> = <span class="number">12</span>;</span><br><span class="line">  &#125;, <span class="number">200</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">// tick the timer by 100ms</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">11</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">// tick the timer by 100ms again.</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">12</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+<p>来分析一下以上测试代码，首先我们调用了<code>updateValue</code>方法，然后期望<code>num</code>的值为10，因为<code>updateValue</code>中有两个timer，所以我们需要调用两次<code>tick</code>，第一次调用<code>tick</code>，让时间快进100ms，这时候第一个timer会执行，<code>num</code>的值变为11，然后再调用一次<code>tick</code>，让时间再快进100ms，这时候第二个timer会执行，<code>num</code>的值变为12。</p>
+<p>当然了，如果你不想测试中间过程，而只想测试最终的结果，也可以使用Jest提供的<code>useFakeTimer</code>方法。</p>
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  jest.<span class="title function_">useFakeTimers</span>();</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  jest.<span class="title function_">runAllTimers</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">12</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>useFakeTimers</code>会将所有的timer替换成一个fake的timer，然后调用<code>runAllTimers</code>，会让所有的timer立即执行，这样就可以直接测试最终结果了。</p>
+<h3 id="待测试函数只包含Micro-Task"><a href="#待测试函数只包含Micro-Task" class="headerlink" title="待测试函数只包含Micro Task"></a>待测试函数只包含Micro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = value;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="title function_">flushMicrotasks</span>(); <span class="comment">// 这里用tick()或者flush()也可以。但是flushMicrotasks更加精确。</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，首先调用了<code>updateValue</code>方法，然后期望<code>num</code>的值为0，因为<code>updateValue</code>中有一个promise，所以我们需要调用<code>flushMicrotasks</code>，让所有的micro task立即执行，这时候<code>num</code>的值变为10。</p>
+<p>当然上例中的<code>flushMicrotasks</code>也可以替换成<code>flush</code>，因为<code>flush</code>会让所有的异步操作立即执行，包括macro task和micro task。也可以使用tick，因为tick在执行之前也会先把微任务队列清空（把队列中的微任务都执行完）。</p>
+<h3 id="待测试函数同时包含Macro-Task和Micro-Task"><a href="#待测试函数同时包含Macro-Task和Micro-Task" class="headerlink" title="待测试函数同时包含Macro Task和Micro Task"></a>待测试函数同时包含Macro Task和Micro Task</h3><p><strong>待测函数</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;<span class="built_in">number</span>&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(<span class="number">10</span>);</span><br><span class="line">    &#125;, <span class="number">100</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">updateValue</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">num</span> = value;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试代码</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;test updateValue&#x27;</span>, <span class="title function_">fakeAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  component.<span class="title function_">updateValue</span>();</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="title function_">tick</span>(<span class="number">100</span>); <span class="comment">//或者flush()</span></span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="property">num</span>).<span class="title function_">toBe</span>(<span class="number">10</span>);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，<code>fetchData()</code>中同时包含Macro task和Micro task，所以我们可以使用<code>tick</code>或者<code>flush</code>来测试。但是使用<code>flushMicrotasks</code>就不行了，因为<code>flushMicrotasks</code>只会让micro task立即执行，而<code>setTimeout</code>是macro task，不会被执行。</p>
+<blockquote>
+<p>Limitation: The <code>fakeAsync()</code> function won’t work if the test body makes an XMLHttpRequest (XHR) call. XHR calls within a test are rare, but if you need to call XHR, see the <a target="_blank" rel="noopener" href="https://v17.angular.io/guide/testing-components-scenarios#waitForAsync"><code>waitForAsync()</code></a> section.</p>
+</blockquote>
+<h2 id="需要更新UI的异步测试"><a href="#需要更新UI的异步测试" class="headerlink" title="需要更新UI的异步测试"></a>需要更新UI的异步测试</h2><p>上面的测试用例都不涉及UI更新，如果需要测试UI更新，那么需要使用<code>fixture.detectChanges()</code>来触发Angular的变更检测。</p>
+<h2 id="fixture-WhenStable"><a href="#fixture-WhenStable" class="headerlink" title="fixture.WhenStable()"></a>fixture.WhenStable()</h2><p>这个方法也是用来处理异步任务的，可以稍后总结一下。fixture.WhenStable()通常和<code>waitForAsync</code>一起配合使用。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">&#x27;should show quote after getQuote (waitForAsync)&#x27;</span>, <span class="title function_">waitForAsync</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  fixture.<span class="title function_">detectChanges</span>(); <span class="comment">// ngOnInit()</span></span><br><span class="line">  <span class="title function_">expect</span>(quoteEl.<span class="property">textContent</span>).<span class="title function_">withContext</span>(<span class="string">&#x27;should show placeholder&#x27;</span>).<span class="title function_">toBe</span>(<span class="string">&#x27;...&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  fixture.<span class="title function_">whenStable</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// wait for async getQuote</span></span><br><span class="line">    fixture.<span class="title function_">detectChanges</span>(); <span class="comment">// update view with quote</span></span><br><span class="line">    <span class="title function_">expect</span>(quoteEl.<span class="property">textContent</span>).<span class="title function_">toBe</span>(testQuote);</span><br><span class="line">    <span class="title function_">expect</span>(<span class="title function_">errorMessage</span>()).<span class="title function_">withContext</span>(<span class="string">&#x27;should not show error&#x27;</span>).<span class="title function_">toBeNull</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>如果函数返回一个Promise，那么直接使用<code>async/await</code>测试即可。新版的Angular推荐使用<code>waitForAsync</code>来测试。</li>
+<li>如果函数中间夹杂着异步操作，但是没有返回Promise，那么分为以下三种情况<ul>
+<li>待测试函数只包含微任务 - 使用<code>fakeAsync</code>配合<code>flushMicrotasks</code>来控制异步操作。</li>
+<li>待测试函数只包含宏任务 - 使用<code>fakeAsync</code>配合<code>tick</code>或者<code>flush</code>来控制异步操作。</li>
+<li>待测试函数同时包含微任务与宏任务 - 使用<code>fakeAsync</code>配合<code>tick</code>或者<code>flush</code>来控制异步操作。</li>
+</ul>
+</li>
+<li>能用<code>async/await</code>或者<code>waitForAsync</code>测试的一定能用<code>fakeAsync</code>测试，反之不成立。</li>
+</ul>
+<p>最终结论: 在Angular + Jest为基础的项目中，使用<code>fakeAsync</code> + <code>tick</code>&#x2F;<code>flush</code>能搞定所有的异步测试。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/18/javascript-design-pattern-singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/18/javascript-design-pattern-singleton/" class="post-title-link" itemprop="url">javascript singleton mode</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-18 18:39:10" itemprop="dateCreated datePublished" datetime="2023-11-18T18:39:10+08:00">2023-11-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-12 12:04:04" itemprop="dateModified" datetime="2024-11-12T12:04:04+08:00">2024-11-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="A-simple-singleton-with-global-variable"><a href="#A-simple-singleton-with-global-variable" class="headerlink" title="A simple singleton with global variable"></a>A simple singleton with global variable</h1><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = <span class="keyword">function</span> (<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Singleton</span>.<span class="property">getInstance</span> = <span class="keyword">function</span> (<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">    instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>(name);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> instance;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> b = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;ddz&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a === b); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>这是一个最简单的单例模式，但是这种方式有一个问题，就是instance是一个全局变量，会污染全局空间。稍微改进一下，将instance挂载到Singleton上。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = <span class="keyword">function</span> (<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Singleton</span>.<span class="property">getInstance</span> = <span class="keyword">function</span> (<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">instance</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">instance</span> = <span class="keyword">new</span> <span class="title class_">Singleton</span>(name);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">instance</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> b = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;ddz&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a === b);</span><br></pre></td></tr></table></figure>
+<p>这样就不会污染全局空间了，但是这种方式还有一个问题，无法阻止使用者通过new Singleton()来创建实例。这无形中增加了使用者的心智负担，使用者必须提前知道Singleton是一个单例，也必须调用getInstance方法来获取实例。假设使用者用new Singleton()来创建实例，那么就会创建出多个实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> c = <span class="keyword">new</span> <span class="title class_">Singleton</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> d = <span class="keyword">new</span> <span class="title class_">Singleton</span>(<span class="string">&#x27;ddz&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c === d); <span class="comment">// false, not a singleton !!!</span></span><br></pre></td></tr></table></figure>
+
+<p>为了避免用户通过<code>new</code>来创建实例，可以使用闭包来实现，将Singleton变成一个IIFE（Immediately Invoked Function Expression）。</p>
+<h2 id="Use-IIFE"><a href="#Use-IIFE" class="headerlink" title="Use IIFE"></a>Use IIFE</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = (<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 这里的init函数返回的是一个对象，而不是一个类的实例。</span></span><br><span class="line">  <span class="comment">// 这里init是箭头函数，最好不要使用this, 因为this指向global对象。</span></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">init</span> = (<span class="params">name</span>) =&gt; (&#123;</span><br><span class="line">    name,</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="attr">getInstance</span>: <span class="function">(<span class="params">name</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">        instance = <span class="title function_">init</span>(name);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> b = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;ddz&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a === b); <span class="comment">// true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>此时，使用者就无法通过<code>new</code>来创建实例了，只能通过<code>getInstance</code>来获取实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> c = <span class="keyword">new</span> <span class="title class_">Singleton</span>(); <span class="comment">// error， Singleton is not a constructor</span></span><br><span class="line"><span class="keyword">const</span> d = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c === d);</span><br></pre></td></tr></table></figure>
+
+<p>这里使用IIFE的好处是：</p>
+<ol>
+<li>不会污染全局空间，所有变量及方法都是私有的。</li>
+<li>用户无法使用<code>new</code>来创建实例，只能通过<code>getInstance</code>来获取实例。</li>
+</ol>
+<p>为了区分私有方法和变量，以及公有方法和变量，可以使用下面的代码，更好的区分私有和公有。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = (<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">init</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">    <span class="comment">// Private methods and variables</span></span><br><span class="line">    <span class="keyword">const</span> privateVariable = <span class="string">&#x27;I am private variable&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">privateMethod</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Private method&#x27;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This object is the return value of init will be assigned to instance.</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="comment">// Public methods and variables</span></span><br><span class="line">      <span class="attr">publicVariable</span>: <span class="string">&#x27;I am public variable&#x27;</span>,</span><br><span class="line">      <span class="attr">publicMethod</span>: <span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Public method&#x27;</span>);</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Public method to get the singleton instance</span></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">getInstance</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">      instance = <span class="title function_">init</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Expose the public method</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    getInstance,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Usage</span></span><br><span class="line"><span class="keyword">const</span> singletonInstance1 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>();</span><br><span class="line"><span class="keyword">const</span> singletonInstance2 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(singletonInstance1 === singletonInstance2); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>前面说过，使用.getInstance()来获取实例，增加了用户的心智负担，如果想要用户通过new来创建实例，可以使用下面的代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = (<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">createInstance</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">      <span class="comment">// Init code goes here, If you want to exact init to a function, you must use createInstance.prototype.init = function(name)&#123;this.name = name&#125;. This will make init public to every instance, it&#x27;s bad idea！</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">      instance = <span class="variable language_">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> createInstance;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = <span class="keyword">new</span> <span class="title class_">Singleton</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> b = <span class="keyword">new</span> <span class="title class_">Singleton</span>(<span class="string">&#x27;ddz&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a === b); <span class="comment">// true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>下面是使用ES6的class来实现单例模式。代码更加简洁优雅。</p>
+<h2 id="Use-class"><a href="#Use-class" class="headerlink" title="Use class"></a>Use class</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Singleton</span>.<span class="property">instance</span>) &#123;</span><br><span class="line">      <span class="title class_">Singleton</span>.<span class="property">instance</span> = <span class="variable language_">this</span>;</span><br><span class="line">      <span class="comment">// Your initialization code here</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Singleton</span>.<span class="property">instance</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional properties and methods can be added here</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> instance1 = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line"><span class="keyword">const</span> instance2 = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(instance1 === instance2); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>虽然这种方式代码简洁，但是这种方式有一个问题，就是用户可以通过<code>new Singleton()</code>来创建实例，虽然创建的实例都是同一个，但是还是很别扭，我们可以换一个思路，指导出一个实例，而不是导出整个类。</p>
+<h2 id="Use-Proxy"><a href="#Use-Proxy" class="headerlink" title="Use Proxy"></a>Use Proxy</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Singleton</span>.<span class="property">instance</span>) &#123;</span><br><span class="line">      <span class="title class_">Singleton</span>.<span class="property">instance</span> = <span class="variable language_">this</span>;</span><br><span class="line">      <span class="comment">// Your initialization code here</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Singleton</span>.<span class="property">instance</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional properties and methods can be added here</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> singletonInstance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Object</span>.<span class="title function_">freeze</span>(singletonInstance);</span><br></pre></td></tr></table></figure>
+
+<p>这样用户只需使用我们导出的实例就行了，不用自己去创建实例。但是这种方式还是有一个问题，就是用户可以通过<code>singletonInstance.instance</code>来获取到实例，这样就破坏了单例模式的封装性。我们可以使用ES2022中新增的private field来解决这个问题。</p>
+<h2 id="Use-private-field"><a href="#Use-private-field" class="headerlink" title="Use private field"></a>Use private field</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">  <span class="keyword">static</span> #instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Singleton</span>.#instance) &#123;</span><br><span class="line">      <span class="title class_">Singleton</span>.#instance = <span class="variable language_">this</span>;</span><br><span class="line">      <span class="comment">// Your initialization code here</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Singleton</span>.#instance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional properties and methods can be added here</span></span><br><span class="line">  <span class="title function_">logInstance</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Singleton</span>.#instance);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> singleton = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Object</span>.<span class="title function_">freeze</span>(singleton);</span><br></pre></td></tr></table></figure>
+
+<h2 id="TypeScript"><a href="#TypeScript" class="headerlink" title="TypeScript"></a>TypeScript</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="attr">instance</span>: <span class="title class_">Singleton</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="title function_">getInstance</span>(): <span class="title class_">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Singleton</span>.<span class="property">instance</span>) &#123;</span><br><span class="line">      <span class="title class_">Singleton</span>.<span class="property">instance</span> = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Singleton</span>.<span class="property">instance</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> s1 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>();</span><br><span class="line"><span class="keyword">const</span> s2 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(s1 === s2); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-Proxy-1"><a href="#Use-Proxy-1" class="headerlink" title="Use Proxy"></a>Use Proxy</h2><p>待补充。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/18/javascript-design-pattern-observer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/18/javascript-design-pattern-observer/" class="post-title-link" itemprop="url">javascript-observer-mode</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-18 17:56:17" itemprop="dateCreated datePublished" datetime="2023-11-18T17:56:17+08:00">2023-11-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-10-03 13:07:55" itemprop="dateModified" datetime="2024-10-03T13:07:55+08:00">2024-10-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Define-Observer"><a href="#Define-Observer" class="headerlink" title="Define Observer"></a>Define Observer</h2><p>Observer中文翻译为观察者，它是一个对象，拥有一个update方法，当Subject(被观察对象)发生变化时，Observer的update方法会被调用，这样就能实现Subject和Observer的解耦。</p>
+<p>下面的代码为每个观察者指定一个名字，当Subject发生变化时，<code>Observer</code>的<code>update</code>方法会被调用，打印出观察者的名字。<code>update</code>方法就是被观察者和观察者联系的纽带。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">Observer</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">readonly</span> name;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">update</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;<span class="variable language_">this</span>.name&#125;</span> updated`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Define-Subject"><a href="#Define-Subject" class="headerlink" title="Define Subject"></a>Define Subject</h2><p>Subject中文翻译为主题，它是一个对象，拥有注册观察者、删除观察者、通知观察者的方法。当某个特定事件发生时，Subject会通知所有观察者，让它们做出相应的反应。所以Subject实际上就是被观察者。</p>
+<p>下面的代码为Subject添加了一个观察者数组，当Subject发生变化时，会遍历观察者数组，调用每个观察者的<code>update</code>方法。subscribe方法实际上就是addObserver方法，unsubscribe方法实际上就是removeObserver方法。这两个方法用来将观察者加入或者移除观察者数组。被移除数组的观察者无法再收到Subject的通知。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Observer</span> <span class="keyword">from</span> <span class="string">&#x27;./Observer&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">observers</span>: <span class="title class_">Observer</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">subscribe</span>(<span class="params">observer: Observer</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">push</span>(observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">unsubscribe</span>(<span class="params">observer: Observer</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span> = <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">filter</span>(<span class="function">(<span class="params">o</span>) =&gt;</span> o !== observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">notify</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">observers</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">o</span>) =&gt;</span> o.<span class="title function_">update</span>());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-Observer"><a href="#Use-Observer" class="headerlink" title="Use Observer"></a>Use Observer</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Observer</span> <span class="keyword">from</span> <span class="string">&#x27;./Observer&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Subject</span> <span class="keyword">from</span> <span class="string">&#x27;./Subject&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> subject = <span class="keyword">new</span> <span class="title class_">Subject</span>();</span><br><span class="line"><span class="keyword">const</span> observer1 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 1&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> observer2 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 2&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> observer3 = <span class="keyword">new</span> <span class="title class_">Observer</span>(<span class="string">&#x27;Observer 3&#x27;</span>);</span><br><span class="line"></span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer1);</span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer2);</span><br><span class="line">subject.<span class="title function_">subscribe</span>(observer3);</span><br><span class="line">subject.<span class="title function_">notify</span>(); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line">subject.<span class="title function_">unsubscribe</span>(observer1);</span><br><span class="line">subject.<span class="title function_">notify</span>(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>在 &#x2F;&#x2F; 1 处，输入如下内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Observer 1 updated</span><br><span class="line">Observer 2 updated</span><br><span class="line">Observer 3 updated</span><br></pre></td></tr></table></figure>
+
+<p>在 &#x2F;&#x2F; 2 处，输入如下内容，因为Observer 1被移除了，所以只有Observer 2和Observer 3收到了通知。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Observer 2 updated</span><br><span class="line">Observer 3 updated</span><br></pre></td></tr></table></figure>
+
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ol>
+<li>Subject(被观察者，也叫Observable)：拥有注册观察者、删除观察者、通知观察者的方法。</li>
+<li>Observer(观察者)：拥有update方法，当Subject发生变化时，Observer的update方法会被调用。</li>
+<li>观察者和被观察者之间是松耦合的，被观察者只知道观察者的接口，而不知道观察者的具体实现。</li>
+</ol>
+<p>网上常见的EventBus就是基于观察者模式实现的，当一个组件发生变化时，EventBus会通知所有订阅了这个事件的组件。下面是一个简单的EventBus实现。之所以将EventBus挂在到Window对象上，是因为这样可以在全局范围内使用EventBus。比如在不同的模块中，可以通过EventBus来通信。Module Federation中Remote模块和Host模块之间的通信也可以通过EventBus实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// eventBus.js</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventBus</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listeners</span> = &#123;&#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">on</span>(<span class="params">eventName, callback</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">listeners</span>[eventName]) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName] = [];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName].<span class="title function_">push</span>(callback);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">emit</span>(<span class="params">eventName, data</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">listeners</span>[eventName]) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">listeners</span>[eventName].<span class="title function_">forEach</span>(<span class="function"><span class="params">callback</span> =&gt;</span> <span class="title function_">callback</span>(data));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> eventBus = <span class="keyword">new</span> <span class="title class_">EventBus</span>();</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span> = eventBus;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Emit an event from Remote module.</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span>.<span class="title function_">emit</span>(<span class="string">&#x27;someEvent&#x27;</span>, &#123; <span class="attr">message</span>: <span class="string">&#x27;Hello from Remote&#x27;</span> &#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Listen for an event from Host module.</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">eventBus</span>.<span class="title function_">on</span>(<span class="string">&#x27;someEvent&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data.<span class="property">message</span>); <span class="comment">// 输出: Hello from Remote</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/14/How-node-js-handle-environment-variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/11/14/How-node-js-handle-environment-variables/" class="post-title-link" itemprop="url">How node.js handle environment variables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-14 20:01:47" itemprop="dateCreated datePublished" datetime="2023-11-14T20:01:47+08:00">2023-11-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-02-16 20:06:38" itemprop="dateModified" datetime="2024-02-16T20:06:38+08:00">2024-02-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-node-js-handle-environment-variables"><a href="#How-node-js-handle-environment-variables" class="headerlink" title="How node.js handle environment variables"></a>How node.js handle environment variables</h1><p>The following content was generated by “文心一言”, Have fun!</p>
+<p>在 Node.js 中处理环境变量通常使用 process.env 对象。当你想要从不同的配置文件中加载环境变量时，需要一些额外的步骤。通常，我们不直接通过 Node.js 加载 .local.env或其他配置文件，而是通过一些库（如 dotenv）来完成这个任务。</p>
+<h2 id="使用-dotenv-处理环境变量"><a href="#使用-dotenv-处理环境变量" class="headerlink" title="使用 dotenv 处理环境变量"></a>使用 dotenv 处理环境变量</h2><p>安装 dotenv:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install dotenv</span><br></pre></td></tr></table></figure>
+
+<p>在代码中使用 dotenv:<br>你可以在代码的顶部require dotenv，并使用它加载环境变量。(默认情况下, dotenv会自动寻找项目根目录下的.env文件，如果想指定其他配置文件，可以通过path参数来控制)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>();</span><br></pre></td></tr></table></figure>
+
+<p>创建配置文件:<br>通常，你可以创建一个 .env 文件在你的项目的根目录。这个文件可以包含环境变量，如：</p>
+<p>.env 文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PORT=3000  </span><br><span class="line">DATABASE_URL=mysql://user:password@localhost/dbname</span><br></pre></td></tr></table></figure>
+
+<p><code>.local.env文件通常是用于本地开发的环境变量，这些变量不应该被提交到版本控制系统中（如 git）。你可以在你的.gitignore文件中添加.local.env 来确保它不会被提交。</code></p>
+<p>访问环境变量:<br>你可以使用 process.env 对象来访问你加载的环境变量。例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> port = process.<span class="property">env</span>.<span class="property">PORT</span>;  </span><br><span class="line"><span class="keyword">const</span> databaseUrl = process.<span class="property">env</span>.<span class="property">DATABASE_URL</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置文件的优先级"><a href="#配置文件的优先级" class="headerlink" title="配置文件的优先级"></a>配置文件的优先级</h2><p>当你有多个配置文件时，你需要确定哪个文件的优先级更高。例如，你可能有一个通用的 .env 文件，还有一个针对本地开发的 .local.env 文件。</p>
+<p>通常，你可以在加载配置文件时确定优先级。例如，你可以首先加载 .local.env，然后再加载 .env。这样，.local.env 中的设置将覆盖 .env 文件中的设置。使用 dotenv 时，你可以这样做：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(&#123; <span class="attr">path</span>: <span class="string">&#x27;.local.env&#x27;</span> &#125;);  </span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="示例：处理端口环境变量"><a href="#示例：处理端口环境变量" class="headerlink" title="示例：处理端口环境变量"></a>示例：处理端口环境变量</h2><p>假设你在 .env 文件中有以下设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PORT=3000</span><br></pre></td></tr></table></figure>
+
+<p>在 .local.env 文件中有以下设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PORT=8080</span><br></pre></td></tr></table></figure>
+
+<p>你可以这样加载和使用它们：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(&#123; <span class="attr">path</span>: <span class="string">&#x27;.local.env&#x27;</span> &#125;); <span class="comment">// 加载 .local.env  </span></span><br><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>).<span class="title function_">config</span>(); <span class="comment">// 加载 .env  </span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);  </span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();  </span><br><span class="line"><span class="keyword">const</span> port = process.<span class="property">env</span>.<span class="property">PORT</span>; <span class="comment">// port = 8080，因为 .local.env 中的设置将覆盖 .env 中的设置。  </span></span><br><span class="line">  </span><br><span class="line">app.<span class="title function_">listen</span>(port, <span class="function">() =&gt;</span> &#123;  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Server is running on port <span class="subst">$&#123;port&#125;</span>`</span>);  </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，服务器将运行在 8080 端口上，因为 .local.env 中的 PORT 设置覆盖了 .env 文件中的设置。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -649,378 +1090,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/16/refactor-replace-temp-with-query/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/16/refactor-replace-temp-with-query/" class="post-title-link" itemprop="url">refactor-replace-temp-with-query</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-16 10:24:57" itemprop="dateCreated datePublished" datetime="2023-09-16T10:24:57+08:00">2023-09-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-12 09:29:34" itemprop="dateModified" datetime="2024-11-12T09:29:34+08:00">2024-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Replace-Temp-with-Query"><a href="#Replace-Temp-with-Query" class="headerlink" title="Replace Temp with Query"></a>Replace Temp with Query</h1><p>以查询取代临时变量的方法只适用于处理某些类型的临时变量，即那些只被赋值一次，而且之后再也没有被修改的临时变量。<br>看下面的代码：我们可以将 <code>price()</code>中的临时变量 <code>basePrice</code> 和<code>discountFactor</code> 替换为查询函数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Order</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">    <span class="keyword">const</span> basePrice = <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">    <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">    <span class="keyword">if</span> (basePrice &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">      discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> basePrice * discountFactor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>修改后如下：可以看到，修改后，<code>price()</code>内的代码明显更加简洁，更加容易理解。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">basePrice</span> * <span class="variable language_">this</span>.<span class="property">discountFactor</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">basePrice</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">discountFactor</span>() &#123;</span><br><span class="line">  <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">    discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> discountFactor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后，<code>discountFactor()</code>函数还可以进一步简化：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">get</span> <span class="title function_">discountFactor</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span> ? <span class="number">0.95</span> : <span class="number">0.98</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果是在不支持<code>getter</code>和<code>setter</code>的语言中，我们可以使用<code>extract function</code>的方法来实现。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getBasePrice</span>() * <span class="variable language_">this</span>.<span class="title function_">getDiscountFactor</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="title function_">getBasePrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="title function_">getDiscountFactor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getBasePrice</span>() &gt; <span class="number">1000</span> ? <span class="number">0.95</span> : <span class="number">0.98</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-standalone-component/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/02/Angular-standalone-component/" class="post-title-link" itemprop="url">Angular-standalone-component</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-02 21:56:59" itemprop="dateCreated datePublished" datetime="2023-09-02T21:56:59+08:00">2023-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-08 14:01:55" itemprop="dateModified" datetime="2024-05-08T14:01:55+08:00">2024-05-08</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Angular-Standalone-Component"><a href="#Angular-Standalone-Component" class="headerlink" title="Angular Standalone Component"></a>Angular Standalone Component</h1><p><code>standalone component</code>是Angular 14的一个新特性，它可以让我们在不创建module的情况下创建一个component。注意：<code>Directive</code>和<code>Pipe</code>也可以是standalone的。</p>
-<h2 id="创建一个standalone-component"><a href="#创建一个standalone-component" class="headerlink" title="创建一个standalone component"></a>创建一个standalone component</h2><p>组件代码如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// 添加这一句，表示这是一个standalone component。</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;lifecycle-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span>&#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>standalone component和module的交互使用有如下两种情况。</p>
-<h2 id="standalone-component引入其他module"><a href="#standalone-component引入其他module" class="headerlink" title="standalone component引入其他module"></a>standalone component引入其他module</h2><p>如果standalone component需要引入其他module，那么需要在<code>imports</code>属性中引入其他module，比如上面代码中引入的<code>CommonModule</code>。</p>
-<p>注意：只有standalone component才能引入其他module，<code>普通的component(non-standalone component)不能引入其他module</code>。所以只有standalone component才能使用<code>imports</code>属性。</p>
-<p>如果你遇到如下报错，那么说明你在非standalone组件中使用了<code>imports</code>属性，这是不允许的。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error NG2010: <span class="string">&#x27;imports&#x27;</span> is only valid on a component that is standalone.</span><br></pre></td></tr></table></figure>
-
-<p>这种情况经常发生在，ComponentA(非独立组件)想在template中使用ComponentB(独立组件)，那么应该在ComponentA所在的module中的imports属性中引入ComponentB。</p>
-<h2 id="module引入standalone-component"><a href="#module引入standalone-component" class="headerlink" title="module引入standalone component"></a>module引入standalone component</h2><p>如果一个module要使用一个standalone component，那么<code>不再</code>需要在<code>declarations</code>属性中声明这个standalone component，只需要在<code>imports</code>属性中引入这个standalone component所在的module即可。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="comment">// OrderComponent, // no need to declare standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">OrderComponent</span>, <span class="comment">// imports standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="lazy-load-module"><a href="#lazy-load-module" class="headerlink" title="lazy load module"></a>lazy load module</h2><p>在NgModel时代，我们可以使用<code>loadChildren</code>来实现懒加载，比如下面的<code>product module</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-
-<h2 id="Lazy-load-standalone-component"><a href="#Lazy-load-standalone-component" class="headerlink" title="Lazy load standalone component"></a>Lazy load standalone component</h2><p>在Angular 14中，我们可以使用<code>loadComponent</code>来实现懒加载standalone component，比如下面的<code>order component</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;order&#x27;</span>, <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./order/order.component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">OrderComponent</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-<h3 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h3><ul>
-<li>lazy load module: <code>loadChildren</code></li>
-<li>lazy load standalone component: <code>loadComponent</code></li>
-</ul>
-<h2 id="Bootstrap-standalone-component"><a href="#Bootstrap-standalone-component" class="headerlink" title="Bootstrap standalone component"></a>Bootstrap standalone component</h2><p>See <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/20/angular-bootstrap-standalone-component/">here</a></p>
-<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><p><a target="_blank" rel="noopener" href="https://angular.io/guide/standalone-components">Angular standalone component</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-module/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/09/02/Angular-module/" class="post-title-link" itemprop="url">Angular-module</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-09-02 21:36:32" itemprop="dateCreated datePublished" datetime="2023-09-02T21:36:32+08:00">2023-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-20 22:01:52" itemprop="dateModified" datetime="2024-08-20T22:01:52+08:00">2024-08-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Angular-Module"><a href="#Angular-Module" class="headerlink" title="Angular Module"></a>Angular Module</h1><p>Angular是模块化的，模块是Angular应用的基本构建块，每个Angular应用都至少有一个模块，即根模块，Angular模块是一个带有<code>@NgModule</code>装饰器的类。</p>
-<p>模块是一个逻辑单元，是一个自我完备的功能集合，它可以包含组件、服务、指令、管道等，模块可以导入其他模块，也可以导出组件、指令、管道等供其他模块使用，模块还可以提供Service。</p>
-<p>以一个电商网站App为例，可以包含如下模块：登录模块（包含登录，注册，找回密码等功能），购物模块，订单模块，支付模块等等。</p>
-<h2 id="Generate-Angular-module-with-Angular-CLI"><a href="#Generate-Angular-module-with-Angular-CLI" class="headerlink" title="Generate Angular module with Angular CLI"></a>Generate Angular module with Angular CLI</h2><p>使用Angular CLI生成一个新的模块，运行如下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate module moduleName // or ng g m moduleName</span><br></pre></td></tr></table></figure>
-
-<h2 id="NgModule的组成"><a href="#NgModule的组成" class="headerlink" title="NgModule的组成"></a>NgModule的组成</h2><p>以下是一个典型的入口模块的代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">AppRoutingModule</span>,</span><br><span class="line">    <span class="title class_">FormsModule</span>,</span><br><span class="line">    <span class="title class_">HttpClientModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="declarations"><a href="#declarations" class="headerlink" title="declarations"></a>declarations</h3><p><code>declarations</code>属性用来声明<code>属于该模块</code>的组件、指令、管道等，这些组件、指令、管道等只能在该模块中使用，其他模块不能使用。</p>
-<ul>
-<li><code>declarations</code>只能包含<code>component</code>, <code>directive</code>,<code>pipe</code>.</li>
-<li><code>component</code>, <code>directive</code>,<code>pipe</code> - 统称为<code>declarable</code>, 每个<code>declarable</code>只能隶属于一个NgModule，如果在多个NgModule中导入同一个declarable，那么会出现如下错误：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx is declared <span class="keyword">in</span> multiple Angular modules: AppModule and AppContentModule</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="imports"><a href="#imports" class="headerlink" title="imports"></a>imports</h3><p><code>imports</code>属性用来导入其他模块，导入的模块中的组件、指令、管道等可以在该模块中使用。比如当前模块依赖另一个模块A，那么要把模块A导入到当前模块中，这样当前模块才可以使用模块A中的组件、指令、管道等。</p>
-<ul>
-<li><code>imports</code>只能包含<code>module</code>, 或者<code>standalone component</code>.</li>
-</ul>
-<h3 id="providers"><a href="#providers" class="headerlink" title="providers"></a>providers</h3><p><code>providers</code>属性用来声明该模块中的服务，这些服务可以在该模块中使用，也可以在该模块导入的其他模块中使用。</p>
-<h3 id="exports"><a href="#exports" class="headerlink" title="exports"></a>exports</h3><p><code>exports</code>属性用来声明该模块中<code>导出</code>的组件、指令、管道等，这些组件、指令、管道等可以在该模块导入的其他模块中使用。注意导出的组件、指令、管道等必须同时在<code>declarations</code>属性中声明。<br>也就是说exports是declarations的子集。</p>
-<p>Angular应用的主模块<code>app.module.ts</code>中的<code>exports</code>属性是空的，因为根模块中的组件、指令、管道等都是可以在其他模块中使用的，所以不需要导出。</p>
-<h3 id="bootstrap"><a href="#bootstrap" class="headerlink" title="bootstrap"></a>bootstrap</h3><p><code>bootstrap</code>属性用来声明该模块的根组件，根组件是Angular应用的入口组件，一个Angular应用只能有一个根组件，根组件只能在根模块中声明。<code>bootstrap</code>中声明的组件会插入到<code>index.html</code>中的<code>&lt;app-root&gt;&lt;/app-root&gt;</code>标签中。</p>
-<p>注意：<code>bootstrap</code>中可以指定多个组件，这些组件会被插入到<code>index.html</code>中，<code>index.html</code>中根据组件的选择器加在不同的组件。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--index.html--&gt;</span></span><br><span class="line"><span class="meta">&lt;!doctype <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>LearningAngular<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-header</span>&gt;</span><span class="tag">&lt;/<span class="name">app-header</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-content</span>&gt;</span><span class="tag">&lt;/<span class="name">app-content</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-footer</span>&gt;</span><span class="tag">&lt;/<span class="name">app-footer</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClientModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppHeaderComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-header/app-header.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppContentComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-content/app-content.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppFooterComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-footer/app-footer.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppHeaderComponent</span>,</span><br><span class="line">    <span class="title class_">AppContentComponent</span>,</span><br><span class="line">    <span class="title class_">AppFooterComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">HttpClientModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppHeaderComponent</span>, <span class="title class_">AppContentComponent</span>, <span class="title class_">AppFooterComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意：</strong> 只有根模块才需要声明根组件，其他模块不需要声明根组件。所以除了<code>app.module.ts</code>之外，其他的module都不需要声明bootstrap属性。</p>
-<h2 id="component-and-module"><a href="#component-and-module" class="headerlink" title="component and module"></a>component and module</h2><p>在Angular <code>standalone</code> component出现以前，任何一个component都必须隶属于一个module。但是在Angular <code>standalone</code> component出现以后，就可以不用隶属于一个module了，这种component称为<code>standalone</code> component，也就是独立的component。</p>
-<p>详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/09/02/Angular-standalone-component/">Angular Standalone Component</a></p>
-<h2 id="How-Angular-module-identifies-components"><a href="#How-Angular-module-identifies-components" class="headerlink" title="How Angular module identifies components?"></a>How Angular module identifies components?</h2><p>Angular module是如何识别<code>Component</code>的呢？对于非<code>standalone</code> component，Angular module是通过<code>declaration</code>来标记的。对于<code>standalone</code> component，Angular module是通过<code>imports</code>来标记的。</p>
-<p>非独立组件还分为两种情况，有对应的<code>angular module</code>或者没有对应的<code>angular module</code></p>
-<ul>
-<li>有<code>angular module</code> - 当前module需要导入对应的<code>angular module</code>，才能使用导入module中的<code>component</code>。（待使用的component需在其module中exports数组中导出）</li>
-<li>没有<code>angular module</code> - 则需要将component声明在当前module的<code>declarations</code>中。</li>
-</ul>
-<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><p>假设我们需要定义如下两个组件, 这两个组件都有对应的module</p>
-<ul>
-<li><code>ProductHomeComponent</code> - 产品首页, 会使用<code>ProductDetailComponent</code></li>
-<li><code>ProductDetailComponent</code> - 产品详情页</li>
-</ul>
-<p>首先，需要在<code>ProductDetailModule</code>中声明<code>ProductDetailComponent</code>，并导出<code>ProductDetailComponent</code>。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommonModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductDetailComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./product-detail.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [<span class="title class_">ProductDetailComponent</span>], <span class="comment">// &lt;-- declare ProductDetailComponent</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">ProductDetailComponent</span>], <span class="comment">// &lt;-- export ProductDetailComponent</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductDetailModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后，需要在<code>ProductHomeModule</code>中导入<code>ProductDetailModule</code>，这样<code>ProductHomeComponent</code>就可以使用<code>ProductDetailComponent</code>了。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-home.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommonModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductHomeComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./product-home.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductDetailModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;../product-detail/product-detail.module&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [<span class="title class_">ProductHomeComponent</span>],</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>, <span class="title class_">ProductDetailModule</span>], <span class="comment">// &lt;-- import ProductDetailModule</span></span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">ProductHomeComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后，在<code>ProductHomeComponent</code>模板中使用<code>ProductDetailComponent</code>。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product-home.component.html --&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">app-product-detail</span> /&gt;</span> <span class="comment">&lt;!-- use ProductDetailComponent --&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/ngmodules">Angular Module</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/19/Angular-Misc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/08/19/Angular-Misc/" class="post-title-link" itemprop="url">Angular-Misc</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-08-19 20:58:58" itemprop="dateCreated datePublished" datetime="2023-08-19T20:58:58+08:00">2023-08-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-18 20:40:12" itemprop="dateModified" datetime="2024-11-18T20:40:12+08:00">2024-11-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Angular杂项"><a href="#Angular杂项" class="headerlink" title="Angular杂项"></a>Angular杂项</h1><h2 id="什么操作会触发Angular执行change-detection？"><a href="#什么操作会触发Angular执行change-detection？" class="headerlink" title="什么操作会触发Angular执行change detection？"></a>什么操作会触发Angular执行change detection？</h2><p>这个问题一直没有搞明白，有待进一步研究。<br><a target="_blank" rel="noopener" href="https://angular.io/guide/change-detection">https://angular.io/guide/change-detection</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-tB-QDrPmuI">https://www.youtube.com/watch?v=-tB-QDrPmuI</a></p>
-<h2 id="Content"><a href="#Content" class="headerlink" title="Content"></a>Content</h2><ul>
-<li><a href="#monkey-patching">Monkey Patching</a>  </li>
-<li><a href="#private-variable">Private Variable</a></li>
-</ul>
-<h2 id="在AOT编译器下，Private变量无法绑定到模板中。"><a href="#在AOT编译器下，Private变量无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private变量无法绑定到模板中。"></a>在AOT编译器下，Private变量无法绑定到模板中。</h2><p><a name="private-variable"></a>如果在组件中定义了一个私有变量，是不能使用双括弧绑定到模板中的，比如下面的代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这样写是不行的，因为在AOT编译器下，私有变量会被删除，所以无法绑定到模板中，如果想要绑定到模板中，需要将变量定义为公共变量，或者使用<code>get</code>方法，如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">count</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>或者使用getCount()方法，如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">getCount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;getCount()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="AOT-vs-JIT"><a href="#AOT-vs-JIT" class="headerlink" title="AOT vs JIT"></a>AOT vs JIT</h2><h2 id="Monkey-Patching"><a href="#Monkey-Patching" class="headerlink" title="Monkey Patching"></a>Monkey Patching</h2><p><a name="monkey-patching"></a>In computer programming, monkey patching is a technique used to dynamically update the behavior of a piece of code at run-time. It is used to extend or modify the runtime code of dynamic languages such as Smalltalk, JavaScript, Objective-C, Ruby, Perl, Python, Groovy, and Lisp without altering the original source code. - <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">Wikipedia</a></p>
-<h2 id="Angular找不到selector对应的组件时，不会报错。"><a href="#Angular找不到selector对应的组件时，不会报错。" class="headerlink" title="Angular找不到selector对应的组件时，不会报错。"></a>Angular找不到selector对应的组件时，不会报错。</h2><p>如果你在Angular template中使用了一个选择器，但是这个选择器没有对应任何组件，那么Angular不会报错，只会将选择器当作一个普通的HTML标签处理。这个问题在开发过程中很容易出现，因为Angular不会报错，所以很难发现。</p>
-<h2 id="ng-repeat-vs-ngFor"><a href="#ng-repeat-vs-ngFor" class="headerlink" title="ng-repeat vs ngFor"></a><code>ng-repeat</code> vs <code>ngFor</code></h2><ul>
-<li><code>ng-repeat</code>是AngularJS中的指令，用于循环遍历数组或对象。</li>
-<li><code>ngFor</code>是Angular中的指令，用于循环遍历数组或对象。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/18/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/20/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/18/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/20/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1086,14 +1159,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">210</span>
+          <span class="site-state-item-count">214</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">285</span>
+        <span class="site-state-item-count">290</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
