@@ -669,7 +669,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-21 14:11:24" itemprop="dateModified" datetime="2024-11-21T14:11:24+08:00">2024-11-21</time>
+                <time title="Modified: 2024-11-21 14:25:47" itemprop="dateModified" datetime="2024-11-21T14:25:47+08:00">2024-11-21</time>
               </span>
 
           
@@ -684,8 +684,8 @@
 
       
           <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>本来用英语写了一篇，结果看起来乱糟糟的，还是用中文写一下吧。</p>
-<p>原型是JavaScript中非常重要的概念，面试中也尝尝会闻到这个问题。那么，原型到底是什么？<br>原型的英文是<code>prototype</code>，他是函数的一个属性，是一个对象。</p>
-<p>下面来看一张图，这个图咋一看非常复杂，但是理解之后，就会发现原型其实非常简单。<br><img src="/../images/js-prototype.png" alt="js-prototype"></p>
+<p>原型是JavaScript中非常重要的概念，面试中也尝尝会问到这个问题。那么，原型到底是什么？<br>原型的英文是<code>prototype</code>，他是函数的一个属性，是一个对象。</p>
+<p>下面来看一张图，这个图乍一看非常复杂，但是理解之后，就会发现原型其实非常简单。<br><img src="/../images/js-prototype.png" alt="js-prototype"></p>
 <p>在理解这张图之前，我们先明确几个概念：</p>
 <ol>
 <li>对象具有<code>__proto__</code>和<code>constructor</code>属性。</li>
@@ -711,11 +711,11 @@
 <li>而<code>Person</code>继承自<code>Object</code>，所以<code>Person</code>的<code>__proto__</code>属性指向<code>Object</code>的<code>prototype</code>属性。</li>
 <li><code>Object</code>的<code>__proto__</code>属性指向<code>null</code>。</li>
 </ol>
-<p><code>p</code>, <code>Person</code>, <code>Object</code>, <code>null</code>之间通过<code>__proto__</code>属性形成了一条链，这就是所谓的原型链。当我们在某个对象上查找一个属性时，如果该对象没有这个属性，那么JS会通过原型链向上查找，直到找到这个属性或者到达<code>null</code>。举两个例子：</p>
+<p><code>p</code>, <code>Person</code>, <code>Object</code>, <code>null</code>之间通过<code>__proto__</code>属性形成了一条链，这就是所谓的原型链。当我们在某个对象上查找一个属性时，如果该对象没有这个属性，那么JS会通过原型链向上查找，直到找到这个属性或者到达<code>null</code>。举几个例子：</p>
 <ul>
 <li><code>p.printName()</code> - <code>p</code>对象上没有<code>printName</code>属性，所以JS会通过原型链向上查找，找到<code>Person</code>的<code>prototype</code>属性，从而找到<code>printName</code>方法。</li>
 <li><code>p.hasOwnProperty(&#39;name&#39;)</code> - <code>p</code>对象上没有<code>hasOwnProperty</code>属性，向上查找到<code>Person</code>，<code>Person</code>的原型对象上也没有<code>hasOwnProperty</code>属性，继续向上查找到<code>Object</code>，<code>Object</code>原型上有<code>hasOwnProperty</code>属性，于是调用之，所以返回<code>true</code>。</li>
-<li><code>p.foo()</code> - <code>p</code>对象上没有<code>foo</code>属性，向上查找到<code>Person</code>，<code>Person</code>的原型对象上也没有<code>foo</code>属性，继续向上查找到<code>Object</code>，<code>Object</code>原型上也没有<code>foo</code>属性，继续向上查找到<code>null</code>，而null上也没有<code>foo</code>属性，所以会报错。— <code>TypeError: p.foo is not a function</code></li>
+<li><code>p.foo()</code> - <code>p</code>对象上没有<code>foo</code>属性，向上查找到<code>Person</code>，<code>Person</code>的原型对象上也没有<code>foo</code>属性，继续向上查找到<code>Object</code>，<code>Object</code>的原型上还是没有<code>foo</code>属性，继续向上查找到<code>null</code>，而null上也没有<code>foo</code>属性，所以会报错。— <code>TypeError: p.foo is not a function</code></li>
 </ul>
 <p>再看右侧部分，<code>Person</code>, <code>Function</code>, <code>Object</code>这三者皆是函数，而JS中函数也是对象，故而这三者亦有<code>__proto__</code>属性，而且都指向<code>Function</code>的<code>prototype</code>属性。而<code>Function</code>的<code>__proto__</code>属性指向<code>Object</code>的<code>prototype</code>属性。</p>
 <p>由此我们可以得出结论：</p>
@@ -729,12 +729,17 @@
 <h2 id="prototype属性"><a href="#prototype属性" class="headerlink" title="prototype属性"></a>prototype属性</h2><p>照例现简化一下上图，只保留<code>prototype</code>属性。<br><img src="/../images/js-prototype-prototype.png" alt="js-prototype-prototype"></p>
 <p>因为<code>prototype</code>是函数的一个属性（对象没有<code>prototype</code>），所以图中只有绿色节点有<code>prototype</code>属性。对于一个函数<code>Foo</code>来说，他的<code>prototype</code>属性是一个对象，指向<code>Foo.prototype</code></p>
 <h2 id="constructor-NaN"><a href="#constructor-NaN" class="headerlink" title="constructor"></a>constructor</h2><p>最后来看<code>constructor</code>属性。<br><img src="/../images/js-prototype-constructor.png" alt="js-prototype-constructor"></p>
-<p><code>constructor</code>就是某个对象的构造函数，因为JS中函数也是对象，所以函数也有<code>constructor</code>属性。1. 对于普通对象，其<code>constructor</code>属性指向其构造函数。<br>2. 对于函数，其<code>constructor</code>属性指向<code>Function</code>。<br>3. <code>Function</code>的<code>constructor</code>属性指向其自身。</p>
+<p><code>constructor</code>就是某个对象的构造函数，因为JS中函数也是对象，所以函数也有<code>constructor</code>属性。</p>
+<ol>
+<li>对于普通对象，其<code>constructor</code>属性指向其构造函数。</li>
+<li>对于函数，其<code>constructor</code>属性指向<code>Function</code>。</li>
+<li><code>Function</code>的<code>constructor</code>属性指向其自身。</li>
+</ol>
 <p>根据以上结论，不难得出如下结论：</p>
 <ol>
 <li>对象<code>p</code>的<code>constructor</code>属性指向<code>Person</code>函数, 因为<code>p</code>是<code>Person</code>的一个实例。</li>
-<li><code>Person.prototype</code>的<code>constructor</code>指向<code>Person</code>函数，这个是为啥？</li>
-<li><code>Person</code>和<code>Object</code>的<code>constructor</code>都指向<code>Function</code>，因为<code>Person</code>是一个函数。</li>
+<li><code>Person.prototype</code>的<code>constructor</code>指向<code>Person</code>函数，这个是为啥？- 硬性规定</li>
+<li><code>Person</code>和<code>Object</code>的<code>constructor</code>都指向<code>Function</code>，因为<code>Person</code>和<code>Object</code>都是函数。</li>
 <li><code>Function</code>的<code>constructor</code>属性指向<code>Function</code>。</li>
 </ol>
 <p>由以上结论可以推导出：<code>Function</code>是所有<code>constructor</code>的终点。</p>
