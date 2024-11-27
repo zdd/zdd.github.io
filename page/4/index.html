@@ -181,6 +181,131 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/09/javascript-closure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/09/javascript-closure/" class="post-title-link" itemprop="url">javascript-closure</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-09 17:14:13" itemprop="dateCreated datePublished" datetime="2024-11-09T17:14:13+08:00">2024-11-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-23 16:28:06" itemprop="dateModified" datetime="2024-11-23T16:28:06+08:00">2024-11-23</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>What is a closure in JavaScript? This is really a hard question, and I see lots of different answers on the internet. I list some of them below:</p>
+<ol>
+<li>A closure is a function that has access to the outer function’s variables.</li>
+<li>A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment). In other words, a closure gives a function access to its outer scope. In JavaScript, closures are created every time a function is created, at function creation time. - from <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">MDN</a></li>
+</ol>
+<h1 id="Lexical-scoping"><a href="#Lexical-scoping" class="headerlink" title="Lexical scoping"></a>Lexical scoping</h1><p>在JavaScript中，词法作用域（Lexical Scoping）是一种确定变量作用域的规则。词法作用域基于变量在代码中声明的位置来决定其可见性和生命周期。具体来说，词法作用域是在编写代码时就确定下来的，它取决于函数和块（如if语句或循环）的嵌套结构，而不是在运行时动态确定的。</p>
+<p>词法作用域的特点<br>静态确定：词法作用域在代码编写阶段就已经确定。编译器在解析代码时会创建一个作用域链，这个链决定了在何处查找变量。<br>基于嵌套：作用域是根据函数和块的嵌套关系来定义的。内层作用域可以访问外层作用域中的变量，但外层作用域不能访问内层作用域中的变量。<br>函数优先：在JavaScript中，函数创建了自己的作用域，即使这个函数没有立即执行，它的作用域也是在定义时就确定的。<br>词法作用域的例子<br>下面是一个简单的例子来说明词法作用域：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">outerFunction</span>(<span class="params">outerArg</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> outerVariable = <span class="string">&#x27;I am from the outer function&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">innerFunction</span>(<span class="params">innerArg</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(outerArg); <span class="comment">// 可以访问 outerFunction 的参数</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(outerVariable); <span class="comment">// 可以访问 outerFunction 的变量</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(innerArg); <span class="comment">// 可以访问 innerFunction 的参数</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">innerFunction</span>(<span class="string">&#x27;Hello from innerFunction&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">outerFunction</span>(<span class="string">&#x27;Hello from outerFunction&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>词法作用域是闭包的基础，因为闭包是在词法作用域的基础上实现的。</p>
+<h1 id="闭包的特性"><a href="#闭包的特性" class="headerlink" title="闭包的特性"></a>闭包的特性</h1><ol>
+<li>数据封装性 - 可以用来封装私有变量，模拟模块化。</li>
+<li>保持状态 - 保持函数的状态，比如计数器。防抖和节流使用的都是这个特性。</li>
+</ol>
+<h1 id="Use-case"><a href="#Use-case" class="headerlink" title="Use case"></a>Use case</h1><h2 id="Data-encapsulation-private-variables"><a href="#Data-encapsulation-private-variables" class="headerlink" title="Data encapsulation(private variables)"></a>Data encapsulation(private variables)</h2><p>In the follow example, the inner function <code>increase</code> has access to the outer function’s variable <code>count</code>. The variable <code>count</code> is private and cannot be accessed from outside the function <code>createCounter</code>. But you can still change <code>count</code> by invoking the <code>increase</code> function.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">createCounter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">increase</span>(<span class="params"></span>) &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    increase,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> counter = <span class="title function_">createCounter</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(counter.<span class="title function_">increase</span>()); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>Note that</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &#123;</span><br><span class="line">  increase,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>is shorthand for</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &#123;</span><br><span class="line">  <span class="attr">increase</span>: increase,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>We can also return the function <code>increase</code> directly.(This is not work when you have multiple functions to return, you must use the object literal in that case.)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">createCounter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>And you should also change the way to invoke the function since you return an anonymous function. so there is no <code>increase</code> property in the <code>counter</code> object.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> counter = <span class="title function_">createCounter</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">counter</span>()); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Simulate-module-Modernization"><a href="#Simulate-module-Modernization" class="headerlink" title="Simulate module(Modernization)"></a>Simulate module(Modernization)</h2><p>In the following example, we can simulate a module by using closure. The private variables and methods are defined inside the outer function <code>MyModule</code>. The public variables and methods are returned as an object literal. So the private variables and methods are encapsulated and cannot be accessed from outside the function. The public variables and methods can be accessed by invoking the returned object.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">MyModule</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> privateVariable = <span class="string">&#x27;private variable&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> publicVariable = <span class="string">&#x27;public variable&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">privateMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(privateVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">publicMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(publicVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// If you want to expose the variables/methods, return them.</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    publicVariable,</span><br><span class="line">    publicMethod,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> myModule = <span class="title class_">MyModule</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">publicVariable</span>); <span class="comment">// public variable</span></span><br><span class="line">myModule.<span class="title function_">publicMethod</span>(); <span class="comment">// public method</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Event-handler-or-callback"><a href="#Event-handler-or-callback" class="headerlink" title="Event handler(or callback)"></a>Event handler(or callback)</h2><p>Some event handler or callback functions use closure to access the outer function’s variables.<br>In the following example, the event handler for <code>click</code> event is an anymous function. The function has access to the outer function’s variable <code>count</code>. </p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span>&gt;</span>Click Me<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Click count: <span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> count = <span class="number">0</span>;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">const</span> button = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">const</span> span = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;span&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      button.<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        count++;</span></span><br><span class="line"><span class="language-javascript">        span.<span class="property">textContent</span> = count;</span></span><br><span class="line"><span class="language-javascript">      &#125;);</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Design-patter-Singleton"><a href="#Design-patter-Singleton" class="headerlink" title="Design patter - Singleton"></a>Design patter - Singleton</h2><p>In the following code, we use a local variable <code>instance</code> to check whether the instance has been created or not. The <code>instance</code> variable must memorize its state during different calls to the <code>getInstance</code> function. So we use closure to achieve this.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = (<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">createInstance</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123; <span class="attr">name</span>: name &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">getInstance</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">      instance = <span class="title function_">createInstance</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    getInstance,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> instance1 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> instance2 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(instance1); <span class="comment">// Philip</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(instance2); <span class="comment">// Philip</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Debounce"><a href="#Debounce" class="headerlink" title="Debounce"></a>Debounce</h2><p>防抖和节流都是为了解决在短段时间内大量触发某个函数执行而导致的性能问题。</p>
+<p><strong>防抖的原理</strong><br>事件处理函数在事件触发一段时间后（比如500ms）再执行，如果在此时间内（比如500ms）事件再次触发，则重新计时。</p>
+<p><strong>防抖的应用</strong>：<br>输入框实时搜索，如果不加防抖处理的话，用户每输入一个字符就会调用一次接口，极大的浪费带宽和后端服务器资源。加入防抖后，用户停止输入一段时间后，才调用接口。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">debounce</span>(<span class="params">func, wait</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> timeout;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> args = <span class="variable language_">arguments</span>;</span><br><span class="line">    <span class="keyword">const</span> context = <span class="variable language_">this</span>;</span><br><span class="line">    <span class="built_in">clearTimeout</span>(timeout);</span><br><span class="line">    timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      func.<span class="title function_">apply</span>(context, args);</span><br><span class="line">    &#125;, wait);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#input&quot;</span>).<span class="title function_">addEventListener</span>(</span><br><span class="line">  <span class="string">&quot;input&quot;</span>,</span><br><span class="line">  <span class="title function_">debounce</span>(<span class="keyword">function</span> (<span class="params">e</span>) &#123;</span><br><span class="line">    <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#output&quot;</span>).<span class="property">innerHTML</span> =</span><br><span class="line">      <span class="string">&quot;You have input: &quot;</span> + e.<span class="property">target</span>.<span class="property">value</span>;</span><br><span class="line">    <span class="comment">// You can call and server side api here, and debounce make sure the api is not called very often.</span></span><br><span class="line">  &#125;, <span class="number">500</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Throttle"><a href="#Throttle" class="headerlink" title="Throttle"></a>Throttle</h2><p>节流是指一段时间内值触发一次函数调用，经常用在处理用户频繁触发的事件中，比如resize、scroll、mousemove等。此类事件如果不加控制，每秒会触发上百次，极大浪费资源。</p>
+<p>以下代码是一个节流函数的实现，它确保在每300ms响应一次resize事件。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">throttle</span>(<span class="params">func, wait</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> timeout;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> context = <span class="variable language_">this</span>;</span><br><span class="line">    <span class="keyword">const</span> args = <span class="variable language_">arguments</span>;</span><br><span class="line">    <span class="keyword">if</span> (!timeout) &#123;</span><br><span class="line">      timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">        timeout = <span class="literal">null</span>;</span><br><span class="line">        func.<span class="title function_">apply</span>(context, args);</span><br><span class="line">      &#125;, wait);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"><span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;resize&#x27;</span>, <span class="title function_">throttle</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  count++;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;#counter&#x27;</span>).<span class="property">innerHTML</span> = <span class="string">&#x27;resize triggered: &#x27;</span> + count;</span><br><span class="line">&#125;, <span class="number">300</span>));</span><br></pre></td></tr></table></figure>
+
+<h2 id="Currying"><a href="#Currying" class="headerlink" title="Currying"></a>Currying</h2><p>在JavaScript中，柯里化（Currying）是一种将使用多个参数的函数转换成一系列使用单一参数的函数的技术。通过柯里化，我们可以将一个多参数的函数逐步转化为一系列单参数的函数。每个函数都返回一个新的函数，直到所有参数都被提供，最终返回结果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add(a, b) ===&gt; curriedAdd(a)(b)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">curry</span>(<span class="params">func</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> <span class="title function_">curried</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (args.<span class="property">length</span> &gt;= func.<span class="property">length</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> func.<span class="title function_">apply</span>(<span class="variable language_">this</span>, args);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params">...args2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> curried.<span class="title function_">apply</span>(<span class="variable language_">this</span>, [...args, ...args2]);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">a, b, c</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> currySum = <span class="title function_">curry</span>(sum);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+
+<p>实际应用<br>参数复用：通过柯里化，可以预先设置好某些参数，然后得到一个预设了部分参数的新函数。这对于创建特定配置的函数非常有用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> add5 = <span class="title function_">curriedAdd</span>(<span class="number">5</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add5</span>(<span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 输出 10</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>延迟执行：柯里化允许你在需要的时候才完成函数的执行，这在处理异步操作或事件处理时特别有用。</li>
+<li>简化高阶函数：在处理高阶函数时，柯里化可以帮助简化代码，使得函数更易于理解和测试。</li>
+<li>函数组合：柯里化可以与其他函数式编程概念如函数组合结合使用，以构建复杂的逻辑链路，同时保持代码清晰简洁。</li>
+<li>部分应用：柯里化有时也被称作部分应用的一种形式，尽管严格来说二者有所不同。部分应用是指固定一个或多个参数的值，而柯里化则是逐步接收参数的过程。<br>柯里化是一种强大的技术，尤其是在函数式编程范式中，它能够帮助开发者写出更加模块化和可重用的代码。</li>
+</ul>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Closure_(computer_programming)">https://en.wikipedia.org/wiki/Closure_(computer_programming)</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/09/browser-reflow-and-repaint/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -902,102 +1027,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/02/angular-constructor-vs-ngoninit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/10/02/angular-constructor-vs-ngoninit/" class="post-title-link" itemprop="url">angular-constructor-vs-ngoninit</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-10-02 10:10:20 / Modified: 18:01:38" itemprop="dateCreated datePublished" datetime="2024-10-02T10:10:20+08:00">2024-10-02</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Constructor-vs-ngOnInit"><a href="#Constructor-vs-ngOnInit" class="headerlink" title="Constructor vs ngOnInit"></a>Constructor vs ngOnInit</h2><p>What’s the difference between constructor and ngOnInit in Angular?<br><code>constructor</code> is a TypeScript class constructor while <code>ngOnInit</code> is an Angular lifecycle hook called by <code>Angular</code> to indicate that Angular is done creating the component. a common question is when to use <code>constructor</code> and when to use <code>ngOnInit</code>?</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><code>constructor</code> is used to initialize the class properties, but it’s not the right place to do any initialization that depends on Angular services or inputs. ngOnInit is the right place to do such initialization.</li>
-<li><code>ngOnInit</code> is an Angular lifecycle hook that is called after Angular has initialized all data-bound properties of a directive. It’s the right place to put initialization logic that depends on Angular services or inputs.</li>
-</ul>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">DataService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../data.service&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">products</span>: <span class="built_in">any</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> dataService: DataService</span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">dataService</span>.<span class="title function_">fetchData</span>().<span class="title function_">subscribe</span>(<span class="function">(<span class="params">data: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">products</span> = data;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><table>
-<thead>
-<tr>
-<th></th>
-<th>When to call</th>
-<th>Call count</th>
-<th>What to do</th>
-<th>Comments</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>constructor</td>
-<td>When create class</td>
-<td>1</td>
-<td>1. Initialize class properties, 2. DI</td>
-<td></td>
-</tr>
-<tr>
-<td>ngOnInit</td>
-<td>after <code>constructor</code>, before first <code>ngOnChanges</code></td>
-<td>1</td>
-<td>1. Init @Input, 2. Call service to fetch data</td>
-<td></td>
-</tr>
-</tbody></table>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/35763730/difference-between-constructor-and-ngoninit">https://stackoverflow.com/questions/35763730/difference-between-constructor-and-ngoninit</a></li>
-<li><a target="_blank" rel="noopener" href="https://medium.com/angular-in-depth/the-essential-difference-between-constructor-and-ngoninit-in-angular-c9930c209a42">https://medium.com/angular-in-depth/the-essential-difference-between-constructor-and-ngoninit-in-angular-c9930c209a42</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1067,14 +1096,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-count">217</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">298</span>
+        <span class="site-state-item-count">300</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

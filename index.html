@@ -181,6 +181,112 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/27/angular-zoneless-change-detection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/27/angular-zoneless-change-detection/" class="post-title-link" itemprop="url">angular-zoneless-change-detection</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-11-27 15:38:49 / Modified: 16:33:27" itemprop="dateCreated datePublished" datetime="2024-11-27T15:38:49+08:00">2024-11-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Zoneless change detection是Angular 18引入的一个新特性，该特性能让Angular在不依赖zone.js的情况下进行更新检测。下面我们来看一下如何使用这个新特性。</p>
+<h1 id="Integration-steps"><a href="#Integration-steps" class="headerlink" title="Integration steps"></a>Integration steps</h1><h2 id="Create-an-Angular-18-project"><a href="#Create-an-Angular-18-project" class="headerlink" title="Create an Angular 18 project"></a>Create an Angular 18 project</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@18 new my-zoneless-app</span><br></pre></td></tr></table></figure>
+
+<h2 id="Enable-zoneless-change-detection-in-standalone-bootstrap-app"><a href="#Enable-zoneless-change-detection-in-standalone-bootstrap-app" class="headerlink" title="Enable zoneless change detection in standalone bootstrap app."></a>Enable zoneless change detection in standalone bootstrap app.</h2><ol>
+<li>Open file <code>app.config.ts</code> under <code>src/app</code> folder.</li>
+<li>Remove the following line<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">provideZoneChangeDetection</span>(&#123; <span class="attr">eventCoalescing</span>: <span class="literal">true</span> &#125;),</span><br></pre></td></tr></table></figure></li>
+<li>Add the following line<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">provideExperimentalZonelessChangeDetection</span>(),</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Enable-zoneless-change-detection-in-traditional-Module-based-app"><a href="#Enable-zoneless-change-detection-in-traditional-Module-based-app" class="headerlink" title="Enable zoneless change detection in traditional Module based app."></a>Enable zoneless change detection in traditional Module based app.</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NgModule bootstrap</span></span><br><span class="line"><span class="title function_">platformBrowser</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>);</span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title function_">provideExperimentalZonelessChangeDetection</span>()]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Remove-zone-js-from-your-project"><a href="#Remove-zone-js-from-your-project" class="headerlink" title="Remove zone.js from your project"></a>Remove zone.js from your project</h2><h3 id="Remove-zone-js-from-file-angular-json-or-project-json-for-Nx-based-project"><a href="#Remove-zone-js-from-file-angular-json-or-project-json-for-Nx-based-project" class="headerlink" title="Remove zone.js from file angular.json or project.json for Nx based project."></a>Remove zone.js from file <code>angular.json</code> or <code>project.json</code> for Nx based project.</h3><ol>
+<li>Open file <code>angular.json</code> or <code>project.json</code>.</li>
+<li>Remove the following line from <code>architect | build | options</code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">   <span class="string">&quot;zone.js&quot;</span></span><br><span class="line"> <span class="punctuation">]</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
+<li>Remove the following line from <code>architect | test | options</code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">   <span class="string">&quot;zone.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="string">&quot;zone.js/testing&quot;</span></span><br><span class="line"> <span class="punctuation">]</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Old-app-with-polyfills-ts"><a href="#Old-app-with-polyfills-ts" class="headerlink" title="Old app with polyfills.ts"></a>Old app with <code>polyfills.ts</code></h3><p>For old Angular app with a explicit <code>polyfill.ts</code> file, you can remove <code>import &#39;zone.js&#39;</code> and <code>import &#39;zone.js/testing&#39;</code> from <code>polyfills.ts</code>.</p>
+<h3 id="Uninstall-zone-js"><a href="#Uninstall-zone-js" class="headerlink" title="Uninstall zone.js"></a>Uninstall <code>zone.js</code></h3>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall zone.js</span><br></pre></td></tr></table></figure>
+
+<h2 id="Start-your-app"><a href="#Start-your-app" class="headerlink" title="Start your app"></a>Start your app</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve <span class="comment"># or npm run start</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="How-to-make-your-app-work-with-zoneless-change-detection"><a href="#How-to-make-your-app-work-with-zoneless-change-detection" class="headerlink" title="How to make your app work with zoneless change detection"></a>How to make your app work with zoneless change detection</h2><p>对于开启了zoneless change detection的应用，Angular需要依赖核心API的通知才能进行更新检测，这些通知包括：</p>
+<ul>
+<li>ChangeDetectorRef.markForCheck (called automatically by AsyncPipe)</li>
+<li>ComponentRef.setInput</li>
+<li>Updating a signal that’s read in a template</li>
+<li>Bound host or template listeners callbacks</li>
+<li>Attaching a view that was marked dirty by one of the above</li>
+</ul>
+<p>出了以上几种情况，Angular不会自动进行更新检测，比如<code>setTimeout</code>、<code>setInterval</code>、<code>Promise.then</code>、<code>fetch</code>等异步操作，这些操作不会触发更新检测，需要手动调用<code>ChangeDetectorRef.markForCheck</code>来通知Angular进行更新检测。</p>
+<h2 id="Use-signal-for-simple-value"><a href="#Use-signal-for-simple-value" class="headerlink" title="Use signal for simple value"></a>Use signal for simple value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line">name = <span class="title function_">signal</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">set</span>(<span class="string">&#x27;Philip&#x27;</span>)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Note that, you need to use <code>name()</code> instead of <code>name</code> in your template.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, I&#x27;m &#123;&#123;name()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-signal-for-complex-value"><a href="#Use-signal-for-complex-value" class="headerlink" title="Use signal for complex value"></a>Use signal for complex value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">title</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">user  = signal&lt;<span class="title class_">User</span> | <span class="literal">null</span>&gt;(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://jsonplaceholder.typicode.com/todos/1&#x27;</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> response.<span class="title function_">json</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span>.<span class="title function_">set</span>(res);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Note again, you need to use <code>user()</code> instead of <code>user</code> in your template.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">  user id: &#123;&#123;user()?.id&#125;&#125;</span><br><span class="line">  user name: &#123;&#123;user()?.title&#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Manually-call-cdf-markForCheck"><a href="#Manually-call-cdf-markForCheck" class="headerlink" title="Manually call cdf.markForCheck"></a>Manually call <code>cdf.markForCheck</code></h2><p>Note, <code>setTimeout</code> won’t call change detection automatically, you need to call <code>cdf.markForCheck</code> manually.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line">name = <span class="string">&#x27;zdd&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>for <code>fetch</code> api, you need to call <code>cdf.markForCheck</code> manually as well.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://jsonplaceholder.typicode.com/todos/1&#x27;</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> response.<span class="title function_">json</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span> = res;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/experimental/zoneless">https://angular.dev/guide/experimental/zoneless</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/21/javascript-currying/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -911,63 +1017,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-interview-questions-09/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/16/javascript-interview-questions-09/" class="post-title-link" itemprop="url">javascript-interview-questions-09</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-16 18:53:38" itemprop="dateCreated datePublished" datetime="2024-11-16T18:53:38+08:00">2024-11-16</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1037,14 +1086,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">216</span>
+          <span class="site-state-item-count">217</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">298</span>
+        <span class="site-state-item-count">300</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
