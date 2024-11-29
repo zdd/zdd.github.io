@@ -181,6 +181,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/09/angular-change-detection-on-push/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/09/angular-change-detection-on-push/" class="post-title-link" itemprop="url">angular-change-detection-on-push</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-06-09 08:55:36" itemprop="dateCreated datePublished" datetime="2024-06-09T08:55:36+08:00">2024-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-12 19:31:37" itemprop="dateModified" datetime="2024-06-12T19:31:37+08:00">2024-06-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In this article, we will learn how to use <code>ChangeDetectionStrategy.OnPush</code> in Angular to improve the performance of your application. By default, Angular uses <code>ChangeDetectionStrategy.Default</code>, which means that the change detection runs every time an event is triggered in the application. This can be inefficient if your application has a lot of components that don’t need to be updated every time an event is triggered. By using <code>ChangeDetectionStrategy.OnPush</code>, you can tell Angular to only run change detection on a component when its input properties change. with <code>onPush</code> strategy, Angular will only trigger change detection in the following cases:</p>
+<ul>
+<li>When component’s input property changes</li>
+<li>When an event is triggered in the component</li>
+<li>When you manually trigger change detection</li>
+</ul>
+<p>Take a look at the <code>product</code> component, it has on input property <code>name</code>, and an event handler which changes the price of the product. We have set the <code>changeDetection</code> property to <code>ChangeDetectionStrategy.OnPush</code> in the component decorator.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;changePrice(10)&quot;</span>&gt;</span>Change price<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Name: &#123;&#123;name&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Price: &#123;&#123;price&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span>, <span class="title class_">DoCheck</span>, <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">price</span>: <span class="built_in">number</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// `ngDoCheck()` will called each time change detection run</span></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;change detection triggered...&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// This will not trigger change detection</span></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">20</span>;</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// click handler, will trigger change detection.</span></span><br><span class="line">  <span class="title function_">changePrice</span>(<span class="params">price: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = price;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>When parent component change the input property <code>name</code>, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
+<li>When use click button to change the price, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
+<li><code>setTimeout</code> function will not trigger change detection in the <code>product</code> component.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/06/angular-builders/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1092,71 +1172,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/21/angular-ngc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/21/angular-ngc/" class="post-title-link" itemprop="url">angular-ngc</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-05-21 19:41:51 / Modified: 21:53:08" itemprop="dateCreated datePublished" datetime="2024-05-21T19:41:51+08:00">2024-05-21</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What-is-angular-ngc"><a href="#What-is-angular-ngc" class="headerlink" title="What is angular ngc?"></a>What is angular ngc?</h2><p>ngc stands fore Angular Compiler. It is a tool that compiles Angular applications. ngc was built on tsc(TypeScript Compiler) and extends it to support Angular.</p>
-<h2 id="Angular-compile-options"><a href="#Angular-compile-options" class="headerlink" title="Angular compile options"></a>Angular compile options</h2><p>You can see the ngc compile options in the tsconfig.json file under your Angular project root.</p>
-<p>We can see that the output directory is set to dist&#x2F;out-tsc. and there is a special section <code>angularCompilerOptions</code> used for angular.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compileOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist/out-tsc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;angularCompilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;enableI18nLegacyMessageIdFormat&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInjectionParameters&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInputAccessModifiers&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictTemplates&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-ngc-manually"><a href="#Run-ngc-manually" class="headerlink" title="Run ngc manually"></a>Run <code>ngc</code> manually</h2><p>You can run <code>ngc</code> manually by using the command <code>ngc</code> in the terminal. and then found the compiled files in the dist&#x2F;out-tsc directory.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549">https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1226,14 +1241,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">219</span>
+          <span class="site-state-item-count">220</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">305</span>
+        <span class="site-state-item-count">308</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

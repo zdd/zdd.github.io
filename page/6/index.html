@@ -181,6 +181,84 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/19/angular-troubleshooting-rootdir/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/19/angular-troubleshooting-rootdir/" class="post-title-link" itemprop="url">typescript-troubleshooting-rootDir</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-19 08:44:53 / Modified: 09:06:51" itemprop="dateCreated datePublished" datetime="2024-09-19T08:44:53+08:00">2024-09-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>今天在做一个 Angular 项目的时候，遇到了一个问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR <span class="keyword">in</span> src/app/app.module.ts:1:1 - error TS6059: File <span class="string">&#x27;xxx&#x27;</span> is not under <span class="string">&#x27;rootDir&#x27;</span> <span class="string">&#x27;yyy&#x27;</span>. <span class="string">&#x27;rootDir&#x27;</span> is expected to contain all <span class="built_in">source</span> files.</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这个错误是关于<code>rootDir</code>的，那么<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/rootDir.html"><code>rootDir</code></a>是什么呢？看一下官网的解释：</p>
+<p>Default: The longest common path of all non-declaration input files. If composite is set, the default is instead the directory containing the tsconfig.json file.</p>
+<p>When TypeScript compiles files, it keeps the same directory structure in the output directory as exists in the input directory.</p>
+<p>For example, let’s say you have some input files:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── tsconfig.json</span><br><span class="line">├── core</span><br><span class="line">│   ├── a.ts</span><br><span class="line">│   ├── b.ts</span><br><span class="line">│   ├── sub</span><br><span class="line">│   │   ├── c.ts</span><br><span class="line">├── types.d.ts</span><br></pre></td></tr></table></figure>
+
+<p>The inferred value for rootDir is the longest common path of all non-declaration input files, which in this case is core&#x2F;.</p>
+<p>If your outDir was dist, TypeScript would write this tree:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── dist</span><br><span class="line">│   ├── a.js</span><br><span class="line">│   ├── b.js</span><br><span class="line">│   ├── sub</span><br><span class="line">│   │   ├── c.js</span><br></pre></td></tr></table></figure>
+
+<p>Importantly, <strong><code>rootDir does not affect which files become part of the compilation. It has no interaction with the include, exclude, or files tsconfig.json settings.</code></strong></p>
+<p>Note that TypeScript will never write an output file to a directory outside of outDir, and will never skip emitting a file. For this reason, <code>rootDir also enforces that all files which need to be emitted are underneath the rootDir path.</code></p>
+<p>重点看这句：<code>rootDir also enforces that all files which need to be emitted are underneath the rootDir path.</code> 也就是说，所有需要被编译的文件都必须在<code>rootDir</code>的路径下，否则就会报错。</p>
+<p>For example, let’s say you had this tree: 如果我们在<code>tsconfig.json</code>中指定了<code>rootDir</code>为<code>core</code>，那么<code>helpers.ts</code>就不在<code>rootDir</code>的路径下，所以会报错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── tsconfig.json</span><br><span class="line">├── core</span><br><span class="line">│   ├── a.ts</span><br><span class="line">│   ├── b.ts</span><br><span class="line">├── helpers.ts</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nx-based-mono-repos"><a href="#Nx-based-mono-repos" class="headerlink" title="Nx based mono-repos."></a>Nx based mono-repos.</h2><p>如果是基于Nx的但一代码仓库，有时候也会出现这个错误，原因是一个Publishable的lib引用了另一个Non-Publishable的lib，这时候就会报错。详情请看<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/76500288/1487475">这里</a>, 关于Nx buildable&#x2F;publishable libraries, please see <a target="_blank" rel="noopener" href="https://nx.dev/concepts/buildable-and-publishable-libraries">here</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/18/misc-2024-09/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1001,82 +1079,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/22/error-ng8001-xxx-is-not-a-known-element/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/08/22/error-ng8001-xxx-is-not-a-known-element/" class="post-title-link" itemprop="url">[ERROR] NG8001: 'xxx' is not a known element</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-08-22 20:43:16" itemprop="dateCreated datePublished" datetime="2024-08-22T20:43:16+08:00">2024-08-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-24 16:12:25" itemprop="dateModified" datetime="2024-08-24T16:12:25+08:00">2024-08-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>This is a very common error when you are working with Angular, today, I will give a special case of this error.</p>
-<p>I have the following code in my app.</p>
-<ol>
-<li>ProductHomeModule -&gt; ProductHomeComponent</li>
-<li>ProductDetailModule -&gt; ProductDetailComponent</li>
-<li>App router contains the following routes:<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app-routing.module.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">   &#123; <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ProductHomeComponent</span> &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-When I build my app, I got the following error:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR <span class="keyword">in</span> src/app/product-home/product-home.component.html:1:1 - error NG8001: <span class="string">&#x27;app-product-detail&#x27;</span> is not a known element:</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>But If I remove the router for <code>product</code>, the error is gone, why?<br>Because, I use <code>ProductHomeComponent</code> in <code>app-routing.module.ts</code> which in turn was used in file <code>app.module.ts</code>, But, when Angular compile template for <code>ProductHomeComponent</code>, it didn’t know where to find <code>ProductDetailComponent</code>. to solve this, import <code>ProductHomeModule</code> in <code>app.module.ts</code> like this:</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">imports</span>: [</span><br><span class="line">   <span class="title class_">ProductHomeModule</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-<p>Then the error is gone. Because, ProductHomeModule has imports <code>ProductDetailModule</code>, so Angular knows where to find <code>ProductDetailComponent</code>.</p>
-<p>Conclusion:<br>If you wan to use a component from another module, you need to import the module which contains the component in the module where you use the component. You may use the component by selector in templates or in the router, both need to import the module which contains the component.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1146,14 +1148,14 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">219</span>
+          <span class="site-state-item-count">220</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">305</span>
+        <span class="site-state-item-count">308</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
