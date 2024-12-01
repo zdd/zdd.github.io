@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="IntroductionAngular里面的Injector是分层级的，主要有以下两个层级：  EnvironmentInjector ElementInjector  EnvironmentInjectorEnvironmentInjector层级是通过以下几种方式创建：  @Injectable(&amp;#123; providedIn: &#39;xxx&#39; &amp;#125;) - xxx 可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angular-di-hierarchical-injectors">
+<meta property="og:url" content="http://example.com/2024/12/01/angular-di-hierarchical-injectors/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="IntroductionAngular里面的Injector是分层级的，主要有以下两个层级：  EnvironmentInjector ElementInjector  EnvironmentInjectorEnvironmentInjector层级是通过以下几种方式创建：  @Injectable(&amp;#123; providedIn: &#39;xxx&#39; &amp;#125;) - xxx 可以">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/angular-injector-null_injector.png">
+<meta property="article:published_time" content="2024-12-01T06:01:35.000Z">
+<meta property="article:modified_time" content="2024-12-01T12:01:53.820Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="angular">
+<meta property="article:tag" content="injector">
+<meta property="article:tag" content="hierarchical">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/angular-injector-null_injector.png">
+
+<link rel="canonical" href="http://example.com/2024/12/01/angular-di-hierarchical-injectors/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>angular-di-hierarchical-injectors | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/01/angular-di-hierarchical-injectors/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          angular-di-hierarchical-injectors
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-01 14:01:35 / Modified: 20:01:53" itemprop="dateCreated datePublished" datetime="2024-12-01T14:01:35+08:00">2024-12-01</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular里面的Injector是分层级的，主要有以下两个层级：</p>
+<ul>
+<li>EnvironmentInjector</li>
+<li>ElementInjector</li>
+</ul>
+<h2 id="EnvironmentInjector"><a href="#EnvironmentInjector" class="headerlink" title="EnvironmentInjector"></a>EnvironmentInjector</h2><p>EnvironmentInjector层级是通过以下几种方式创建：</p>
+<ol>
+<li><code>@Injectable(&#123; providedIn: &#39;xxx&#39; &#125;)</code> - xxx 可以是 <code>root</code>, <code>platform</code>.</li>
+<li><code>providers</code> array in <code>ApplicationConfig</code></li>
+</ol>
+<h2 id="ElementInjector"><a href="#ElementInjector" class="headerlink" title="ElementInjector"></a>ElementInjector</h2><p>ElementInjector是创建在每个Dom元素上的，初始时是空的，当我们在<code>@Directive</code>或者<code>@Component</code>中声明了一个provider时，Angular会在ElementInjector中创建一个实例。</p>
+<h2 id="ModuleInjector"><a href="#ModuleInjector" class="headerlink" title="ModuleInjector"></a>ModuleInjector</h2><p>在基于模块的应用中，每个模块都有一个ModuleInjector，ModuleInjector可以通过如下方式配置：</p>
+<ol>
+<li><code>Injectable(&#123; providedIn: &#39;xxx&#39; &#125;)</code> - xxx 可以是 <code>platform</code>, <code>root</code>.</li>
+<li><code>providers</code> array in <code>@NgModule</code></li>
+</ol>
+<h2 id="PlatformInjector"><a href="#PlatformInjector" class="headerlink" title="PlatformInjector"></a>PlatformInjector</h2><p>在<code>root</code>Injector之上，还有两个Injector，分别是：</p>
+<ol>
+<li>一个额外的EnvironmentInjector.</li>
+<li>NullInjector.</li>
+</ol>
+<p>看一下Angular的启动代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig);</span><br></pre></td></tr></table></figure>
+<p>当执行上述代码是，Angular首先创建一个Platform Injector(也是Environment Injector)，然后创建一个Platform Injector的child Injector，也就是root Environment Injector。而在Platform Injector之上，还有一个额外的NullInjector。</p>
+<p>所以<code>NullInjector</code>是整个Injector链条的顶端，我们在查找一个依赖时，会顺着这个链条向上查找，如果到了<code>NullInjector</code>还没找到，则会抛出异常。相信很多同学都遇到过下面的错误吧，仔细看报错信息第一行，就是<code>NullInjector</code>!<br><img src="/../images/angular-injector-null_injector.png" alt="NullInjector"></p>
+<h2 id="ElementInjector-1"><a href="#ElementInjector-1" class="headerlink" title="ElementInjector"></a>ElementInjector</h2><p>Angular会为每个Dom元素隐式创建一个ElementInjector，当我们在<code>@Directive</code>或者<code>@Component</code>中声明了一个<code>provider</code>或者<code>viewProvider</code>时，Angular会在ElementInjector中创建一个实例。</p>
+<h2 id="依赖解决规则（查找规则）"><a href="#依赖解决规则（查找规则）" class="headerlink" title="依赖解决规则（查找规则）"></a>依赖解决规则（查找规则）</h2><p>当Angular为一个Component或者Directive查找依赖时，遵循如下规则：</p>
+<ol>
+<li>先查找Component或者Directive自身的ElementInjector，如果找到则返回。否则进入下一步。</li>
+<li>查找Component或者Directive的Parents的ElementInjector，再查找Parents的Parents的ElementInjector，一直如此直到找到，否则进入下一步。</li>
+<li>查找Component或Directive的EnvironmentInjector层级，此过程同ElementInjector，一直向上查找，如果找到则返回，否则报错。</li>
+</ol>
+<p>此处应该加入一张图。</p>
+<h2 id="依赖解决修饰符"><a href="#依赖解决修饰符" class="headerlink" title="依赖解决修饰符"></a>依赖解决修饰符</h2><p>上面介绍的依赖解决规则，可以用以下修饰符来改变，你可以从<code>@angular/core</code>中引入这些修饰符：</p>
+<ol>
+<li><code>@Optional</code> - 如果找不到依赖，不会报错，而是返回<code>null</code>。</li>
+<li><code>@Self</code> - 只在当前ElementInjector中查找依赖，不会向上查找。</li>
+<li><code>@SkipSelf</code> - 跳过当前ElementInjector，向上查找。</li>
+<li><code>@Host</code> - 只在当前Component的Host ElementInjector中查找依赖。</li>
+</ol>
+<p>这些修饰符可以分为三类：</p>
+<ol>
+<li>What to do if Angular doesn’t find what you’re looking for, this is <code>@Optional()</code></li>
+<li>Where to start looking, that is <code>@SkipSelf</code>.</li>
+<li>Where to stop looking, <code>@Host</code> and <code>@Self</code>.</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular/" rel="tag"># angular</a>
+              <a href="/tags/injector/" rel="tag"># injector</a>
+              <a href="/tags/hierarchical/" rel="tag"># hierarchical</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/11/30/rxjs-observable/" rel="prev" title="RxJS-observable">
+      <i class="fa fa-chevron-left"></i> RxJS-observable
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/12/01/angular-view-provider/" rel="next" title="angular-view-provider">
+      angular-view-provider <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#EnvironmentInjector"><span class="nav-number">1.1.</span> <span class="nav-text">EnvironmentInjector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElementInjector"><span class="nav-number">1.2.</span> <span class="nav-text">ElementInjector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ModuleInjector"><span class="nav-number">1.3.</span> <span class="nav-text">ModuleInjector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PlatformInjector"><span class="nav-number">1.4.</span> <span class="nav-text">PlatformInjector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ElementInjector-1"><span class="nav-number">1.5.</span> <span class="nav-text">ElementInjector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E8%A7%A3%E5%86%B3%E8%A7%84%E5%88%99%EF%BC%88%E6%9F%A5%E6%89%BE%E8%A7%84%E5%88%99%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">依赖解决规则（查找规则）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E8%A7%A3%E5%86%B3%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">1.7.</span> <span class="nav-text">依赖解决修饰符</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">227</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">321</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
