@@ -181,6 +181,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-directive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/03/angular-directive/" class="post-title-link" itemprop="url">angular-directive</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-03 21:25:16 / Modified: 22:04:18" itemprop="dateCreated datePublished" datetime="2024-12-03T21:25:16+08:00">2024-12-03</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Directive是Angular中最基础的概念，就连我们天天使用的component也是Directive的一种，Angular中有如下几种Directive：</p>
+<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>这个就不做过多介绍了，大家直接看官方文档吧：<a target="_blank" rel="noopener" href="https://angular.dev/guide/components">https://angular.dev/guide/components</a></p>
+<h2 id="Attribute-Directives"><a href="#Attribute-Directives" class="headerlink" title="Attribute Directives"></a>Attribute Directives</h2><h3 id="NgClass"><a href="#NgClass" class="headerlink" title="NgClass"></a>NgClass</h3><h3 id="NgStyle"><a href="#NgStyle" class="headerlink" title="NgStyle"></a>NgStyle</h3><h3 id="NgModel"><a href="#NgModel" class="headerlink" title="NgModel"></a>NgModel</h3><h2 id="Structural-Directives"><a href="#Structural-Directives" class="headerlink" title="Structural Directives"></a>Structural Directives</h2><h3 id="NgIf"><a href="#NgIf" class="headerlink" title="NgIf"></a>NgIf</h3><h3 id="NgFor"><a href="#NgFor" class="headerlink" title="NgFor"></a>NgFor</h3><h3 id="NgSwitch"><a href="#NgSwitch" class="headerlink" title="NgSwitch"></a>NgSwitch</h3><h2 id="Customize-Directives"><a href="#Customize-Directives" class="headerlink" title="Customize Directives"></a>Customize Directives</h2><p>如果内置的Directive不能满足我们的需求，我们可以自定义Directive，下面我们自定义一个Directive来实现一个简单Hover变色功能，当鼠标移动到元素上时，元素背景色变为红色，移出时恢复原色。</p>
+<h3 id="Create-a-directive"><a href="#Create-a-directive" class="headerlink" title="Create a directive"></a>Create a directive</h3><p>以下命令会创建文件<code>src/app/hover.directive.ts</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g d hover</span><br></pre></td></tr></table></figure>
+
+<h3 id="Implement-the-directive"><a href="#Implement-the-directive" class="headerlink" title="Implement the directive"></a>Implement the directive</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">color: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = color;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单解释一下上述代码：</p>
+<ol>
+<li>selector: <code>appHover</code>，这个是Directive的名字，我们在HTML中使用这个名字来引用这个Directive。</li>
+<li>constructor中注入了<code>ElementRef</code>，这个是Angular提供的一个服务，用来获取当前元素的引用。这里的当前元素就是使用了这个Directive的元素。</li>
+<li>两个HostListener分别监听<code>mouseenter</code>和<code>mouseleave</code>事件，当鼠标移入时，设置背景色为红色，移出时恢复原色。</li>
+</ol>
+<h3 id="Use-the-directive"><a href="#Use-the-directive" class="headerlink" title="Use the directive"></a>Use the directive</h3><p>首先，在需要使用这个指令的组件或者模块中的<code>imports</code>数组中导入这个Directive。<br>然后，在需要使用这个Directive的元素上加上<code>appHover</code>属性即可。此时，当鼠标移入时，该段落的背景色会变为红色，移出时恢复原色。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个自定义指令非常简单，虽然现在可以工作，但是有一个缺点，就是颜色的变化是固定的，如果我想让用户自定义Hover时的颜色，该怎么办呢？这就涉及到如何给自定义指令传递参数了。</p>
+<p>我们修改一下实现，将颜色作为参数传递给Directive。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Add an input property to the directive</span></span><br><span class="line"><span class="meta">@Input</span>(<span class="string">&#x27;appHover&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// use this.hoverColor in setHoverColor method</span></span><br><span class="line"><span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们可以在HTML中传递颜色参数了。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>=<span class="string">&quot;green&quot;</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子只有一个参数，所以我们在定义<code>@Input</code>的时候，直接把参数定义到了Directive的selector上，如果有多个参数，这种方法就不好使了，为了说明问题，我们再加一个参数，字体颜色，就是当鼠标Hover时，同时改变字体颜色和背景色。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverBackgroundColor&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverFontColor&#x27;</span>) <span class="attr">hoverFontColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverFontColor</span> || <span class="string">&#x27;black&#x27;</span>, <span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;black&#x27;</span>, <span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">fontColor: <span class="built_in">string</span>, backgroundColor: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">color</span> = fontColor;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = backgroundColor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用时：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span> <span class="attr">hoverFontColor</span>=<span class="string">&quot;red&quot;</span> <span class="attr">hoverBackgroundColor</span>=<span class="string">&quot;yellow&quot;</span>&gt;</span>This is a paragraph<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-interview-questions/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -206,7 +291,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-12-03 11:25:50 / Modified: 16:48:29" itemprop="dateCreated datePublished" datetime="2024-12-03T11:25:50+08:00">2024-12-03</time>
+              <time title="Created: 2024-12-03 11:25:50 / Modified: 21:05:50" itemprop="dateCreated datePublished" datetime="2024-12-03T11:25:50+08:00">2024-12-03</time>
             </span>
 
           
@@ -223,7 +308,11 @@
           <h1 id="Angular-Interview-Questions"><a href="#Angular-Interview-Questions" class="headerlink" title="Angular Interview Questions"></a>Angular Interview Questions</h1><p>总结一些Angular的面试题，希望对大家有所帮助。</p>
 <ol>
 <li>简单描述Angular框架的特点，可以对比其他框架，比如React、Vue等。</li>
-<li>Angular的生命周期钩子有哪些，分别在什么时候调用？</li>
+<li>Angular的生命周期钩子有哪些，分别在什么时候调用？<ol>
+<li>如果加上子组件，生命周期钩子的调用顺序是怎样的？</li>
+<li>如果加上孙子组件，生命周期钩子的调用顺序是怎样的？</li>
+</ol>
+</li>
 <li>Angular数据绑定方式有哪些？<ol>
 <li><code>&#123;&#123;&#125;&#125;</code> - 插值表达式</li>
 <li><code>[]</code> - 属性绑定</li>
@@ -896,69 +985,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/29/rxjs-use-case/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/29/rxjs-use-case/" class="post-title-link" itemprop="url">rxjs-use-case</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-29 22:21:02 / Modified: 22:27:19" itemprop="dateCreated datePublished" datetime="2024-11-29T22:21:02+08:00">2024-11-29</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="RxJS-Use-Case"><a href="#RxJS-Use-Case" class="headerlink" title="RxJS Use Case"></a>RxJS Use Case</h1><h2 id="设置最大并发请求数"><a href="#设置最大并发请求数" class="headerlink" title="设置最大并发请求数"></a>设置最大并发请求数</h2><p><code>mergeMap</code> with <code>concurrency</code>参数可以设置最大并发请求数，下面的例子展示了如何设置最大并发请求数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, mergeMap, <span class="keyword">of</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="title function_">interval</span>(<span class="number">1000</span>);</span><br><span class="line">source.<span class="title function_">pipe</span>(<span class="title function_">mergeMap</span>(<span class="function">() =&gt;</span> <span class="title function_">of</span>(<span class="string">&#x27;request&#x27;</span>), <span class="number">2</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="避免重复请求"><a href="#避免重复请求" class="headerlink" title="避免重复请求"></a>避免重复请求</h2><p>使用<code>switchMap</code>可以避免重复请求，下面的例子展示了如何避免重复请求。</p>
-<h2 id="忽略某个值"><a href="#忽略某个值" class="headerlink" title="忽略某个值"></a>忽略某个值</h2><p>使用<code>skip</code>， 以下代码忽略了<code>interval</code>的前两个值，然后取3个值。所以忽略0和1，取2, 3, 4。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, skip, take &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">pipe</span>(<span class="title function_">skip</span>(<span class="number">2</span>), <span class="title function_">take</span>(<span class="number">3</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 2, 3, 4</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1028,7 +1054,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">229</span>
+          <span class="site-state-item-count">230</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
