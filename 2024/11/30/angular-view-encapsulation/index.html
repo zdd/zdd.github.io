@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/images/angular-view-encapsulation-emulated.png">
 <meta property="og:image" content="http://example.com/images/angular-view-encapsulation-emulated-css.png">
 <meta property="article:published_time" content="2024-11-30T08:28:34.000Z">
-<meta property="article:modified_time" content="2024-11-30T11:13:01.368Z">
+<meta property="article:modified_time" content="2024-12-03T02:40:23.133Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="view">
@@ -215,10 +215,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-11-30 16:28:34 / Modified: 19:13:01" itemprop="dateCreated datePublished" datetime="2024-11-30T16:28:34+08:00">2024-11-30</time>
+              <time title="Created: 2024-11-30 16:28:34" itemprop="dateCreated datePublished" datetime="2024-11-30T16:28:34+08:00">2024-11-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-03 10:40:23" itemprop="dateModified" datetime="2024-12-03T10:40:23+08:00">2024-12-03</time>
+              </span>
 
           
 
@@ -237,8 +243,8 @@
 <li>ViewEncapsulation.ShadowDom</li>
 <li>ViewEncapsulation.None</li>
 </ul>
-<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在@Component中显式指定encapsulation的话，那么使用的就是该方式。<br>这种封装方式是模拟Shadow DOM的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
-<p>该模式生成的样式最终会插入到<code>head</code>标签中。</p>
+<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在@Component中显式指定encapsulation的话，那么使用的就是该方式。在该方式下，Angular会为组件生成一个随机字符串做为组件元素的属性，然后将样式应用到这个属性上。<br>这种封装方式是模拟Shadow DOM的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>该模式生成的样式最终会插入到html文件的<code>head</code>标签中。（可以运行Angular app，然后鼠标右键-inspect查看对应的html文件代码）</p>
 <p>Take the following component as an example, the styles defined in <code>product-home.component.scss</code> will only affect the <code>ProductHomeComponent</code> view.</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>You can see the generated HTML by inspecting the element in the browser, notice that the <code>app-product-home</code> element has a unique attribute <code>_nghost-ng-c3352351300</code>:</p>
@@ -249,11 +255,11 @@
 <p>那么生成的HTML如下：<br><img src="/../images/angular-view-encapsulation-emulated.png" alt="emulated"></p>
 <p>可以看到，Angular为生成的Dom节点都添加了额外的属性，这些属性大概分为两类：</p>
 <ul>
-<li><code>_nghost-xxxx</code> - 用来标记组件的host element，比如下图中第一个红框内</li>
-<li><code>_ngcontent-xxxx</code> - 用来标记组件的子元素，比如下图中<code>app-product-home</code>内的<code>p</code>元素，它就是一个纯内容，所以标记是<code>_ngcontent-xxxx</code>。</li>
-<li>有些元素既是host element，又是子元素，比如下图的第二个红框。因为<code>ProductDetailComponent</code>既是<code>ProductHomeComponent</code>的子元素，而它本身又是一个组件。所以它同时拥有两个属性。</li>
+<li><code>_nghost-xxxx</code> - 用来标记组件的host element，比如上图中第一个红框内</li>
+<li><code>_ngcontent-xxxx</code> - 用来标记组件的子元素，比如上图中<code>app-product-home</code>内的<code>p</code>元素，它就是一个纯内容，所以标记是<code>_ngcontent-xxxx</code>。</li>
+<li>有些元素既是host, 又是content，比如上图的第二个红框。因为<code>ProductDetailComponent</code>既是<code>ProductHomeComponent</code>的子元素，而它本身又是一个组件。所以它同时拥有<code>_nghost-xxxx</code>和<code>_ngcontent-xxxx</code>两个属性。</li>
 </ul>
-<p>如果我们给上面的<code>p</code>标签添加一个背景色的话，那么观察生成后的css样式，你会发现，样式文件里面也添加了额外的属性，这个属性就是添加到html元素上的属性。这样就确保了样式的唯一性。</p>
+<p>如果我们给上面的<code>p</code>标签添加一个背景色的话，那么观察生成后的css样式，你会发现，样式文件里面也添加了额外的属性，这样就确保了样式的唯一性。</p>
 <p>观察下图中左侧<code>p</code>标签的属性，和右侧css文件中<code>product-container</code>的属性，可以看到他们是一一对应的。<br><img src="/../images/angular-view-encapsulation-emulated-css.png" alt="emulated-css"></p>
 <h2 id="ShadowDom"><a href="#ShadowDom" class="headerlink" title="ShadowDom"></a>ShadowDom</h2><p>这种方式使用浏览器内置的Shadow DOM API来封装组件的样式，该模式下，组件被放到一个ShadowRoot之下，这个Shadow Root相当于组件的host element, 这意味着组件的样式不会影响应用程序的其他部分。</p>
 <p>该模式生成的样式会直接放到<code>shadow-root</code>中。</p>
@@ -263,7 +269,7 @@
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  #shadow-root (open)</span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="None"><a href="#None" class="headerlink" title="None"></a>None</h2><p>这种模式不进行任何封装，相当于裸奔，其效果等于直接在html中引入样式文件。这种模式谨慎使用，因为会有样式污染。</p>
-<p>该模式生成的样式会直接放到<code>head</code>中。</p>
+<p>该模式生成的样式会直接放到html文件的<code>head</code>中。</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">None</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>The generated HTML will not have any unique attributes or shadow root:</p>
@@ -375,14 +381,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">227</span>
+          <span class="site-state-item-count">229</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">321</span>
+        <span class="site-state-item-count">324</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
