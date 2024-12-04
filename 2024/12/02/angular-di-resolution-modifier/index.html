@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular: @Optional@Self@Host@SkipSelf">
+  <meta name="description" content="In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular: 先来给这几个操作符分个类：  @SkipSelf - 何时开始查找。 @Self, @Hos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="angular-di-resolution-modifier">
 <meta property="og:url" content="http://example.com/2024/12/02/angular-di-resolution-modifier/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular: @Optional@Self@Host@SkipSelf">
+<meta property="og:description" content="In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular: 先来给这几个操作符分个类：  @SkipSelf - 何时开始查找。 @Self, @Hos">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-02T12:54:05.000Z">
-<meta property="article:modified_time" content="2024-12-02T12:55:12.846Z">
+<meta property="article:modified_time" content="2024-12-04T11:39:33.076Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="di">
@@ -212,10 +212,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-12-02 20:54:05 / Modified: 20:55:12" itemprop="dateCreated datePublished" datetime="2024-12-02T20:54:05+08:00">2024-12-02</time>
+              <time title="Created: 2024-12-02 20:54:05" itemprop="dateCreated datePublished" datetime="2024-12-02T20:54:05+08:00">2024-12-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-04 19:39:33" itemprop="dateModified" datetime="2024-12-04T19:39:33+08:00">2024-12-04</time>
+              </span>
 
           
 
@@ -229,7 +235,67 @@
 
       
         <p>In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular:</p>
-<h2 id="Optional"><a href="#Optional" class="headerlink" title="@Optional"></a>@Optional</h2><h2 id="Self"><a href="#Self" class="headerlink" title="@Self"></a>@Self</h2><h2 id="Host"><a href="#Host" class="headerlink" title="@Host"></a>@Host</h2><h2 id="SkipSelf"><a href="#SkipSelf" class="headerlink" title="@SkipSelf"></a>@SkipSelf</h2>
+<p>先来给这几个操作符分个类：</p>
+<ol>
+<li><code>@SkipSelf</code> - 何时开始查找。</li>
+<li><code>@Self</code>, <code>@Host</code> - 何时停止查找。</li>
+<li><code>@Optional</code> - 找不到时怎么办。</li>
+</ol>
+<h2 id="Optional"><a href="#Optional" class="headerlink" title="@Optional"></a>@Optional</h2><p>这个是最简单了修饰符了，它告诉Angular依赖注入器，如果找不到依赖项，不要抛出错误，而是返回<code>null</code>。</p>
+<p>大家都见过下面这个错误吧，当Angular找不到某个依赖时，就会抛出这个错误：（注意：这种错误一般发生在某个Service没有提供<code>&#123;providedIn: &#39;root&#39;&#125;</code>，而且该Service的使用者也没有在<code>providers</code>数组中提供该Service时。）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ERROR NullInjectorError: R3InjectorError(Environment Injector)[_OrderService -&gt; _OrderService]: </span><br><span class="line">  NullInjectorError: No provider <span class="keyword">for</span> _OrderService!</span><br><span class="line">    at NullInjector.get (core.mjs:1635:21)</span><br><span class="line">    at R3Injector.get (core.mjs:3017:27)</span><br><span class="line">    at R3Injector.get (core.mjs:3017:27)</span><br><span class="line">    at ChainedInjector.get (core.mjs:5288:32)</span><br><span class="line">    at lookupTokenUsingModuleInjector (core.mjs:5631:31)</span><br><span class="line">    at getOrCreateInjectable (core.mjs:5677:10)</span><br><span class="line">    at Module.ɵɵdirectiveInject (core.mjs:11586:17)</span><br><span class="line">    at NodeInjectorFactory.ProductComponent_Factory [as factory] (product.component.ts:21:30)</span><br><span class="line">    at getNodeInjectable (core.mjs:5871:38)</span><br><span class="line">    at createRootComponent (core.mjs:16405:31)</span><br></pre></td></tr></table></figure>
+<p>如果我们在依赖注入的时候加上<code>@Optional()</code>修饰符，那么Angular就不会抛出错误，而是返回<code>null</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：上面这种写法，在使用<code>orderService</code>时，需要判断是否为<code>null</code>，否则仍然会抛出<code>Cannot read properties of null (reading &#39;fetchData&#39;)</code>的错误。</p>
+<p>像下面这样加上Optional Chaining Operator，就不会抛出错误了：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>?.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Self"><a href="#Self" class="headerlink" title="@Self"></a>@Self</h2><p><code>@Self</code>也比较简单，就是告诉Angular只在当前Component或者Directive中搜索某个依赖项，而不会去父级Component或者Directive中搜索。假设有OrderService，且是<code>providedIn: &#39;root&#39;</code>的。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;<span class="attr">providedIn</span>: <span class="string">&quot;root&quot;</span>&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们在注入该Service时，加上<code>@Self()</code>修饰符，那么Angular只会在当前Component或者Directive中搜索该Service，但是当前Component或者Directive中没有提供该Service时，所以就会抛出错误。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意观察这个错误和上面错误的区别，这个错误的顶端不在是<code>NullInjector</code>了，因为我们只在当前Component中查找，所以永远不会到达<code>NullInjector</code>这一步。而<code>NodeInjector</code>是当前Component的Injector。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:7191 ERROR RuntimeError: NG0201: No provider <span class="keyword">for</span> _OrderService found <span class="keyword">in</span> NodeInjector. Find more at https://angular.dev/errors/NG0201</span><br><span class="line">    at throwProviderNotFoundError (core.mjs:986:9)</span><br><span class="line">    at notFoundValueOrThrow (core.mjs:5606:5)</span><br><span class="line">    at lookupTokenUsingModuleInjector (core.mjs:5639:10)</span><br><span class="line">    at getOrCreateInjectable (core.mjs:5677:10)</span><br><span class="line">    at Module.ɵɵdirectiveInject (core.mjs:11586:17)</span><br><span class="line">    at NodeInjectorFactory.ProductComponent_Factory [as factory] (product.component.ts:21:30)</span><br><span class="line">    at getNodeInjectable (core.mjs:5871:38)</span><br><span class="line">    at createRootComponent (core.mjs:16405:31)</span><br><span class="line">    at ComponentFactory.create (core.mjs:16262:21)</span><br><span class="line">    at ViewContainerRef2.createComponent (core.mjs:16662:43)</span><br></pre></td></tr></table></figure>
+
+<p><code>@Self</code>和<code>@Optional</code>是可以配合使用的，为了修复上面的错误，我们可以这样写，这样就不会报错了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>?.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，<code>@Self</code>修饰符的使用场景到底是啥？请继续往下看。</p>
+<h3 id="Multiple-Directives-in-same-Dom-elements"><a href="#Multiple-Directives-in-same-Dom-elements" class="headerlink" title="Multiple Directives in same Dom elements"></a>Multiple Directives in same Dom elements</h3><p>如果一个DOM元素上应用了多个Directive, 那么当第一个Directive提供了某个Service时，后面的Directive就可以通过<code>@Self</code>来获取这个Service。</p>
+<p>下面的代码，假设dir1对应Directive1，dir2对应Directive2，如果Directive1中的providers数组提供了某个Service，那么Directive2中constructor可以使用<code>@Self</code>来获取Service。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">dir1</span> <span class="attr">dir2</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Directive1中提供了OrderService</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive1</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir1]&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir1Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Directive2中使用<code>@Self</code>来获取OrderService。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive2</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir2]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir2Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么这样可以呢？因为<code>dir1</code>和<code>dir2</code>位于同一个dom元素-<code>p</code>标签上，Angular会为这个p标签创建一个Injector，<code>dir1</code>和<code>dir2</code>会share这个Injector，所以<code>dir2</code>可以通过<code>@Self</code>来获取dir1中提供的OrderService。</p>
+<h2 id="Host"><a href="#Host" class="headerlink" title="@Host"></a>@Host</h2><p><code>@Host</code>修饰符告诉Angular依赖注入器，只在当前Component或者Host元素中搜索某个依赖项。</p>
+<ul>
+<li>当不使用<code>ng-content</code>时，Host就是注入依赖的Component。</li>
+<li>当使用<code>ng-content</code>时，Host就是投射内容的Component。see <a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">here</a> for details.</li>
+</ul>
+<p>@Host的作用体现在使用<code>ng-content</code>进行内容投射的时候。下面的例子中，我们有一个ProductComponent，它的模板中有<code>ng-content</code>，我们将ProductDetailComponent投射到ProductComponent中。- 此时，ProductComponent就是ProductDetailComponent的Host。</p>
+<p>然后我们在ProductDetailComponent中使用<code>@Host</code>来获取OrderService，并在ProductComponent中提供OrderService。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;header&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-content</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;footer&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>AppComponent</code>的模板中使用<code>ProductComponent</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--app.component.html--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这时，<code>app-product</code>就是<code>app-product-detail</code>的<code>Host</code>，如果我们在<code>ProductDetailComponent</code>中使用<code>@Host</code>来获取<code>OrderService</code>，那么Angular会首先在<code>ProductDetailComponent</code>中查找，结果没找到，然后再去<code>ProductComponent</code>中查找OrderService，结果找到了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Host</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br></pre></td></tr></table></figure>
+
+<h2 id="SkipSelf"><a href="#SkipSelf" class="headerlink" title="@SkipSelf"></a>@SkipSelf</h2><p><code>@SkipSelf</code>就是查找依赖时不在当前Component或者Directive中查找，而是跳过当前Component或者Directive，去父级Component或者Directive中查找。</p>
+<p>所以，<code>@SkipSelf</code>修饰符的使用场景到底是啥？</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host</a> - 关于Host的定义，可以看这里。</li>
+</ol>
+
     </div>
 
     
@@ -317,7 +383,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Optional"><span class="nav-number">1.</span> <span class="nav-text">@Optional</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Self"><span class="nav-number">2.</span> <span class="nav-text">@Self</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Host"><span class="nav-number">3.</span> <span class="nav-text">@Host</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SkipSelf"><span class="nav-number">4.</span> <span class="nav-text">@SkipSelf</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Optional"><span class="nav-number">1.</span> <span class="nav-text">@Optional</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Self"><span class="nav-number">2.</span> <span class="nav-text">@Self</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Multiple-Directives-in-same-Dom-elements"><span class="nav-number">2.1.</span> <span class="nav-text">Multiple Directives in same Dom elements</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Host"><span class="nav-number">3.</span> <span class="nav-text">@Host</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SkipSelf"><span class="nav-number">4.</span> <span class="nav-text">@SkipSelf</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number"></span> <span class="nav-text">References:</span></a></div>
       </div>
       <!--/noindex-->
 
