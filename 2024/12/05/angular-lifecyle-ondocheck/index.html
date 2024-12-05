@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="IntroductionngDoCheck runs before every time Angular checks a component’s template for changes.  常见的误解很多人误以为，只要这个函数调用了，那么就证明Angular对当前组件进行了变更检测，这是一个常见的误解。注意看这个函数的定义：它是在每次Angular检查组件的模板变化之前运行的。所以不能以这个函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angular-lifecyle-ondocheck">
+<meta property="og:url" content="http://example.com/2024/12/05/angular-lifecyle-ondocheck/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="IntroductionngDoCheck runs before every time Angular checks a component’s template for changes.  常见的误解很多人误以为，只要这个函数调用了，那么就证明Angular对当前组件进行了变更检测，这是一个常见的误解。注意看这个函数的定义：它是在每次Angular检查组件的模板变化之前运行的。所以不能以这个函">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-05T02:38:13.000Z">
+<meta property="article:modified_time" content="2024-12-05T12:06:32.544Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="angular">
+<meta property="article:tag" content="lifecycle">
+<meta property="article:tag" content="ngdocheck">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/12/05/angular-lifecyle-ondocheck/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>angular-lifecyle-ondocheck | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/05/angular-lifecyle-ondocheck/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          angular-lifecyle-ondocheck
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-05 10:38:13 / Modified: 20:06:32" itemprop="dateCreated datePublished" datetime="2024-12-05T10:38:13+08:00">2024-12-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngDoCheck</code> runs before every time Angular checks a component’s template for changes. </p>
+<h2 id="常见的误解"><a href="#常见的误解" class="headerlink" title="常见的误解"></a>常见的误解</h2><p>很多人误以为，只要这个函数调用了，那么就证明Angular对当前组件进行了变更检测，这是一个常见的误解。注意看这个函数的<a target="_blank" rel="noopener" href="https://angular.dev/guide/components/lifecycle#ngdocheck">定义</a>：它是在每次Angular检查组件的模板变化之前运行的。所以不能以这个函数的调用作为Angular进行了变更检测的依据。</p>
+<p>我们来看一个实际的例子：</p>
+<ol>
+<li>一个父组件ParentComponent, 采用<code>ChangeDetectionStrategyDefault</code>模式</li>
+<li>一个子组件ChildComponent，采用<code>ChangeDetectionStrategy.OnPush</code>模式</li>
+<li>当父组件处理点击事件时，子组件的<code>ngDoCheck</code>函数会被调用吗？</li>
+<li>再添加一个孙子组件GrandChildComponent，采用<code>ChangeDetectionStrategy.OnPush</code>模式，当父组件处理点击事件时，孙子组件的<code>ngDoCheck</code>函数会被调用吗？</li>
+</ol>
+<p>ParentComponent采用默认的<code>ChangeDetectionStrategyDefault</code>模式，并且添加了一个按钮，当我们点击这个按钮时，Angular会触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-parent&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">ChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;parent works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;app-child /&gt;</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;onParentButtonClick()&quot;&gt;Parent&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./parent.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ParentComponent</span> &#123;</span><br><span class="line">  <span class="title function_">onParentButtonClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`click in ParentComponent`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ChildComponent采用<code>ChangeDetectionStrategy.OnPush</code>模式，只有当Input属性发生变化时，或者响应自身事件，或者手动触发了变更检测时，<code>ngDoCheck</code>函数才会被调用。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">GrandChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;child works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;app-grand-child /&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./child.component.scss&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">DoCheck</span> &#123;</span><br><span class="line">  <span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`ngDoCheck in ChildComponent`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>GrandChildComponent同样采用了<code>ChangeDetectionStrategy.OnPush</code>模式。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// grand-child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-grand-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`&lt;p&gt;grand-child works!&lt;/p&gt;`</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./grand-child.component.scss&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">GrandChildComponent</span> <span class="keyword">implements</span> <span class="title class_">DoCheck</span> &#123;</span><br><span class="line">    <span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`ngDoCheck in GrandChildComponent`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当我们点击Parent按钮时，控制台输出包含如下一行，说明ChildComponent的<code>ngDoCheck</code>函数被调用了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ngDoCheck in ChildComponent</span><br></pre></td></tr></table></figure>
+
+<p>可是我们明明指定了<code>ChangeDetectionStrategy.OnPush</code>模式，为什么会调用<code>ngDoCheck</code>函数呢？难道<code>OnPush</code>模式失效了吗？</p>
+<p>其实不然，正如前面所说的，<code>ngDoCheck</code>函数是在每次Angular检查组件的模板变化之前运行的。所以，即使<code>ChildComponent</code>采用了<code>ChangeDetectionStrategy.OnPush</code>模式，<code>ngDoCheck</code>也被调用了，但是这并不意味着Angular对ChildComponent进行了变更检测。</p>
+<p>这种情况只发生在<code>OnPush</code>根组件上，上面的<code>GrandChildComponent</code>并没有被调用，因为它是ChildComponent的子组件，所以它的<code>ngDoCheck</code>不会调用。</p>
+<p>有此类行为的生命周期函数还有<code>ngAfterViewChecked</code>，无论Angular是否进行了变更检测，这个函数都会被调用。</p>
+<h2 id="如何确定Angular是否进行了变更检测？"><a href="#如何确定Angular是否进行了变更检测？" class="headerlink" title="如何确定Angular是否进行了变更检测？"></a>如何确定Angular是否进行了变更检测？</h2><p>对于一个组件来说，我如何确定Angular是否对它进行了变更检测呢？这个问题，其实困扰了我很久，因为我一直以为<code>ngDoCheck</code>函数的调用就是Angular进行了变更检测的标志，由上面的结论可知，这是不准确的。而其他生命周期函数也无法准确的告诉我们Angular是否进行了变更检测。</p>
+<p>真的没办法了吗？</p>
+<p>有的！其实之所以有这个困惑，还是对Angular变更检测理解不够深入，Angular的变更检测到底做了什么？其中必然有一个步骤是对template进行检查，如果template发生了变化，那么Angular就会更新视图。所以，我们可以通过template是否发生变化来判断Angular是否进行了变更检测。</p>
+<p>代码很简单，只要在ChildComponent的模板中插入一个随机值即可，如果Angular进行了变更检测，那么每次这个值都会变化。如果这个值没有变，那么Angular就没有进行变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">GrandChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;child works! &#123;&#123;Math.random()&#125;&#125;&lt;/p&gt; </span></span><br><span class="line"><span class="string">    &lt;app-grand-child /&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这时我们再点击Parent按钮，发现ChildComponent的模板中的随机值是不变的，这证明Angular没有进行变更检测。</p>
+<h2 id="ngDoCheck到底怎么用？"><a href="#ngDoCheck到底怎么用？" class="headerlink" title="ngDoCheck到底怎么用？"></a><code>ngDoCheck</code>到底怎么用？</h2><p>其实<code>ngDoCheck</code>是在Angular进行变更检测之前给用户一个机会，执行一些自定义逻辑。注意看官网的这句话：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">You can use this lifecycle hook to manually check for state changes outside of Angular&#x27;s normal change detection, manually updating the component&#x27;s state.</span><br></pre></td></tr></table></figure>
+
+<p>所以到底要怎么使用它？恕我经验不够，我至今还未在项目中实际使用过<code>ngDoCheck</code>函数。但是我在网上找到了一些资料，可以参考一下：</p>
+<ol>
+<li>使用第三方库时，如果你的组件中使用了第三方库，而第三方库改变了DOM状态，但是Angular没有检测到，这时可以使用<code>ngDoCheck</code>函数来手动检测状态变化。</li>
+<li>自定义变更检测的逻辑，比如在某些条件下不进行变更检测，可以在<code>ngDoCheck</code>函数中实现。</li>
+<li>子组件接收一个对象作为Input属性，而父组件只改变了对象的属性，这是<code>ngOnChanges</code>函数不会被调用的，这时可以使用<code>ngDoCheck</code>函数来检测对象的属性变化。<br>说实话，这个例子非常的牵强，父组件只该变对象的一个属性这不是好的编程习惯，这种情况应该直接传递一个新的对象给子组件。但是作为例子，我们还是说一下这个情况。</li>
+</ol>
+<h3 id="使用第三方库"><a href="#使用第三方库" class="headerlink" title="使用第三方库"></a>使用第三方库</h3><p>组件中使用第三方库改变了DOM状态，但是Angular没有检测到，这时可以使用<code>ngDoCheck</code>函数来手动检测状态变化。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="自定义变更检测逻辑"><a href="#自定义变更检测逻辑" class="headerlink" title="自定义变更检测逻辑"></a>自定义变更检测逻辑</h3><p>假设有一个父组件ParentComponent，一个子组件ChildComponent，父组件给子组件传递一个User对象，我们将User的年龄显示到子组件页面上，我们希望达到一个效果，如果年龄小于50岁时，子组件不进行变更检测，这正情况就需要使用<code>ngDoCheck</code>函数。</p>
+<p>父组件，注意在<code>onParentButtonClick</code>函数中要重新赋值一个新的User对象，而不是改变User对象的属性。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-parent&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">ChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;parent works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;app-child [user]=&quot;user&quot; /&gt;</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;onParentButtonClick()&quot;&gt;Parent&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./parent.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ParentComponent</span> &#123;</span><br><span class="line">  <span class="attr">user</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">40</span>,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">onParentButtonClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> age = <span class="title class_">Math</span>.<span class="title function_">floor</span>(<span class="title class_">Math</span>.<span class="title function_">random</span>() * <span class="number">100</span>) + <span class="number">1</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span> = &#123;...<span class="variable language_">this</span>.<span class="property">user</span>, age&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>子组件中，我们需要在<code>ngDoCheck</code>中自定义变更检测的逻辑。(注意，<code>ngDoCheck</code>在每次<code>ngOnChanges</code>之后调用。), 如果年龄小于50岁时，我们是用<code>ChangeDetectorRef.detach()</code>函数来停止变更检测，大于50岁时，我们使用<code>ChangeDetectorRef.reattach()</code>函数来恢复变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">GrandChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;child works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;p&gt;&#123;&#123;user?.age&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;app-grand-child/&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">DoCheck</span>, <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">user</span>: <span class="title class_">User</span> | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line">  <span class="attr">currentAge</span>: <span class="built_in">number</span> | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="attr">changes</span>: <span class="title class_">SimpleChanges</span>): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">currentAge</span> = changes[<span class="string">&#x27;user&#x27;</span>].<span class="property">currentValue</span>.<span class="property">age</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">currentAge</span>! &lt; <span class="number">50</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">detach</span>(); <span class="comment">// stop change detection</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">reattach</span>(); <span class="comment">// restore change detection</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：这个例子十分牵强，现实中不会有这种情况的。</p>
+<h3 id="子组件接收对象作为Input属性，父组件只改变了对象的属性"><a href="#子组件接收对象作为Input属性，父组件只改变了对象的属性" class="headerlink" title="子组件接收对象作为Input属性，父组件只改变了对象的属性"></a>子组件接收对象作为Input属性，父组件只改变了对象的属性</h3><p>User类型定义：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>父组件，初始化时，我们传递一个user对象给ChildComponent, 点击按钮时，改变user对象的age属性。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-parent&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">ChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;parent works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;app-child [user]=&quot;user&quot; /&gt;</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;onParentButtonClick()&quot;&gt;Parent&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./parent.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ParentComponent</span> &#123;</span><br><span class="line">  <span class="attr">user</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">40</span>,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">onParentButtonClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span>.<span class="property">age</span> = <span class="number">18</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>子组件，当父组件点击按钮时，子组件的页面上，age值并没有变化，还是40.<br>子组件的<code>ngDoCheck</code>函数会被调用，我们可以在<code>ngDoCheck</code>函数中检测user对象的属性变化，并打印出变化的值。<br>但是子组件的<code>ngOnChanges</code>函数不会被调用，因为父组件只改变了user对象的属性，而没有改变user对象本身。而<code>ngOnChanges</code>比较的是对象的引用，而不是对象内部的值。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">GrandChildComponent</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;child works!&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;p&gt;&#123;&#123;user?.age&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span>, <span class="title class_">DoCheck</span>, <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">user</span>: <span class="title class_">User</span> | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line">  <span class="attr">differ</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> differs: KeyValueDiffers</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">differ</span> = <span class="variable language_">this</span>.<span class="property">differs</span>.<span class="title function_">find</span>(<span class="variable language_">this</span>.<span class="property">user</span>).<span class="title function_">create</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="attr">changes</span>: <span class="title class_">SimpleChanges</span>): <span class="built_in">void</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(changes[<span class="number">0</span>].<span class="property">currentValue</span>.<span class="property">age</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`ngDoCheck in ChildComponent`</span>);</span><br><span class="line">    <span class="keyword">const</span> userChanges = <span class="variable language_">this</span>.<span class="property">differ</span>.<span class="title function_">diff</span>(<span class="variable language_">this</span>.<span class="property">user</span>);</span><br><span class="line">    <span class="keyword">if</span> (userChanges) &#123;</span><br><span class="line">      userChanges.<span class="title function_">forEachChangedItem</span>(<span class="function">(<span class="params">changeRecord: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;item changed : &#x27;</span> + changeRecord.<span class="property">key</span> + <span class="string">&#x27; &#x27;</span> + <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(changeRecord.<span class="property">currentValue</span>))</span><br><span class="line">      &#125;);</span><br><span class="line">      userChanges.<span class="title function_">forEachAddedItem</span>(<span class="function">(<span class="params">changeRecord: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;item added : &#x27;</span> + changeRecord.<span class="property">key</span> + <span class="string">&#x27; &#x27;</span> + <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(changeRecord.<span class="property">currentValue</span>))</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们想让子组件页面上的age值变化，那么只需要手动触发一次变更检测即可。此时再点击父组件中的按钮，子组件的age值会变为18。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/45522199/1487475">https://stackoverflow.com/a/45522199/1487475</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@tehseen_ullah786/here-is-why-we-should-use-ngdocheck-in-angular-28bc98a86d85#:~:text=Integration%20with%20third%2Dparty%20libraries,and%20updates%20the%20view%20accordingly">https://medium.com/@tehseen_ullah786/here-is-why-we-should-use-ngdocheck-in-angular-28bc98a86d85#:~:text=Integration%20with%20third%2Dparty%20libraries,and%20updates%20the%20view%20accordingly</a>.</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular/" rel="tag"># angular</a>
+              <a href="/tags/lifecycle/" rel="tag"># lifecycle</a>
+              <a href="/tags/ngdocheck/" rel="tag"># ngdocheck</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/12/05/angular-lifecyle-ngonchanges/" rel="prev" title="angular-lifecyle-ngonchanges">
+      <i class="fa fa-chevron-left"></i> angular-lifecyle-ngonchanges
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/12/05/rxjs-interview-questions/" rel="next" title="rxjs-interview-questions">
+      rxjs-interview-questions <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E8%AF%AF%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">常见的误解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9AAngular%E6%98%AF%E5%90%A6%E8%BF%9B%E8%A1%8C%E4%BA%86%E5%8F%98%E6%9B%B4%E6%A3%80%E6%B5%8B%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">如何确定Angular是否进行了变更检测？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ngDoCheck%E5%88%B0%E5%BA%95%E6%80%8E%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">ngDoCheck到底怎么用？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93"><span class="nav-number">1.3.1.</span> <span class="nav-text">使用第三方库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E6%9B%B4%E6%A3%80%E6%B5%8B%E9%80%BB%E8%BE%91"><span class="nav-number">1.3.2.</span> <span class="nav-text">自定义变更检测逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E7%BB%84%E4%BB%B6%E6%8E%A5%E6%94%B6%E5%AF%B9%E8%B1%A1%E4%BD%9C%E4%B8%BAInput%E5%B1%9E%E6%80%A7%EF%BC%8C%E7%88%B6%E7%BB%84%E4%BB%B6%E5%8F%AA%E6%94%B9%E5%8F%98%E4%BA%86%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="nav-number">1.3.3.</span> <span class="nav-text">子组件接收对象作为Input属性，父组件只改变了对象的属性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.4.</span> <span class="nav-text">References</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">233</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">326</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

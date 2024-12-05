@@ -181,6 +181,299 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-standalone-component/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/02/Angular-standalone-component/" class="post-title-link" itemprop="url">Angular-standalone-component</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-02 21:56:59" itemprop="dateCreated datePublished" datetime="2023-09-02T21:56:59+08:00">2023-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-08 14:01:55" itemprop="dateModified" datetime="2024-05-08T14:01:55+08:00">2024-05-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Standalone-Component"><a href="#Angular-Standalone-Component" class="headerlink" title="Angular Standalone Component"></a>Angular Standalone Component</h1><p><code>standalone component</code>是Angular 14的一个新特性，它可以让我们在不创建module的情况下创建一个component。注意：<code>Directive</code>和<code>Pipe</code>也可以是standalone的。</p>
+<h2 id="创建一个standalone-component"><a href="#创建一个standalone-component" class="headerlink" title="创建一个standalone component"></a>创建一个standalone component</h2><p>组件代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// 添加这一句，表示这是一个standalone component。</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;lifecycle-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span>&#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>standalone component和module的交互使用有如下两种情况。</p>
+<h2 id="standalone-component引入其他module"><a href="#standalone-component引入其他module" class="headerlink" title="standalone component引入其他module"></a>standalone component引入其他module</h2><p>如果standalone component需要引入其他module，那么需要在<code>imports</code>属性中引入其他module，比如上面代码中引入的<code>CommonModule</code>。</p>
+<p>注意：只有standalone component才能引入其他module，<code>普通的component(non-standalone component)不能引入其他module</code>。所以只有standalone component才能使用<code>imports</code>属性。</p>
+<p>如果你遇到如下报错，那么说明你在非standalone组件中使用了<code>imports</code>属性，这是不允许的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error NG2010: <span class="string">&#x27;imports&#x27;</span> is only valid on a component that is standalone.</span><br></pre></td></tr></table></figure>
+
+<p>这种情况经常发生在，ComponentA(非独立组件)想在template中使用ComponentB(独立组件)，那么应该在ComponentA所在的module中的imports属性中引入ComponentB。</p>
+<h2 id="module引入standalone-component"><a href="#module引入standalone-component" class="headerlink" title="module引入standalone component"></a>module引入standalone component</h2><p>如果一个module要使用一个standalone component，那么<code>不再</code>需要在<code>declarations</code>属性中声明这个standalone component，只需要在<code>imports</code>属性中引入这个standalone component所在的module即可。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="comment">// OrderComponent, // no need to declare standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">OrderComponent</span>, <span class="comment">// imports standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="lazy-load-module"><a href="#lazy-load-module" class="headerlink" title="lazy load module"></a>lazy load module</h2><p>在NgModel时代，我们可以使用<code>loadChildren</code>来实现懒加载，比如下面的<code>product module</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="Lazy-load-standalone-component"><a href="#Lazy-load-standalone-component" class="headerlink" title="Lazy load standalone component"></a>Lazy load standalone component</h2><p>在Angular 14中，我们可以使用<code>loadComponent</code>来实现懒加载standalone component，比如下面的<code>order component</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;order&#x27;</span>, <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./order/order.component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">OrderComponent</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<h3 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h3><ul>
+<li>lazy load module: <code>loadChildren</code></li>
+<li>lazy load standalone component: <code>loadComponent</code></li>
+</ul>
+<h2 id="Bootstrap-standalone-component"><a href="#Bootstrap-standalone-component" class="headerlink" title="Bootstrap standalone component"></a>Bootstrap standalone component</h2><p>See <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/20/angular-bootstrap-standalone-component/">here</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><p><a target="_blank" rel="noopener" href="https://angular.io/guide/standalone-components">Angular standalone component</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-module/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/02/Angular-module/" class="post-title-link" itemprop="url">Angular-module</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-02 21:36:32" itemprop="dateCreated datePublished" datetime="2023-09-02T21:36:32+08:00">2023-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-30 11:41:13" itemprop="dateModified" datetime="2024-11-30T11:41:13+08:00">2024-11-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Module"><a href="#Angular-Module" class="headerlink" title="Angular Module"></a>Angular Module</h1><p>Angular是模块化的，模块是Angular应用的基本构建块，每个Angular应用都至少有一个模块，即根模块，Angular模块是一个带有<code>@NgModule</code>装饰器的类。</p>
+<p>模块是一个逻辑单元，是一个自我完备的功能集合，它可以包含组件、服务、指令、管道等，模块可以导入其他模块，也可以导出组件、指令、管道等供其他模块使用，模块还可以提供Service。</p>
+<p>以一个电商网站App为例，可以包含如下模块：登录模块（包含登录，注册，找回密码等功能），购物模块，订单模块，支付模块等等。</p>
+<h2 id="Generate-Angular-module-with-Angular-CLI"><a href="#Generate-Angular-module-with-Angular-CLI" class="headerlink" title="Generate Angular module with Angular CLI"></a>Generate Angular module with Angular CLI</h2><p>使用Angular CLI生成一个新的模块，运行如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate module moduleName // or ng g m moduleName</span><br></pre></td></tr></table></figure>
+
+<h2 id="NgModule的组成"><a href="#NgModule的组成" class="headerlink" title="NgModule的组成"></a>NgModule的组成</h2><p>以下是一个典型的入口模块的代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">AppRoutingModule</span>,</span><br><span class="line">    <span class="title class_">FormsModule</span>,</span><br><span class="line">    <span class="title class_">HttpClientModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="declarations"><a href="#declarations" class="headerlink" title="declarations"></a>declarations</h3><p><code>declarations</code>属性用来声明<code>属于该模块</code>的组件、指令、管道等，这些组件、指令、管道等只能在该模块中使用，其他模块不能使用。</p>
+<ul>
+<li><code>declarations</code>只能包含<code>component</code>, <code>directive</code>,<code>pipe</code>.</li>
+<li><code>component</code>, <code>directive</code>,<code>pipe</code> - 统称为<code>declarable</code>, 每个<code>declarable</code>只能隶属于一个NgModule，如果在多个NgModule中导入同一个declarable，那么会出现如下错误：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx is declared <span class="keyword">in</span> multiple Angular modules: AppModule and AppContentModule</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="imports"><a href="#imports" class="headerlink" title="imports"></a>imports</h3><p><code>imports</code>属性用来导入其他模块，导入的模块中的组件、指令、管道等可以在该模块中使用。比如当前模块依赖另一个模块A，那么要把模块A导入到当前模块中，这样当前模块才可以使用模块A中的组件、指令、管道等。</p>
+<ul>
+<li><code>imports</code>只能包含<code>module</code>, 或者<code>standalone component</code>.</li>
+</ul>
+<h3 id="providers"><a href="#providers" class="headerlink" title="providers"></a>providers</h3><p><code>providers</code>属性用来声明该模块中的服务，这些服务可以在该模块中使用，也可以在该模块导入的其他模块中使用。</p>
+<h3 id="exports"><a href="#exports" class="headerlink" title="exports"></a>exports</h3><p><code>exports</code>属性用来声明该模块中<code>导出</code>的组件、指令、管道等，这些组件、指令、管道等可以在该模块导入的其他模块中使用。注意导出的组件、指令、管道等必须同时在<code>declarations</code>属性中声明。<br>也就是说exports是declarations的子集。</p>
+<p>Angular应用的主模块<code>app.module.ts</code>中的<code>exports</code>属性是空的，因为根模块中的组件、指令、管道等都是可以在其他模块中使用的，所以不需要导出。</p>
+<h3 id="bootstrap"><a href="#bootstrap" class="headerlink" title="bootstrap"></a>bootstrap</h3><p><code>bootstrap</code>属性用来声明该模块的根组件，根组件是Angular应用的入口组件，一个Angular应用只能有一个根组件，根组件只能在根模块中声明。<code>bootstrap</code>中声明的组件会插入到<code>index.html</code>中的<code>&lt;app-root&gt;&lt;/app-root&gt;</code>标签中。</p>
+<p>注意：<code>bootstrap</code>中可以指定多个组件，这些组件会被插入到<code>index.html</code>中，<code>index.html</code>中根据组件的选择器加在不同的组件。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--index.html--&gt;</span></span><br><span class="line"><span class="meta">&lt;!doctype <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>LearningAngular<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-header</span>&gt;</span><span class="tag">&lt;/<span class="name">app-header</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-content</span>&gt;</span><span class="tag">&lt;/<span class="name">app-content</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-footer</span>&gt;</span><span class="tag">&lt;/<span class="name">app-footer</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClientModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppHeaderComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-header/app-header.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppContentComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-content/app-content.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppFooterComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app-footer/app-footer.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppHeaderComponent</span>,</span><br><span class="line">    <span class="title class_">AppContentComponent</span>,</span><br><span class="line">    <span class="title class_">AppFooterComponent</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">HttpClientModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppHeaderComponent</span>, <span class="title class_">AppContentComponent</span>, <span class="title class_">AppFooterComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong> 只有根模块才需要声明根组件，其他模块不需要声明根组件。所以除了<code>app.module.ts</code>之外，其他的module都不需要声明bootstrap属性。</p>
+<h2 id="component-and-module"><a href="#component-and-module" class="headerlink" title="component and module"></a>component and module</h2><p>在Angular <code>standalone</code> component出现以前，任何一个component都必须隶属于一个module。但是在Angular <code>standalone</code> component出现以后，就可以不用隶属于一个module了，这种component称为<code>standalone</code> component，也就是独立的component。</p>
+<p>详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/09/02/Angular-standalone-component/">Angular Standalone Component</a></p>
+<h2 id="How-Angular-module-identifies-components"><a href="#How-Angular-module-identifies-components" class="headerlink" title="How Angular module identifies components?"></a>How Angular module identifies components?</h2><p>Angular module是如何识别<code>Component</code>的呢？对于非<code>standalone</code> component，Angular module是通过<code>declaration</code>来标记的。对于<code>standalone</code> component，Angular module是通过<code>imports</code>来标记的。</p>
+<p>非独立组件还分为两种情况，有对应的<code>angular module</code>或者没有对应的<code>angular module</code></p>
+<ul>
+<li>有<code>angular module</code> - 当前module需要导入对应的<code>angular module</code>，才能使用导入module中的<code>component</code>。（待使用的component需在其module中exports数组中导出）</li>
+<li>没有<code>angular module</code> - 则需要将component声明在当前module的<code>declarations</code>中。</li>
+</ul>
+<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><p>假设我们需要定义如下两个组件, 这两个组件都有对应的module</p>
+<ul>
+<li><code>ProductHomeComponent</code> - 产品首页, 该组件内部又调用了<code>ProductDetailComponent</code></li>
+<li><code>ProductDetailComponent</code> - 产品详情页</li>
+</ul>
+<p>首先，需要在<code>ProductDetailModule</code>中声明<code>ProductDetailComponent</code>，并导出<code>ProductDetailComponent</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommonModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductDetailComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./product-detail.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [<span class="title class_">ProductDetailComponent</span>], <span class="comment">// &lt;-- declare ProductDetailComponent</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">ProductDetailComponent</span>], <span class="comment">// &lt;-- export ProductDetailComponent</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductDetailModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，需要在<code>ProductHomeModule</code>中导入<code>ProductDetailModule</code>，这样<code>ProductHomeComponent</code>就可以使用<code>ProductDetailComponent</code>了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-home.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommonModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductHomeComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./product-home.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ProductDetailModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;../product-detail/product-detail.module&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [<span class="title class_">ProductHomeComponent</span>],</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>, <span class="title class_">ProductDetailModule</span>], <span class="comment">// &lt;-- import ProductDetailModule</span></span><br><span class="line">  <span class="attr">exports</span>: [<span class="title class_">ProductHomeComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，在<code>ProductHomeComponent</code>模板中使用<code>ProductDetailComponent</code>。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product-home.component.html --&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">app-product-detail</span> /&gt;</span> <span class="comment">&lt;!-- use ProductDetailComponent --&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/ngmodules">Angular Module</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/19/Angular-Misc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/08/19/Angular-Misc/" class="post-title-link" itemprop="url">Angular-Misc</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-08-19 20:58:58" itemprop="dateCreated datePublished" datetime="2023-08-19T20:58:58+08:00">2023-08-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-01 19:01:37" itemprop="dateModified" datetime="2024-12-01T19:01:37+08:00">2024-12-01</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular杂项"><a href="#Angular杂项" class="headerlink" title="Angular杂项"></a>Angular杂项</h1><h2 id="什么操作会触发Angular执行change-detection？"><a href="#什么操作会触发Angular执行change-detection？" class="headerlink" title="什么操作会触发Angular执行change detection？"></a>什么操作会触发Angular执行change detection？</h2><p>这个问题一直没有搞明白，有待进一步研究。<br><a target="_blank" rel="noopener" href="https://angular.io/guide/change-detection">https://angular.io/guide/change-detection</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-tB-QDrPmuI">https://www.youtube.com/watch?v=-tB-QDrPmuI</a></p>
+<h2 id="Content"><a href="#Content" class="headerlink" title="Content"></a>Content</h2><ul>
+<li><a href="#monkey-patching">Monkey Patching</a>  </li>
+<li><a href="#private-variable">Private Variable</a></li>
+</ul>
+<h2 id="在AOT编译器下，Private变量无法绑定到模板中。"><a href="#在AOT编译器下，Private变量无法绑定到模板中。" class="headerlink" title="在AOT编译器下，Private变量无法绑定到模板中。"></a>在AOT编译器下，Private变量无法绑定到模板中。</h2><p><a name="private-variable"></a>如果在组件中定义了一个私有变量，是不能使用双括弧绑定到模板中的，比如下面的代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样写是不行的，因为在AOT编译器下，私有变量会被删除，所以无法绑定到模板中，如果想要绑定到模板中，需要将变量定义为公共变量，或者使用<code>get</code>方法，如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">count</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;count&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>或者使用getCount()方法，如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">getCount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">count</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;&#123;getCount()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="AOT-vs-JIT"><a href="#AOT-vs-JIT" class="headerlink" title="AOT vs JIT"></a>AOT vs JIT</h2><h2 id="Monkey-Patching"><a href="#Monkey-Patching" class="headerlink" title="Monkey Patching"></a>Monkey Patching</h2><p><a name="monkey-patching"></a>In computer programming, monkey patching is a technique used to dynamically update the behavior of a piece of code at run-time. It is used to extend or modify the runtime code of dynamic languages such as Smalltalk, JavaScript, Objective-C, Ruby, Perl, Python, Groovy, and Lisp without altering the original source code. - <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">Wikipedia</a></p>
+<h2 id="Angular找不到selector对应的组件时，不会报错。"><a href="#Angular找不到selector对应的组件时，不会报错。" class="headerlink" title="Angular找不到selector对应的组件时，不会报错。"></a>Angular找不到selector对应的组件时，不会报错。</h2><p>如果你在Angular template中使用了一个选择器，但是这个选择器没有对应任何组件，那么Angular不会报错，只会将选择器当作一个普通的HTML标签处理。这个问题在开发过程中很容易出现，因为Angular不会报错，所以很难发现。</p>
+<h2 id="ng-repeat-vs-ngFor"><a href="#ng-repeat-vs-ngFor" class="headerlink" title="ng-repeat vs ngFor"></a><code>ng-repeat</code> vs <code>ngFor</code></h2><ul>
+<li><code>ng-repeat</code>是AngularJS中的指令，用于循环遍历数组或对象。</li>
+<li><code>ngFor</code>是Angular中的指令，用于循环遍历数组或对象。</li>
+</ul>
+<h2 id="Angular中的viewProviders和providers"><a href="#Angular中的viewProviders和providers" class="headerlink" title="Angular中的viewProviders和providers"></a>Angular中的viewProviders和providers</h2><p>竟然还有viewProvider?真是孤陋寡闻了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/18/Angular-lifecycle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1043,391 +1336,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/12/Communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-12 18:44:28" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-18 21:17:47" itemprop="dateModified" datetime="2024-09-18T21:17:47+08:00">2024-09-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
-<h2 id="Create-a-service"><a href="#Create-a-service" class="headerlink" title="Create a service"></a>Create a service</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params">message: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Send-message"><a href="#Directive-Send-message" class="headerlink" title="Directive(Send message)"></a>Directive(Send message)</h2><p>该指令使用上面定义的service发送消息</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Receive-message"><a href="#Directive-Receive-message" class="headerlink" title="Directive(Receive message)"></a>Directive(Receive message)</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="AppModule"><a href="#AppModule" class="headerlink" title="AppModule"></a>AppModule</h2><p>我们需要在appModule中声明这两个指令</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/04/html5-drag-and-drop-events/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/04/html5-drag-and-drop-events/" class="post-title-link" itemprop="url">html5 drag and drop events</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-04 19:38:03" itemprop="dateCreated datePublished" datetime="2023-07-04T19:38:03+08:00">2023-07-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-11 20:44:35" itemprop="dateModified" datetime="2024-11-11T20:44:35+08:00">2024-11-11</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="html5-drag-and-drop-events"><a href="#html5-drag-and-drop-events" class="headerlink" title="html5 drag and drop events"></a>html5 drag and drop events</h1><p>html5中的拖放事件有以下几个：</p>
-<ul>
-<li>dragstart</li>
-<li>drag</li>
-<li>dragleave</li>
-<li>dragenter</li>
-<li>dragover</li>
-<li>drop</li>
-<li>dragend</li>
-</ul>
-<p>我们将从以下几个方面依次讲解这些事件，包括事件的触发条件，事件的触发源头，事件的触发频率等</p>
-<h2 id="dragstart"><a href="#dragstart" class="headerlink" title="dragstart"></a>dragstart</h2><p>触发条件：当用户开始拖动一个元素时，会触发<code>dragstart</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。</p>
-<h2 id="drag"><a href="#drag" class="headerlink" title="drag"></a>drag</h2><p>触发条件：当用户拖动一个元素时，会触发<code>drag</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：多次。  </p>
-<h2 id="dragleave"><a href="#dragleave" class="headerlink" title="dragleave"></a>dragleave</h2><p>触发条件：当用户拖动一个元素，离开了一个可放置的目标元素时，会触发<code>dragleave</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
-<h2 id="dragenter"><a href="#dragenter" class="headerlink" title="dragenter"></a>dragenter</h2><p>触发条件：当用户拖动一个元素，进入了一个可放置的目标元素时，会触发<code>dragenter</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
-<h2 id="dragover"><a href="#dragover" class="headerlink" title="dragover"></a>dragover</h2><p>触发条件：当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发<code>dragover</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：多次。  </p>
-<h2 id="drop"><a href="#drop" class="headerlink" title="drop"></a>drop</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>drop</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
-<h2 id="dragend"><a href="#dragend" class="headerlink" title="dragend"></a>dragend</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>dragend</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。  </p>
-<h2 id="实例讲解"><a href="#实例讲解" class="headerlink" title="实例讲解"></a>实例讲解</h2><p>下面以一个实际例子来讲解事件发生的顺序，如下图，页面上有两个容器，Container A和Container B，container A中有一个元素Child，container B中没有元素。我们将container A中的Child元素拖动到container B中，观察事件的触发顺序。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|     Container A   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|      Child        |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">+--------|----------+</span><br><span class="line">         |</span><br><span class="line">        \/</span><br><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|    Container B    |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>首先触发的事件是 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragstart_event">dragstart</a>，触发源头是被拖动的元素，触发频率是一次。我们可以通过打印<code>event.target</code>来验证这一点。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">dragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">stopPropagation</span>(); <span class="comment">// 阻止事件冒泡，也就是阻止事件向父元素传递。</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;drag start...&quot;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">target</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">  e.<span class="property">dataTransfer</span>.<span class="title function_">setData</span>(<span class="string">&quot;text&quot;</span>, e.<span class="property">target</span>.<span class="property">id</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-事件处理函数中的<code>e.target</code>是指触发该事件的元素，比如当用户点击某一个按钮时会触发<code>click</code>事件，那么按钮就是click事件的e.target。而<code>this</code>是指注册事件处理函数的元素，大部分情况下这二者是相同的，但是也有例外，详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/08/02/event-target-vs-event-currentTarget/">这里</a>。</li>
-</ol>
-<p><code>dragstart</code>不同于其他拖拽处理函数的地方是，它是唯一可以设置transfer data的地方。我们可以通过<code>e.dataTransfer.setData</code>方法来设置transfer data，该方法接受两个参数，第一个参数是transfer data的类型，第二个参数是transfer data的值。这里我们设置transfer data的类型为<code>text</code>，值为被拖动元素的id。</p>
-<ol start="2">
-<li><p>然后触发的事件是<code>drag</code>，触发源头是被拖动的元素，该事件会在拖动过程中一直触发。在实际应用中，一般不监听这个事件，因为它没啥用，而且触发太频繁。</p>
-</li>
-<li><p>接下来触发的事件是<code>dragenter</code>，当用户拖动一个元素到一个可放置的目标时，会触发该事件，只会触发一次。由于Container A也是一个可放置的区域，而刚开始拖动时Child就已经位于Container A中，所以会触发<code>dragenter</code>事件。</p>
-</li>
-<li><p>然后触发的事件是<code>dragover</code>，当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发该事件，会在拖动过程中一直触发。与其他事件处理函数不同，该函数有如下两个特点。</p>
-<ol>
-<li>该事件在放置目标区域上触发，而不是被拖拽的元素上触发。</li>
-<li>这个事件是需要阻止默认行为的，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</li>
-</ol>
-</li>
-<li><p>接下来，如果用户在目标区域释放了鼠标，那么会触发<code>drop</code>事件，该事件会在放置目标区域上触发，只会触发一次。我们可以通过<code>e.dataTransfer.getData</code>来获取transfer data，该方法接受一个参数，表示要获取的transfer data的类型，这里我们传入<code>text</code>，表示获取类型为<code>text</code>的transfer data。如果我们在<code>dragstart</code>事件处理函数中设置了transfer data，那么在<code>drop</code>事件处理函数中就可以获取到transfer data了。</p>
-</li>
-<li><p>如果用户在目标区没有释放鼠标，而是继续拖动，直到离开目标区域，那么会触发<code>dragleave</code>事件，该事件会在放置目标区域上触发，只会触发一次。反之，如果用户在目标区域释放了鼠标，那么该事件不会触发。也就是说，对于同一个目标区域而言，<code>dragleave</code>事件和<code>drop</code>事件是互斥的，只会触发其中一个。</p>
-</li>
-</ol>
-<p>注意：<code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
-<h2 id="总结如下："><a href="#总结如下：" class="headerlink" title="总结如下："></a>总结如下：</h2><table>
-<thead>
-<tr>
-<th>事件</th>
-<th>触发条件</th>
-<th>触发源头</th>
-<th>触发频率</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>dragstart</td>
-<td>当用户开始拖动一个元素时</td>
-<td>被拖动的元素</td>
-<td>一次</td>
-</tr>
-<tr>
-<td>drag</td>
-<td>当用户拖动一个元素时</td>
-<td>被拖动的元素</td>
-<td>多次</td>
-</tr>
-<tr>
-<td>dragleave</td>
-<td>当用户拖动一个元素，离开了一个可放置的目标元素时</td>
-<td>目标区域对应的元素</td>
-<td>一次</td>
-</tr>
-<tr>
-<td>dragenter</td>
-<td>当用户拖动一个元素，进入了一个可放置的目标元素时</td>
-<td>目标区域对应的元素</td>
-<td>一次</td>
-</tr>
-<tr>
-<td>dragover</td>
-<td>当用户拖动一个元素，悬停在一个可放置的目标元素上时</td>
-<td>目标区域对应的元素</td>
-<td>多次</td>
-</tr>
-<tr>
-<td>drop</td>
-<td>当用户拖动一个元素，释放鼠标按钮时</td>
-<td>目标区域对应的元素</td>
-<td>一次</td>
-</tr>
-<tr>
-<td>dragend</td>
-<td>当用户拖动一个元素，释放鼠标按钮时</td>
-<td>被拖动的元素</td>
-<td>一次</td>
-</tr>
-</tbody></table>
-<h2 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h2><ol>
-<li><p><code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
-</li>
-<li><p>在处理从一个区域拖拽到另一个区域的情况时比较简单，比如常见的左右两个列表，将一个元素从左侧列表拖拽到右侧列表。这时候被拖拽的元素和放置目标之间的界限比较明显，处理起来比较容易，也就是说被拖拽的元素响应以下事件即可：</p>
-<ul>
-<li>dragstart</li>
-<li>drag</li>
-<li>dragend</li>
-</ul>
-<p>而放置目标响应以下事件即可：</p>
-<ul>
-<li>dragenter</li>
-<li>dragover</li>
-<li>drop</li>
-<li>dragleave</li>
-</ul>
-</li>
-<li><p>但是如果处理一组元素之间的互相拖拽及排序，那就比较麻烦，比如一个相册列表，或者一个瀑布流布局，或者masonry布局，就是一个大容器，里面有如果子元素，我们可以拖拽任意一个元素到其他位置，在拖拽过程中要有placeholder，其他元素要给被拖拽的元素让路。这种情况下，每个元素都要响应所有事件，所以一个必要的操作就是判断被拖拽的元素和放置目标是否是同一个元素，如果是同一个元素，那么就不需要做任何处理，否则就需要做相应的处理。这里有一个技巧，可以使用<code>e.target</code>和<code>e.currentTarget</code>来判断被拖拽的元素和放置目标是否是同一个元素，常见的做法如下：</p>
-</li>
-</ol>
-<ul>
-<li>在<code>dragstart</code>函数中记录被拖拽的元素<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> dragSrcEl = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  dragSrcEl = <span class="variable language_">this</span>; <span class="comment">// record the dragged element</span></span><br><span class="line">  dragSrcEl.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;dragging&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>在<code>dragenter</code>, <code>dragover</code>, <code>dragleave</code>, <code>drop</code>等方法中判断被拖拽元素是否等于this，如果是，那么说明是同一个元素，直接return，如果不是，再进行具体的处理工作。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragEnter</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  <span class="comment">// this event also triggered on the dragged item itself, we should ignore this case.</span></span><br><span class="line">  <span class="keyword">if</span> (dragSrcEl === <span class="variable language_">this</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// do something...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<ol start="4">
-<li><p>在<code>dragover</code>事件处理函数中，需要阻止默认行为，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragOver</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在<code>drop</code>事件处理函数中，需要阻止默认行为，否则会导致浏览器打开被拖拽的元素。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
- <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDrop</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/01/Array-like-object/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/01/Array-like-object/" class="post-title-link" itemprop="url">Array-like object</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-01 07:34:21" itemprop="dateCreated datePublished" datetime="2023-07-01T07:34:21+08:00">2023-07-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 08:54:23" itemprop="dateModified" datetime="2024-04-20T08:54:23+08:00">2024-04-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What-is-array-like-object"><a href="#What-is-array-like-object" class="headerlink" title="What is array-like object?"></a>What is array-like object?</h2><p>Array-like object is an object that has a <code>length</code> property and indexed elements. For example, <code>arguments</code> is an array-like object.</p>
-<p>Has indexed access to the elements and a non-negative length property to know the number of elements in it. These are the only similarities it has with an array.<br>Doesn’t have any of the Array methods like push, pop, join, map, etc.</p>
-  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike[<span class="number">1</span>]); <span class="comment">// &#x27;b&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">length</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">push</span>); <span class="comment">// Uncaught TypeError: arrayLike.push is not a function</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="What-is-the-difference-between-array-and-array-like-object"><a href="#What-is-the-difference-between-array-and-array-like-object" class="headerlink" title="What is the difference between array and array-like object?"></a>What is the difference between array and array-like object?</h2><table>
-<thead>
-<tr>
-<th>类型</th>
-<th>length属性</th>
-<th>索引访问</th>
-<th>有Array.prototype方法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Array</td>
-<td>✔️</td>
-<td>✔️</td>
-<td>✔️</td>
-</tr>
-<tr>
-<td>Array-like object</td>
-<td>✔️</td>
-<td>✔️</td>
-<td>❌</td>
-</tr>
-</tbody></table>
-<h2 id="Which-type-in-JavaScript-is-array-like-object"><a href="#Which-type-in-JavaScript-is-array-like-object" class="headerlink" title="Which type in JavaScript is array-like object?"></a>Which type in JavaScript is array-like object?</h2><p>There are many types in JavaScript are array-like object, including:</p>
-<ol>
-<li><code>arguments</code> in a function</li>
-<li><code>NodeList</code>(and other DOM collections)</li>
-<li><code>HTMLCollection</code></li>
-</ol>
-<h3 id="arguments-in-a-function"><a href="#arguments-in-a-function" class="headerlink" title="arguments in a function"></a>arguments in a function</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="NodeList-and-other-DOM-collections"><a href="#NodeList-and-other-DOM-collections" class="headerlink" title="NodeList(and other DOM collections)"></a>NodeList(and other DOM collections)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nodeList = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;div&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(nodeList); <span class="comment">// NodeList(3) [div, div, div]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="HTMLCollection"><a href="#HTMLCollection" class="headerlink" title="HTMLCollection"></a>HTMLCollection</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> htmlCollection = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(htmlCollection); <span class="comment">// HTMLCollection(3) [div.container, div.container, div.container]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="How-to-convert-array-like-object-to-array"><a href="#How-to-convert-array-like-object-to-array" class="headerlink" title="How to convert array-like object to array?"></a>How to convert array-like object to array?</h2><p>There are several ways to convert array-like object to array.</p>
-<h3 id="Array-from-…"><a href="#Array-from-…" class="headerlink" title="Array.from(…)"></a>Array.from(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="title function_">from</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Use-ES6-spread-operator"><a href="#Use-ES6-spread-operator" class="headerlink" title="Use ES6 spread operator"></a>Use ES6 spread operator</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = [...arrayLike];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Array-prototype-slice-call-…"><a href="#Array-prototype-slice-call-…" class="headerlink" title="Array.prototype.slice.call(…)"></a>Array.prototype.slice.call(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">slice</span>.<span class="title function_">call</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><ol>
-<li>Array-like object is an object that has a <code>length</code> property</li>
-<li>Array-like object has indexed access to the elements, you access the elements by using <code>arrayLike[n]</code></li>
-<li>Array-like object doesn’t have any of the Array methods like push, pop, join, map, etc.</li>
-<li>You can convert array-like object to array by using <code>Array.from(...)</code>, ES6 spread operator or <code>Array.prototype.slice.call(...)</code>.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/21/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/23/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/21/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/23/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1493,14 +1405,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">230</span>
+          <span class="site-state-item-count">233</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">324</span>
+        <span class="site-state-item-count">326</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
