@@ -181,6 +181,123 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/09/angular-how-ng-serve-works/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/09/angular-how-ng-serve-works/" class="post-title-link" itemprop="url">angular-how-ng-serve-works</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-09-09 22:19:19" itemprop="dateCreated datePublished" datetime="2024-09-09T22:19:19+08:00">2024-09-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-19 10:30:46" itemprop="dateModified" datetime="2024-09-19T10:30:46+08:00">2024-09-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Angular的CLI(Command Line Interface)系统非常强大，它提供了丰富的命令用来构建，测试，运行Angular程序，今天我们就从源码的角度来看看cli中的<code>ng serve</code>命令是如何工作的。</p>
+<p><code>ng serve</code>是我们日常频繁使用的命令，它用来本地启动Angular项目，检测代码更新以做出响应，但是用了这么久的命令，你了解它的底层逻辑吗？下面的几个问题你是否思考过？</p>
+<ol>
+<li><code>ng serve</code>命令为什么没有输出文件到dist目录？</li>
+<li><code>ng serve</code>命令是如何启动一个web server的？</li>
+<li><code>ng serve</code>命令是如何监控文件变化的？</li>
+<li><code>ng serve</code>命令是如何实现热更新的？</li>
+</ol>
+<p>下面就让我们开始这段愉快而又漫长的探索之旅吧！</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了调试<code>ng serve</code>命令，我们需要准备一个Angular项目，为了方便查看源码，我们将<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">angluar-cli</a>的源码也下载到本地，然后打开两个IDE，一个查看待调试的项目代码，一个查看<code>angular-cli</code>的源码。对照起来看，简直不要太爽！</p>
+<h2 id="从命令行开始"><a href="#从命令行开始" class="headerlink" title="从命令行开始"></a>从命令行开始</h2><p>如果你直接查看<code>ng serve</code>命令的源码，可能得不到什么有用的信息，<code>serve</code>命令对应的源码在这里：<code>packages/angular/cli/src/commands/serve/cli.ts</code>， 从以下代码可知，<code>serve</code>命令是继承自<code>ArchitectCommandModule</code>的，同时也实现了<code>CommandModuleImplementation</code>接口。而该文件本身只是做了一个简单的配置，具体的实现逻辑都在<code>ArchitectCommandModule</code>和<code>CommandModuleImplementation</code>中。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">ServeCommandModule</span></span><br><span class="line">  <span class="keyword">extends</span> <span class="title class_ inherited__">ArchitectCommandModule</span></span><br><span class="line">  <span class="keyword">implements</span> <span class="title class_">CommandModuleImplementation</span></span><br><span class="line">&#123;</span><br><span class="line">  multiTarget = <span class="literal">false</span>;</span><br><span class="line">  command = <span class="string">&#x27;serve [project]&#x27;</span>;</span><br><span class="line">  aliases = <span class="title class_">RootCommands</span>[<span class="string">&#x27;serve&#x27;</span>].<span class="property">aliases</span>;</span><br><span class="line">  describe = <span class="string">&#x27;Builds and serves your application, rebuilding on file changes.&#x27;</span>;</span><br><span class="line">  longDescriptionPath?: <span class="built_in">string</span> | <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还是调试吧，我们打开Angular项目，然后打开项目根目录下的<code>package.json</code>文件，找到<code>scripts</code>字段，你会看到如下内容：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;ng&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng serve&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng build&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;watch&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ng build --watch --configuration development&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ngc&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --verbose&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test:watch&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --watch&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;prepare&quot;</span><span class="punctuation">:</span> <span class="string">&quot;husky install&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure>
+<p>想要深入理解<code>ng serve</code>命令，我们需要先了解<code>start</code>命令是如何工作的。我们通过调式该命令的方式来了解<code>ng serve</code>的底层逻辑。不同的IDE对应不同的调试方式：</p>
+<ul>
+<li>WebStorm: 点击<code>start</code>命令左侧的绿色三角按钮，然后选择<code>Debug &#39;start&#39;</code>，这样就可以进入<code>ng serve</code>的源码了。</li>
+<li>VSCode: 鼠标悬停到<code>start</code>命令上，点击<code>Debug</code>按钮，这样就可以进入<code>ng serve</code>的源码了。</li>
+</ul>
+<p>使用这种方法可以进入调试状态，但是我们要在哪里设置断点呢？</p>
+<p>对于<code>package.json</code>中的script区块中的命令，其实他们都对应<code>node_modules/.bin</code>下面的一个文件。以<code>ng serve</code>为例，因为它的命令由<code>ng</code>来引导，那么我们首先到<code>node_modules/.bin</code>目录下找到<code>ng</code>文件。</p>
+<p>可是我们找到了三个<code>ng</code>文件，分别是<code>ng</code>, <code>ng.cmd</code>, <code>ng.ps1</code>，那么我们应该选择哪一个呢？其实通过扩展名就能看出来，我这里使用的是Windows系统，所以我们选择<code>ng.cmd</code>文件。</p>
+<ul>
+<li>ng - Unix shell script</li>
+<li>ng.cmd - Windows batch file</li>
+<li>ng.ps1 - Windows PowerShell script</li>
+</ul>
+<p>用记事本打开这个文件看看它的代码:</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> off</span><br><span class="line"><span class="keyword">GOTO</span> <span class="built_in">start</span></span><br><span class="line">:find_dp0</span><br><span class="line"><span class="built_in">SET</span> dp0=%~dp0</span><br><span class="line"><span class="keyword">EXIT</span> /b</span><br><span class="line">:<span class="built_in">start</span></span><br><span class="line"><span class="built_in">SETLOCAL</span></span><br><span class="line"><span class="keyword">CALL</span> :find_dp0</span><br><span class="line"></span><br><span class="line"><span class="keyword">IF</span> <span class="keyword">EXIST</span> &quot;<span class="variable">%dp0%</span>\node.exe&quot; (</span><br><span class="line">  <span class="built_in">SET</span> &quot;_prog=<span class="variable">%dp0%</span>\node.exe&quot;</span><br><span class="line">) <span class="keyword">ELSE</span> (</span><br><span class="line">  <span class="built_in">SET</span> &quot;_prog=node&quot;</span><br><span class="line">  <span class="built_in">SET</span> PATHEXT=<span class="variable">%PATHEXT:;.JS;=;%</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">endLocal</span> &amp; <span class="keyword">goto</span> #_undefined_# <span class="number">2</span>&gt;<span class="built_in">NUL</span> || <span class="built_in">title</span> <span class="variable">%COMSPEC%</span> &amp; &quot;<span class="variable">%_prog%</span>&quot;  &quot;<span class="variable">%dp0%</span>\..\@angular\cli\bin\ng.js&quot; %*</span><br></pre></td></tr></table></figure>
+<p>我们不必纠结于每一行代码的含义，简单分析下来，我们可以推断出这个脚本的作用就是用<code>node.exe</code>来调用<code>@angular/cli/bin/ng.js</code>文件。</p>
+<p>好了，我们再去看一下这个<code>ng.js</code>文件，这个文件就是Angular CLI的入口文件。ng.js调用了同一目录下的<code>bootstrap.js</code>文件，<code>bootstrap.js</code>文件调用了<code>lib/init.ts</code>文件。<code>init.ts</code>又调用了<code>lib/cli/index.ts</code>文件，后续又有一大堆的调用。</p>
+<p><code>bin/ng.js</code> –&gt; <code>bin/bootstrap.js</code> –&gt; <code>lib/init.ts</code> –&gt; <code>lib/cli/index.ts</code> –&gt; …</p>
+<p>通过不断的设置断点并调试得知，最终在文件<code>packages/angular/cli/src/command-builder/architect-base-command-module.ts</code>中通过解析项目的配置文件<code>angular.json</code>，找到<code>serve</code>命令对应的<code>builder</code>，然后通过调用那个<code>builder</code>来启动一个web server。</p>
+<p><code>architect-base-command-module.ts</code>对应的代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">async</span> <span class="title function_">runSingleTarget</span>(<span class="attr">target</span>: <span class="title class_">Target</span>, <span class="attr">options</span>: <span class="title class_">OtherOptions</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">number</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> architectHost = <span class="variable language_">this</span>.<span class="title function_">getArchitectHost</span>();</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">builderName</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    builderName = <span class="keyword">await</span> architectHost.<span class="title function_">getBuilderNameForTarget</span>(target); <span class="comment">// 获取builder名称</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="title function_">assertIsError</span>(e);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">onMissingTarget</span>(e.<span class="property">message</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<h2 id="Webpack配置在哪里？"><a href="#Webpack配置在哪里？" class="headerlink" title="Webpack配置在哪里？"></a>Webpack配置在哪里？</h2><p>我们都知道，<code>ng serve</code>命令启动的是一个web server，而这是通过<code>webpack-dev-server</code>来实现的，那么这个webpack-dev-server的配置在哪里呢？我么可以在源码中找到如下目录：<br><code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code>，这个目录下有四个文件：</p>
+<ul>
+<li><code>common.ts</code> - 通用配置，主要是打包配置</li>
+<li><code>dev-server.ts</code> - 开发服务器配置 - 我们要找的配置就在这里。</li>
+<li><code>styles.ts</code> - 样式配置，用来处理各种样式文件, 如css, scss&#x2F;sass, less等</li>
+<li><code>index.ts</code> - 导出上面三个文件</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Angular的CLI命令对应的逻辑源码并不在CLI命令本身中，而是在对应的builder中，builder源码在这个目录下：</p>
+<ul>
+<li><code>packages/angular/build/src/builders</code> - application builder</li>
+<li><code>packages/angular_devkit/build_angular/src/builders</code> - other builders</li>
+</ul>
+<p>关于builder的详细介绍，可以参考之前的一篇博文：<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/06/06/angular-builders/%EF%BC%8C">https://zdd.github.io/2024/06/06/angular-builders/，</a> 也可以参考Angular官方文档：<a target="_blank" rel="noopener" href="https://angular.dev/tools/cli/cli-builder/">https://angular.dev/tools/cli/cli-builder/</a></p>
+<ul>
+<li>ng server works in memory and never generate files to dist folder</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/03/angular-test-fixture/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -991,95 +1108,6 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/27/angular-troubleshooting-setter-getter/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/27/angular-troubleshooting-setter-getter/" class="post-title-link" itemprop="url">angular-troubleshooting-setter-getter</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-27 20:49:03" itemprop="dateCreated datePublished" datetime="2024-07-27T20:49:03+08:00">2024-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-07-28 09:41:12" itemprop="dateModified" datetime="2024-07-28T09:41:12+08:00">2024-07-28</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>The <code>get</code> syntax binds an object property to a function that will be called when that property is looked up. It can also be used in <code>classes</code>.</p>
-<p>Here is an example:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="Case"><a href="#Case" class="headerlink" title="Case"></a>Case</h2><p>When you use <code>getter</code>, you would better provide <code>setter</code> for the property too. If you only provide <code>getter</code>, you might got errors, here is a real case.</p>
-<p>We have a <code>child</code> component with a <code>name</code> property, and we want to format the <code>name</code> to uppercase in the <code>child</code> component. the <code>name</code> property is passed from the <code>parent</code> component.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./child.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./child.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _name = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Input</span>() <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_name</span> = name</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">formatName</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- child.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Uppercase name: &#123;&#123; formatName(name) &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>And in the <code>parent</code> component’s template, we pass the <code>name</code> property to the <code>child</code> component.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- parent.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-child</span> <span class="attr">name</span>=<span class="string">&quot;Philip&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-child</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>When you run the code, you will get the following error:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: Cannot read properties of undefined (reading &#x27;toUpperCase&#x27;)</span><br></pre></td></tr></table></figure>
-
-<p>The error is caused by the <code>formatName</code> function in the <code>child</code> component, here <code>name</code> is <code>undefined</code>, we can’t call <code>toUpperCase</code> on <code>undefined</code>, but why?</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br></pre></td></tr></table></figure>
-
-<p>When we read name in the <code>formatName</code> function, it will trigger the <code>getter</code> of the <code>name</code> property, but we only provide the <code>setter</code> for the <code>name</code> property, so <code>name</code> is <code>undefined</code>.</p>
-<p>To fix this error, we need to provide the <code>getter</code> for the <code>name</code> property.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./child.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./child.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _name = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Input</span>() <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_name</span> = name</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">name</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_name</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">formatName</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get">get in object</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1149,14 +1177,14 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">244</span>
+          <span class="site-state-item-count">245</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">344</span>
+        <span class="site-state-item-count">345</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
