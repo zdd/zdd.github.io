@@ -28,7 +28,7 @@
 <meta property="og:description" content="Introduction这篇文章主要介绍一下JavaScript中的比较运算符&#x3D;&#x3D;。 先看几道题，如果你都能答上来，那么可以不用看此文了。 123456789console.log(&amp;#x27;abc&amp;#x27; &#x3D;&#x3D; String(&amp;#x27;abc&amp;#x27;));console.log(&amp;#x27;abc&amp;#x27; &#x3D;&#x3D;&#x3D; String(&amp;#x27;abc&amp;#x27;));console.">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-18T12:10:30.000Z">
-<meta property="article:modified_time" content="2024-12-14T03:25:24.945Z">
+<meta property="article:modified_time" content="2024-12-19T03:48:29.524Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="operator">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-14 11:25:24" itemprop="dateModified" datetime="2024-12-14T11:25:24+08:00">2024-12-14</time>
+                <time title="Modified: 2024-12-19 11:48:29" itemprop="dateModified" datetime="2024-12-19T11:48:29+08:00">2024-12-19</time>
               </span>
 
           
@@ -245,7 +245,7 @@
 <li>如果两个操作数类型相同，则按如下规则比较：<ol>
 <li>Object类型：当两个操作数指向同一个对象时返回<code>true</code>，否则返回<code>false</code>。</li>
 <li>String类型：当两个操作数的字符序列相同，返回<code>true</code>。</li>
-<li>Number类型：当两个操作数的数值相同，返回<code>true</code>。注意：<code>+0</code>和<code>-0</code>被认为是相等的，NaN和任何值都不相等，包括自己。</li>
+<li>Number类型：当两个操作数的数值相同，返回<code>true</code>。注意：<code>+0</code>和<code>-0</code>被认为是相等的，NaN和任何值都不相等，包括其自身。</li>
 <li>Boolean类型：当两个操作数都是<code>true</code>或者都是<code>false</code>时返回<code>true</code>。</li>
 <li>BigInt类型：当两个操作数的数值相同，返回<code>true</code>。</li>
 <li>Symbol类型：当两个操作数都是相同的Symbol值时返回<code>true</code>。</li>
@@ -266,16 +266,42 @@
 </ol>
 </li>
 </ol>
+<p>类型相同时，比较好理解，我们重点梳理一下类型不同时的比较。</p>
+<ol>
+<li>两个对象类型之间的比较是比较引用地址，也比较简单，无需赘述。</li>
+<li>一个对象和一个基本类型的比较，会将对象转换为基本类型，然后再比较。</li>
+<li>两个基本类型之间的比较，其实，最终都会归类到此类比较。</li>
+</ol>
+<p>所以，我们重点讨论一下基本类型之间的比较。JS中有7种基本类型，分别是<code>String</code>, <code>Number</code>, <code>BigInt</code>, <code>Boolean</code>, <code>Symbol</code>, <code>null</code>, <code>undefined</code>。</p>
+<ol>
+<li><code>null</code>和<code>undefined</code>之间的比较，返回<code>true</code>。</li>
+<li><code>Symbol</code>和其他类型之间的比较，都返回<code>false</code>。<br>至此，还剩下<code>String</code>, <code>Number</code>, <code>BigInt</code>, <code>Boolean</code>之间的比较。剩下的这几个类型比较，基本围绕<code>Number</code>进行。</li>
+<li><code>Boolean</code>和<code>Number</code>之间的比较，将<code>Boolean</code>转换为<code>Number</code>，然后再比较。</li>
+<li><code>String</code>和<code>Number</code>之间的比较，将<code>String</code>转换为<code>Number</code>，然后再比较。</li>
+<li><code>Boolean</code>和<code>String</code>之间的比较，将他们都转换为<code>Number</code>然后再比较。</li>
+<li><code>String</code>和<code>BigInt</code>之间的比较，将<code>String</code>转换为<code>BigInt</code>，然后再比较。</li>
+<li><code>Number</code>和<code>BigInt</code>之间的比较，比较他们的值，如果有一个操作数是<code>+Infinity/-Infinity/NaN</code>，返回<code>false</code>。</li>
+</ol>
 <p>注意：</p>
 <ol>
 <li><code>Loose Equality</code>算法满足交换律，即<code>A == B</code>等价于<code>B == A</code>。</li>
 <li><code>document.all</code>被视为<code>undefined</code>.</li>
 </ol>
 <h2 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h2><p>以下给出一些采用<code>==</code>进行比较的例子，我们会给出每个例子的比较规则对应的序号（参考<code>How == works一节</code>）。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;1&quot;</span> == <span class="number">1</span>; <span class="comment">// true, 2.3.4</span></span><br><span class="line"><span class="literal">true</span> == <span class="string">&quot;1&quot;</span> <span class="comment">// true, 2.3.3 and 2.3.4</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">false</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">null</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">undefined</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="literal">null</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="number">0</span> == !!<span class="literal">undefined</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"></span><br><span class="line">[] == []; <span class="comment">// false, 1.1</span></span><br><span class="line">&#123;&#125; == &#123;&#125;; <span class="comment">// false, 1.1</span></span><br><span class="line"><span class="title class_">NaN</span> == <span class="title class_">NaN</span>; <span class="comment">// false, 1.3, not NaN === NaN is also false.</span></span><br><span class="line">+<span class="number">0</span> == -<span class="number">0</span>; <span class="comment">// true, 1.3</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">null</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> number1 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"><span class="keyword">const</span> number2 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">number1 == <span class="number">3</span>; <span class="comment">// true, 2.3.1</span></span><br><span class="line">number1 == number2; <span class="comment">// false, 1.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object1 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object2 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object2); <span class="comment">// false, 1.1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object1); <span class="comment">// true, 1.1</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;1&quot;</span> == <span class="number">1</span>; <span class="comment">// true, 2.3.4</span></span><br><span class="line"><span class="literal">true</span> == <span class="string">&quot;1&quot;</span> <span class="comment">// true, 2.3.3 and 2.3.4</span></span><br><span class="line">[] == <span class="string">&quot;&quot;</span>; <span class="comment">// true, 2.2, 2.3.1</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">false</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">null</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">undefined</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="literal">null</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="number">0</span> == !!<span class="literal">undefined</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里有一个窍门，只要两个操作数都是对象字面量，那么一定不相等。无论==还是===都不相等。</span></span><br><span class="line">[] == []; <span class="comment">// false, 1.1</span></span><br><span class="line">&#123;&#125; == &#123;&#125;; <span class="comment">// false, 1.1</span></span><br><span class="line">&#123; <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125; == &#123; <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;; <span class="comment">// false, 1.1</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">NaN</span> == <span class="title class_">NaN</span>; <span class="comment">// false, 1.3, not NaN === NaN is also false.</span></span><br><span class="line">+<span class="number">0</span> == -<span class="number">0</span>; <span class="comment">// true, 1.3</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">null</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> number1 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"><span class="keyword">const</span> number2 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">number1 == <span class="number">3</span>; <span class="comment">// true, 2.3.1</span></span><br><span class="line">number1 == number2; <span class="comment">// false, 1.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object1 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object2 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object2); <span class="comment">// false, 1.1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object1); <span class="comment">// true, 1.1</span></span><br></pre></td></tr></table></figure>
 
 <p>下面这个例子要注意：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> b = <span class="string">&quot;1,2,3&quot;</span>;</span><br><span class="line">a == b; <span class="comment">// true, 2.3.1</span></span><br></pre></td></tr></table></figure>
+<p><code>Array.prototype.toString()</code>方法重写了<code>Object.prototype.toString()</code>方法，数组转化为字符串时，会执行以下步骤：</p>
+<ol>
+<li>对数组内每个元素调用<code>toString()</code>方法，将其转化为字符串。</li>
+<li>将这些字符串用逗号连接起来。</li>
+<li>返回这个字符串。</li>
+</ol>
+<p>所以上面的例子就是<code>[1, 2, 3].toString() == &quot;1,2,3&quot;</code>，所以返回<code>true</code>。<br>所以空数组和空字符串之间的比较也是<code>true</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[] == <span class="string">&quot;&quot;</span>; <span class="comment">// true, 2.3.4</span></span><br></pre></td></tr></table></figure>
+<p>数组转字符串还有很多细节，详情请看这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toString">Array.prototype.toString()</a>。</p>
+
     </div>
 
     
@@ -382,7 +408,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">343</span>
+        <span class="site-state-item-count">344</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
