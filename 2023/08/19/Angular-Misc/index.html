@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI Content Monkey Patching   Private Variable  在AOT编译器下，">
+  <meta name="description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI 这个问题，现在大概了解了一些，Angular内部使用Zone.js来实现change detection，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Angular-Misc">
 <meta property="og:url" content="http://example.com/2023/08/19/Angular-Misc/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI Content Monkey Patching   Private Variable  在AOT编译器下，">
+<meta property="og:description" content="Angular杂项什么操作会触发Angular执行change detection？这个问题一直没有搞明白，有待进一步研究。https:&#x2F;&#x2F;angular.io&#x2F;guide&#x2F;change-detectionhttps:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v&#x3D;-tB-QDrPmuI 这个问题，现在大概了解了一些，Angular内部使用Zone.js来实现change detection，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-19T12:58:58.000Z">
-<meta property="article:modified_time" content="2024-12-17T07:08:43.709Z">
+<meta property="article:modified_time" content="2024-12-22T11:56:49.609Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta name="twitter:card" content="summary">
@@ -215,7 +215,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-17 15:08:43" itemprop="dateModified" datetime="2024-12-17T15:08:43+08:00">2024-12-17</time>
+                <time title="Modified: 2024-12-22 19:56:49" itemprop="dateModified" datetime="2024-12-22T19:56:49+08:00">2024-12-22</time>
               </span>
 
           
@@ -230,6 +230,19 @@
 
       
         <h1 id="Angular杂项"><a href="#Angular杂项" class="headerlink" title="Angular杂项"></a>Angular杂项</h1><h2 id="什么操作会触发Angular执行change-detection？"><a href="#什么操作会触发Angular执行change-detection？" class="headerlink" title="什么操作会触发Angular执行change detection？"></a>什么操作会触发Angular执行change detection？</h2><p>这个问题一直没有搞明白，有待进一步研究。<br><a target="_blank" rel="noopener" href="https://angular.io/guide/change-detection">https://angular.io/guide/change-detection</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-tB-QDrPmuI">https://www.youtube.com/watch?v=-tB-QDrPmuI</a></p>
+<p>这个问题，现在大概了解了一些，Angular内部使用Zone.js来实现change detection，Zone.js对所有异步操作都进行了monkey patch，当有异步操作发生时，Angular会自动进行更新检测。所以这些动作会出发Angular执行change detection：</p>
+<ol>
+<li>setTimeout&#x2F;setInterval</li>
+<li>XMLHttpRequest&#x2F;fetch</li>
+<li>EventListener： click, mouseover, keydown, …</li>
+<li>Promise.then</li>
+<li>Async&#x2F;Await</li>
+</ol>
+<h2 id="Change-detection相关参考资料"><a href="#Change-detection相关参考资料" class="headerlink" title="Change detection相关参考资料"></a>Change detection相关参考资料</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/">https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/</a> - 尚未阅读。</li>
+<li><a target="_blank" rel="noopener" href="https://hackernoon.com/everything-you-need-to-know-about-change-detection-in-angular-8006c51d206f">https://hackernoon.com/everything-you-need-to-know-about-change-detection-in-angular-8006c51d206f</a> - 这个比较老了，用的还是Angular4.0的源码讲解的。</li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/42643389/why-do-we-need-ngdocheck/42807309#42807309">https://stackoverflow.com/questions/42643389/why-do-we-need-ngdocheck/42807309#42807309</a> - ngDoCheck的作用。</li>
+</ol>
 <h2 id="Content"><a href="#Content" class="headerlink" title="Content"></a>Content</h2><ul>
 <li><a href="#monkey-patching">Monkey Patching</a>  </li>
 <li><a href="#private-variable">Private Variable</a></li>
@@ -254,11 +267,22 @@
 </ul>
 <h2 id="Angular中的viewProviders和providers"><a href="#Angular中的viewProviders和providers" class="headerlink" title="Angular中的viewProviders和providers"></a>Angular中的viewProviders和providers</h2><p>竟然还有viewProvider?真是孤陋寡闻了。</p>
 <h2 id="基于配置的换肤方案"><a href="#基于配置的换肤方案" class="headerlink" title="基于配置的换肤方案"></a>基于配置的换肤方案</h2><p>因为Angular的模板和样式是在Component元数据中指定的，所以我们可以定义一个变量用来控制模板和样式的变化，从而实现换肤功能。</p>
+<p>首先：我们在<code>config</code>目录下新建一个<code>theme.ts</code>文件，用来存放主题相关的配置。这里我们定义一个<code>USE_LIGHT_THEME</code>变量，用来控制是否使用浅色主题。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// config/theme.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">USE_LIGHT_THEME</span> = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后：我们在<code>app.component.ts</code>中引入<code>USE_LIGHT_THEME</code>变量，根据这个变量的值来选择不同的模板和样式。</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="variable constant_">USE_LIGHT_THEME</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./config/theme&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="variable constant_">USE_LIGHT_THEME</span> ? <span class="string">&#x27;./app.component-light.html&#x27;</span> : <span class="string">&#x27;./app.component-dark.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: <span class="variable constant_">USE_LIGHT_THEME</span> ? [<span class="string">&#x27;./app.component-light.css&#x27;</span>] : [<span class="string">&#x27;./app.component-dark.css&#x27;</span>],</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// config/theme.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">USE_LIGHT_THEME</span> = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
-<p>以上就是一个简单的实现方式，通过更改<code>USE_LIGHT_THEME</code>的值，就可以实现换肤功能。</p>
+<p>以上就是一个简单的实现方式，通过更改<code>USE_LIGHT_THEME</code>的值，就可以实现换肤功能。使用这种方法时，我们可以为已有的项目添加换肤功能，而不需要修改原有的代码，只需为每个组件添加一个额外的模板和样式文件即可。（有的甚至只需要添加一个样式文件就行了）。</p>
+<h2 id="如果让Angular每五分钟进行一次更新检测？"><a href="#如果让Angular每五分钟进行一次更新检测？" class="headerlink" title="如果让Angular每五分钟进行一次更新检测？"></a>如果让Angular每五分钟进行一次更新检测？</h2><p>为什么会有如此奇怪的需求呢，现实中还真有。比如我们使用websocket来实时更新数据，但是websocket的数据更新不会触发Angular的change detection，所以我们需要定时调用<code>ChangeDetectorRef.detectChanges()</code>方法来手动触发更新检测。</p>
+<p>这里的做法是首先使用<code>ChangeDetectorRef.detach()</code>方法来暂时关闭自动更新检测，然后使用<code>setInterval()</code>方法每隔5秒调用一次<code>ChangeDetectorRef.detectChanges()</code>方法来手动触发更新检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> ref: ChangeDetectorRef</span>) &#123;</span><br><span class="line">  ref.<span class="title function_">detach</span>();</span><br><span class="line">  <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ref</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">  &#125;, <span class="number">5000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h2 id="开启sourceMap"><a href="#开启sourceMap" class="headerlink" title="开启sourceMap"></a>开启sourceMap</h2><p>In file <code>angular.json</code>, set <code>sourceMap</code> to <code>true</code> in <code>build</code> section.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;projects&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;your-project-name&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;sourceMap&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Then build angular app with <code>--source-map</code> option.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng build --source-map</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -341,7 +365,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Angular%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">Angular杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%93%8D%E4%BD%9C%E4%BC%9A%E8%A7%A6%E5%8F%91Angular%E6%89%A7%E8%A1%8Cchange-detection%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">什么操作会触发Angular执行change detection？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Content"><span class="nav-number">1.2.</span> <span class="nav-text">Content</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8AOT%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%8B%EF%BC%8CPrivate%E5%8F%98%E9%87%8F%E6%97%A0%E6%B3%95%E7%BB%91%E5%AE%9A%E5%88%B0%E6%A8%A1%E6%9D%BF%E4%B8%AD%E3%80%82"><span class="nav-number">1.3.</span> <span class="nav-text">在AOT编译器下，Private变量无法绑定到模板中。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOT-vs-JIT"><span class="nav-number">1.4.</span> <span class="nav-text">AOT vs JIT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monkey-Patching"><span class="nav-number">1.5.</span> <span class="nav-text">Monkey Patching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Angular%E6%89%BE%E4%B8%8D%E5%88%B0selector%E5%AF%B9%E5%BA%94%E7%9A%84%E7%BB%84%E4%BB%B6%E6%97%B6%EF%BC%8C%E4%B8%8D%E4%BC%9A%E6%8A%A5%E9%94%99%E3%80%82"><span class="nav-number">1.6.</span> <span class="nav-text">Angular找不到selector对应的组件时，不会报错。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ng-repeat-vs-ngFor"><span class="nav-number">1.7.</span> <span class="nav-text">ng-repeat vs ngFor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Angular%E4%B8%AD%E7%9A%84viewProviders%E5%92%8Cproviders"><span class="nav-number">1.8.</span> <span class="nav-text">Angular中的viewProviders和providers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%85%8D%E7%BD%AE%E7%9A%84%E6%8D%A2%E8%82%A4%E6%96%B9%E6%A1%88"><span class="nav-number">1.9.</span> <span class="nav-text">基于配置的换肤方案</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Angular%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">Angular杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%93%8D%E4%BD%9C%E4%BC%9A%E8%A7%A6%E5%8F%91Angular%E6%89%A7%E8%A1%8Cchange-detection%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">什么操作会触发Angular执行change detection？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Change-detection%E7%9B%B8%E5%85%B3%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.2.</span> <span class="nav-text">Change detection相关参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Content"><span class="nav-number">1.3.</span> <span class="nav-text">Content</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8AOT%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%8B%EF%BC%8CPrivate%E5%8F%98%E9%87%8F%E6%97%A0%E6%B3%95%E7%BB%91%E5%AE%9A%E5%88%B0%E6%A8%A1%E6%9D%BF%E4%B8%AD%E3%80%82"><span class="nav-number">1.4.</span> <span class="nav-text">在AOT编译器下，Private变量无法绑定到模板中。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOT-vs-JIT"><span class="nav-number">1.5.</span> <span class="nav-text">AOT vs JIT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Monkey-Patching"><span class="nav-number">1.6.</span> <span class="nav-text">Monkey Patching</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Angular%E6%89%BE%E4%B8%8D%E5%88%B0selector%E5%AF%B9%E5%BA%94%E7%9A%84%E7%BB%84%E4%BB%B6%E6%97%B6%EF%BC%8C%E4%B8%8D%E4%BC%9A%E6%8A%A5%E9%94%99%E3%80%82"><span class="nav-number">1.7.</span> <span class="nav-text">Angular找不到selector对应的组件时，不会报错。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ng-repeat-vs-ngFor"><span class="nav-number">1.8.</span> <span class="nav-text">ng-repeat vs ngFor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Angular%E4%B8%AD%E7%9A%84viewProviders%E5%92%8Cproviders"><span class="nav-number">1.9.</span> <span class="nav-text">Angular中的viewProviders和providers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%85%8D%E7%BD%AE%E7%9A%84%E6%8D%A2%E8%82%A4%E6%96%B9%E6%A1%88"><span class="nav-number">1.10.</span> <span class="nav-text">基于配置的换肤方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E8%AE%A9Angular%E6%AF%8F%E4%BA%94%E5%88%86%E9%92%9F%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E6%9B%B4%E6%96%B0%E6%A3%80%E6%B5%8B%EF%BC%9F"><span class="nav-number">1.11.</span> <span class="nav-text">如果让Angular每五分钟进行一次更新检测？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%90%AFsourceMap"><span class="nav-number">1.12.</span> <span class="nav-text">开启sourceMap</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -355,14 +379,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">246</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">345</span>
+        <span class="site-state-item-count">350</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
