@@ -28,7 +28,7 @@
 <meta property="og:description" content="var in for loop.What’s the output of the following code? 123456for (var i &#x3D; 0; i &lt; 5; i++) &amp;#123;  setTimeout(function () &amp;#123;    console.log(i);  &amp;#125;);&amp;#125;console.log(100); Answer: 12345610">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-16T10:53:13.000Z">
-<meta property="article:modified_time" content="2024-12-19T02:19:05.259Z">
+<meta property="article:modified_time" content="2024-12-23T02:27:32.296Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="interview">
@@ -217,7 +217,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-19 10:19:05" itemprop="dateModified" datetime="2024-12-19T10:19:05+08:00">2024-12-19</time>
+                <time title="Modified: 2024-12-23 10:27:32" itemprop="dateModified" datetime="2024-12-23T10:27:32+08:00">2024-12-23</time>
               </span>
 
           
@@ -237,8 +237,8 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">100</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br></pre></td></tr></table></figure>
 <p>分析：</p>
 <ol>
-<li><code>console.log(100);</code>是同步代码，所以会先输出100。</li>
-<li>for循环一共执行5次，每次都会调用<code>setTimeout</code>，但是<code>setTimeout</code>是异步代码，会将setTimeout的回调函数放到宏任务队列中，等待执行。</li>
+<li>最后一行代码<code>console.log(100);</code>是同步代码，所以会先输出100。</li>
+<li>for循环一共执行5次，每次都会调用<code>setTimeout</code>，但是<code>setTimeout</code>是异步代码，JS引擎会将setTimeout的回调函数放到宏任务队列中，等待执行。</li>
 <li>当前Event loop执行完毕后，会去执行宏任务队列中的任务，这时候<code>setTimeout</code>的回调函数才会被执行，但是这时候<code>i</code>已经变成了5，所以会输出5个5。</li>
 </ol>
 <p>所以导致这段代码的问题有二，解决其中任何一个都可以让它输出0, 1, 2, 3, 4。</p>
@@ -246,6 +246,10 @@
 <li>使用了<code>var</code>, <code>var</code>是函数作用域，所以所有的循环都共享一个<code>i</code>。</li>
 <li>使用了<code>setTimeout</code>。<code>setTimeout</code>是整个循环结束后才开始执行的！如果我们把<code>setTimeout</code>删除就不会有问题了。以下代码works well!<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ol>
+<p>那么是不是不用<code>setTimeout</code>就没有问题了呢？不是的，我们来看这道题的一个变种：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> func = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  func.<span class="title function_">push</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> <span class="title function_">f</span>());</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>这个变种没有使用<code>setTimeout</code>，但是结果依然是5个5。为什么呢？观察这个变种和原始题目我们可以看到，他们共同的特点都是在<code>for</code>循环结束后才执行代码，此时i的值已经是5了。这才是根本原因。</p>
+<p>好了，现在我们来看看如何解决这个问题。</p>
 <h3 id="方法一，使用let代替var。"><a href="#方法一，使用let代替var。" class="headerlink" title="方法一，使用let代替var。"></a>方法一，使用<code>let</code>代替<code>var</code>。</h3><p>由于<code>let</code>有块级作用域，所以每次循环都会创建一个新的变量i，而不是像<code>var</code>那样所有的循环都共享一个i。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
 <h3 id="方法二：将循环变量i参数化"><a href="#方法二：将循环变量i参数化" class="headerlink" title="方法二：将循环变量i参数化"></a>方法二：将循环变量i参数化</h3><p>说得再通俗一点，将setTimeout的逻辑单独抽离成一个函数<code>print</code>。这样每次循环的时候，都会将当前的i传递给<code>print</code>函数，这样<code>setTimeout</code>的代码加入宏任务队列时会记住当前的i值。</p>
