@@ -181,6 +181,355 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/03/javascript-always-use-arrow-function-in-settimeout/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/03/javascript-always-use-arrow-function-in-settimeout/" class="post-title-link" itemprop="url">javascript-always-use-arrow-function-in-setTimeout</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-10-03 23:32:47" itemprop="dateCreated datePublished" datetime="2024-10-03T23:32:47+08:00">2024-10-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-10 21:08:01" itemprop="dateModified" datetime="2024-11-10T21:08:01+08:00">2024-11-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="A-question-from-stackoverflow"><a href="#A-question-from-stackoverflow" class="headerlink" title="A question from stackoverflow"></a>A question from stackoverflow</h2><p>The following code does not work, do you know why? When you run the code, you will got the error <code>TypeError: Cannot read properties of undefined (reading &#39;navigate&#39;)</code>.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Router</span>, <span class="title class_">RouterOutlet</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">TestComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./test/test.component&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterOutlet</span>, <span class="title class_">TestComponent</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./app.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;angular-18&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">gotoProduct</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([<span class="string">&#x27;product&#x27;</span>]);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="variable language_">this</span>.<span class="property">gotoProduct</span>, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Reason:<br><code>Code executed by setTimeout() is called from an execution context separate from the function from which setTimeout was called. The usual rules for setting the this keyword for the called function apply, and if you have not set this in the call or with bind, it will default to the window (or global) object, even in strict mode. It will not be the same as the this value for the function that called setTimeout.</code> - From <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout#the_this_problem">MDN- The this problem for setTimeout</a></p>
+<p>That means <code>router</code> is undefined in <code>gotoProduct</code> function. The reason is that <code>this</code> in <code>gotoProduct</code> function is not the instance of <code>AppComponent</code>. It is the instance of <code>Window</code> object. </p>
+<p>How to fix it?</p>
+<h2 id="Use-Arrow-function"><a href="#Use-Arrow-function" class="headerlink" title="Use Arrow function"></a>Use Arrow function</h2><p>Arrow function doesn’t have its own this binding, it will inherit the <code>this</code> from the parent scope. So, you can use arrow function in <code>setTimeout</code> function to keep the context of the parent scope.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">gotoProduct</span>();</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-bind"><a href="#Use-bind" class="headerlink" title="Use bind"></a>Use <code>bind</code></h2><p>You can also use <code>bind</code> function to bind the <code>this</code> to the <code>gotoProduct</code> function.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="variable language_">this</span>.<span class="property">gotoProduct</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>), <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Becareful when using <code>setTimeout</code> function in <code>Angular</code>.<br>Always use arrow function in <code>setTimeout</code> function to keep the context of the parent scope.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/03/angular-host-listener/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/03/angular-host-listener/" class="post-title-link" itemprop="url">angular-host-listener</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-10-03 12:35:29" itemprop="dateCreated datePublished" datetime="2024-10-03T12:35:29+08:00">2024-10-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-04 17:04:51" itemprop="dateModified" datetime="2024-12-04T17:04:51+08:00">2024-12-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><code>HostListener</code> is an Angular <code>Decorator</code> that declares a DOM event to listen for, and provides a handler method to run when that event occurs.</p>
+<h2 id="What-is-a-Host"><a href="#What-is-a-Host" class="headerlink" title="What is a Host?"></a>What is a Host?</h2><p>先看一下Host的含义，Host是指Directive或者Component的宿主元素，比如下面这个例子：<code>app-product</code>是<code>ProductComponent</code>的Host。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Product<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这里<code>app-product</code>是ProductComponent定义时指定的选择器，而ProductComponent的模板也很简单，就是一个<code>div</code>元素，里面的内容是字符串<code>Product</code>。</p>
+<p>See <a target="_blank" rel="noopener" href="https://angular.dev/guide/components/host-elements#">here</a> for details.</p>
+<p>Here is an example of using <code>HostListener</code> to listen for the <code>click</code> event on a button element:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-test&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;button&gt;Click me&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TestComponent</span> &#123;</span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Button clicked&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The above code is equivalent to the following code:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-test&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;onClick()&quot;&gt;Click me&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TestComponent</span> &#123;</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Button clicked&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>HostListener</code> is a more powerful way to listen for events because it allows you to listen for events on any element, not just the element that the <code>HostListener</code> is attached to. For example, you can listen for the events from document or window object.</p>
+<ul>
+<li>document:click</li>
+<li>window:keydown</li>
+<li>window:scroll</li>
+<li>window:resize</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-test&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;onClick()&quot;&gt;Click me&lt;/button&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TestComponent</span> &#123;</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Button clicked&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;document:click&#x27;</span>, [<span class="string">&#x27;$event&#x27;</span>])</span><br><span class="line">  <span class="title function_">documentClick</span>(<span class="params">event: MouseEvent</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Document clicked at (<span class="subst">$&#123;event.clientX&#125;</span>, <span class="subst">$&#123;event.clientY&#125;</span>)`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;window:keydown&#x27;</span>, [<span class="string">&#x27;$event&#x27;</span>])</span><br><span class="line">  <span class="title function_">keydown</span>(<span class="params">event: KeyboardEvent</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`event.key: <span class="subst">$&#123;event.key&#125;</span> was pressed`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;window:scroll&#x27;</span>, [<span class="string">&#x27;$event&#x27;</span>])</span><br><span class="line">  <span class="title function_">onScroll</span>(<span class="params">event: Event</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Window scrolled`</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;window:resize&#x27;</span>, [<span class="string">&#x27;$event&#x27;</span>])</span><br><span class="line">  <span class="title function_">onResize</span>(<span class="params">event: Event</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Window resized`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://angular.dev/api/core/HostListener?tab=usage-notes">https://angular.dev/api/core/HostListener?tab=usage-notes</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/03/angular-module-federation-deep-dive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/03/angular-module-federation-deep-dive/" class="post-title-link" itemprop="url">angular-module-federation-deep-dive</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-10-03 10:37:03 / Modified: 11:19:53" itemprop="dateCreated datePublished" datetime="2024-10-03T10:37:03+08:00">2024-10-03</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In this article, we will explore the Angular Module Federation feature in depth. Please read the <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/26/angular-module-federation/">first article</a> in this series to get a basic understanding of Module Federation.</p>
+<h2 id="remoteEntry-js"><a href="#remoteEntry-js" class="headerlink" title="remoteEntry.js"></a>remoteEntry.js</h2><p>Each time you call <code>loadRemoteModule</code>, Angular will fetch the <code>remoteEntry.js</code> file first from the remote server. What is this file? Let’s take a look at the <code>remoteEntry.js</code> file in the <code>remote</code> project.</p>
+<p>You can find the <code>remoteEntry.js</code> file in the <code>dist</code> folder of the <code>remote</code> project. The file is generated by the ModuleFederationPlugin in the webpack configuration. But the file under the <code>dist</code> folder is minimized and hard to read. You can read it on Chrome network tab when you call <code>loadRemoteModule</code>.</p>
+<p>This file is very large and contains lots of code, you can scroll down to the bottom or search <code>container entry</code> to find key part.</p>
+<p>remoteEntry.js mainly contains the following information:</p>
+<h3 id="1-The-list-of-modules-that-are-exposed-by-the-remote-project"><a href="#1-The-list-of-modules-that-are-exposed-by-the-remote-project" class="headerlink" title="1. The list of modules that are exposed by the remote project."></a>1. The list of modules that are exposed by the remote project.</h3><p>In the following example, the remote project exposes a module named <code>./Component</code> from its <code>./projects/mfe1/src/app/product/product.component.ts</code> file.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> moduleMap = &#123;</span><br><span class="line">	<span class="string">&quot;./Component&quot;</span>: <span class="function">() =&gt;</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> __webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;projects_mfe1_src_app_product_product_component_ts&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> ((<span class="title function_">__webpack_require__</span>(<span class="comment">/*! ./projects/mfe1/src/app/product/product.component.ts */</span> <span class="number">1585</span>)))));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="2-The-list-of-shared-libraries"><a href="#2-The-list-of-shared-libraries" class="headerlink" title="2. The list of shared libraries."></a>2. The list of shared libraries.</h3><p>From the following code in remoteEntry.js the remote project shares the common angular and rxjs libraries.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(name) &#123;</span><br><span class="line"> 	<span class="keyword">case</span> <span class="string">&quot;default&quot;</span>: &#123;</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/common/http&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_common_fesm2022_http_mjs-_f9340&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">6443</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/common&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_common_fesm2022_common_mjs-_b4621&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">316</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/core/primitives/signals&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_core_fesm2022_primitives_signals_mjs&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">5689</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/core&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_core_fesm2022_core_mjs&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">7580</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/platform-browser&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_platform-browser_fesm2022_platform-browser_mjs-_e89f0&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">436</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;@angular/router&quot;</span>, <span class="string">&quot;17.3.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_angular_router_fesm2022_router_mjs-_5a221&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">5072</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;rxjs/operators&quot;</span>, <span class="string">&quot;7.8.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_rxjs_dist_esm_operators_index_js&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">8219</span>))))));</span><br><span class="line"> 		<span class="title function_">register</span>(<span class="string">&quot;rxjs&quot;</span>, <span class="string">&quot;7.8.0&quot;</span>, <span class="function">() =&gt;</span> (__webpack_require__.<span class="title function_">e</span>(<span class="string">&quot;node_modules_rxjs_dist_esm_index_js&quot;</span>).<span class="title function_">then</span>(<span class="function">() =&gt;</span> (<span class="function">() =&gt;</span> (<span class="title function_">__webpack_require__</span>(<span class="number">845</span>))))));</span><br><span class="line"> 	&#125;</span><br><span class="line"> 	<span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><ol>
+<li>remoteEntry.js is a file that contains the list of modules that are exposed by the remote project.</li>
+<li>Angular fetches the remoteEntry.js file first before loading the remote module.</li>
+<li>The remoteEntry.js file is generated by the ModuleFederationPlugin in the webpack configuration.</li>
+<li>shell&#x2F;host project does not have a remoteEntry.js file.</li>
+</ol>
+<h2 id="loadRemoteModule"><a href="#loadRemoteModule" class="headerlink" title="loadRemoteModule"></a>loadRemoteModule</h2><p>How loadRemoteModule works in Angular Module Federation? Let’s take a look at the source code of the <code>loadRemoteModule</code> function in the <code>@angular-architects/module-federation</code> package.</p>
+<p>The entry point is from the router file, we call <code>loadRemoteModule</code> function to load the remote module. The <code>loadRemoteModule</code> function is defined in the <code>load-remote-module.ts</code> file in the <code>@angular-architects/module-federation</code> package.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span></span><br><span class="line">    <span class="title function_">loadRemoteModule</span>(&#123;</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;module&#x27;</span>,</span><br><span class="line">      <span class="attr">remoteEntry</span>: <span class="string">&#x27;http://localhost:4201/remoteEntry.js&#x27;</span>,</span><br><span class="line">      <span class="attr">exposedModule</span>: <span class="string">&#x27;./Component&#x27;</span></span><br><span class="line">  &#125;).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductComponent</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Here is the source code of the <code>loadRemoteModule</code> function from <code>webpack:///node_modules/@angular-architects/module-federation-runtime/fesm2022/angular-architects-module-federation-runtime.mjs</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">loadRemoteModule</span>(<span class="params">optionsOrRemoteName, exposedModule</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> loadRemoteEntryOptions;</span><br><span class="line">    <span class="keyword">let</span> key;</span><br><span class="line">    <span class="keyword">let</span> remoteEntry;</span><br><span class="line">    <span class="keyword">let</span> options;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> optionsOrRemoteName === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">        options = &#123;</span><br><span class="line">            <span class="attr">type</span>: <span class="string">&#x27;manifest&#x27;</span>,</span><br><span class="line">            <span class="attr">remoteName</span>: optionsOrRemoteName,</span><br><span class="line">            <span class="attr">exposedModule</span>: exposedModule,</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        options = optionsOrRemoteName;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// To support legacy API (&lt; ng 13)</span></span><br><span class="line">    <span class="keyword">if</span> (!options.<span class="property">type</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> hasManifest = <span class="title class_">Object</span>.<span class="title function_">keys</span>(config).<span class="property">length</span> &gt; <span class="number">0</span>;</span><br><span class="line">        options.<span class="property">type</span> = hasManifest ? <span class="string">&#x27;manifest&#x27;</span> : <span class="string">&#x27;script&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (options.<span class="property">type</span> === <span class="string">&#x27;manifest&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> manifestEntry = config[options.<span class="property">remoteName</span>];</span><br><span class="line">        <span class="keyword">if</span> (!manifestEntry) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Manifest does not contain &#x27;</span> + options.<span class="property">remoteName</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        options = &#123;</span><br><span class="line">            <span class="attr">type</span>: manifestEntry.<span class="property">type</span>,</span><br><span class="line">            <span class="attr">exposedModule</span>: options.<span class="property">exposedModule</span>,</span><br><span class="line">            <span class="attr">remoteEntry</span>: manifestEntry.<span class="property">remoteEntry</span>,</span><br><span class="line">            <span class="attr">remoteName</span>: manifestEntry.<span class="property">type</span> === <span class="string">&#x27;script&#x27;</span> ? options.<span class="property">remoteName</span> : <span class="literal">undefined</span>,</span><br><span class="line">        &#125;;</span><br><span class="line">        remoteEntry = manifestEntry.<span class="property">remoteEntry</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        remoteEntry = options.<span class="property">remoteEntry</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (options.<span class="property">type</span> === <span class="string">&#x27;script&#x27;</span>) &#123;</span><br><span class="line">        loadRemoteEntryOptions = &#123;</span><br><span class="line">            <span class="attr">type</span>: <span class="string">&#x27;script&#x27;</span>,</span><br><span class="line">            <span class="attr">remoteEntry</span>: options.<span class="property">remoteEntry</span>,</span><br><span class="line">            <span class="attr">remoteName</span>: options.<span class="property">remoteName</span>,</span><br><span class="line">        &#125;;</span><br><span class="line">        key = options.<span class="property">remoteName</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (options.<span class="property">type</span> === <span class="string">&#x27;module&#x27;</span>) &#123;</span><br><span class="line">        loadRemoteEntryOptions = &#123;</span><br><span class="line">            <span class="attr">type</span>: <span class="string">&#x27;module&#x27;</span>,</span><br><span class="line">            <span class="attr">remoteEntry</span>: options.<span class="property">remoteEntry</span>,</span><br><span class="line">        &#125;;</span><br><span class="line">        key = options.<span class="property">remoteEntry</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (remoteEntry) &#123;</span><br><span class="line">        <span class="keyword">await</span> <span class="title function_">loadRemoteEntry</span>(loadRemoteEntryOptions);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> <span class="title function_">lookupExposedModule</span>(key, options.<span class="property">exposedModule</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The key part is the last <code>if</code> branch in this file.<br>first: it load the <code>remoteEntry.js</code> file by calling <code>loadRemoteEntry</code> function.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (remoteEntry) &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title function_">loadRemoteEntry</span>(loadRemoteEntryOptions);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>loadREmoteEntry</code> function then calls <code>loadRemoteModuleEntry</code> function to load the remote module.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// remoteEntry = &#x27;http://localhost:4201/remoteEntry.js&#x27;</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">loadRemoteModuleEntry</span>(<span class="params">remoteEntry</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (containerMap[remoteEntry]) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> <span class="keyword">import</span>(<span class="comment">/* webpackIgnore:true */</span> remoteEntry).<span class="title function_">then</span>(<span class="function">(<span class="params">container</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="title function_">initRemote</span>(container, remoteEntry);</span><br><span class="line">        containerMap[remoteEntry] = container;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>We can see that it uses the <code>import</code> function to load the remoteEntry.js file. The <code>import</code> function is a dynamic import function that fetches the remoteEntry.js file from the remote server. After loading the remoteEntry.js file, it calls the <code>initRemote</code> function to initialize the remote container. This container is used to get the remote module later.</p>
+<p>After loading the remoteEntry.js file, then it calls <code>lookupExposedModule</code> function to get the module from the remote project.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// key = &#x27;http://localhost:4201/remoteEntry.js&#x27;</span></span><br><span class="line"><span class="comment">// exposedModule = &#x27;./Component&#x27;</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">lookupExposedModule</span>(<span class="params">key, exposedModule</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> container = containerMap[key];</span><br><span class="line">  <span class="keyword">const</span> factory = <span class="keyword">await</span> container.<span class="title function_">get</span>(exposedModule);</span><br><span class="line">  <span class="keyword">const</span> <span class="title class_">Module</span> = <span class="title function_">factory</span>();</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Module</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/02/angular-constructor-vs-ngoninit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/10/02/angular-constructor-vs-ngoninit/" class="post-title-link" itemprop="url">angular-constructor-vs-ngoninit</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-10-02 10:10:20" itemprop="dateCreated datePublished" datetime="2024-10-02T10:10:20+08:00">2024-10-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-27 21:01:51" itemprop="dateModified" datetime="2024-11-27T21:01:51+08:00">2024-11-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Constructor-vs-ngOnInit"><a href="#Constructor-vs-ngOnInit" class="headerlink" title="Constructor vs ngOnInit"></a>Constructor vs ngOnInit</h2><p>What’s the difference between constructor and ngOnInit in Angular?<br><code>constructor</code> is a TypeScript class constructor while <code>ngOnInit</code> is an Angular lifecycle hook called by <code>Angular</code> to indicate that Angular is done creating the component. a common question is when to use <code>constructor</code> and when to use <code>ngOnInit</code>?</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>constructor</code> is used to initialize the class properties, but it’s not the right place to do any initialization that depends on Angular services or inputs. ngOnInit is the right place to do such initialization.</li>
+<li><code>ngOnInit</code> is an Angular lifecycle hook that is called after Angular has initialized all data-bound properties of a directive. It’s the right place to put initialization logic that depends on Angular services or inputs.</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">DataService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../data.service&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">products</span>: <span class="built_in">any</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> dataService: DataService</span>) &#123;</span><br><span class="line">    <span class="comment">// What should be done here?</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">dataService</span>.<span class="title function_">fetchData</span>().<span class="title function_">subscribe</span>(<span class="function">(<span class="params">data: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">products</span> = data;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>When to call</th>
+<th>Call count</th>
+<th>What to do</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>constructor</td>
+<td>When create class</td>
+<td>1</td>
+<td>1. Initialize class properties, 2. DI</td>
+<td></td>
+</tr>
+<tr>
+<td>ngOnInit</td>
+<td>after <code>constructor</code>, before first <code>ngOnChanges</code></td>
+<td>1</td>
+<td>1. Init @Input, 2. Call service to fetch data</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/35763730/difference-between-constructor-and-ngoninit">https://stackoverflow.com/questions/35763730/difference-between-constructor-and-ngoninit</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/angular-in-depth/the-essential-difference-between-constructor-and-ngoninit-in-angular-c9930c209a42">https://medium.com/angular-in-depth/the-essential-difference-between-constructor-and-ngoninit-in-angular-c9930c209a42</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/10/01/angular-assets-config/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -676,407 +1025,6 @@ To verify whether the image was in the final build, you can run the following co
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/19/angular-troubleshooting-rootdir/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/19/angular-troubleshooting-rootdir/" class="post-title-link" itemprop="url">typescript-troubleshooting-rootDir</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-09-19 08:44:53 / Modified: 09:06:51" itemprop="dateCreated datePublished" datetime="2024-09-19T08:44:53+08:00">2024-09-19</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>今天在做一个 Angular 项目的时候，遇到了一个问题：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR <span class="keyword">in</span> src/app/app.module.ts:1:1 - error TS6059: File <span class="string">&#x27;xxx&#x27;</span> is not under <span class="string">&#x27;rootDir&#x27;</span> <span class="string">&#x27;yyy&#x27;</span>. <span class="string">&#x27;rootDir&#x27;</span> is expected to contain all <span class="built_in">source</span> files.</span><br></pre></td></tr></table></figure>
-
-<p>可以看到这个错误是关于<code>rootDir</code>的，那么<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/rootDir.html"><code>rootDir</code></a>是什么呢？看一下官网的解释：</p>
-<p>Default: The longest common path of all non-declaration input files. If composite is set, the default is instead the directory containing the tsconfig.json file.</p>
-<p>When TypeScript compiles files, it keeps the same directory structure in the output directory as exists in the input directory.</p>
-<p>For example, let’s say you have some input files:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── tsconfig.json</span><br><span class="line">├── core</span><br><span class="line">│   ├── a.ts</span><br><span class="line">│   ├── b.ts</span><br><span class="line">│   ├── sub</span><br><span class="line">│   │   ├── c.ts</span><br><span class="line">├── types.d.ts</span><br></pre></td></tr></table></figure>
-
-<p>The inferred value for rootDir is the longest common path of all non-declaration input files, which in this case is core&#x2F;.</p>
-<p>If your outDir was dist, TypeScript would write this tree:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── dist</span><br><span class="line">│   ├── a.js</span><br><span class="line">│   ├── b.js</span><br><span class="line">│   ├── sub</span><br><span class="line">│   │   ├── c.js</span><br></pre></td></tr></table></figure>
-
-<p>Importantly, <strong><code>rootDir does not affect which files become part of the compilation. It has no interaction with the include, exclude, or files tsconfig.json settings.</code></strong></p>
-<p>Note that TypeScript will never write an output file to a directory outside of outDir, and will never skip emitting a file. For this reason, <code>rootDir also enforces that all files which need to be emitted are underneath the rootDir path.</code></p>
-<p>重点看这句：<code>rootDir also enforces that all files which need to be emitted are underneath the rootDir path.</code> 也就是说，所有需要被编译的文件都必须在<code>rootDir</code>的路径下，否则就会报错。</p>
-<p>For example, let’s say you had this tree: 如果我们在<code>tsconfig.json</code>中指定了<code>rootDir</code>为<code>core</code>，那么<code>helpers.ts</code>就不在<code>rootDir</code>的路径下，所以会报错。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">MyProj</span><br><span class="line">├── tsconfig.json</span><br><span class="line">├── core</span><br><span class="line">│   ├── a.ts</span><br><span class="line">│   ├── b.ts</span><br><span class="line">├── helpers.ts</span><br></pre></td></tr></table></figure>
-
-<h2 id="Nx-based-mono-repos"><a href="#Nx-based-mono-repos" class="headerlink" title="Nx based mono-repos."></a>Nx based mono-repos.</h2><p>如果是基于Nx的但一代码仓库，有时候也会出现这个错误，原因是一个Publishable的lib引用了另一个Non-Publishable的lib，这时候就会报错。详情请看<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/76500288/1487475">这里</a>, 关于Nx buildable&#x2F;publishable libraries, please see <a target="_blank" rel="noopener" href="https://nx.dev/concepts/buildable-and-publishable-libraries">here</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/18/misc-2024-09/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/18/misc-2024-09/" class="post-title-link" itemprop="url">misc-2024-09</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-09-18 21:39:29" itemprop="dateCreated datePublished" datetime="2024-09-18T21:39:29+08:00">2024-09-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-24 20:53:23" itemprop="dateModified" datetime="2024-12-24T20:53:23+08:00">2024-12-24</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ol>
-<li><code>ngc</code> - Angular compiler</li>
-<li><code>ngcc</code> - Angular compatible compiler</li>
-<li>. <code>fems</code> - <a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1CZC2rcpxffTDfRDs6p1cfbmKNLA6x5O-NtkJglDaBVs/edit?pli=1#heading=h.k0mh3o8u5hx">Flattened ES Module</a>, this is the angular file format for ES Module.</li>
-<li>AOT - <a target="_blank" rel="noopener" href="https://angular.dev/tools/cli/aot-compiler">Ahead of Time Compilation</a></li>
-<li>JIT - <a target="_blank" rel="noopener" href="https://radheradhepawan.medium.com/what-is-aot-and-jit-ivy-and-v8-how-work-together-in-angular-f54f3efb8a5f">Just in Time Compilation</a></li>
-<li><code>ng add</code> vs <code>npm install</code> - <code>ng add</code> is a schematic that can install packages and run additional code to set up the package. <code>npm install</code> is just installing the package.</li>
-<li>Angular HttpClient底层是基于HttpXMLRequest和Jsonp的，所以可以使用<code>XMLHttpRequest</code>的所有方法。</li>
-<li>HostBinding - Angular Decorator that declares a DOM property to bind to. is equivalent to [property]&#x3D;”expression”.</li>
-<li>Angular如何处理scss文件的？package.json中并没有安装sass对应的包。难道是Angular CLI内置了sass的编译器，所以不需要安装sass包？</li>
-<li>:ng-deep和:host如何配合使用</li>
-<li>Angular中的ViewEncapsulation是如何实现的？有哪三种封装模式？</li>
-<li>Reload page on same url with different parameters<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    <span class="title function_">provideRouter</span>(</span><br><span class="line">      appRoutes,</span><br><span class="line">      <span class="title function_">withRouterConfig</span>(&#123; <span class="attr">onSameUrlNavigation</span>: <span class="string">&#x27;reload&#x27;</span> &#125;)</span><br><span class="line">    ),</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li>如何使用Native Federation?</li>
-<li>How to mock service in Unit test(Jest) in Angular? <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/79071748/mock-provided-service-in-standalone-component-in-jest-unit-test">https://stackoverflow.com/questions/79071748/mock-provided-service-in-standalone-component-in-jest-unit-test</a></li>
-<li>这种怎么测试？添加到Jest异步测试中。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">dataService</span>.<span class="title function_">fetchData</span>().<span class="title function_">subscribe</span>(<span class="function">(<span class="params">data: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">products</span> = data;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Generate module based component after Angular 17.<br>Start from Angular 17, Angular CLI use standalone component by default, however, you can still generate module based application with the following command.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g app my-app --standalone=<span class="literal">false</span></span><br></pre></td></tr></table></figure></li>
-<li>Why Angular use <code>Decorator</code> instead of <code>Abstract Class</code> for <code>Component</code> and <code>Service</code>?</li>
-<li>Android No matching client found for package name ‘com.jiyuzhai.caoquanbei’, update package name in file app&#x2F;src&#x2F;google-services.json to match your application id.</li>
-<li>一个Angular文件内可以定义多个组件。</li>
-<li>Event loop and browser rendering是如何交互的，也就是Browser rendering是在Event loop哪个阶段进行的？</li>
-<li>NW.js和Electron类似，都是用来开发跨平台桌面应用的框架。</li>
-<li>Traceur和Babel都是用来将ES6+代码转换为ES5代码的工具。Traceur是Google开发的，Babel是社区开发的。</li>
-<li>RxJS 社区中常见的约定：以 $ 结尾的变量通常表示它是一个 Observable（可观察对象）。</li>
-<li>Virtual Dom的好处是什么？为什么要使用Virtual Dom？<ol>
-<li>performance - 批量更新dom，而不是每次更新都操作dom。</li>
-<li>可以跨平台 - 这点很重要，多数人回到虚拟DOM，都说性能，但是跨平台也很重要，虚拟DOM相当于一个中间层，可以对接不同平台，比如Android，IOS，Desktop，Web等。</li>
-<li>为什么有些框架不用虚拟DOM还更快？这是因为React&#x2F;Vue等框架的最小单元就是组件，无法做到控件级别的更新，所以只能更新整个组件，这样就会有性能问题。而有些框架是以控件为最小单元，所以可以做到控件级别的更新，这样就会更快。</li>
-</ol>
-</li>
-<li>Angular router可以传参数，用navigationExtras对象中的state.<ol>
-<li>在导航时传递参数<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([<span class="string">&#x27;/detail&#x27;</span>], &#123; <span class="attr">state</span>: &#123; <span class="attr">id</span>: <span class="number">1</span> &#125; &#125;);</span><br></pre></td></tr></table></figure></li>
-<li>在接收参数的组件中获取参数 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> id = history.<span class="property">state</span>.<span class="property">id</span>; <span class="comment">// 不对吧？history 哪来的？</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-</li>
-<li>GraphQL playground.</li>
-<li>You should never use function in angular template. - url</li>
-<li>Directive composition API - search on angular.dev, this is a new feature in angular 15, why this is useful?</li>
-<li>javascript, generator functions</li>
-<li><code>default</code> import syntax in ES6.</li>
-<li><code>WeakMap</code> is not iterable, why? <code>TypedArray</code> is not array. </li>
-<li>Angular <code>BehaviorSubject</code> vs <code>Subject</code> - <code>BehaviorSubject</code> needs an initial value, <code>Subject</code> does not.</li>
-<li>Angular <code>aot</code> can be enabled&#x2F;disabled in <code>angular.json</code> file.</li>
-<li><code>it.each</code> in <code>Jest</code> - This need real example from project.</li>
-<li>Why Jest need transformer? Because Jest only understand JavaScript, so it needs transformer to transform other file types to JavaScript. for example ts -&gt; js, tsx&#x2F;jsx -&gt; js vue&#x2F;angular -&gt; js, by default Jest use babel-jest as transformer, you can also use angular-jest-preset for Angular project.</li>
-<li>Proxy.revocable(target, handler).</li>
-<li>What is cross-site request forgery (CSRF) attack? How to prevent it?</li>
-<li>Website defacement - what’s this?</li>
-<li>steps to use web component.</li>
-<li>Grid layout.</li>
-<li><code>HTML</code> page will always show even it contains errors, the console won’t display html error, it only show javascript errors.</li>
-<li>Html中<a>标签的样式按照LVHA的顺序来写，这样可以避免样式覆盖的问题。<ol>
-<li><code>:link</code> - 未访问的链接</li>
-<li><code>:visited</code> - 已访问的链接</li>
-<li><code>:hover</code> - 鼠标悬停</li>
-<li><code>:active</code> - 激活状态</li>
-</ol>
-</li>
-<li>css function <code>env</code> - <code>env()</code> 函数可以用来获取环境变量的值，比如获取视口的宽度。</li>
-<li>css <code>@support</code> operator - <code>@supports</code> 操作符用来检测浏览器是否支持某个CSS属性。</li>
-<li>video tag: <code>source</code> vs <code>src</code> - What’s the differences?</li>
-<li>CSS attributes selectors - <code>^</code>, <code>$</code>, <code>*</code>, <code>~</code> - What’s the differences? [attr*&#x3D;value] vs [attr~&#x3D;value].</li>
-<li>compare in javascript:<ol>
-<li>&#x3D;&#x3D;</li>
-<li>&#x3D;&#x3D;&#x3D;</li>
-<li>Object.is</li>
-<li>SameValueZero - <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness">MDN</a></li>
-</ol>
-</li>
-<li>chunk load error: <a target="_blank" rel="noopener" href="https://rollbar.com/blog/javascript-chunk-load-error/">https://rollbar.com/blog/javascript-chunk-load-error/</a></li>
-<li>drag and drop:<ol>
-<li><a target="_blank" rel="noopener" href="https://material.angular.io/cdk/drag-drop/overview">https://material.angular.io/cdk/drag-drop/overview</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/swimlane/ngx-dnd">https://github.com/swimlane/ngx-dnd</a></li>
-<li><a target="_blank" rel="noopener" href="https://packery.metafizzy.co/">https://packery.metafizzy.co/</a></li>
-</ol>
-</li>
-<li>What’s the differences between <code>markForCheck()</code> and <code>detectChanges()</code> in Angular? - stackoverflow</li>
-<li>SASS vs SCSS<ol>
-<li>SASS - Syntactically Awesome Style Sheets</li>
-<li>SCSS - Sassy CSS</li>
-<li>SASS is the older syntax, it use indentation to define blocks, SCSS is the newer syntax, it use curl braces to define</li>
-</ol>
-</li>
-<li>如何查看JS编译后的代码？比如变量提升后的代码，Google的V8引擎可以实现这个功能。而Node底层也是V8，所以用Node命令可以查看，但是输出的代码不是很直观。需要进一步研究，参考资料：<a target="_blank" rel="noopener" href="https://medium.com/@drag13dev/https-medium-com-drag13dev-how-to-get-javascript-bytecode-from-nodejs-7bd396805d30">https://medium.com/@drag13dev/https-medium-com-drag13dev-how-to-get-javascript-bytecode-from-nodejs-7bd396805d30</a></li>
-<li>JavaScript中有些时候使用new和不使用new结果完全不同，比如：<ol>
-<li>Date() vs new Date(): Date()返回的是字符串，new Date()返回的是Date对象。</li>
-<li>String() vs new String(): String()返回的是字符串，new String()返回的是String对象。- 在这里， 不加new其实相当于类型转换</li>
-<li>Number() vs new Number(): Number()返回的是数字，new Number()返回的是Number对象。- 同上</li>
-<li>注意：对于Array，加不加new，结果一样，都是数组。</li>
-</ol>
-</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/18/typescript-tsc-guide/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/18/typescript-tsc-guide/" class="post-title-link" itemprop="url">typescript-tsc-guide</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-09-18 21:22:00" itemprop="dateCreated datePublished" datetime="2024-09-18T21:22:00+08:00">2024-09-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-19 10:23:52" itemprop="dateModified" datetime="2024-09-19T10:23:52+08:00">2024-09-19</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Install-TypeScript"><a href="#Install-TypeScript" class="headerlink" title="Install TypeScript"></a>Install TypeScript</h2><p>This directive will install TypeScript globally.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g typescript</span><br></pre></td></tr></table></figure>
-
-<h2 id="Init-TypeScript-project"><a href="#Init-TypeScript-project" class="headerlink" title="Init TypeScript project"></a>Init TypeScript project</h2><p>This step will create a <code>tsconfig.json</code> file in under <code>typescript-tsc-guide</code> folder.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> typescript-tsc-guide</span><br><span class="line"><span class="built_in">cd</span> typescript-tsc-guide</span><br><span class="line">tsc --init <span class="comment"># create tsconfig.json file</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Create-typescript-files"><a href="#Create-typescript-files" class="headerlink" title="Create typescript files"></a>Create typescript files</h2><p>Create a folder <code>src</code> under current folder. Then create a file <code>index.ts</code> under <code>src</code> folder.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> src</span><br><span class="line"><span class="built_in">touch</span> src/index.ts</span><br></pre></td></tr></table></figure>
-
-<p>input the following code to <code>src/index.ts</code> file.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">add</span> = (<span class="params">a, b</span>) =&gt; a + b;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Compile-TypeScript-files"><a href="#Compile-TypeScript-files" class="headerlink" title="Compile TypeScript files"></a>Compile TypeScript files</h2><p>This step will compile the <code>src/index.ts</code> file to <code>src/index.js</code> file.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> typescript-tsc-guide</span><br><span class="line">tsc</span><br></pre></td></tr></table></figure>
-
-<h2 id="Compile-options"><a href="#Compile-options" class="headerlink" title="Compile options"></a>Compile options</h2><h3 id="outDir"><a href="#outDir" class="headerlink" title="outDir"></a>outDir</h3><p>Usually, we put the emitted files under <code>dist</code> folder. To do this, we need to modify the <code>tsconfig.json</code> file.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist&quot;</span> <span class="comment">// output directory for the emitted files</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>Run <code>tsc</code> again, the emitted files will be under <code>dist</code> folder.</p>
-<h3 id="rootDir"><a href="#rootDir" class="headerlink" title="rootDir"></a>rootDir</h3><p>We can also specify the source folder by using <code>rootDir</code> option, in this way, only files under the source folder will be compiled.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;rootDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./src&quot;</span> <span class="comment">// specify the source folder</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>If you specify the <code>rootDir</code> option, you can’t put the source files outside the source folder. otherwise you’ll got the following error:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error TS6059: File <span class="string">&#x27;/typescript-tsc-guide/xxx.ts&#x27;</span> is not under <span class="string">&#x27;rootDir&#x27;</span> <span class="string">&#x27;/typescript-tsc-guide/src&#x27;</span>. <span class="string">&#x27;rootDir&#x27;</span> is expected to contain all <span class="built_in">source</span> files.</span><br></pre></td></tr></table></figure>
-
-<p>To test this, create a file <code>test.ts</code> under project root(same location as tsconfig.json) and run <code>tsc</code> command, you’ll get the error.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/14/angular-customize-webpack/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/09/14/angular-customize-webpack/" class="post-title-link" itemprop="url">angular-customize-webpack</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-09-14 21:23:49 / Modified: 21:52:06" itemprop="dateCreated datePublished" datetime="2024-09-14T21:23:49+08:00">2024-09-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Angular 隐藏了项目构建的细节，其构建过程通过各种Builder来实现，底层可以使用Webpack或者ESBuild（从Angular17开始，默认使用ESBuild），那么我们需要修改Webpack配置怎么办呢？其实只有一个办法，那就是通过第三方npm package，这里介绍目前流行的两个。</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/ngx-build-plus">ngx-build-plus</a> - Angular Module Federation也是用的这个package来做Webpack定制化。</li>
-<li><a target="_blank" rel="noopener" href="https://www.npmjs.com/package/@angular-builders/custom-webpack">@angular-builders&#x2F;custom-webpack</a></li>
-</ul>
-<p>这两者的实现原理也比较简单，都是通过继承<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/@angular-devkit/build-angular">@angular-devkit&#x2F;build-angular</a>来实现的。</p>
-<p>下面我们分别看看，这两个package的使用方法。</p>
-<h2 id="ngx-build-plus"><a href="#ngx-build-plus" class="headerlink" title="ngx-build-plus"></a>ngx-build-plus</h2><h3 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install ngx-build-plus --save-dev</span><br></pre></td></tr></table></figure>
-
-<h3 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h3><p><code>angular.json</code>(for Angular project) or <code>project.json</code>(For Nx based mono repo)</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ngx-build-plus:browser&quot;</span><span class="punctuation">,</span> <span class="comment">// change builder</span></span><br><span class="line">      <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;extraWebpackConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;extra-webpack.config.js&quot;</span> <span class="comment">// supply a path to the custom webpack config</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="angular-builders-x2F-custom-webpack"><a href="#angular-builders-x2F-custom-webpack" class="headerlink" title="@angular-builders&#x2F;custom-webpack"></a>@angular-builders&#x2F;custom-webpack</h2><h3 id="Installation-1"><a href="#Installation-1" class="headerlink" title="Installation"></a>Installation</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install @angular-builders/custom-webpack --save-dev</span><br></pre></td></tr></table></figure>
-
-<h3 id="Usage-1"><a href="#Usage-1" class="headerlink" title="Usage"></a>Usage</h3><p><code>angular.json</code>(for Angular project) or <code>project.json</code>(For Nx based mono repo)</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-builders/custom-webpack:browser&quot;</span><span class="punctuation">,</span> <span class="comment">// change builder</span></span><br><span class="line">      <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;customWebpackConfig&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./extra-webpack.config.js&quot;</span><span class="punctuation">,</span> <span class="comment">// supply a path to the custom webpack config</span></span><br><span class="line">          <span class="attr">&quot;mergeStrategies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;externals&quot;</span><span class="punctuation">:</span> <span class="string">&quot;replace&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="How-to-choose"><a href="#How-to-choose" class="headerlink" title="How to choose?"></a>How to choose?</h2><ol>
-<li>If you are using Angular Module Federation, you should use <code>ngx-build-plus</code>, and it is installed automatically when you create a new Angular project with Angular Module Federation. This package has not been upgraded for a long time, but it is still working. <code>ngx-build-plus</code> support <code>hooks</code>.</li>
-<li>If you are not using Angular Module Federation, you can choose either of them, but <code>@angular-builders/custom-webpack</code> is more popular. This package is upgraded frequently.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1146,14 +1094,14 @@ To verify whether the image was in the final build, you can run the following co
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

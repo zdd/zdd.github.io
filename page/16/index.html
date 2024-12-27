@@ -181,6 +181,355 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/05/angular-how-does-an-angular-app-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/05/angular-how-does-an-angular-app-start/" class="post-title-link" itemprop="url">angular-how does an angular app start</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-05 11:58:38" itemprop="dateCreated datePublished" datetime="2024-05-05T11:58:38+08:00">2024-05-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-22 16:38:35" itemprop="dateModified" datetime="2024-12-22T16:38:35+08:00">2024-12-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天从源码的角度来看一下Angular是如何启动一个应用的。</p>
+<h2 id="创建Angular项目"><a href="#创建Angular项目" class="headerlink" title="创建Angular项目"></a>创建Angular项目</h2><p>首先，参照<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这篇文章</a>创建一个Angular项目</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>关于如何阅读Angular源码，请参考这里<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/30/angular-how-to-read-angular-source-code/">如何阅读Angular源码</a>。</p>
+<p>使用<code>VSCode</code>或者<code>WebStorm</code>打开项目，找到<code>src/main.ts</code>文件，这是Angular应用的入口文件。可以看到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>这里调用platformBrowserDynamic().bootstrapModule来启动Angular项目，我们到源码里面搜索<code>bootstrapModule</code>，找到如下代码：</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModule&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleType</span>: <span class="title class_">Type</span>&lt;M&gt;,</span><br><span class="line">  <span class="attr">compilerOptions</span>:</span><br><span class="line">    | (<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>)</span><br><span class="line">    | <span class="title class_">Array</span>&lt;<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>&gt; = [],</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> options = <span class="title function_">optionsReducer</span>(&#123;&#125;, compilerOptions);</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">compileNgModuleFactory</span>(<span class="variable language_">this</span>.<span class="property">injector</span>, options, moduleType).<span class="title function_">then</span>(<span class="function">(<span class="params">moduleFactory</span>) =&gt;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">bootstrapModuleFactory</span>(moduleFactory, options), <span class="comment">// &lt;------- Here</span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>bootstrapModule</code>方法内部调用了 <code>bootstrapModuleFactory</code> 方法，我们继续搜索<code>bootstrapModuleFactory</code>，找到如下代码：</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModuleFactory&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleFactory</span>: <span class="title class_">NgModuleFactory</span>&lt;M&gt;,</span><br><span class="line">  options?: <span class="title class_">BootstrapOptions</span>,</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="comment">// Note: We need to create the NgZone _before_ we ins</span></span><br><span class="line">  <span class="comment">// as instantiating the module creates some providers</span></span><br><span class="line">  <span class="comment">// So we create a mini parent injector that just cont</span></span><br><span class="line">  <span class="comment">// pass that as parent to the NgModuleFactory.</span></span><br><span class="line">  <span class="keyword">const</span> ngZone = <span class="title function_">getNgZone</span>(</span><br><span class="line">    options?.<span class="property">ngZone</span>,</span><br><span class="line">    <span class="title function_">getNgZoneOptions</span>(&#123;</span><br><span class="line">      <span class="attr">eventCoalescing</span>: options?.<span class="property">ngZoneEventCoalescing</span>,</span><br><span class="line">      <span class="attr">runCoalescing</span>: options?.<span class="property">ngZoneRunCoalescing</span>,</span><br><span class="line">    &#125;),</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Note: Create ngZoneInjector within ngZone.run so that all of the instantiated services are</span></span><br><span class="line">  <span class="comment">// created within the Angular zone</span></span><br><span class="line">  <span class="comment">// Do not try to replace ngZone.run with ApplicationRef#run because ApplicationRef would then be</span></span><br><span class="line">  <span class="comment">// created outside of the Angular zone.</span></span><br><span class="line">  <span class="keyword">return</span> ngZone.<span class="title function_">run</span>(<span class="function">() =&gt;</span> &#123;...&#125;); <span class="comment">// &lt;------- Here</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意<code>bootstrapModuleFactory</code>这个方法比较长，我们简化一下，只截取其中的关键部分，首先这里创建了一个<code>ngZone</code>，用来做更新检测。然后调用了<code>ngZone.run</code>方法，这个方法是<code>NgZone</code>的方法，用来运行一个函数，并且确保这个函数在Angular的Zone中运行。在<code>return ngZone.run()</code>方法中的最后，又调用了<code>_moduleDoBootstrap</code>。</p>
+<p><code>packages/core/src/platform/platform_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_moduleDoBootstrap</span>(<span class="attr">moduleRef</span>: <span class="title class_">InternalNgModuleRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> appRef = moduleRef.<span class="property">injector</span>.<span class="title function_">get</span>(<span class="title class_">ApplicationRef</span>);</span><br><span class="line">  <span class="keyword">if</span> (moduleRef.<span class="property">_bootstrapComponents</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">_bootstrapComponents</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> appRef.<span class="title function_">bootstrap</span>(f)); <span class="comment">// &lt;------- Here</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (moduleRef.<span class="property">instance</span>.<span class="property">ngDoBootstrap</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">instance</span>.<span class="title function_">ngDoBootstrap</span>(appRef);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeError</span>(</span><br><span class="line">      <span class="title class_">RuntimeErrorCode</span>.<span class="property">BOOTSTRAP_COMPONENTS_NOT_FOUND</span>,</span><br><span class="line">      ngDevMode &amp;&amp;</span><br><span class="line">        <span class="string">`The module <span class="subst">$&#123;stringify(moduleRef.instance.constructor)&#125;</span> was bootstrapped, `</span> +</span><br><span class="line">          <span class="string">`but it does not declare &quot;@NgModule.bootstrap&quot; components nor a &quot;ngDoBootstrap&quot; method. `</span> +</span><br><span class="line">          <span class="string">`Please define one of these.`</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="title function_">push</span>(moduleRef);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在该方法中，对于每个声明的<code>bootstrap</code>组件，都会调用<code>appRef.bootstrap</code>方法，这个方法是<code>ApplicationRef</code>的方法，用来启动一个组件。通常Angular程序只有一个bootstrap组件，就是<code>AppComponent</code>。<br>再来看<code>appRef.bootstrap</code>方法：</p>
+<p><code>packages/core/src/application/application_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrap&lt;C&gt;(</span><br><span class="line">  <span class="attr">componentOrFactory</span>: <span class="title class_">ComponentFactory</span>&lt;C&gt; | <span class="title class_">Type</span>&lt;C&gt;,</span><br><span class="line">  rootSelectorOrNode?: <span class="built_in">string</span> | <span class="built_in">any</span>,</span><br><span class="line">): <span class="title class_">ComponentRef</span>&lt;C&gt; &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">const</span> selectorOrNode = rootSelectorOrNode || componentFactory.<span class="property">selector</span>;</span><br><span class="line">  <span class="keyword">const</span> compRef = componentFactory.<span class="title function_">create</span>(<span class="title class_">Injector</span>.<span class="property">NULL</span>, [], selectorOrNode, ngModule); <span class="comment">// 1</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">_loadComponent</span>(compRef); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法同样很大，如前，这里省略一些细枝末节，直接展示最重要的代码。</p>
+<ol>
+<li>首先根据bootstrap方法的第一个参数（通常是<code>AppComponent</code>）创建component。</li>
+<li>然后调用内部方法<code>_loadComponent</code>来加载组件。</li>
+</ol>
+<p>继续看<code>_loadComponent</code>方法：<br><code>packages/core/src/application/application_ref.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_loadComponent</span>(<span class="attr">componentRef</span>: <span class="title class_">ComponentRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">attachView</span>(componentRef.<span class="property">hostView</span>); <span class="comment">// 1</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">tick</span>(); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>首先调用<code>attachView</code>方法, 将组件的视图添加到视图树中。</li>
+<li>然后调用<code>tick</code>方法，用来触发变更检测。</li>
+</ol>
+<p><code>tick</code>后续的方法调用如下：<br><code>tick</code> -&gt; <code>_tick</code> -&gt; <code>detectChangesInAttachedViews</code> -&gt; <code>detectChangesInViewIfRequired</code> -&gt; <code>detectChangesInternal</code></p>
+<p>再看<code>detectChangesInternal</code>方法：<br><code>packages/core/src/render3/instructions/change_detection.ts</code></p>
+<p>未完待续。。。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/30/angular-how-to-read-angular-source-code/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/30/angular-how-to-read-angular-source-code/" class="post-title-link" itemprop="url">angular-how-to-read-angular-source-code</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-30 08:50:24" itemprop="dateCreated datePublished" datetime="2024-04-30T08:50:24+08:00">2024-04-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-05 15:17:57" itemprop="dateModified" datetime="2024-05-05T15:17:57+08:00">2024-05-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h2><p>Angular的源码托管在<a target="_blank" rel="noopener" href="https://github.com/angular/angular">GitHub</a>上，通过<code>git clone</code>命令下载源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/angular/angular.git</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建Angular项目"><a href="#创建Angular项目" class="headerlink" title="创建Angular项目"></a>创建Angular项目</h2><p>参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这里</a>创建Angular项目</p>
+<p>用<code>VSCode</code>或者<code>WebStorm</code>打开项目，找到<code>src/main.ts</code>文件，这是Angular应用的入口文件。可以看到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<p>此处通过调用<code>platformBrowserDynamic().bootstrapModule(AppModule)</code>来启动应用。那么<code>bootstrapModule</code>是什么呢？通过在Angular源码中搜索<code>bootstrapModule</code>，可以找到如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModule&lt;M&gt;(</span><br><span class="line">    <span class="attr">moduleType</span>: <span class="title class_">Type</span>&lt;M&gt;,</span><br><span class="line">    <span class="attr">compilerOptions</span>:</span><br><span class="line">      | (<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>)</span><br><span class="line">      | <span class="title class_">Array</span>&lt;<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>&gt; = [],</span><br><span class="line">  ): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> options = <span class="title function_">optionsReducer</span>(&#123;&#125;, compilerOptions);</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">compileNgModuleFactory</span>(<span class="variable language_">this</span>.<span class="property">injector</span>, options, moduleType).<span class="title function_">then</span>(<span class="function">(<span class="params">moduleFactory</span>) =&gt;</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">bootstrapModuleFactory</span>(moduleFactory, options),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="快速定位源码的位置"><a href="#快速定位源码的位置" class="headerlink" title="快速定位源码的位置"></a>快速定位源码的位置</h3><p>我的习惯是，同时打开两个IDE，一个用来查看应用代码，一个用来查看<a target="_blank" rel="noopener" href="https://github.com/angular/angular">Angular源码</a>。这样可以快速定位源码的位置。<br>比如对于上面的<code>bootstrapModule</code>, 则可以复制一份，到Angular源码所在的IDE中（WebStorm), 连按两下<code>Shift</code>键，然后粘贴<code>bootstrapModule</code>，就可以找到源码。</p>
+<p>IDE本身提供的<code>Go to Definition/implementation</code>（或者按住<code>Ctrl</code>点击方法名）功能对于源码来说并不好用，只能定位到<code>*.d.ts</code>类型文件，而不能定位到源码文件。</p>
+<h2 id="如何调试源码"><a href="#如何调试源码" class="headerlink" title="如何调试源码"></a>如何调试源码</h2><p>阅读源码的最好方式就是单步调试，一步一步观察程序是如何运行的。</p>
+<h3 id="浏览器调试"><a href="#浏览器调试" class="headerlink" title="浏览器调试"></a>浏览器调试</h3><h4 id="Webpack"><a href="#Webpack" class="headerlink" title="Webpack"></a>Webpack</h4><p>Angular App默认使用Webpack打包，Webpack打包后的代码是经过压缩和混淆的，不利于调试。但是Webpack提供了SourceMap功能，可以将打包后的代码映射到源码，方便调试。</p>
+<p>运行Angular程序后，在浏览器地址栏输入<code>localhost:4200</code>，按键盘上的<code>F12</code>键打开开发者工具，切换到<code>Source</code>选项卡，可以看到项目的源码。在<code>Webpack</code>结点下找到<code>src/main.ts</code>文件，点击行号，可以在代码中打断点。然后按<code>F5</code>刷新页面，就可以看到断点被触发了。<br><img src="/../images/browser-debug.png" alt="browser-debug"></p>
+<p>但是当你step into源码时，会发现并没有进入到<code>bootstrapModule</code>方法中，而是停在了<code>core.mjs</code>文件的末尾，这时我们需要在<code>core.mjs</code>文件中找到<code>bootstrapModule</code>方法，然后在方法体内打断点。注意bootstrapModule会在<code>core.mjs</code>文件中出现多次，有些甚至是注释，可以搜索<code>bootstrapModule(</code>来定位。<br><img src="/../images/angular_core.png" alt="angular-core"></p>
+<h4 id="ESBuild"><a href="#ESBuild" class="headerlink" title="ESBuild"></a>ESBuild</h4><p>Angular 17以后也支持esbuild打包，而且打包后的代码调试更方便，如下图。<br><img src="/../images/browser-debug-esbuild.png" alt="esbuild-debug"></p>
+<h3 id="WebStorm调试"><a href="#WebStorm调试" class="headerlink" title="WebStorm调试"></a>WebStorm调试</h3><p>WebStorm调试十分简单，现在代码中打上断点，然后在<code>Run Configuration</code>列表中选择<code>Angular Application</code>，点击绿色的<code>Debug</code>按钮，就可以开始调试了。<br><img src="/../images/webstorm-debug.png" alt="webstorm-debug"></p>
+<h3 id="VSCode调试"><a href="#VSCode调试" class="headerlink" title="VSCode调试"></a>VSCode调试</h3><p>待补充</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/markdown/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/28/markdown/" class="post-title-link" itemprop="url">markdown</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-28 21:02:17" itemprop="dateCreated datePublished" datetime="2024-04-28T21:02:17+08:00">2024-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-04 12:48:26" itemprop="dateModified" datetime="2024-05-04T12:48:26+08:00">2024-05-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Anchor"><a href="#Anchor" class="headerlink" title="Anchor"></a>Anchor</h2><p>Anchor is a way to jump to a specific location in a page.</p>
+<ol>
+<li><p>create anchor</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">name</span>=<span class="string">&quot;anchor_name&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jump to anchor</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">Link Text</span>](<span class="link">#anchor_name</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Colored-text"><a href="#Colored-text" class="headerlink" title="Colored text"></a>Colored text</h2><p>Markdown itself support a limited features of HTML, so you can use HTML to color text.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:red&quot;</span>&gt;</span></span>red<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:blue&quot;</span>&gt;</span></span>blue<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:green&quot;</span>&gt;</span></span>green<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/angular-change-detection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/28/angular-change-detection/" class="post-title-link" itemprop="url">angular-change-detection</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-28 20:47:10" itemprop="dateCreated datePublished" datetime="2024-04-28T20:47:10+08:00">2024-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-21 17:02:55" itemprop="dateModified" datetime="2024-12-21T17:02:55+08:00">2024-12-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>The most important work for frontend framework is state management and change detection. Angular uses Zone.js to detect changes in the application. In this article, we will discuss how Angular change detection works.</p>
+<p>Unlike React and Vue, Change detection in Angular is triggered automatically as a result of async event. Angular uses Zone.js to detect changes in the application. Zone.js is a library that <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patches</a> all asynchronous operations in the browser. It allows Angular to know when to run change detection.</p>
+<p>&#x2F;&#x2F; insert code example here.</p>
+<p>Angular patches all asynchronous operations in the browser, such as <code>setTimeout</code>, <code>setInterval</code>, <code>addEventListener</code>, <code>XMLHttpRequest</code>, <code>fetch</code>, <code>Promise</code>, <code>MutationObserver</code>, etc. When an asynchronous operation is executed, Angular will run change detection.</p>
+<p>Take the DOM event as an example, when user click a button on page, Angular will run change detection to update the view. Angular will run change detection after the event handler is executed.</p>
+<p>Here is the pseudo code, you can find the real code in <code>packages/zone.js/lib/browser/event-target.ts</code> in angular source code.(Note, initially, <code>zone.js</code> is a independent library, but it is moved to angular’s mono-repo.)</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Store a reference to the original addEventListener</span></span><br><span class="line"><span class="keyword">const</span> nativeAddEventListener = <span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Replace the original addEventListener with a patched version</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span> = <span class="keyword">function</span>(<span class="params">eventName, handler, options</span>) &#123;</span><br><span class="line">  <span class="comment">// Call the native addEventListener with the provided arguments</span></span><br><span class="line">  nativeAddEventListener.<span class="title function_">call</span>(<span class="variable language_">this</span>, eventName, handler, options);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional functionality to track the state of asynchronous operations</span></span><br><span class="line">  <span class="comment">// This could involve interacting with Zone.js&#x27;s internal data structures</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="What-does-change-detection-do-in-Angular"><a href="#What-does-change-detection-do-in-Angular" class="headerlink" title="What does change detection do in Angular?"></a>What does change detection do in Angular?</h2><ol>
+<li>Update all bindings in templates.</li>
+<li>Update the view.</li>
+</ol>
+<p>Angular中，每个Component都会关联一个Change Detector, 这个Change Detector是在Angular App启动时创建的（是所有Component共用一个Change Detector还是每个Component有自己的Change Detector?）。</p>
+<p>这个Change Detector的工作就是检查每个Component的Template中的Expression是否发生了变化，如果发生了变化，就会更新View。</p>
+<h2 id="NgZone"><a href="#NgZone" class="headerlink" title="NgZone"></a>NgZone</h2><p>Angular uses <code>NgZone</code> to detect changes in the application. <code>NgZone</code> is a class that provides a way to run code in the Angular zone. It is used to detect changes in the application.</p>
+<p>You can easily see NgZone by logging it to the console.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">zone: NgZone</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_inner</span>.<span class="property">name</span>); <span class="comment">// angular</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_outer</span>.<span class="property">name</span>); <span class="comment">// root</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NgZone</code> is instantiated during the bootstrap phase.</p>
+<h2 id="How-to-determine-when-change-detection-is-triggered-in-a-component"><a href="#How-to-determine-when-change-detection-is-triggered-in-a-component" class="headerlink" title="How to determine when change detection is triggered in a component?"></a>How to determine when change detection is triggered in a component?</h2><p>注意：下面这个结论是错误的，留在这里时刻提醒自己，不要再犯这种错误。详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/12/05/angular-lifecyle-ondocheck/">这里</a>  </p>
+<p>You can use the <code>ngDoCheck</code> lifecycle hook to determine when change detection is triggered in a component. <code>ngDoCheck</code> is called every time change detection is triggered in a component.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Change detection triggered&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ngOnChanges"><a href="#ngOnChanges" class="headerlink" title="ngOnChanges"></a>ngOnChanges</h2><p><code>ngOnChanges</code> is a lifecycle hook that is called when a component’s input properties change. It is used to detect changes in the component’s input properties.</p>
+<p>What’s the scenarios to use <code>ngOnChanges</code>?</p>
+<ol>
+<li>When you want to detect changes in the component’s input properties.</li>
+<li>When you want to avoid function call in template. see <a target="_blank" rel="noopener" href="https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496">here</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/27/nginx-beginner-guide-for-windows/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -927,433 +1276,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/15/javascript-design-pattern-strategy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/15/javascript-design-pattern-strategy/" class="post-title-link" itemprop="url">javascript-design-pattern-strategy</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-15 21:04:42" itemprop="dateCreated datePublished" datetime="2024-04-15T21:04:42+08:00">2024-04-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-13 11:25:07" itemprop="dateModified" datetime="2024-11-13T11:25:07+08:00">2024-11-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h1><p>策略模式是一种行为设计模式，它定义了一系列算法，将每个算法封装到一个类中，并使它们可以相互替换。策略模式让算法独立于使用它的客户端。</p>
-<h1 id="现实中的例子"><a href="#现实中的例子" class="headerlink" title="现实中的例子"></a>现实中的例子</h1><p>假设我们经营一家电影院，目前是销售淡季，我们推出了各种折扣，学生票八折，儿童票九折，VIP会员半价。我们要设计一个系统，根据不同的折扣算法计算电影票的价格。</p>
-<p>不假思索的你可能写下了如下代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">UserType</span> &#123;</span><br><span class="line">  <span class="title class_">Regular</span>,</span><br><span class="line">  <span class="title class_">Student</span>,</span><br><span class="line">  <span class="title class_">Child</span>,</span><br><span class="line">  <span class="variable constant_">VIP</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MovieTicket</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> ticketPrice = <span class="number">100</span>;</span><br><span class="line">  <span class="keyword">private</span> userType?: <span class="title class_">UserType</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">setUserType</span>(<span class="params">userType: UserType</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">userType</span> = userType;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="variable language_">this</span>.<span class="property">userType</span>) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">Student</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.8</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">Child</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.9</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="title class_">UserType</span>.<span class="property">VIP</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="number">0.5</span>;</span><br><span class="line">      <span class="attr">default</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ticket = <span class="keyword">new</span> <span class="title class_">MovieTicket</span>();</span><br><span class="line">ticket.<span class="title function_">setUserType</span>(<span class="title class_">UserType</span>.<span class="property">Student</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(ticket.<span class="title function_">getPrice</span>());</span><br></pre></td></tr></table></figure>
-
-<p>我们来看看这段代码有什么问题：</p>
-<ol>
-<li>违反了开闭原则。如果我们要添加新的折扣类型，比如老年人票，就需要修改<code>MovieTicket</code>类，违反了开闭原则。</li>
-<li>违反了单一职责原则。<code>MovieTicket</code>类不仅负责计算价格，还负责判断折扣类型，违反了单一职责原则。</li>
-<li>耦合性太高，不易维护。如果折扣算法发生变化，需要修改<code>MovieTicket</code>类，不易维护。</li>
-<li>其他类如果想要使用折扣算法的话，只能复制粘贴一份，导致代码重复。</li>
-</ol>
-<p>下面我们通过策略模式来重构这段代码，策略模式的精髓就是将算法和使用算法的类解耦，使得算法可以独立于使用它的类进行变化。</p>
-<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StudentDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.8</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ChildrenDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.9</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VIPDiscount</span> <span class="keyword">implements</span> <span class="title class_">Discount</span> &#123;</span><br><span class="line">  <span class="title function_">getDiscount</span>(): <span class="built_in">number</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MovieTicket</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> ticketPrice = <span class="number">100</span>;</span><br><span class="line">  <span class="keyword">private</span> discount?: <span class="title class_">Discount</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">setDiscount</span>(<span class="params">discount: Discount</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">discount</span> = discount;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">discount</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">ticketPrice</span> * <span class="variable language_">this</span>.<span class="property">discount</span>.<span class="title function_">getDiscount</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;No discount set&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ticket = <span class="keyword">new</span> <span class="title class_">MovieTicket</span>();</span><br><span class="line">ticket.<span class="title function_">setDiscount</span>(<span class="keyword">new</span> <span class="title class_">StudentDiscount</span>());</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(ticket.<span class="title function_">getPrice</span>());</span><br></pre></td></tr></table></figure>
-
-<p>代码解析：</p>
-<ol>
-<li>首先定义一个接口<code>Discount</code>，它有一个<code>getDiscount</code>方法，返回折扣值。所有具体的折扣类都要实现这个接口。</li>
-<li>然后定义三个具体的折扣类：<code>StudentDiscount</code>、<code>ChildrenDiscount</code>和<code>VIPDiscount</code>。在每个折扣类中，我们实现了<code>getDiscount</code>方法，返回不同的折扣值。</li>
-<li>最后定义一个<code>MovieTicket</code>类，它有一个<code>ticketPrice</code>属性，表示电影票的价格，还有一个<code>discount</code>属性，表示折扣。我们定义了一个<code>setDiscount</code>方法，用来设置折扣。<code>getPrice</code>方法用来计算折扣后的价格。</li>
-</ol>
-<p>这种实现使得折扣算法和使用折扣的类解耦，使得折扣算法可以独立于使用它的类进行变化。好处如下：</p>
-<ol>
-<li>便于扩展，可以很容易地添加新的折扣类。只要这个类实现了<code>Discount</code>接口，就可以被<code>MovieTicket</code>类使用。</li>
-<li>由于折扣算法和使用折扣的类解耦，所以折扣算法可以独立于使用它的类进行变化。如果折扣算法发生变化，只需要修改折扣类即可，不需要修改使用折扣的类, 比如儿童票从9折改成8折，只需要修改<code>ChildrenDiscount</code>类使其返回0.8即可。</li>
-<li>如果有其他类想使用折扣算法的话，也可以直接使用。</li>
-</ol>
-<p>以上代码其实使用了依赖注入的方式，<code>MovieTicket</code>类依赖于<code>Discount</code>接口，我们通过Setter的方式将具体的折扣类注入到<code>MovieTicket</code>类中。</p>
-<p>注意这里<code>discount</code>属性是可选的，因为我们在<code>getPrice</code>方法中判断了<code>discount</code>是否存在，如果不存在就抛出异常。这样做是为了防止忘记设置折扣而导致的错误。如果不设置为可选的话会报错：<code>Property &#39;discount&#39; has no initializer and is not definitely assigned in the constructor.</code> 由于TypeScript配置文件默认开启了<code>strictPropertyInitialization</code>选项导致的。</p>
-<h1 id="策略模式UML图"><a href="#策略模式UML图" class="headerlink" title="策略模式UML图"></a>策略模式UML图</h1><p><img src="/../images/js-design-pattern-strategy.png" alt="image"></p>
-<ul>
-<li><code>Context</code>：消费策略的类相当于上例中的<code>MovieTicket</code>类，内涵一个抽象策略类，相当于上例中的<code>Discount</code>接口。</li>
-<li><code>Strategy</code>：抽象策略类，相当于上例中的<code>Discount</code>接口。</li>
-<li><code>ConcreteStrategy</code>：具体策略类，相当于上例中的<code>StudentDiscount</code>、<code>ChildrenDiscount</code>和<code>VIPDiscount</code>类。</li>
-<li><code>execute</code>：执行策略的方法，相当于上例中的<code>getDiscount</code>方法。</li>
-</ul>
-<h1 id="策略模式的应用场景"><a href="#策略模式的应用场景" class="headerlink" title="策略模式的应用场景"></a>策略模式的应用场景</h1><ol>
-<li>Sorting Algorithms: If you have a collection of data that can be sorted in several ways, you can use the Strategy pattern to switch between sorting algorithms (like quicksort, merge sort, heap sort) at runtime.  </li>
-<li>Payment Methods: In an e-commerce application, you can use the Strategy pattern to switch between different payment methods (like credit card, PayPal, Bitcoin) at runtime.  </li>
-<li>Compression Algorithms: If you have a file that can be compressed using different algorithms (like zip, rar, 7z), you can use the Strategy pattern to choose the compression algorithm at runtime.  </li>
-<li>Travel Planning: If you have a travel planning application, you can use the Strategy pattern to switch between different travel strategies (like by car, by train, by plane) at runtime.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/ecma-script-version-history/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/ecma-script-version-history/" class="post-title-link" itemprop="url">ecma-script-version-history</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-14 15:57:45" itemprop="dateCreated datePublished" datetime="2024-04-14T15:57:45+08:00">2024-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-13 15:17:06" itemprop="dateModified" datetime="2024-11-13T15:17:06+08:00">2024-11-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="ES5"><a href="#ES5" class="headerlink" title="ES5"></a>ES5</h1><h2 id="strict-mode"><a href="#strict-mode" class="headerlink" title="strict mode"></a>strict mode</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&quot;use strict&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> json = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(json); <span class="comment">// &#123;&quot;a&quot;:1,&quot;b&quot;:2,&quot;c&quot;:3&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="New-array-methods"><a href="#New-array-methods" class="headerlink" title="New array methods:"></a>New array methods:</h2><ul>
-<li>forEach</li>
-<li>map</li>
-<li>filter</li>
-<li>reduce</li>
-<li>reduceRight</li>
-<li>…</li>
-</ul>
-<h2 id="Property-getters-and-setters"><a href="#Property-getters-and-setters" class="headerlink" title="Property getters and setters"></a>Property getters and setters</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">a</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_a</span>;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="keyword">set</span> <span class="title function_">a</span>(<span class="params">value</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_a</span> = value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">obj.<span class="property">a</span> = <span class="number">1</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span>); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Function-binding-bind"><a href="#Function-binding-bind" class="headerlink" title="Function binding: bind"></a>Function binding: <code>bind</code></h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">foo.<span class="title function_">bind</span>(&#123; <span class="attr">a</span>: <span class="number">1</span> &#125;);</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES6-ECMAScript-2015"><a href="#ES6-ECMAScript-2015" class="headerlink" title="ES6(ECMAScript 2015)"></a>ES6(ECMAScript 2015)</h1><h1 id="ES7-ECMAScript-2016"><a href="#ES7-ECMAScript-2016" class="headerlink" title="ES7(ECMAScript 2016)"></a>ES7(ECMAScript 2016)</h1><h2 id="Array-prototype-includes"><a href="#Array-prototype-includes" class="headerlink" title="Array.prototype.includes"></a>Array.prototype.includes</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">includes</span>(<span class="number">2</span>)); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Exponentiation-Operator"><a href="#Exponentiation-Operator" class="headerlink" title="Exponentiation Operator"></a>Exponentiation Operator</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span> ** <span class="number">3</span>); <span class="comment">// 8</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="ES8-ECMAScript-2017"><a href="#ES8-ECMAScript-2017" class="headerlink" title="ES8(ECMAScript 2017)"></a>ES8(ECMAScript 2017)</h1><h2 id="Object-values"><a href="#Object-values" class="headerlink" title="Object.values"></a>Object.values</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">values</span>(obj)); <span class="comment">// [1, 2, 3]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-entries"><a href="#Object-entries" class="headerlink" title="Object.entries"></a>Object.entries</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj)); <span class="comment">// [[&quot;a&quot;, 1], [&quot;b&quot;, 2], [&quot;c&quot;, 3]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-getOwnPropertyDescriptors"><a href="#Object-getOwnPropertyDescriptors" class="headerlink" title="Object.getOwnPropertyDescriptors"></a>Object.getOwnPropertyDescriptors</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">getOwnPropertyDescriptors</span>(obj));</span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   a: &#123; value: 1, writable: true, enumerable: true, configurable: true &#125;,</span></span><br><span class="line"><span class="comment">//   b: &#123; value: 2, writable: true, enumerable: true, configurable: true &#125;,</span></span><br><span class="line"><span class="comment">//   c: &#123; value: 3, writable: true, enumerable: true, configurable: true &#125;</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-padding"><a href="#String-padding" class="headerlink" title="String padding"></a>String padding</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;hello&quot;</span>.<span class="title function_">padStart</span>(<span class="number">10</span>, <span class="string">&quot;123&quot;</span>)); <span class="comment">// 12312hello</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;hello&quot;</span>.<span class="title function_">padEnd</span>(<span class="number">10</span>, <span class="string">&quot;123&quot;</span>)); <span class="comment">// hello12312</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Trailing-commas-in-function-parameter-lists-and-calls"><a href="#Trailing-commas-in-function-parameter-lists-and-calls" class="headerlink" title="Trailing commas in function parameter lists and calls"></a>Trailing commas in function parameter lists and calls</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params">a, b, c,</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a, b, c);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES9-ECMAScript-2018"><a href="#ES9-ECMAScript-2018" class="headerlink" title="ES9(ECMAScript 2018)"></a>ES9(ECMAScript 2018)</h1><h2 id="Asynchronous-Iteration"><a href="#Asynchronous-Iteration" class="headerlink" title="Asynchronous Iteration"></a>Asynchronous Iteration</h2><h1 id="ES10-ECMAScript-2019"><a href="#ES10-ECMAScript-2019" class="headerlink" title="ES10(ECMAScript 2019)"></a>ES10(ECMAScript 2019)</h1><h2 id="Array-prototype-flat"><a href="#Array-prototype-flat" class="headerlink" title="Array.prototype.flat()"></a>Array.prototype.flat()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3</span>, <span class="number">4</span>, [<span class="number">5</span>, <span class="number">6</span>]]];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">flat</span>()); <span class="comment">// [1, 2, 3, 4, [5, 6]]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Array-prototype-flatMap"><a href="#Array-prototype-flatMap" class="headerlink" title="Array.prototype.flatMap()"></a>Array.prototype.flatMap()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">map</span>(<span class="function"><span class="params">x</span> =&gt;</span> [x * <span class="number">2</span>])); <span class="comment">// [[2], [4], [6]]</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="title function_">flatMap</span>(<span class="function"><span class="params">x</span> =&gt;</span> [x * <span class="number">2</span>])); <span class="comment">// [2, 4, 6]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Object-fromEntries"><a href="#Object-fromEntries" class="headerlink" title="Object.fromEntries()"></a>Object.fromEntries()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj)); <span class="comment">// [[&quot;a&quot;, 1], [&quot;b&quot;, 2], [&quot;c&quot;, 3]]</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">fromEntries</span>(<span class="title class_">Object</span>.<span class="title function_">entries</span>(obj))); <span class="comment">// &#123; a: 1, b: 2, c: 3 &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-trimStart-and-String-prototype-trimEnd"><a href="#String-prototype-trimStart-and-String-prototype-trimEnd" class="headerlink" title="String.prototype.trimStart() and String.prototype.trimEnd()"></a>String.prototype.trimStart() and String.prototype.trimEnd()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;  hello  &quot;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trimStart</span>()); <span class="comment">// &quot;hello  &quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trimEnd</span>()); <span class="comment">// &quot;  hello&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Optional-Catch-Binding"><a href="#Optional-Catch-Binding" class="headerlink" title="Optional Catch Binding"></a>Optional Catch Binding</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&quot;error&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;caught&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON-stringify-replacer-parameter"><a href="#JSON-stringify-replacer-parameter" class="headerlink" title="JSON.stringify() replacer parameter"></a>JSON.stringify() replacer parameter</h2><p>The second arguments [“a”, “b”] is a replacer array, which specifies the properties to include in the JSON string.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj, [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>])); <span class="comment">// &#123;&quot;a&quot;:1,&quot;b&quot;:2&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="JSON-stringify-space-parameter"><a href="#JSON-stringify-space-parameter" class="headerlink" title="JSON.stringify() space parameter"></a>JSON.stringify() space parameter</h2><p>The third argument 2 is a space parameter, which specifies the number of spaces to use for indentation.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span>, <span class="attr">c</span>: <span class="number">3</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj, <span class="literal">null</span>, <span class="number">2</span>));</span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   &quot;a&quot;: 1,</span></span><br><span class="line"><span class="comment">//   &quot;b&quot;: 2,</span></span><br><span class="line"><span class="comment">//   &quot;c&quot;: 3</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
-<p>The output is <code>&#123;&quot;a&quot;:1,&quot;b&quot;:2,&quot;c&quot;:3&#125;</code> without the third argument.</p>
-<h1 id="ES11-ECMAScript-2020"><a href="#ES11-ECMAScript-2020" class="headerlink" title="ES11(ECMAScript 2020)"></a>ES11(ECMAScript 2020)</h1><h2 id="BigInt"><a href="#BigInt" class="headerlink" title="BigInt"></a>BigInt</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> max = <span class="title class_">Number</span>.<span class="property">MAX_SAFE_INTEGER</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max); <span class="comment">// 9007199254740991</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">1</span>); <span class="comment">// 9007199254740992</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">2</span>); <span class="comment">// 9007199254740992</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(max + <span class="number">3n</span>); <span class="comment">// 9007199254740994n</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dynamic-import"><a href="#Dynamic-import" class="headerlink" title="Dynamic import"></a>Dynamic import</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable language_">module</span> = <span class="keyword">await</span> <span class="keyword">import</span>(<span class="string">&#x27;./module.js&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Optional-chaining-operator"><a href="#Optional-chaining-operator" class="headerlink" title="Optional chaining operator (?.)"></a>Optional chaining operator (?.)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: &#123; <span class="attr">b</span>: &#123; <span class="attr">c</span>: <span class="number">1</span> &#125; &#125; &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span>?.<span class="property">b</span>?.<span class="property">c</span>); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Nullish-coalescing-operator"><a href="#Nullish-coalescing-operator" class="headerlink" title="Nullish coalescing operator (??)"></a>Nullish coalescing operator (??)</h2><ul>
-<li><code>leftExpr ?? rightExpr</code>, this expression will return its right-hand side operand when the left-hand side operand is null or undefined. Otherwise, it will return its left-hand side operand.</li>
-<li><code>leftExpr || rightExpr</code>, return true if and only if one of the operands is true. Otherwise return false.</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">0</span>, <span class="attr">b</span>: <span class="string">&quot;&quot;</span>, <span class="attr">c</span>: <span class="literal">null</span>, <span class="attr">d</span>: <span class="literal">undefined</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">b</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">c</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">d</span> || <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">a</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// 0</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">b</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// &quot;&quot;(empty string)</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">c</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">d</span> ?? <span class="string">&quot;default&quot;</span>); <span class="comment">// default</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Promise-allSettled"><a href="#Promise-allSettled" class="headerlink" title="Promise.allSettled()"></a>Promise.allSettled()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">1000</span>));</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(reject, <span class="number">1000</span>));</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">results</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(results));</span><br><span class="line"><span class="comment">// [</span></span><br><span class="line"><span class="comment">//   &#123; status: &quot;fulfilled&quot;, value: undefined &#125;,</span></span><br><span class="line"><span class="comment">//   &#123; status: &quot;rejected&quot;, reason: undefined &#125;</span></span><br><span class="line"><span class="comment">// ]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="globalThis"><a href="#globalThis" class="headerlink" title="globalThis"></a>globalThis</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(globalThis);</span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-matchAll"><a href="#String-prototype-matchAll" class="headerlink" title="String.prototype.matchAll()"></a>String.prototype.matchAll()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/\w+/g</span>;</span><br><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">matchAll</span>(regex);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(match);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES12-ECMAScript-2021"><a href="#ES12-ECMAScript-2021" class="headerlink" title="ES12(ECMAScript 2021)"></a>ES12(ECMAScript 2021)</h1><h2 id="Numeric-separators"><a href="#Numeric-separators" class="headerlink" title="Numeric separators"></a>Numeric separators</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">1_000_000</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 1000000</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="String-prototype-replaceAll"><a href="#String-prototype-replaceAll" class="headerlink" title="String.prototype.replaceAll()"></a>String.prototype.replaceAll()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">replaceAll</span>(<span class="string">&quot;o&quot;</span>, <span class="string">&quot;0&quot;</span>)); <span class="comment">// hell0 w0rld</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Promise-any"><a href="#Promise-any" class="headerlink" title="Promise.any()"></a>Promise.any()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(reject, <span class="number">1000</span>));</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>));</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">value</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
-
-<h2 id="WeakRef"><a href="#WeakRef" class="headerlink" title="WeakRef"></a>WeakRef</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">name</span>: <span class="string">&quot;John&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> weakRef = <span class="keyword">new</span> <span class="title class_">WeakRef</span>(obj);</span><br><span class="line">obj = <span class="literal">null</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(weakRef.<span class="title function_">deref</span>()); <span class="comment">// &#123; name: &quot;John&quot; &#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="FinalizationRegistry"><a href="#FinalizationRegistry" class="headerlink" title="FinalizationRegistry"></a>FinalizationRegistry</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">name</span>: <span class="string">&quot;John&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> finalizationRegistry = <span class="keyword">new</span> <span class="title class_">FinalizationRegistry</span>(<span class="function"><span class="params">key</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(key));</span><br><span class="line">finalizationRegistry.<span class="title function_">register</span>(obj, <span class="string">&quot;custom key&quot;</span>);</span><br><span class="line">obj = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
-
-<h1 id="ES13-ECMAScript-2022"><a href="#ES13-ECMAScript-2022" class="headerlink" title="ES13(ECMAScript 2022)"></a>ES13(ECMAScript 2022)</h1><h2 id="Top-level-await"><a href="#Top-level-await" class="headerlink" title="Top-level await"></a>Top-level await</h2><h2 id="Private-instance-fields-methods-and-accessors"><a href="#Private-instance-fields-methods-and-accessors" class="headerlink" title="Private instance fields, methods, and accessors"></a>Private instance fields, methods, and accessors</h2><h2 id="Static-class-fields-and-methods"><a href="#Static-class-fields-and-methods" class="headerlink" title="Static class fields and methods"></a>Static class fields and methods</h2><h2 id="Static-class-initialization-blocks"><a href="#Static-class-initialization-blocks" class="headerlink" title="Static class initialization blocks"></a>Static class initialization blocks</h2><h2 id="Error-cause"><a href="#Error-cause" class="headerlink" title="Error.cause"></a>Error.cause</h2><h2 id="Array-String-and-TypedArray-at-method"><a href="#Array-String-and-TypedArray-at-method" class="headerlink" title="Array, String, and TypedArray .at() method"></a>Array, String, and TypedArray .at() method</h2><h2 id="Object-hasOwn"><a href="#Object-hasOwn" class="headerlink" title="Object.hasOwn()"></a>Object.hasOwn()</h2><p>The Object.hasOwn() static method returns true if the specified object has the indicated property as its <code>own</code> property. If the property is <code>inherited</code>, or does <code>not exist</code>, the method returns false.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">a</span>: <span class="number">1</span>&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;a&quot;</span>)); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;b&quot;</span>)); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">hasOwn</span>(obj, <span class="string">&quot;toString&quot;</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
-<p><code>Object.hasOwn</code> is intended as a replacement of <code>Object.prototype.hasOwnProperty</code>.</p>
-<h2 id="RegExp-match-x2F-d-flag"><a href="#RegExp-match-x2F-d-flag" class="headerlink" title="RegExp match &#x2F;d flag"></a>RegExp match &#x2F;d flag</h2><h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://gist.github.com/rajaramtt/7df3702a04c644b0b62c9a64f48f3dbf#2-ecmascript-2016---es-7">Github</a></li>
-<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ECMAScript_version_history">WikiPedia</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/javascript-clean-code/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/javascript-clean-code/" class="post-title-link" itemprop="url">javascript-clean-code</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-14 14:06:37 / Modified: 14:09:10" itemprop="dateCreated datePublished" datetime="2024-04-14T14:06:37+08:00">2024-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Prefer-const-over-let-and-var"><a href="#Prefer-const-over-let-and-var" class="headerlink" title="Prefer const over let and var"></a>Prefer <code>const</code> over <code>let</code> and <code>var</code></h2><h3 id="Bad"><a href="#Bad" class="headerlink" title="Bad"></a>Bad</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> array) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Good"><a href="#Good" class="headerlink" title="Good"></a>Good</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> array) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>Note</strong>, If you access array by index, you can’t use <code>const</code>:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; array.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(array[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/14/javascript-apply-call-bind/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/14/javascript-apply-call-bind/" class="post-title-link" itemprop="url">javascript-apply-call-bind</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-14 12:49:19" itemprop="dateCreated datePublished" datetime="2024-04-14T12:49:19+08:00">2024-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-21 09:43:19" itemprop="dateModified" datetime="2024-11-21T09:43:19+08:00">2024-11-21</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在JavaScript中,<code>apply</code>, <code>call</code>, <code>bind</code>是三个非常重要的方法，它们的一个重要作用是在调用函数时改变<code>this</code>的值。<strong>注意：箭头函数的this值无法修改。</strong></p>
-<ol>
-<li>Function.prototype.apply()</li>
-<li>Function.prototype.call()</li>
-<li>Function.prototype.bind()</li>
-</ol>
-<h2 id="apply"><a href="#apply" class="headerlink" title="apply"></a>apply</h2><p>假设我们有一个函数用来计算两数之和：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们可以正常调用这个函数：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
-
-<p>也可以使用<code>apply</code>方法来调用这个函数，第一个参数是<code>this</code>的值，第二个参数是一个数组，数组中的元素是函数的参数。这里我们不需要<code>this</code>，所以第一个参数传入<code>null</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add.<span class="title function_">apply</span>(<span class="literal">null</span>, [<span class="number">1</span>, <span class="number">2</span>]); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="call"><a href="#call" class="headerlink" title="call"></a>call</h2><p><code>call</code>方法和<code>apply</code>方法类似，只是参数的传递方式不同，<code>call</code>方法的参数是一个个传递的，而不是通过数组传递。还是以上面的求和函数为例，使用<code>call</code>方法调用，第一个参数是<code>this</code>的值，后面的参数是函数的参数。这里我们不需要<code>this</code>，所以第一个参数传入<code>null</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add.<span class="title function_">call</span>(<span class="literal">null</span>, <span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h2><p><code>bind</code>的调用方式与<code>call</code>类似，参数也是一个一个传递的。但是与<code>call</code>和<code>apply</code>直接调用函数不同，<code>bind</code>会创建一个新的函数并返回该函数，所以在使用<code>bind</code>时，我们通常会用一个变量接收<code>bind</code>返回的函数，再通过这个变量调用函数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fn.<span class="title function_">call</span>(thisValue, arg1, arg2, ...);</span><br><span class="line">fn.<span class="title function_">apply</span>(thisValue, [arg1, arg2, ...]);</span><br><span class="line">fn.<span class="title function_">bind</span>(thisValue)(arg1, arg2, ...);</span><br></pre></td></tr></table></figure>
-
-<p>还记得前面的例子吗？将对象方法赋值给普通函数时，this指向了全局对象，而全局对象上没有<code>name</code>属性，所以输出<code>undefined</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="title function_">sayName</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sayName = person.<span class="property">sayName</span>;</span><br><span class="line"><span class="title function_">sayName</span>(); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-
-<p>我们只要用<code>bind</code>修改一下<code>this</code>，让它绑定到person对象，就可以输出<code>Philip</code>了。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="title function_">sayName</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过sayName接收bind返回的函数。</span></span><br><span class="line"><span class="keyword">const</span> sayName = person.<span class="property">sayName</span>.<span class="title function_">bind</span>(person);</span><br><span class="line"><span class="title function_">sayName</span>(); <span class="comment">// Philip</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="call-apply-bind的使用场景"><a href="#call-apply-bind的使用场景" class="headerlink" title="call, apply, bind的使用场景"></a><code>call</code>, <code>apply</code>, <code>bind</code>的使用场景</h2><p>我们知道，函数中有一个隐含对象<code>arguments</code>，包含了函数调用时传入的所有参数。它是一个类数组对象，我们无法对它使用数组的方法，比如<code>map</code>, <code>filter</code>, <code>reduce</code>等。但是我们可以通过<code>call</code>, <code>apply</code>, <code>bind</code>方法将数组的方法应用到<code>arguments</code>上。</p>
-<p>比如下面这个求和函数，在函数体内部，我们可以使用<code>reduce</code>方法来计算所有参数的和。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">reduce</span>.<span class="title function_">call</span>(<span class="variable language_">arguments</span>, <span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc + cur, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>注意，上面的例子仅作演示只用，一个更加规范的写法是：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> args.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc + cur, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>再看一个class中使用bind的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CountDown</span> &#123;</span><br><span class="line">  count = <span class="number">0</span>;</span><br><span class="line">  interval = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">count</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = count;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">decrement</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">count</span>);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> -= <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">count</span> &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Done&quot;</span>);</span><br><span class="line">      <span class="built_in">clearInterval</span>(<span class="variable language_">this</span>.<span class="property">interval</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">start</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">interval</span> = <span class="built_in">setInterval</span>(<span class="variable language_">this</span>.<span class="property">decrement</span>, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">new</span> <span class="title class_">CountDown</span>(<span class="number">10</span>);</span><br><span class="line">foo.<span class="title function_">start</span>();</span><br></pre></td></tr></table></figure>
-<p>上面的代码中，<code>this.interval</code>是一个定时器，每隔1秒调用<code>this.decrement</code>方法，但是<code>setInterval</code>这个函数比较特殊，当我们将一个函数传递给<code>setInterval</code>时，这个函数的<code>this</code>值会指向全局对象，所以<code>this.count</code>会输出<code>undefined</code>。详情请参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval#the_this_problem">这里</a></p>
-<p>解决方法有两种，一种是在<code>start</code>方法中使用<code>bind</code>方法，将<code>this</code>绑定到<code>CountDown</code>类。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">start</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">interval</span> = <span class="built_in">setInterval</span>(<span class="variable language_">this</span>.<span class="property">decrement</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>), <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>另一种方法是将setInterval的回调函数改为箭头函数，因为箭头函数没有自己的<code>this binding</code>, 所以<code>this</code>指向其<code>parent scope</code>，也就是<code>CountDown</code>。个人推荐使用这种方法。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">start</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">interval</span> = <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="title function_">decrement</span>(), <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当然，也可以将<code>decrement</code>方法改为箭头函数，因为箭头函数没有自己的<code>this binding</code>, 所以<code>this</code>指向其<code>parent scope</code>，也就是<code>CountDown</code>。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">decrement = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">count</span>);</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> -= <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">count</span> &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Done&quot;</span>);</span><br><span class="line">    <span class="built_in">clearInterval</span>(<span class="variable language_">this</span>.<span class="property">interval</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><ul>
-<li><code>apply</code>和<code>call</code>的作用是改变函数的<code>this</code>值，<code>apply</code>的参数是一个数组，<code>call</code>的参数是一个个传递的。这里有一个小窍门，<code>apply</code>是<code>a</code>开头的，数组<code>array</code>也是<code>a</code>开头的，所以<code>apply</code>的参数是一个数组。</li>
-<li><code>bind</code>传递参数的方法和<code>call</code>类似(这个经常被忽略)，但是<code>bind</code>会创建一个新的函数并返回该函数，所以在使用<code>bind</code>时，我们通常会用一个变量接收<code>bind</code>返回的函数，再通过这个变量调用函数。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1423,14 +1345,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

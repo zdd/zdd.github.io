@@ -181,6 +181,379 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-interview-questions-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/javascript-interview-questions-02/" class="post-title-link" itemprop="url">javascript-interview-questions-02</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-16 18:53:13" itemprop="dateCreated datePublished" datetime="2024-11-16T18:53:13+08:00">2024-11-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-23 10:27:32" itemprop="dateModified" datetime="2024-12-23T10:27:32+08:00">2024-12-23</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="var-in-for-loop"><a href="#var-in-for-loop" class="headerlink" title="var in for loop."></a><code>var</code> in for loop.</h2><p>What’s the output of the following code?</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>Answer:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">100</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>最后一行代码<code>console.log(100);</code>是同步代码，所以会先输出100。</li>
+<li>for循环一共执行5次，每次都会调用<code>setTimeout</code>，但是<code>setTimeout</code>是异步代码，JS引擎会将setTimeout的回调函数放到宏任务队列中，等待执行。</li>
+<li>当前Event loop执行完毕后，会去执行宏任务队列中的任务，这时候<code>setTimeout</code>的回调函数才会被执行，但是这时候<code>i</code>已经变成了5，所以会输出5个5。</li>
+</ol>
+<p>所以导致这段代码的问题有二，解决其中任何一个都可以让它输出0, 1, 2, 3, 4。</p>
+<ol>
+<li>使用了<code>var</code>, <code>var</code>是函数作用域，所以所有的循环都共享一个<code>i</code>。</li>
+<li>使用了<code>setTimeout</code>。<code>setTimeout</code>是整个循环结束后才开始执行的！如果我们把<code>setTimeout</code>删除就不会有问题了。以下代码works well!<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>那么是不是不用<code>setTimeout</code>就没有问题了呢？不是的，我们来看这道题的一个变种：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> func = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  func.<span class="title function_">push</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> <span class="title function_">f</span>());</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>这个变种没有使用<code>setTimeout</code>，但是结果依然是5个5。为什么呢？观察这个变种和原始题目我们可以看到，他们共同的特点都是在<code>for</code>循环结束后才执行代码，此时i的值已经是5了。这才是根本原因。</p>
+<p>好了，现在我们来看看如何解决这个问题。</p>
+<h3 id="方法一，使用let代替var。"><a href="#方法一，使用let代替var。" class="headerlink" title="方法一，使用let代替var。"></a>方法一，使用<code>let</code>代替<code>var</code>。</h3><p>由于<code>let</code>有块级作用域，所以每次循环都会创建一个新的变量i，而不是像<code>var</code>那样所有的循环都共享一个i。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="方法二：将循环变量i参数化"><a href="#方法二：将循环变量i参数化" class="headerlink" title="方法二：将循环变量i参数化"></a>方法二：将循环变量i参数化</h3><p>说得再通俗一点，将setTimeout的逻辑单独抽离成一个函数<code>print</code>。这样每次循环的时候，都会将当前的i传递给<code>print</code>函数，这样<code>setTimeout</code>的代码加入宏任务队列时会记住当前的i值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="title function_">print</span>(i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">print</span>(<span class="params">i</span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(i), <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果觉得单独抽离函数不够优雅，可以使用IIFE（立即执行函数表达式）。注意，这里和闭包没有半毛钱关系，IIFE这里只是为了传递参数，也就是上面抽离函数的简化版。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  (<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;)(i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="方法三：使用setTimeout的第三个参数"><a href="#方法三：使用setTimeout的第三个参数" class="headerlink" title="方法三：使用setTimeout的第三个参数"></a>方法三：使用<code>setTimeout</code>的第三个参数</h3><p>这个方法可能很多同学都没有见过，其实<code>setTimeout</code>方法是有第三个参数的，这个参数是用来传递给回调函数的参数的。所以我们可以将当前的i值传递给<code>setTimeout</code>的回调函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">(<span class="params">j</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(j), <span class="number">1000</span>, i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>为了做区分，我把回到函数中的<code>i</code>改成了<code>j</code>，这样就不会混淆了。循环变量<code>i</code>通过<code>setTimeout</code>的第三个参数传递给回调函数。</p>
+<p>你学会了吗？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-interview-questions-01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/javascript-interview-questions-01/" class="post-title-link" itemprop="url">javascript-interview-questions-01</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-16 18:28:11" itemprop="dateCreated datePublished" datetime="2024-11-16T18:28:11+08:00">2024-11-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-11 20:47:44" itemprop="dateModified" datetime="2024-12-11T20:47:44+08:00">2024-12-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="以下代码输出什么？"><a href="#以下代码输出什么？" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="title function_">map</span>(<span class="built_in">parseInt</span>);</span><br></pre></td></tr></table></figure>
+<p>答案：<code>[1, NaN, NaN]</code></p>
+<p>解析：先看一下<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN</a>上关于<code>Array.prototype.map</code>的定义，这里我们没有传递第二个参数，所以使用的是下面第一种调用方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">map(callbackFn)</span><br><span class="line">map(callbackFn, thisArg)</span><br></pre></td></tr></table></figure>
+<p>而<code>callbackFn</code>接受三个参数</p>
+<ul>
+<li>element：当前正在处理的元素</li>
+<li>index：当前正在处理的元素的索引</li>
+<li>array：调用<code>map</code>方法的数组</li>
+</ul>
+<p>而<code>parseInt</code>函数有如下两种形式，由于map传递过来的参数有三个，所以这里会调用第二种形式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">parseInt(string)</span><br><span class="line">parseInt(string, radix)</span><br></pre></td></tr></table></figure>
+<p>所以上面的代码就变成了如下形式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="title function_">map</span>(<span class="function">(<span class="params">element, index, array</span>) =&gt;</span> <span class="built_in">parseInt</span>(element, index));</span><br></pre></td></tr></table></figure>
+<p>展开之后相当于三次<code>parseInt</code>调用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">parseInt</span>(<span class="number">1</span>, <span class="number">0</span>); <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">parseInt</span>(<span class="number">2</span>, <span class="number">1</span>); <span class="comment">// NaN</span></span><br><span class="line"><span class="built_in">parseInt</span>(<span class="number">3</span>, <span class="number">2</span>); <span class="comment">// NaN</span></span><br></pre></td></tr></table></figure>
+<p>注意：<code>parseInt</code>函数的第二个参数是进制，这个参数有如下限制</p>
+<ul>
+<li>如果传递的进制不在2-36之间，那么<code>parseInt</code>返回<code>NaN</code>。</li>
+<li>如果不传递该参数，或者传递0，那么<code>parseInt</code>会根据第一个参数推断：<ul>
+<li>如果第一个参数以<code>0x</code>或者<code>0X</code>开头，那么会被解析为十六进制。</li>
+<li>否则会被解析为十进制。</li>
+</ul>
+</li>
+</ul>
+<p>所以:  </p>
+<ul>
+<li><code>parseInt(1, 0);</code> radix为0，根据第一个参数判断，而第一个参数1并非以<code>0x</code>或<code>0X</code>开头，所以会被解析为十进制，返回1。 </li>
+<li><code>parseInt(2, 1);</code> radix为1，不在2-36之间，返回<code>NaN</code>。</li>
+<li><code>parseInt(3, 2);</code> radix为2，但是3不是二进制数，返回<code>NaN</code>。</li>
+</ul>
+<p>需要注意的是：<code>parseInt</code>会将第一个参数转换为字符串，然后再解析。所以<code>parseInt(3, 2);</code>等价于<code>parseInt(&#39;3&#39;, 2);</code>。可是二进制数中不可能有3这个数字，所以返回<code>NaN</code>。一个合法的例子是<code>parseInt(&#39;11&#39;, 2);</code>，这个会返回3。</p>
+<h2 id="大数相加"><a href="#大数相加" class="headerlink" title="大数相加"></a>大数相加</h2><p>实现一个函数，输入两个字符串，返回它们的和。这两个字符串表示的数字不会以0开头，且不会以空格开头。返回的结果也不会以0开头。<br>这个题考察的点有以下几个</p>
+<ol>
+<li>字符串如何转换为整数？</li>
+<li>进位处理</li>
+<li>字符串对齐处理，如何填充前导0？</li>
+<li>如何取整。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">bigNumberAdd</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> maxLength = <span class="title class_">Math</span>.<span class="title function_">max</span>(a.<span class="property">length</span>, b.<span class="property">length</span>);</span><br><span class="line">  a = a.<span class="title function_">padStart</span>(maxLength, <span class="string">&#x27;0&#x27;</span>);</span><br><span class="line">  b = b.<span class="title function_">padStart</span>(maxLength, <span class="string">&#x27;0&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> result = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="keyword">let</span> carry = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = maxLength - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">    <span class="keyword">const</span> sum = <span class="title class_">Number</span>(a[i]) + <span class="title class_">Number</span>(b[i]) + carry;</span><br><span class="line">    <span class="comment">// This is string concatenation, not numeric addition.</span></span><br><span class="line">    result = (sum % <span class="number">10</span>) + result; <span class="comment">// if sum &gt; 10, we only need the last digit.</span></span><br><span class="line">    carry = <span class="title class_">Math</span>.<span class="title function_">floor</span>(sum / <span class="number">10</span>); <span class="comment">// the carry is the first digit when sum &gt; 10.</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Don&#x27;t forget the last carry.</span></span><br><span class="line">  <span class="keyword">if</span> (carry &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    result = carry + result;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">bigNumberAdd</span>(<span class="string">&#x27;999&#x27;</span>, <span class="string">&#x27;999&#x27;</span>)); <span class="comment">// 1998</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="JS中如何判断Primitive类型？"><a href="#JS中如何判断Primitive类型？" class="headerlink" title="JS中如何判断Primitive类型？"></a>JS中如何判断Primitive类型？</h2><p>可以使用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/Object"><code>Object()</code></a>函数。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isPrimitive</span>(<span class="params">value</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> value !== <span class="title class_">Object</span>(value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isPrimitive</span>(<span class="params">value</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> value === <span class="literal">null</span> || (<span class="keyword">typeof</span> value !== <span class="string">&#x27;object&#x27;</span> &amp;&amp; <span class="keyword">typeof</span> value !== <span class="string">&#x27;function&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="JS中有哪些方法可以判断数组类型？"><a href="#JS中有哪些方法可以判断数组类型？" class="headerlink" title="JS中有哪些方法可以判断数组类型？"></a>JS中有哪些方法可以判断数组类型？</h2><ol>
+<li><code>Array.isArray([])</code></li>
+<li><code>[] instanceof Array</code></li>
+<li><code>Object.prototype.toString.call([]) === &#39;[object Array]&#39;</code></li>
+<li><code>Array.prototype.isPrototypeOf([])</code></li>
+<li><code>[].__proto__ === Array.prototype</code></li>
+<li><code>[].constructor === Array</code></li>
+</ol>
+<h2 id="深拷贝要注意哪些问题？"><a href="#深拷贝要注意哪些问题？" class="headerlink" title="深拷贝要注意哪些问题？"></a>深拷贝要注意哪些问题？</h2><ol>
+<li>循环引用</li>
+<li>特殊对象，比如<code>Date</code>, <code>RegExp</code>, <code>Map</code>, <code>Set</code>, <code>Function</code>等。</li>
+</ol>
+<p>以下是一个简单的实现。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">deepCopy</span>(<span class="params">obj, hash = <span class="keyword">new</span> <span class="built_in">WeakMap</span>()</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="title class_">RegExp</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RegExp</span>(obj);</span><br><span class="line">  <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="title class_">Date</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Date</span>(obj);</span><br><span class="line">  <span class="keyword">if</span> (obj === <span class="literal">null</span> || <span class="keyword">typeof</span> obj !== <span class="string">&#x27;object&#x27;</span>) <span class="keyword">return</span> obj; <span class="comment">// primitives or function</span></span><br><span class="line">  <span class="keyword">if</span> (hash.<span class="title function_">has</span>(obj)) <span class="keyword">return</span> hash.<span class="title function_">get</span>(obj); <span class="comment">// circular reference</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> newObj = <span class="title class_">Array</span>.<span class="title function_">isArray</span>(obj) ? [] : &#123;&#125;;</span><br><span class="line">  hash.<span class="title function_">set</span>(obj, newObj);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">    <span class="keyword">if</span> (obj.<span class="title function_">hasOwnProperty</span>(key)) &#123;</span><br><span class="line">      newObj[key] = <span class="title function_">deepCopy</span>(obj[key], hash);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newObj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例对象</span></span><br><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">a</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">b</span>: [<span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">  <span class="attr">c</span>: &#123; <span class="attr">d</span>: <span class="number">4</span> &#125;,</span><br><span class="line">  <span class="attr">e</span>: <span class="keyword">new</span> <span class="title class_">Date</span>(),</span><br><span class="line">  <span class="attr">f</span>: <span class="regexp">/abc/</span>,</span><br><span class="line">  <span class="title function_">g</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;g&#x27;</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 深拷贝</span></span><br><span class="line"><span class="keyword">const</span> copy = <span class="title function_">deepCopy</span>(obj);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(copy);</span><br><span class="line">copy.<span class="title function_">g</span>(); <span class="comment">// g</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="类型转换，以下代码输出什么？"><a href="#类型转换，以下代码输出什么？" class="headerlink" title="类型转换，以下代码输出什么？"></a>类型转换，以下代码输出什么？</h2><p>详情请参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Addition"><code>+</code></a>的运算规则：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] + []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] + &#123;&#125;);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; + []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; + &#123;&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="输出结果是什么？"><a href="#输出结果是什么？" class="headerlink" title="输出结果是什么？"></a>输出结果是什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">numbers[<span class="number">4</span>] = <span class="number">4</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// 1, 2, 3, &lt;1 empty item&gt;, 4</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers[<span class="number">3</span>]); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="以下代码输出什么？-1"><a href="#以下代码输出什么？-1" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = &#123;&#125;;</span><br><span class="line"><span class="keyword">const</span> b = &#123; <span class="attr">key</span>: <span class="string">&#x27;b&#x27;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> c = &#123; <span class="attr">key</span>: <span class="string">&#x27;c&#x27;</span> &#125;;</span><br><span class="line">a[b] = <span class="number">123</span>;</span><br><span class="line">a[c] = <span class="number">456</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a[b]);</span><br></pre></td></tr></table></figure>
+<p>答案：<code>456</code><br>本题考察的点是：<code>对象的键名只能是字符串或者Symbol类型</code>，如果不是，会被转换为字符串。所以<code>a[b]</code>和<code>a[c]</code>都会把键名转换为<code>[object Object]</code>，所以<code>a[b]</code>和<code>a[c]</code>实际上是同一个键，最后赋值会覆盖前面的值。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/http-message/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/http-message/" class="post-title-link" itemprop="url">http-message</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-11-16 08:18:18 / Modified: 09:23:32" itemprop="dateCreated datePublished" datetime="2024-11-16T08:18:18+08:00">2024-11-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>HTTP has two types of messages, request message and response message. Both messages consist of a start line, headers, and an optional body.</p>
+<p>Note that, HTTP messages, as defined in HTTP&#x2F;1.1 and earlier, are human-readable. In HTTP&#x2F;2, these messages are embedded into a binary structure, a frame, allowing optimizations like compression of headers and multiplexing.</p>
+<h1 id="Request-Message"><a href="#Request-Message" class="headerlink" title="Request Message"></a>Request Message</h1><p><img src="/../images/http-request-message.jpg" alt="http-request-message"><br>Http Request message consists of the following elements:</p>
+<ol>
+<li>An HTTP method.</li>
+<li>The path of the resource to fetch.</li>
+<li>The version of the HTTP protocol.</li>
+<li>Optional headers.</li>
+<li>An optional body.</li>
+</ol>
+<h1 id="Response-Message"><a href="#Response-Message" class="headerlink" title="Response Message"></a>Response Message</h1><p><img src="/../images/http-response-message.jpg" alt="http-response-message"><br>Http Response message consists of the following elements:</p>
+<ol>
+<li>The version of the HTTP protocol.</li>
+<li>A status code indicating the success or failure of the request.</li>
+<li>A status message.</li>
+<li>Optional headers.</li>
+<li>An optional body.</li>
+</ol>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview#http_messages">MDN - HTTP Messages</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/http-simple-history/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/http-simple-history/" class="post-title-link" itemprop="url">http-simple-history</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-11-16 08:14:48 / Modified: 08:17:52" itemprop="dateCreated datePublished" datetime="2024-11-16T08:14:48+08:00">2024-11-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="The-simple-history-of-HTTP"><a href="#The-simple-history-of-HTTP" class="headerlink" title="The simple history of HTTP"></a>The simple history of HTTP</h1><h2 id="HTTP-x2F-0-9"><a href="#HTTP-x2F-0-9" class="headerlink" title="HTTP&#x2F;0.9"></a>HTTP&#x2F;0.9</h2><p>HTTP&#x2F;0.9 is the first version of the HTTP protocol. It was a simple protocol that allowed clients to request a file from a server. The server would then send the file back to the client. The protocol did not support headers or status codes, and the client and server communicated using plain text.</p>
+<h2 id="HTTP-x2F-1-0"><a href="#HTTP-x2F-1-0" class="headerlink" title="HTTP&#x2F;1.0"></a>HTTP&#x2F;1.0</h2><p>HTTP&#x2F;1.0 was released in 1996 and introduced several new features to the protocol. These features included support for headers, status codes, and the ability to send multiple files in a single request. HTTP&#x2F;1.0 also introduced the concept of persistent connections, which allowed clients to reuse a single connection to send multiple requests.</p>
+<h2 id="HTTP-x2F-1-1"><a href="#HTTP-x2F-1-1" class="headerlink" title="HTTP&#x2F;1.1"></a>HTTP&#x2F;1.1</h2><p>HTTP&#x2F;1.1 was released in 1999 and is the most widely used version of the HTTP protocol today. It introduced several new features, including support for chunked transfer encoding, which allows servers to send data in chunks, and the ability to reuse connections for multiple requests. HTTP&#x2F;1.1 also introduced several new status codes, such as 100 Continue and 206 Partial Content.</p>
+<p>Details about HTTP&#x2F;1.1:</p>
+<ol>
+<li>HTTP&#x2F;1.1 is a text-based protocol.</li>
+</ol>
+<h2 id="HTTP-x2F-2"><a href="#HTTP-x2F-2" class="headerlink" title="HTTP&#x2F;2"></a>HTTP&#x2F;2</h2><p>HTTP&#x2F;2 was released in 2015 and introduced several new features to the protocol. These features included support for multiplexing, which allows clients to send multiple requests over a single connection, and server push, which allows servers to send resources to clients before they are requested. HTTP&#x2F;2 also introduced several new status codes, such as 103 Early Hints and 421 Misdirected Request.</p>
+<p>Details about HTTP&#x2F;2:</p>
+<ol>
+<li>HTTP&#x2F;2 Message is binary, instead of textual.</li>
+</ol>
+<h2 id="HTTP-x2F-3"><a href="#HTTP-x2F-3" class="headerlink" title="HTTP&#x2F;3"></a>HTTP&#x2F;3</h2><p>HTTP&#x2F;3 is the latest version of the HTTP protocol and is currently in development. It is based on the QUIC protocol, which is a new transport protocol that is designed to improve the performance of web applications. HTTP&#x2F;3 introduces several new features, including support for multiplexing, which allows clients to send multiple requests over a single connection, and server push, which allows servers to send resources to clients before they are requested. HTTP&#x2F;3 also introduces several new status codes, such as 103 Early Hints and 421 Misdirected Request.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/software-architecture-design-principle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -832,366 +1205,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/13/javascript-object-without-prototype/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/13/javascript-object-without-prototype/" class="post-title-link" itemprop="url">javascript-object-without-prototype</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-13 08:41:04 / Modified: 09:02:15" itemprop="dateCreated datePublished" datetime="2024-11-13T08:41:04+08:00">2024-11-13</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>今天在练习正则表达式的时候，发现了一个有趣的输出，之前未见过（也许曾经见过，但没有留意），索性研究一下。</p>
-<p>代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">`name: zdd, age: 18, gender: male`</span>;</span><br><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/name: (?&lt;name&gt;\w+), age: (?&lt;age&gt;\d+), gender: (?&lt;gender&gt;\w+)/</span>;</span><br><span class="line"><span class="keyword">const</span> match = str.<span class="title function_">match</span>(regex); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>);<span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出结果如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="title class_">Object</span>: <span class="literal">null</span> prototype] &#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, <span class="attr">age</span>: <span class="string">&#x27;18&#x27;</span>, <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>这个输出结果里面的<code>[Object: null prototype]</code>是什么意思呢？问了一下通义千问，发现这是一个没有原型的对象。</p>
-<p>那么，啥是没有原型的对象呢？可以简单的理解为，这个对象没有继承任何Object的属性和方法，是一个干净的对象。它就是它自己！<br>此类对象没有<code>toString</code>、<code>valueOf</code>等方法，也没有<code>__proto__</code>属性，因此无法通过原型链访问到Object的属性和方法。我们可以通过<code>Object.create(null)</code>来创建一个没有原型的对象。</p>
-<p>以下代码会产生一个TypeError,因为<code>person</code>对象没有原型，所以无法访问<code>toString</code>, <code>hasOwnProperty</code>等方法。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line">person.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">person.<span class="property">age</span> = <span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="title function_">toString</span>()); <span class="comment">// TypeError: person.toString is not a function</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;name&#x27;</span>)); <span class="comment">// TypeError: person.hasOwnProperty is not a function</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;name&#x27;</span> <span class="keyword">in</span> person); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>没有原型的对象有哪些好处呢？我们常说，存在即有理，既然这种对象，那么必然有它存在的道理：</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
-<li>避免原型污染：在JavaScript中，我们经常会遇到原型污染的问题，通过创建没有原型的对象，可以避免这种问题。</li>
-<li>速度快：没有原型的对象，不需要查找原型链，因此访问属性和方法的速度更快。</li>
-<li>纯粹的数据容器：没有原型的对象，可以作为一个纯粹的数据容器。</li>
-</ol>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
-<li>无法使用<code>Object.prototype</code>上的方法，如<code>toString</code>、<code>valueOf</code>等。</li>
-<li>检查属性是否存在只能使用<code>in</code>操作符，不能使用<code>hasOwnProperty</code>方法。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/12/javascript-errors/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/12/javascript-errors/" class="post-title-link" itemprop="url">javascript-errors</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-12 09:42:24 / Modified: 12:03:40" itemprop="dateCreated datePublished" datetime="2024-11-12T09:42:24+08:00">2024-11-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="TypeError-Cannot-read-properties-of-undefined-reading-‘xxx’"><a href="#TypeError-Cannot-read-properties-of-undefined-reading-‘xxx’" class="headerlink" title="TypeError: Cannot read properties of undefined (reading ‘xxx’)"></a>TypeError: Cannot read properties of undefined (reading ‘xxx’)</h2><p>This error occurs when you try to access a property of an object that is undefined.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> person = <span class="literal">undefined</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">age</span>); <span class="comment">// Uncaught TypeError: Cannot read properties of undefined (reading &#x27;age&#x27;)</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="ReferenceError-a-is-not-defined"><a href="#ReferenceError-a-is-not-defined" class="headerlink" title="ReferenceError: a is not defined"></a>ReferenceError: a is not defined</h2><p>This is the most common error in JavaScript. It means that you are trying to use a variable that has not been declared.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// Uncaught ReferenceError: a is not defined</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="ReferenceError-Cannot-access-‘a’-before-initialization"><a href="#ReferenceError-Cannot-access-‘a’-before-initialization" class="headerlink" title="ReferenceError: Cannot access ‘a’ before initialization"></a>ReferenceError: Cannot access ‘a’ before initialization</h2><p>This error occurs when you try to access a variable before it is declared. After ES6, this means you touch the (TDZ)temporal dead zone. temporal dead zone is the zone between the start of the block scope and the actual declaration of the variable.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// Uncaught ReferenceError: Cannot access &#x27;a&#x27; before initialization</span></span><br><span class="line"><span class="keyword">const</span> a = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="TypeError-Assignment-to-constant-variable"><a href="#TypeError-Assignment-to-constant-variable" class="headerlink" title="TypeError: Assignment to constant variable."></a>TypeError: Assignment to constant variable.</h2><p>This error occurs when you try to reassign a value to a constant variable.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = <span class="number">1</span>;</span><br><span class="line">a = <span class="number">2</span>; <span class="comment">// Uncaught TypeError: Assignment to constant variable.</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="RangeError-Maximum-call-stack-size-exceeded"><a href="#RangeError-Maximum-call-stack-size-exceeded" class="headerlink" title="RangeError: Maximum call stack size exceeded"></a>RangeError: Maximum call stack size exceeded</h2><p>See the following code, why it cause the <code>RangeError: Maximum call stack size exceeded</code> error?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">name</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">name</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">value</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> person = <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line">person.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">name</span>); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-
-<p>The error is caused by the recursive call to the setter of name.</p>
-<ol>
-<li><code>person.name = &#39;Philip&#39;;</code> will call the setter <code>set name(value)</code>.</li>
-<li>Inside the setter, <code>this.name = value;</code> will call the setter again. that’s an infinite loop.</li>
-</ol>
-<p>How to fix it?<br>We can just use another name for the property, like <code>_name</code>.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">name</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_name</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">value</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_name</span> = value;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> person = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line">person.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">name</span>); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-<p>In this way, </p>
-<ol>
-<li><code>person.name = &#39;Philip&#39;;</code> will call the setter <code>set name(value)</code></li>
-<li>Inside the setter function, we set the value to <code>_name</code> property, not the <code>name</code> property. So it will not cause the infinite loop.</li>
-</ol>
-<p>You can find the details of <code>getter</code> and <code>setter</code> from <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get">here</a>.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/10/javascript-interview-this/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/10/javascript-interview-this/" class="post-title-link" itemprop="url">javascript-interview-this</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-10 20:25:17 / Modified: 21:24:03" itemprop="dateCreated datePublished" datetime="2024-11-10T20:25:17+08:00">2024-11-10</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>This指向问题是JavaScript面试中必考的问题，今天我们就来将this有关的面试题一网打尽！解答此类面试题的关键是 <code>函数是以何种方式调用的</code>，拿到题目后，<code>先确定函数的调用方式</code>，再根据调用方式来判断this的指向。</p>
-<p>根据调用方式的不同，this的指向有以下几种情况：</p>
-<ol>
-<li>作为普通函数调用, this指向全局对象。</li>
-<li>作为对象方法调用, this指向调用方法的对象。</li>
-<li>作为构造函数调用, this指向新创建的对象。</li>
-<li>使用apply、call、bind调用, this指向指定的对象。</li>
-<li>箭头函数中的this, this指向其父级作用域的this。</li>
-<li><code>setTimeout</code>函数中的this。</li>
-<li>DOM环境中的this。</li>
-</ol>
-<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>This的指向只和函数的调用方式相关，与函数的定义位置无关。在面试中，如果遇到this指向的问题，先确定函数的调用方式，再根据调用方式来判断this的指向。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/09/javascript-closure/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/09/javascript-closure/" class="post-title-link" itemprop="url">javascript-closure</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-09 17:14:13" itemprop="dateCreated datePublished" datetime="2024-11-09T17:14:13+08:00">2024-11-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-23 16:28:06" itemprop="dateModified" datetime="2024-11-23T16:28:06+08:00">2024-11-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>What is a closure in JavaScript? This is really a hard question, and I see lots of different answers on the internet. I list some of them below:</p>
-<ol>
-<li>A closure is a function that has access to the outer function’s variables.</li>
-<li>A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment). In other words, a closure gives a function access to its outer scope. In JavaScript, closures are created every time a function is created, at function creation time. - from <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">MDN</a></li>
-</ol>
-<h1 id="Lexical-scoping"><a href="#Lexical-scoping" class="headerlink" title="Lexical scoping"></a>Lexical scoping</h1><p>在JavaScript中，词法作用域（Lexical Scoping）是一种确定变量作用域的规则。词法作用域基于变量在代码中声明的位置来决定其可见性和生命周期。具体来说，词法作用域是在编写代码时就确定下来的，它取决于函数和块（如if语句或循环）的嵌套结构，而不是在运行时动态确定的。</p>
-<p>词法作用域的特点<br>静态确定：词法作用域在代码编写阶段就已经确定。编译器在解析代码时会创建一个作用域链，这个链决定了在何处查找变量。<br>基于嵌套：作用域是根据函数和块的嵌套关系来定义的。内层作用域可以访问外层作用域中的变量，但外层作用域不能访问内层作用域中的变量。<br>函数优先：在JavaScript中，函数创建了自己的作用域，即使这个函数没有立即执行，它的作用域也是在定义时就确定的。<br>词法作用域的例子<br>下面是一个简单的例子来说明词法作用域：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">outerFunction</span>(<span class="params">outerArg</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> outerVariable = <span class="string">&#x27;I am from the outer function&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">innerFunction</span>(<span class="params">innerArg</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(outerArg); <span class="comment">// 可以访问 outerFunction 的参数</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(outerVariable); <span class="comment">// 可以访问 outerFunction 的变量</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(innerArg); <span class="comment">// 可以访问 innerFunction 的参数</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">innerFunction</span>(<span class="string">&#x27;Hello from innerFunction&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">outerFunction</span>(<span class="string">&#x27;Hello from outerFunction&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>词法作用域是闭包的基础，因为闭包是在词法作用域的基础上实现的。</p>
-<h1 id="闭包的特性"><a href="#闭包的特性" class="headerlink" title="闭包的特性"></a>闭包的特性</h1><ol>
-<li>数据封装性 - 可以用来封装私有变量，模拟模块化。</li>
-<li>保持状态 - 保持函数的状态，比如计数器。防抖和节流使用的都是这个特性。</li>
-</ol>
-<h1 id="Use-case"><a href="#Use-case" class="headerlink" title="Use case"></a>Use case</h1><h2 id="Data-encapsulation-private-variables"><a href="#Data-encapsulation-private-variables" class="headerlink" title="Data encapsulation(private variables)"></a>Data encapsulation(private variables)</h2><p>In the follow example, the inner function <code>increase</code> has access to the outer function’s variable <code>count</code>. The variable <code>count</code> is private and cannot be accessed from outside the function <code>createCounter</code>. But you can still change <code>count</code> by invoking the <code>increase</code> function.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">createCounter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">increase</span>(<span class="params"></span>) &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    increase,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> counter = <span class="title function_">createCounter</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(counter.<span class="title function_">increase</span>()); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<p>Note that</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &#123;</span><br><span class="line">  increase,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>is shorthand for</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &#123;</span><br><span class="line">  <span class="attr">increase</span>: increase,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>We can also return the function <code>increase</code> directly.(This is not work when you have multiple functions to return, you must use the object literal in that case.)</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">createCounter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>And you should also change the way to invoke the function since you return an anonymous function. so there is no <code>increase</code> property in the <code>counter</code> object.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> counter = <span class="title function_">createCounter</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">counter</span>()); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Simulate-module-Modernization"><a href="#Simulate-module-Modernization" class="headerlink" title="Simulate module(Modernization)"></a>Simulate module(Modernization)</h2><p>In the following example, we can simulate a module by using closure. The private variables and methods are defined inside the outer function <code>MyModule</code>. The public variables and methods are returned as an object literal. So the private variables and methods are encapsulated and cannot be accessed from outside the function. The public variables and methods can be accessed by invoking the returned object.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">MyModule</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> privateVariable = <span class="string">&#x27;private variable&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> publicVariable = <span class="string">&#x27;public variable&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">privateMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(privateVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">publicMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(publicVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// If you want to expose the variables/methods, return them.</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    publicVariable,</span><br><span class="line">    publicMethod,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> myModule = <span class="title class_">MyModule</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">publicVariable</span>); <span class="comment">// public variable</span></span><br><span class="line">myModule.<span class="title function_">publicMethod</span>(); <span class="comment">// public method</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Event-handler-or-callback"><a href="#Event-handler-or-callback" class="headerlink" title="Event handler(or callback)"></a>Event handler(or callback)</h2><p>Some event handler or callback functions use closure to access the outer function’s variables.<br>In the following example, the event handler for <code>click</code> event is an anymous function. The function has access to the outer function’s variable <code>count</code>. </p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span>&gt;</span>Click Me<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Click count: <span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">let</span> count = <span class="number">0</span>;</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">const</span> button = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">const</span> span = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;span&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      button.<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">        count++;</span></span><br><span class="line"><span class="language-javascript">        span.<span class="property">textContent</span> = count;</span></span><br><span class="line"><span class="language-javascript">      &#125;);</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Design-patter-Singleton"><a href="#Design-patter-Singleton" class="headerlink" title="Design patter - Singleton"></a>Design patter - Singleton</h2><p>In the following code, we use a local variable <code>instance</code> to check whether the instance has been created or not. The <code>instance</code> variable must memorize its state during different calls to the <code>getInstance</code> function. So we use closure to achieve this.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">Singleton</span> = (<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">createInstance</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123; <span class="attr">name</span>: name &#125;;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">getInstance</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!instance) &#123;</span><br><span class="line">      instance = <span class="title function_">createInstance</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> instance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    getInstance,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> instance1 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> instance2 = <span class="title class_">Singleton</span>.<span class="title function_">getInstance</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(instance1); <span class="comment">// Philip</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(instance2); <span class="comment">// Philip</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Debounce"><a href="#Debounce" class="headerlink" title="Debounce"></a>Debounce</h2><p>防抖和节流都是为了解决在短段时间内大量触发某个函数执行而导致的性能问题。</p>
-<p><strong>防抖的原理</strong><br>事件处理函数在事件触发一段时间后（比如500ms）再执行，如果在此时间内（比如500ms）事件再次触发，则重新计时。</p>
-<p><strong>防抖的应用</strong>：<br>输入框实时搜索，如果不加防抖处理的话，用户每输入一个字符就会调用一次接口，极大的浪费带宽和后端服务器资源。加入防抖后，用户停止输入一段时间后，才调用接口。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">debounce</span>(<span class="params">func, wait</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> timeout;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> args = <span class="variable language_">arguments</span>;</span><br><span class="line">    <span class="keyword">const</span> context = <span class="variable language_">this</span>;</span><br><span class="line">    <span class="built_in">clearTimeout</span>(timeout);</span><br><span class="line">    timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      func.<span class="title function_">apply</span>(context, args);</span><br><span class="line">    &#125;, wait);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#input&quot;</span>).<span class="title function_">addEventListener</span>(</span><br><span class="line">  <span class="string">&quot;input&quot;</span>,</span><br><span class="line">  <span class="title function_">debounce</span>(<span class="keyword">function</span> (<span class="params">e</span>) &#123;</span><br><span class="line">    <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;#output&quot;</span>).<span class="property">innerHTML</span> =</span><br><span class="line">      <span class="string">&quot;You have input: &quot;</span> + e.<span class="property">target</span>.<span class="property">value</span>;</span><br><span class="line">    <span class="comment">// You can call and server side api here, and debounce make sure the api is not called very often.</span></span><br><span class="line">  &#125;, <span class="number">500</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Throttle"><a href="#Throttle" class="headerlink" title="Throttle"></a>Throttle</h2><p>节流是指一段时间内值触发一次函数调用，经常用在处理用户频繁触发的事件中，比如resize、scroll、mousemove等。此类事件如果不加控制，每秒会触发上百次，极大浪费资源。</p>
-<p>以下代码是一个节流函数的实现，它确保在每300ms响应一次resize事件。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">throttle</span>(<span class="params">func, wait</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> timeout;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> context = <span class="variable language_">this</span>;</span><br><span class="line">    <span class="keyword">const</span> args = <span class="variable language_">arguments</span>;</span><br><span class="line">    <span class="keyword">if</span> (!timeout) &#123;</span><br><span class="line">      timeout = <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">        timeout = <span class="literal">null</span>;</span><br><span class="line">        func.<span class="title function_">apply</span>(context, args);</span><br><span class="line">      &#125;, wait);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line"><span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;resize&#x27;</span>, <span class="title function_">throttle</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  count++;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;#counter&#x27;</span>).<span class="property">innerHTML</span> = <span class="string">&#x27;resize triggered: &#x27;</span> + count;</span><br><span class="line">&#125;, <span class="number">300</span>));</span><br></pre></td></tr></table></figure>
-
-<h2 id="Currying"><a href="#Currying" class="headerlink" title="Currying"></a>Currying</h2><p>在JavaScript中，柯里化（Currying）是一种将使用多个参数的函数转换成一系列使用单一参数的函数的技术。通过柯里化，我们可以将一个多参数的函数逐步转化为一系列单参数的函数。每个函数都返回一个新的函数，直到所有参数都被提供，最终返回结果。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add(a, b) ===&gt; curriedAdd(a)(b)</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">curry</span>(<span class="params">func</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> <span class="title function_">curried</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (args.<span class="property">length</span> &gt;= func.<span class="property">length</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> func.<span class="title function_">apply</span>(<span class="variable language_">this</span>, args);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params">...args2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> curried.<span class="title function_">apply</span>(<span class="variable language_">this</span>, [...args, ...args2]);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">a, b, c</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> currySum = <span class="title function_">curry</span>(sum);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
-
-<p>实际应用<br>参数复用：通过柯里化，可以预先设置好某些参数，然后得到一个预设了部分参数的新函数。这对于创建特定配置的函数非常有用。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> add5 = <span class="title function_">curriedAdd</span>(<span class="number">5</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add5</span>(<span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 输出 10</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>延迟执行：柯里化允许你在需要的时候才完成函数的执行，这在处理异步操作或事件处理时特别有用。</li>
-<li>简化高阶函数：在处理高阶函数时，柯里化可以帮助简化代码，使得函数更易于理解和测试。</li>
-<li>函数组合：柯里化可以与其他函数式编程概念如函数组合结合使用，以构建复杂的逻辑链路，同时保持代码清晰简洁。</li>
-<li>部分应用：柯里化有时也被称作部分应用的一种形式，尽管严格来说二者有所不同。部分应用是指固定一个或多个参数的值，而柯里化则是逐步接收参数的过程。<br>柯里化是一种强大的技术，尤其是在函数式编程范式中，它能够帮助开发者写出更加模块化和可重用的代码。</li>
-</ul>
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Closure_(computer_programming)">https://en.wikipedia.org/wiki/Closure_(computer_programming)</a></li>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1261,14 +1274,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

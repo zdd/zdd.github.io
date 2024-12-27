@@ -181,6 +181,390 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-directive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/03/angular-directive/" class="post-title-link" itemprop="url">angular-directive</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-03 21:25:16" itemprop="dateCreated datePublished" datetime="2024-12-03T21:25:16+08:00">2024-12-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-04 09:57:19" itemprop="dateModified" datetime="2024-12-04T09:57:19+08:00">2024-12-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Directive是Angular中最基础的概念，就连我们天天使用的component也是Directive的一种，Angular中有如下几种Directive：</p>
+<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>这个就不做过多介绍了，大家直接看官方文档吧：<a target="_blank" rel="noopener" href="https://angular.dev/guide/components">https://angular.dev/guide/components</a></p>
+<h2 id="Attribute-Directives"><a href="#Attribute-Directives" class="headerlink" title="Attribute Directives"></a>Attribute Directives</h2><h3 id="NgClass"><a href="#NgClass" class="headerlink" title="NgClass"></a>NgClass</h3><h3 id="NgStyle"><a href="#NgStyle" class="headerlink" title="NgStyle"></a>NgStyle</h3><h3 id="NgModel"><a href="#NgModel" class="headerlink" title="NgModel"></a>NgModel</h3><h2 id="Structural-Directives"><a href="#Structural-Directives" class="headerlink" title="Structural Directives"></a>Structural Directives</h2><h3 id="NgIf"><a href="#NgIf" class="headerlink" title="NgIf"></a>NgIf</h3><h3 id="NgFor"><a href="#NgFor" class="headerlink" title="NgFor"></a>NgFor</h3><h3 id="NgSwitch"><a href="#NgSwitch" class="headerlink" title="NgSwitch"></a>NgSwitch</h3><p>Angular17引入了新的控制流语句：<code>@if</code>, <code>@for</code>, <code>@switch</code>，这些语句可以替代NgIf, NgFor, NgSwitch，更加简洁，高效，我们建议使用新的控制流语句。</p>
+<h2 id="Customize-Directives"><a href="#Customize-Directives" class="headerlink" title="Customize Directives"></a>Customize Directives</h2><p>如果内置的Directive不能满足我们的需求，我们可以自定义Directive，下面我们自定义一个Directive来实现一个简单Hover变色功能，当鼠标移动到元素上时，元素背景色变为红色，鼠标移出时恢复原背景色。</p>
+<h3 id="Create-a-directive"><a href="#Create-a-directive" class="headerlink" title="Create a directive"></a>Create a directive</h3><p>使用以下命令创建一个新的指令：<code>HoverDirective</code>，该命令会创建文件<code>src/app/hover.directive.ts</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g d hover</span><br></pre></td></tr></table></figure>
+
+<h3 id="Implement-the-directive"><a href="#Implement-the-directive" class="headerlink" title="Implement the directive"></a>Implement the directive</h3><p>以下是该指令的实现代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">color: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = color;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单解释一下上述代码：</p>
+<ol>
+<li>selector: <code>appHover</code>，这个是Directive的名字，我们在HTML中使用这个名字来引用这个Directive。</li>
+<li>constructor中注入了<code>ElementRef</code>，这个是Angular提供的一个服务，用来获取当前元素的引用。这里的当前元素就是使用了该Directive的元素。</li>
+<li>两个HostListener分别监听<code>mouseenter</code>和<code>mouseleave</code>事件，当鼠标移入时，设置背景色为红色，移出时恢复原色。</li>
+</ol>
+<h3 id="Use-the-directive"><a href="#Use-the-directive" class="headerlink" title="Use the directive"></a>Use the directive</h3><p>首先，在需要使用这个指令的组件或者模块中的<code>imports</code>数组中导入这个Directive。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">imports</span>: [<span class="title class_">HoverDirective</span>],</span><br></pre></td></tr></table></figure>
+<p>然后，在需要使用这个Directive的元素上加上<code>appHover</code>属性即可(注意：<code>appHover</code>就是定义Directive时指定的<code>selector</code>)。此时，当鼠标移入时，该段落的背景色会变为红色，移出时恢复原背景色。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个自定义指令非常简单，虽然现在可以工作，但是有一个缺点，就是颜色的变化是固定的，如果我想让用户自定义Hover时的颜色，该怎么办呢？这就涉及到如何给自定义指令传递参数了。</p>
+<p>我们修改一下实现，将颜色作为参数传递给Directive，这里我们定义了一个@Input属性，用来接收参数。@Input属性的名字是<code>appHover</code>，所以这里<code>appHover</code>同时作为Directive的selector和Input属性的名字。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Add an input property to the directive</span></span><br><span class="line"><span class="meta">@Input</span>(<span class="string">&#x27;appHover&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// use this.hoverColor in setHoverColor method</span></span><br><span class="line"><span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外，为了防止用户忘记传递参数，我们给hoverColor设置了一个默认值<code>&#39;red&#39;</code>，这样即使用户不传递参数，也不会报错。</p>
+<p>现在，我们可以在HTML中传递颜色参数了。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>=<span class="string">&quot;green&quot;</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子只有一个参数，所以我们在定义<code>@Input</code>的时候，直接把参数定义到了Directive的selector上，如果有多个参数，这种方法就不好使了，为了说明问题，我们再加一个参数，字体颜色，就是当鼠标Hover时改变背景色，同时也改变字体颜色。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverBackgroundColor&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverFontColor&#x27;</span>) <span class="attr">hoverFontColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverFontColor</span> || <span class="string">&#x27;black&#x27;</span>, <span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;black&#x27;</span>, <span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">fontColor: <span class="built_in">string</span>, backgroundColor: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">color</span> = fontColor;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = backgroundColor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用时：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span> <span class="attr">hoverFontColor</span>=<span class="string">&quot;red&quot;</span> <span class="attr">hoverBackgroundColor</span>=<span class="string">&quot;yellow&quot;</span>&gt;</span>This is a paragraph<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-interview-questions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/03/angular-interview-questions/" class="post-title-link" itemprop="url">angular-interview-questions</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-03 11:25:50" itemprop="dateCreated datePublished" datetime="2024-12-03T11:25:50+08:00">2024-12-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-12 10:43:25" itemprop="dateModified" datetime="2024-12-12T10:43:25+08:00">2024-12-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Interview-Questions"><a href="#Angular-Interview-Questions" class="headerlink" title="Angular Interview Questions"></a>Angular Interview Questions</h1><p>总结一些Angular的面试题，希望对大家有所帮助。</p>
+<ol>
+<li>简单描述Angular框架的特点，可以对比其他框架，比如React、Vue等。</li>
+<li>Angular的生命周期钩子有哪些，分别在什么时候调用？<ol>
+<li>如果加上子组件，生命周期钩子的调用顺序是怎样的？</li>
+<li>如果加上孙子组件，生命周期钩子的调用顺序是怎样的？</li>
+</ol>
+</li>
+<li>Angular数据绑定方式有哪些？<ol>
+<li><code>&#123;&#123;&#125;&#125;</code> - 插值表达式</li>
+<li><code>[]</code> - 属性绑定</li>
+<li><code>()</code> - 事件绑定</li>
+<li><code>[()]</code> - 双向绑定</li>
+</ol>
+</li>
+<li>Angular View Encapsulation有哪些模式？<ol>
+<li>:host和::ng-deep的作用是什么？</li>
+</ol>
+</li>
+<li>Angular的依赖注入是如何实现的？<ol>
+<li>Angular依赖注入有哪些Injector？</li>
+<li>提供Provider的方式有哪些？</li>
+<li>如果Service带参数，该如何为其提供Provider？ - 使用<code>useFactory</code>。- 唯有此法能传参数。</li>
+</ol>
+</li>
+<li>Angular的路由是如何实现的？</li>
+<li>Angular的变更检测是如何实现的？<ol>
+<li>基于zone.js的变更检测</li>
+<li>zoneless变更检测</li>
+<li>OnPush变更检测的原理是怎样的？如果有子组件呢？</li>
+</ol>
+</li>
+<li>Angular组件间通信有哪些方式？各有什么优缺点？<ol>
+<li>父子组件间通信 - 一般采用<code>@Input</code>和<code>@Output</code>。</li>
+<li>兄弟组件间通信 - 通过Service。</li>
+<li>跨级组件通信 - 通过Service。</li>
+<li>还可以使用路由通信，路由可以传递参数。比如<code>navigationExtras.state</code>。</li>
+</ol>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/02/angular-di-resolution-modifier/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/02/angular-di-resolution-modifier/" class="post-title-link" itemprop="url">angular-di-resolution-modifier</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-02 20:54:05" itemprop="dateCreated datePublished" datetime="2024-12-02T20:54:05+08:00">2024-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-04 19:39:33" itemprop="dateModified" datetime="2024-12-04T19:39:33+08:00">2024-12-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular:</p>
+<p>先来给这几个操作符分个类：</p>
+<ol>
+<li><code>@SkipSelf</code> - 何时开始查找。</li>
+<li><code>@Self</code>, <code>@Host</code> - 何时停止查找。</li>
+<li><code>@Optional</code> - 找不到时怎么办。</li>
+</ol>
+<h2 id="Optional"><a href="#Optional" class="headerlink" title="@Optional"></a>@Optional</h2><p>这个是最简单了修饰符了，它告诉Angular依赖注入器，如果找不到依赖项，不要抛出错误，而是返回<code>null</code>。</p>
+<p>大家都见过下面这个错误吧，当Angular找不到某个依赖时，就会抛出这个错误：（注意：这种错误一般发生在某个Service没有提供<code>&#123;providedIn: &#39;root&#39;&#125;</code>，而且该Service的使用者也没有在<code>providers</code>数组中提供该Service时。）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ERROR NullInjectorError: R3InjectorError(Environment Injector)[_OrderService -&gt; _OrderService]: </span><br><span class="line">  NullInjectorError: No provider <span class="keyword">for</span> _OrderService!</span><br><span class="line">    at NullInjector.get (core.mjs:1635:21)</span><br><span class="line">    at R3Injector.get (core.mjs:3017:27)</span><br><span class="line">    at R3Injector.get (core.mjs:3017:27)</span><br><span class="line">    at ChainedInjector.get (core.mjs:5288:32)</span><br><span class="line">    at lookupTokenUsingModuleInjector (core.mjs:5631:31)</span><br><span class="line">    at getOrCreateInjectable (core.mjs:5677:10)</span><br><span class="line">    at Module.ɵɵdirectiveInject (core.mjs:11586:17)</span><br><span class="line">    at NodeInjectorFactory.ProductComponent_Factory [as factory] (product.component.ts:21:30)</span><br><span class="line">    at getNodeInjectable (core.mjs:5871:38)</span><br><span class="line">    at createRootComponent (core.mjs:16405:31)</span><br></pre></td></tr></table></figure>
+<p>如果我们在依赖注入的时候加上<code>@Optional()</code>修饰符，那么Angular就不会抛出错误，而是返回<code>null</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：上面这种写法，在使用<code>orderService</code>时，需要判断是否为<code>null</code>，否则仍然会抛出<code>Cannot read properties of null (reading &#39;fetchData&#39;)</code>的错误。</p>
+<p>像下面这样加上Optional Chaining Operator，就不会抛出错误了：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>?.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Self"><a href="#Self" class="headerlink" title="@Self"></a>@Self</h2><p><code>@Self</code>也比较简单，就是告诉Angular只在当前Component或者Directive中搜索某个依赖项，而不会去父级Component或者Directive中搜索。假设有OrderService，且是<code>providedIn: &#39;root&#39;</code>的。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;<span class="attr">providedIn</span>: <span class="string">&quot;root&quot;</span>&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们在注入该Service时，加上<code>@Self()</code>修饰符，那么Angular只会在当前Component或者Directive中搜索该Service，但是当前Component或者Directive中没有提供该Service时，所以就会抛出错误。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意观察这个错误和上面错误的区别，这个错误的顶端不在是<code>NullInjector</code>了，因为我们只在当前Component中查找，所以永远不会到达<code>NullInjector</code>这一步。而<code>NodeInjector</code>是当前Component的Injector。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:7191 ERROR RuntimeError: NG0201: No provider <span class="keyword">for</span> _OrderService found <span class="keyword">in</span> NodeInjector. Find more at https://angular.dev/errors/NG0201</span><br><span class="line">    at throwProviderNotFoundError (core.mjs:986:9)</span><br><span class="line">    at notFoundValueOrThrow (core.mjs:5606:5)</span><br><span class="line">    at lookupTokenUsingModuleInjector (core.mjs:5639:10)</span><br><span class="line">    at getOrCreateInjectable (core.mjs:5677:10)</span><br><span class="line">    at Module.ɵɵdirectiveInject (core.mjs:11586:17)</span><br><span class="line">    at NodeInjectorFactory.ProductComponent_Factory [as factory] (product.component.ts:21:30)</span><br><span class="line">    at getNodeInjectable (core.mjs:5871:38)</span><br><span class="line">    at createRootComponent (core.mjs:16405:31)</span><br><span class="line">    at ComponentFactory.create (core.mjs:16262:21)</span><br><span class="line">    at ViewContainerRef2.createComponent (core.mjs:16662:43)</span><br></pre></td></tr></table></figure>
+
+<p><code>@Self</code>和<code>@Optional</code>是可以配合使用的，为了修复上面的错误，我们可以这样写，这样就不会报错了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>?.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，<code>@Self</code>修饰符的使用场景到底是啥？请继续往下看。</p>
+<h3 id="Multiple-Directives-in-same-Dom-elements"><a href="#Multiple-Directives-in-same-Dom-elements" class="headerlink" title="Multiple Directives in same Dom elements"></a>Multiple Directives in same Dom elements</h3><p>如果一个DOM元素上应用了多个Directive, 那么当第一个Directive提供了某个Service时，后面的Directive就可以通过<code>@Self</code>来获取这个Service。</p>
+<p>下面的代码，假设dir1对应Directive1，dir2对应Directive2，如果Directive1中的providers数组提供了某个Service，那么Directive2中constructor可以使用<code>@Self</code>来获取Service。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">dir1</span> <span class="attr">dir2</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Directive1中提供了OrderService</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive1</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir1]&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir1Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Directive2中使用<code>@Self</code>来获取OrderService。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive2</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir2]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir2Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为什么这样可以呢？因为<code>dir1</code>和<code>dir2</code>位于同一个dom元素-<code>p</code>标签上，Angular会为这个p标签创建一个Injector，<code>dir1</code>和<code>dir2</code>会share这个Injector，所以<code>dir2</code>可以通过<code>@Self</code>来获取dir1中提供的OrderService。</p>
+<h2 id="Host"><a href="#Host" class="headerlink" title="@Host"></a>@Host</h2><p><code>@Host</code>修饰符告诉Angular依赖注入器，只在当前Component或者Host元素中搜索某个依赖项。</p>
+<ul>
+<li>当不使用<code>ng-content</code>时，Host就是注入依赖的Component。</li>
+<li>当使用<code>ng-content</code>时，Host就是投射内容的Component。see <a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">here</a> for details.</li>
+</ul>
+<p>@Host的作用体现在使用<code>ng-content</code>进行内容投射的时候。下面的例子中，我们有一个ProductComponent，它的模板中有<code>ng-content</code>，我们将ProductDetailComponent投射到ProductComponent中。- 此时，ProductComponent就是ProductDetailComponent的Host。</p>
+<p>然后我们在ProductDetailComponent中使用<code>@Host</code>来获取OrderService，并在ProductComponent中提供OrderService。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;header&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-content</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;footer&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>AppComponent</code>的模板中使用<code>ProductComponent</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--app.component.html--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这时，<code>app-product</code>就是<code>app-product-detail</code>的<code>Host</code>，如果我们在<code>ProductDetailComponent</code>中使用<code>@Host</code>来获取<code>OrderService</code>，那么Angular会首先在<code>ProductDetailComponent</code>中查找，结果没找到，然后再去<code>ProductComponent</code>中查找OrderService，结果找到了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Host</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br></pre></td></tr></table></figure>
+
+<h2 id="SkipSelf"><a href="#SkipSelf" class="headerlink" title="@SkipSelf"></a>@SkipSelf</h2><p><code>@SkipSelf</code>就是查找依赖时不在当前Component或者Directive中查找，而是跳过当前Component或者Directive，去父级Component或者Directive中查找。</p>
+<p>所以，<code>@SkipSelf</code>修饰符的使用场景到底是啥？</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host</a> - 关于Host的定义，可以看这里。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/01/angular-view-provider/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/01/angular-view-provider/" class="post-title-link" itemprop="url">angular-view-provider</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-01 19:03:13 / Modified: 19:04:15" itemprop="dateCreated datePublished" datetime="2024-12-01T19:03:13+08:00">2024-12-01</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>我今天看Angular官方文档才知道，原来Angular里面竟然还有一个<code>viewProvider</code>，这个是什么东东呢？我们一起来看看。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/36019609/1487475">https://stackoverflow.com/a/36019609/1487475</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/01/angular-di-hierarchical-injectors/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -477,7 +861,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-03 10:40:23" itemprop="dateModified" datetime="2024-12-03T10:40:23+08:00">2024-12-03</time>
+                <time title="Modified: 2024-12-25 11:30:56" itemprop="dateModified" datetime="2024-12-25T11:30:56+08:00">2024-12-25</time>
               </span>
 
           
@@ -491,19 +875,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>There are 3 ways to encapsulate styles in Angular components: <code>Emulated</code>, <code>ShadowDom</code>, and <code>None</code>.</p>
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular中有三种样式封装方式，分别是：<code>Emulated</code>, <code>ShadowDom</code>, and <code>None</code>。</p>
 <ul>
 <li>ViewEncapsulation.Emulated</li>
 <li>ViewEncapsulation.ShadowDom</li>
 <li>ViewEncapsulation.None</li>
 </ul>
-<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在@Component中显式指定encapsulation的话，那么使用的就是该方式。在该方式下，Angular会为组件生成一个随机字符串做为组件元素的属性，然后将样式应用到这个属性上。<br>这种封装方式是模拟Shadow DOM的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
-<p>该模式生成的样式最终会插入到html文件的<code>head</code>标签中。（可以运行Angular app，然后鼠标右键-inspect查看对应的html文件代码）</p>
-<p>Take the following component as an example, the styles defined in <code>product-home.component.scss</code> will only affect the <code>ProductHomeComponent</code> view.</p>
+<p>可以用过Component中的<code>encapsulation</code>属性来指定封装方式，如果不指定的话，默认是<code>Emulated</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.scss&#x27;</span>],</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>, <span class="comment">// &lt;--- here</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面我们分别讲解三种封装方式。</p>
+<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在<code>@Component</code>中显式指定<code>encapsulation</code>的话，那么使用的就是该方式。在该方式下，Angular会为组件生成一个随机字符串做为组件元素的属性，然后将样式应用到这个属性上。<br>这种封装方式是模拟<code>Shadow DOM</code>的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>以下面的Product组件为例，<code>product-home.component.scss</code>这个样式文件里面的样式只会影响<code>ProductHomeComponent</code>这个组件对应的视图.</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>You can see the generated HTML by inspecting the element in the browser, notice that the <code>app-product-home</code> element has a unique attribute <code>_nghost-ng-c3352351300</code>:</p>
+<p>运行app后，我们可以在浏览器中inspect生成后的页面，可以看到<code>app-product-home</code>元素有一个唯一的属性<code>_nghost-ng-c3352351300</code>:</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span> <span class="attr">_nghost-ng-c3352351300</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>看一下实际的例子，假如我们有如下html template, ProductHomeComponent中引入了ProductDetailComponent</p>
+<p>再看一下实际的例子，假如我们有如下html template, ProductHomeComponent中引入了ProductDetailComponent</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product-home.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>product-home works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>那么生成的HTML如下：<br><img src="/../images/angular-view-encapsulation-emulated.png" alt="emulated"></p>
@@ -515,11 +901,11 @@
 </ul>
 <p>如果我们给上面的<code>p</code>标签添加一个背景色的话，那么观察生成后的css样式，你会发现，样式文件里面也添加了额外的属性，这样就确保了样式的唯一性。</p>
 <p>观察下图中左侧<code>p</code>标签的属性，和右侧css文件中<code>product-container</code>的属性，可以看到他们是一一对应的。<br><img src="/../images/angular-view-encapsulation-emulated-css.png" alt="emulated-css"></p>
+<p>该模式生成的样式最终会插入到html文件的<code>head</code>标签中。（可以运行Angular app，然后鼠标右键-inspect查看对应的html文件代码）</p>
 <h2 id="ShadowDom"><a href="#ShadowDom" class="headerlink" title="ShadowDom"></a>ShadowDom</h2><p>这种方式使用浏览器内置的Shadow DOM API来封装组件的样式，该模式下，组件被放到一个ShadowRoot之下，这个Shadow Root相当于组件的host element, 这意味着组件的样式不会影响应用程序的其他部分。</p>
 <p>该模式生成的样式会直接放到<code>shadow-root</code>中。</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Notice the generate HTML, the <code>app-product-home</code> element is now a shadow root:</p>
+<p>注意观察生成的html文件，<code>app-product-home</code>元素会有一个<code>shadow-root</code>:</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  #shadow-root (open)</span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="None"><a href="#None" class="headerlink" title="None"></a>None</h2><p>这种模式不进行任何封装，相当于裸奔，其效果等于直接在html中引入样式文件。这种模式谨慎使用，因为会有样式污染。</p>
@@ -689,367 +1075,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/29/rxjs-use-case/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/29/rxjs-use-case/" class="post-title-link" itemprop="url">rxjs-use-case</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-29 22:21:02" itemprop="dateCreated datePublished" datetime="2024-11-29T22:21:02+08:00">2024-11-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-23 21:56:17" itemprop="dateModified" datetime="2024-12-23T21:56:17+08:00">2024-12-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="RxJS-Use-Case"><a href="#RxJS-Use-Case" class="headerlink" title="RxJS Use Case"></a>RxJS Use Case</h1><h2 id="统计页面点击次数"><a href="#统计页面点击次数" class="headerlink" title="统计页面点击次数"></a>统计页面点击次数</h2><p>注意，RxJS中的<code>scan</code>相当于JavaScript中的<code>Array.prototype.reduce</code>，下面的例子展示了如何统计页面点击次数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
-
-<h2 id="节流"><a href="#节流" class="headerlink" title="节流"></a>节流</h2><h3 id="Resize窗口"><a href="#Resize窗口" class="headerlink" title="Resize窗口"></a>Resize窗口</h3><p>resize时间触发非常频繁，我们可以使用<code>throttleTime</code>来节流，下面的例子展示了如何节流resize事件。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">window</span>, <span class="string">&quot;resize&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">throttleTime</span>(<span class="number">500</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window width: <span class="subst">$&#123;<span class="variable language_">window</span>.innerWidth&#125;</span>`</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window height: <span class="subst">$&#123;<span class="variable language_">window</span>.innerHeight&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="统计点击次数"><a href="#统计点击次数" class="headerlink" title="统计点击次数"></a>统计点击次数</h3><p><code>throttleTime</code>可以用来实现节流，下面的例子展示了如何实现节流，无论用户点击的有多快，我们都是每隔1秒统计一次点击次数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(</span><br><span class="line">    <span class="title function_">throttleTime</span>(<span class="number">1000</span>),</span><br><span class="line">    <span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line">  )</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
-
-<h2 id="设置最大并发请求数"><a href="#设置最大并发请求数" class="headerlink" title="设置最大并发请求数"></a>设置最大并发请求数</h2><p><code>mergeMap</code> with <code>concurrency</code>参数可以设置最大并发请求数，下面的例子展示了如何设置最大并发请求数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, mergeMap, <span class="keyword">of</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="title function_">interval</span>(<span class="number">1000</span>);</span><br><span class="line">source.<span class="title function_">pipe</span>(<span class="title function_">mergeMap</span>(<span class="function">() =&gt;</span> <span class="title function_">of</span>(<span class="string">&#x27;request&#x27;</span>), <span class="number">2</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="避免重复请求"><a href="#避免重复请求" class="headerlink" title="避免重复请求"></a>避免重复请求</h2><p>使用<code>switchMap</code>可以避免重复请求，下面的例子展示了如何避免重复请求。</p>
-<h2 id="忽略某个值"><a href="#忽略某个值" class="headerlink" title="忽略某个值"></a>忽略某个值</h2><p>使用<code>skip</code>， 以下代码忽略了<code>interval</code>的前两个值，然后取3个值。所以忽略0和1，取2, 3, 4。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, skip, take &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">pipe</span>(<span class="title function_">skip</span>(<span class="number">2</span>), <span class="title function_">take</span>(<span class="number">3</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 2, 3, 4</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/28/rxjs-create/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/28/rxjs-create/" class="post-title-link" itemprop="url">rxjs-create</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-28 17:03:33" itemprop="dateCreated datePublished" datetime="2024-11-28T17:03:33+08:00">2024-11-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-23 20:29:54" itemprop="dateModified" datetime="2024-12-23T20:29:54+08:00">2024-12-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>RxJS中有许多创建Observable的方法，如<code>from</code>、<code>of</code>、<code>interval</code>等，本文一一介绍。</p>
-<h2 id="from"><a href="#from" class="headerlink" title="from"></a>from</h2><p><code>from</code>方法可以将一个数组、类数组对象、Promise、可迭代对象、Observable-like对象转换为Observable。</p>
-<h3 id="将数组转换为Observable"><a href="#将数组转换为Observable" class="headerlink" title="将数组转换为Observable"></a>将数组转换为Observable</h3><p><code>RxJS</code>社区有一个约定，以<code>$</code>结尾的变量代表一个Observable对象。下面的例子将一个数组转换为Observable。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="keyword">from</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> array = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> array$ = <span class="title function_">from</span>(array);</span><br><span class="line">array$.<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
-<p>上面的代码可以简化为：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="keyword">from</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="将Promise转换为Observable"><a href="#将Promise转换为Observable" class="headerlink" title="将Promise转换为Observable"></a>将Promise转换为Observable</h3><p>下面的例子将一个Promise对象转换为Observable。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="title function_">from</span>(p).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="将可迭代对象转换为Observable"><a href="#将可迭代对象转换为Observable" class="headerlink" title="将可迭代对象转换为Observable"></a>将可迭代对象转换为Observable</h3><p>其实数组就是可迭代对象，所以前面数组的例子已经包含该例子，下面的例子将一个可迭代对象转换为Observable。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span>* <span class="title function_">generate123</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">yield</span> <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">from</span>(<span class="title function_">generate123</span>()).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用asapScheduler"><a href="#使用asapScheduler" class="headerlink" title="使用asapScheduler"></a>使用<code>asapScheduler</code></h3><p>使用<code>asapScheduler</code>可以让<code>from</code>方法在当前任务队列的末尾执行，下面的例子展示了如何使用<code>asapScheduler</code>。你知道以下代码输出什么吗？如果不加<code>asapScheduler</code>，输出会是什么？</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;from start...&#x27;</span>);</span><br><span class="line"><span class="title function_">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], asapScheduler).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;from end...&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="将Dom事件转换为Observable"><a href="#将Dom事件转换为Observable" class="headerlink" title="将Dom事件转换为Observable"></a>将Dom事件转换为Observable</h3><p>使用<code>fromEvent</code>方法可以将Dom事件转换为Observable。<br>以下代码监听<code>document</code>的<code>click</code>事件，当点击<code>document</code>时，会在控制台输出<code>clicked!</code>。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;https://unpkg.com/rxjs@^7/dist/bundles/rxjs.umd.min.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>rxjs demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">const</span> &#123; fromEvent &#125; = rxjs;</span></span><br><span class="line"><span class="language-javascript">      <span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>).<span class="title function_">subscribe</span>(<span class="function">() =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;clicked!&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">      &#125;);</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>默认情况下，浏览器的事件模型是冒泡模型，也可以改为捕获模型。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>, &#123; <span class="attr">capture</span>: <span class="literal">true</span> &#125;).<span class="title function_">subscribe</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;clicked!&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="of"><a href="#of" class="headerlink" title="of"></a>of</h2><p><code>of</code>把输入的值转换为Observable。与<code>from</code>不同的是，<code>of</code>不会做任何flatten操作，它会把输入的值当做一个整体。这一点体现在数组上，<code>from</code>会把数组的每个元素当做一个值，而<code>of</code>会把整个数组当做一个值。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="keyword">of</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"><span class="title function_">of</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="keyword">of</span>, <span class="keyword">from</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"><span class="title function_">of</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// [1, 2, 3]</span></span><br><span class="line"><span class="title function_">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="range"><a href="#range" class="headerlink" title="range"></a>range</h2><p>Emit a sequence of numbers in a range.</p>
-<p>在一个范围内生成一个Observable。<code>range</code>方法有三个参数，分别是<code>start</code>、<code>count</code>和<code>scheduler</code>。<code>start</code>表示起始值，<code>count</code>表示生成的个数，<code>scheduler</code>表示调度器。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; range &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">range</span>(<span class="number">1</span>, <span class="number">3</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 1, 2, 3</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="interval"><a href="#interval" class="headerlink" title="interval"></a>interval</h2><p><code>interval</code>方法会每隔一段时间发出一个递增的数字。<code>interval</code>方法有一个参数<code>period</code>，表示时间间隔，单位是毫秒。<code>interval</code>默认使用<code>asyncScheduler</code>。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 0, 1, 2, 3, 4, ...</span></span><br></pre></td></tr></table></figure>
-<p>有三点需要注意：</p>
-<ol>
-<li><code>interval</code>方法是异步的，默认使用<code>asyncScheduler</code>。</li>
-<li><code>interval</code>方法会从0开始发出数字。</li>
-<li><code>interval</code>方法第不是立即执行的，而是在第一个时间间隔之后执行。</li>
-</ol>
-<p>以下代码输出什么？</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;interval start...&#x27;</span>);</span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;interval end...&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>答：因为<code>interval</code>默认使用<code>asyncScheduler</code>，所以<code>interval</code>方法是异步的，所以<code>interval start...</code>和<code>interval end...</code>会先输出，然后再输出<code>0, 1, 2, 3, 4, ...</code>。</p>
-<h2 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h2><p>可以将<code>timer</code>看成是高配版的<code>interval</code>，为啥这么说呢？因为<code>interval</code>只能设置时间间隔，却无法控制开始时间（<code>interval</code>的开始时间就是其时间间隔），而<code>timer</code>可以设置开始时间和时间间隔。</p>
-<p>来看这样一个需求，每个1秒产生一个数字（从0开始），但是要求第一个数字立即产生，而不是等待1秒。<code>interval</code>无法满足这个需求，但是<code>timer</code>可以。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; timer &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">timer</span>(<span class="number">0</span>, <span class="number">1000</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 0, 1, 2, 3, 4, ...</span></span><br></pre></td></tr></table></figure>
-<p><code>timer</code>方法的第一个参数就是开始时间，除了可以指定一个具体的毫秒数之外，还可以指定一个<code>Date</code>对象，表示在指定的时间开始。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">timer</span>(<span class="keyword">new</span> <span class="title class_">Date</span>(<span class="number">2024</span>, <span class="number">11</span>, <span class="number">28</span>, <span class="number">17</span>, <span class="number">0</span>, <span class="number">0</span>), <span class="number">1000</span>).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 0, 1, 2, 3, 4, ...</span></span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/27/angular-host-host-context-ng-deep/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/27/angular-host-host-context-ng-deep/" class="post-title-link" itemprop="url">angular-host-host_context-ng_deep</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-27 20:12:34 / Modified: 20:13:33" itemprop="dateCreated datePublished" datetime="2024-11-27T20:12:34+08:00">2024-11-27</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://medium.com/geekculture/angular-this-is-how-i-finally-understood-host-and-ng-deep-selectors-c829098cf194">https://medium.com/geekculture/angular-this-is-how-i-finally-understood-host-and-ng-deep-selectors-c829098cf194</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/27/angular-zoneless-change-detection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/27/angular-zoneless-change-detection/" class="post-title-link" itemprop="url">angular-zoneless-change-detection</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-27 15:38:49" itemprop="dateCreated datePublished" datetime="2024-11-27T15:38:49+08:00">2024-11-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-03 10:45:21" itemprop="dateModified" datetime="2024-12-03T10:45:21+08:00">2024-12-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Zoneless change detection是Angular 18引入的一个新特性，该特性能让Angular在不依赖<code>zone.js</code>的情况下进行更新检测。下面我们来看一下如何使用这个新特性。</p>
-<h1 id="Integration-steps"><a href="#Integration-steps" class="headerlink" title="Integration steps"></a>Integration steps</h1><h2 id="Create-an-Angular-18-project"><a href="#Create-an-Angular-18-project" class="headerlink" title="Create an Angular 18 project"></a>Create an Angular 18 project</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@18 new my-zoneless-app</span><br></pre></td></tr></table></figure>
-
-<h2 id="Enable-zoneless-change-detection-in-standalone-bootstrap-app"><a href="#Enable-zoneless-change-detection-in-standalone-bootstrap-app" class="headerlink" title="Enable zoneless change detection in standalone bootstrap app."></a>Enable zoneless change detection in standalone bootstrap app.</h2><ol>
-<li>Open file <code>app.config.ts</code> under <code>src/app</code> folder.</li>
-<li>Remove the following line<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">provideZoneChangeDetection</span>(&#123; <span class="attr">eventCoalescing</span>: <span class="literal">true</span> &#125;),</span><br></pre></td></tr></table></figure></li>
-<li>Add the following line<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">provideExperimentalZonelessChangeDetection</span>(),</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Enable-zoneless-change-detection-in-traditional-Module-based-app"><a href="#Enable-zoneless-change-detection-in-traditional-Module-based-app" class="headerlink" title="Enable zoneless change detection in traditional Module based app."></a>Enable zoneless change detection in traditional Module based app.</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NgModule bootstrap</span></span><br><span class="line"><span class="title function_">platformBrowser</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>);</span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title function_">provideExperimentalZonelessChangeDetection</span>()]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Remove-zone-js-from-your-project"><a href="#Remove-zone-js-from-your-project" class="headerlink" title="Remove zone.js from your project"></a>Remove zone.js from your project</h2><h3 id="Remove-zone-js-from-file-angular-json-or-project-json-for-Nx-based-project"><a href="#Remove-zone-js-from-file-angular-json-or-project-json-for-Nx-based-project" class="headerlink" title="Remove zone.js from file angular.json or project.json for Nx based project."></a>Remove zone.js from file <code>angular.json</code> or <code>project.json</code> for Nx based project.</h3><ol>
-<li>Open file <code>angular.json</code> or <code>project.json</code>.</li>
-<li>Remove the following line from <code>architect | build | options</code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">   <span class="string">&quot;zone.js&quot;</span></span><br><span class="line"> <span class="punctuation">]</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
-<li>Remove the following line from <code>architect | test | options</code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">   <span class="string">&quot;zone.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="string">&quot;zone.js/testing&quot;</span></span><br><span class="line"> <span class="punctuation">]</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="Old-app-with-polyfills-ts"><a href="#Old-app-with-polyfills-ts" class="headerlink" title="Old app with polyfills.ts"></a>Old app with <code>polyfills.ts</code></h3><p>For old Angular app with an explicit <code>polyfill.ts</code> file, you can remove <code>import &#39;zone.js&#39;</code> and <code>import &#39;zone.js/testing&#39;</code> from <code>polyfills.ts</code>.</p>
-<h3 id="Uninstall-zone-js"><a href="#Uninstall-zone-js" class="headerlink" title="Uninstall zone.js"></a>Uninstall <code>zone.js</code></h3>   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall zone.js</span><br></pre></td></tr></table></figure>
-
-<h2 id="Start-your-app"><a href="#Start-your-app" class="headerlink" title="Start your app"></a>Start your app</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve <span class="comment"># or npm run start</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="How-to-make-your-app-work-with-zoneless-change-detection"><a href="#How-to-make-your-app-work-with-zoneless-change-detection" class="headerlink" title="How to make your app work with zoneless change detection"></a>How to make your app work with zoneless change detection</h2><p>对于开启了zoneless change detection的应用，Angular需要依赖核心API的通知才能进行更新检测，这些通知包括：</p>
-<ul>
-<li><code>ChangeDetectorRef.markForCheck</code> (called automatically by <code>AsyncPipe</code>)</li>
-<li><code>ComponentRef.setInput</code></li>
-<li>Updating a <code>signal</code> that’s read in a template</li>
-<li>Bound host or template listeners callbacks</li>
-<li>Attaching a view that was marked dirty by one of the above</li>
-</ul>
-<p>除了以上几种情况，Angular不会自动进行更新检测，比如<code>setTimeout</code>、<code>setInterval</code>、<code>Promise.then</code>、<code>fetch</code>等异步操作，这些操作不会触发更新检测，需要手动调用<code>ChangeDetectorRef.markForCheck</code>来通知Angular进行更新检测。</p>
-<h2 id="Use-signal-for-simple-value"><a href="#Use-signal-for-simple-value" class="headerlink" title="Use signal for simple value"></a>Use signal for simple value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line">name = <span class="title function_">signal</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span>.<span class="title function_">set</span>(<span class="string">&#x27;Philip&#x27;</span>)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Note that, you need to use <code>name()</code> instead of <code>name</code> in your template.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, I&#x27;m &#123;&#123;name()&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Use-signal-for-complex-value"><a href="#Use-signal-for-complex-value" class="headerlink" title="Use signal for complex value"></a>Use signal for complex value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">title</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">user  = signal&lt;<span class="title class_">User</span> | <span class="literal">null</span>&gt;(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://jsonplaceholder.typicode.com/todos/1&#x27;</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> response.<span class="title function_">json</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span>.<span class="title function_">set</span>(res);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Note again, you need to use <code>user()</code> instead of <code>user</code> in your template.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">  user id: &#123;&#123;user()?.id&#125;&#125;</span><br><span class="line">  user name: &#123;&#123;user()?.title&#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Manually-call-cdf-markForCheck"><a href="#Manually-call-cdf-markForCheck" class="headerlink" title="Manually call cdf.markForCheck"></a>Manually call <code>cdf.markForCheck</code></h2><p>Note, <code>setTimeout</code> won’t call change detection automatically, you need to call <code>cdf.markForCheck</code> manually.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line">name = <span class="string">&#x27;zdd&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>for <code>fetch</code> api, you need to call <code>cdf.markForCheck</code> manually as well.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://jsonplaceholder.typicode.com/todos/1&#x27;</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> response.<span class="title function_">json</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">user</span> = res;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/experimental/zoneless">https://angular.dev/guide/experimental/zoneless</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1119,14 +1144,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

@@ -181,6 +181,437 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/09/angular-change-detection-on-push/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/09/angular-change-detection-on-push/" class="post-title-link" itemprop="url">angular-change-detection-on-push</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-06-09 08:55:36" itemprop="dateCreated datePublished" datetime="2024-06-09T08:55:36+08:00">2024-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-21 18:17:48" itemprop="dateModified" datetime="2024-12-21T18:17:48+08:00">2024-12-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In this article, we will learn how to use <code>ChangeDetectionStrategy.OnPush</code> in Angular to improve the performance of your application. By default, Angular uses <code>ChangeDetectionStrategy.Default</code>, which means that the change detection runs every time an event is triggered in the application. This can be inefficient if your application has a lot of components that don’t need to be updated every time an event is triggered. By using <code>ChangeDetectionStrategy.OnPush</code>, you can tell Angular to only run change detection on a component when its input properties change. with <code>onPush</code> strategy, Angular will only trigger change detection in the following cases:</p>
+<ul>
+<li>When component’s input property changes</li>
+<li>When an event is triggered in the component</li>
+<li>When you manually trigger change detection</li>
+<li>注意：这里好像还有一条是async pipe，但是我找不到文档了，以后找到再补充吧。</li>
+</ul>
+<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><p>Take a look at the <code>product</code> component below, it has an input property <code>name</code>, and an event handler which changes the price of the product. We have set the <code>changeDetection</code> property to <code>ChangeDetectionStrategy.OnPush</code> in the component’s metadata.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;changePrice(10)&quot;</span>&gt;</span>Change price<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Name: &#123;&#123;name&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Price: &#123;&#123;price&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span>, <span class="title class_">DoCheck</span>, <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">price</span>: <span class="built_in">number</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// `ngDoCheck()` will called each time change detection run</span></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;change detection triggered...&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// This will not trigger change detection</span></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">20</span>;</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// click handler, will trigger change detection.</span></span><br><span class="line">  <span class="title function_">changePrice</span>(<span class="params">price: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = price;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>When parent component change the input property <code>name</code>, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
+<li>When user click button to change the price, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
+<li><code>setTimeout</code> function will not trigger change detection in the <code>product</code> component.</li>
+</ol>
+<h2 id="Change-Detection-with-OnPush-Diagram"><a href="#Change-Detection-with-OnPush-Diagram" class="headerlink" title="Change Detection with OnPush Diagram"></a>Change Detection with OnPush Diagram</h2><p>See <a target="_blank" rel="noopener" href="https://angular.dev/best-practices/skipping-subtrees#an-event-is-handled-by-a-component-with-default-change-detection">here</a> for details.</p>
+<h2 id="Do-I-need-OnPush-strategy-if-component-has-no-Input-bindings"><a href="#Do-I-need-OnPush-strategy-if-component-has-no-Input-bindings" class="headerlink" title="Do I need OnPush strategy if component has no @Input bindings?"></a>Do I need <code>OnPush</code> strategy if component has no <code>@Input</code> bindings?</h2><p>Yes, <code>OnPush</code> still make sense even if the component has no <code>@Input</code> bindings. </p>
+<ol>
+<li>With <code>OnPush</code>, change detection still triggers when an event is triggered in the component.</li>
+<li>With <code>OnPush</code>, you prevent the change detection running automatically when the parent component changes. </li>
+<li>With <code>OnPush</code>, you can manually trigger change detection when needed with <code>ChangeDetectorRef.detectChanges()</code>, or <code>ChangeDetectorRef.markForCheck()</code>.</li>
+</ol>
+<p><code>OnPush</code> + <a target="_blank" rel="noopener" href="https://angular.dev/guide/signals">signal</a> is the future of Angular.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/best-practices/skipping-subtrees">https://angular.dev/best-practices/skipping-subtrees</a></li>
+<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/change-detection-skipping-subtrees">https://v17.angular.io/guide/change-detection-skipping-subtrees</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/06/angular-builders/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/06/angular-builders/" class="post-title-link" itemprop="url">angular-builders</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-06-06 21:44:18 / Modified: 22:02:38" itemprop="dateCreated datePublished" datetime="2024-06-06T21:44:18+08:00">2024-06-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Angular builders负责构建，测试和运行Angular项目。Angular CLI使用builders来执行这些任务。以下是<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/@angular-devkit/build-angular">@angular-devkit&#x2F;build-angular</a>一些常见的builders：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>application</code></td>
+<td>Build an Angular application targeting a browser and server environment using <code>esbuild</code>.</td>
+</tr>
+<tr>
+<td>app-shell</td>
+<td>Build an Angular App shell.</td>
+</tr>
+<tr>
+<td><code>browser</code></td>
+<td>Build an Angular application targeting a browser environment using <code>Webpack</code>.</td>
+</tr>
+<tr>
+<td><code>browser-esbuild</code></td>
+<td>Build an Angular application targeting a browser environment using <code>esbuild</code>.</td>
+</tr>
+<tr>
+<td><code>dev-server</code></td>
+<td>A development server that provides live reloading.</td>
+</tr>
+<tr>
+<td>extract-i18n</td>
+<td>Extract i18n messages from an Angular application.</td>
+</tr>
+<tr>
+<td>karma</td>
+<td>Execute unit tests using Karma test runner.</td>
+</tr>
+<tr>
+<td>ng-packagr</td>
+<td>Build and package an Angular library in Angular Package Format (APF) format using ng-packagr.</td>
+</tr>
+<tr>
+<td>prerender</td>
+<td>Prerender pages of your application. Prerendering is the process where a dynamic page is processed at build time generating static HTML.</td>
+</tr>
+<tr>
+<td>server</td>
+<td>Build an Angular application targeting a Node.js environment.</td>
+</tr>
+<tr>
+<td>ssr-dev-server</td>
+<td>A development server which offers live reload during development, but uses server-side rendering.</td>
+</tr>
+<tr>
+<td>protractor</td>
+<td><span style="color:red">Deprecated</span> - Run end-to-end tests using Protractor framework.</td>
+</tr>
+</tbody></table>
+<p>Builders的源码位于<a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli">Angular CLI</a>项目中。</p>
+<ul>
+<li><code>application</code>: packages&#x2F;angular&#x2F;build&#x2F;src&#x2F;builders&#x2F;application&#x2F;index.ts</li>
+<li><code>browser</code>: packages&#x2F;angular_devkit&#x2F;build_angular&#x2F;src&#x2F;builders&#x2F;browser&#x2F;index.ts</li>
+<li><code>browser-esbuild</code>: packages&#x2F;angular_devkit&#x2F;build_angular&#x2F;src&#x2F;builders&#x2F;browser-esbuild&#x2F;index.ts</li>
+<li><code>dev-server</code><ul>
+<li><code>ESBuild + Vite</code>: packages&#x2F;angular&#x2F;build&#x2F;src&#x2F;builders&#x2F;dev-server&#x2F;index.ts</li>
+<li><code>Webpack</code>: packages&#x2F;angular_devkit&#x2F;build_angular&#x2F;src&#x2F;builders&#x2F;dev-server&#x2F;index.ts</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/06/angular-angular-json/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/06/angular-angular-json/" class="post-title-link" itemprop="url">angular-angular.json</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-06-06 20:47:32" itemprop="dateCreated datePublished" datetime="2024-06-06T20:47:32+08:00">2024-06-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-09 19:06:46" itemprop="dateModified" datetime="2024-06-09T19:06:46+08:00">2024-06-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>The <code>angular.json</code> file under the root of an Angular workspace provides workspace-wide and project-specific configuration defaults. It is used by the Angular CLI to build, test, and run Angular projects.</p>
+<p>Path values given in the configuration are relative to the root of workspace directory.</p>
+<h2 id="Schema"><a href="#Schema" class="headerlink" title="Schema"></a>Schema</h2><p>You can find the schema file of <code>angular.json</code> from here: <code>./node_modules/@angular/cli/lib/config/schema.json</code></p>
+<h2 id="Configuration-of-angular-json"><a href="#Configuration-of-angular-json" class="headerlink" title="Configuration of angular.json"></a>Configuration of <code>angular.json</code></h2><ol>
+<li><code>architect | build | options | namedChunks</code> - a boolean value that indicates whether to use named chunks in the build. (named chunk is useful for lazy loading component)</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://angular.dev/reference/configs/workspace-config">https://angular.dev/reference/configs/workspace-config</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/05/typescript-how-tsconfig-works-in-framework/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/05/typescript-how-tsconfig-works-in-framework/" class="post-title-link" itemprop="url">typescript-how-tsconfig-works-in-framework</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-06-05 08:28:58 / Modified: 11:36:17" itemprop="dateCreated datePublished" datetime="2024-06-05T08:28:58+08:00">2024-06-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这篇文章讨论一下在 Angular&#x2F;Nx 项目中 tsconfig.json 是如何工作的，本文使用的环境如下：</p>
+<ul>
+<li>Node: 20.11.0(<code>node -v</code>)</li>
+<li>NPM: 10.2.4(<code>npm -v</code>)</li>
+<li>Angular CLI: 17.3.7(<code>ng version</code>)</li>
+<li>Typescript: 5.4.2(in <code>package.json</code> —by project, or <code>tsc -v</code> —globally)</li>
+<li>Nx: 15.2.1(<code>nx --version</code>)</li>
+</ul>
+<h2 id="1-什么是-tsconfig-json"><a href="#1-什么是-tsconfig-json" class="headerlink" title="1. 什么是 tsconfig.json"></a>1. 什么是 tsconfig.json</h2><p><code>tsconfig.json</code> 是 TypeScript 的配置文件，用于配置 TypeScript 编译器的行为。目前很多框架都使用Typescript，自然也就需要配置 <code>tsconfig.json</code> 文件。</p>
+<h2 id="2-Angular-Single-Project"><a href="#2-Angular-Single-Project" class="headerlink" title="2. Angular Single Project"></a>2. Angular Single Project</h2><p>Angular框架原生支持Typescript，所以在Angular项目中，使用Angular CLI创建Angular项目后，项目的文件结构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">my-app/</span><br><span class="line">├─ node_modules/</span><br><span class="line">├─ src/</span><br><span class="line">│  ├─ index.html</span><br><span class="line">│  ├─ main.ts</span><br><span class="line">│  ├─ ...</span><br><span class="line">├─ angular.json</span><br><span class="line">├─ package.json</span><br><span class="line">├─ tsconfig.app.json</span><br><span class="line">├─ tsconfig.json</span><br><span class="line">├─ tsconfig.spec.json</span><br><span class="line">├─ ...</span><br></pre></td></tr></table></figure>
+
+<p>与tsconfig相关的文件有如下三个：</p>
+<ul>
+<li>tsconfig.json</li>
+<li>tsconfig.app.json</li>
+<li>tsconfig.spec.json</li>
+</ul>
+<h3 id="2-1-tsconfig-json"><a href="#2-1-tsconfig-json" class="headerlink" title="2.1 tsconfig.json"></a>2.1 tsconfig.json</h3><p>先看一下 <code>tsconfig.json</code> 文件，这是该项目总的配置文件，用来做一些通用配置，其他tsconfig文件可以继承这个文件。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* To learn more about this file see: https://angular.io/config/tsconfig. */</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compileOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist/out-tsc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;noImplicitOverride&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;noPropertyAccessFromIndexSignature&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;noImplicitReturns&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;noFallthroughCasesInSwitch&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;esModuleInterop&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;sourceMap&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;declaration&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;experimentalDecorators&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;moduleResolution&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;importHelpers&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ES2022&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ES2022&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;useDefineForClassFields&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;lib&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="string">&quot;ES2022&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="string">&quot;dom&quot;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;angularCompilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;enableI18nLegacyMessageIdFormat&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInjectionParameters&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInputAccessModifiers&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictTemplates&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-tsconfig-app-json"><a href="#2-2-tsconfig-app-json" class="headerlink" title="2.2 tsconfig.app.json"></a>2.2 tsconfig.app.json</h3><p><code>tsconfig.app.json</code> 文件是 Angular app的编译配置文件，由第一行<code>&quot;extends&quot;: &quot;./tsconfig.json&quot;</code>可知，它继承了 <code>tsconfig.json</code> 文件的配置，同时也可以覆盖 <code>tsconfig.json</code> 文件的配置。</p>
+<ul>
+<li>files: </li>
+<li>include: <code>&quot;src/**/*.d.ts&quot;</code> 表示包含所有位于src目录下的Typescript类型定义文件(*.d.ts)</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* To learn more about this file see: https://angular.io/config/tsconfig. */</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;extends&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./tsconfig.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./out-tsc/app&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;types&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;files&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;src/main.ts&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;include&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;src/**/*.d.ts&quot;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-tsconfig-spec-json"><a href="#2-3-tsconfig-spec-json" class="headerlink" title="2.3 tsconfig.spec.json"></a>2.3 tsconfig.spec.json</h3><p><code>tsconfig.spec.json</code> 文件是 Angular app的测试配置文件，由第一行<code>&quot;extends&quot;: &quot;./tsconfig.json&quot;</code>可知，它也继承了 <code>tsconfig.json</code> 文件。在include选项中，包含了所有的测试文件(<em>.spec.ts)和类型定义文件(</em>.d.ts)。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* To learn more about this file see: https://angular.io/config/tsconfig. */</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;extends&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./tsconfig.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./out-tsc/spec&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;types&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="string">&quot;jasmine&quot;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;include&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;src/**/*.spec.ts&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;src/**/*.d.ts&quot;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>如果你尝试将<code>src/**/*.spec.ts</code>从<code>include</code>选项中删除，再运行<code>npm run test</code>，将会遇到如下错误。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">An unhandled exception occurred: error TS18003: No inputs were found in config file &#x27;.../my-app/tsconfig.spec.json&#x27;. Specified &#x27;include&#x27; paths were &#x27;[&quot;src/**/*.d.ts&quot;]&#x27; and &#x27;exclude&#x27; paths were &#x27;[&quot;./out-tsc/spec&quot;]&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>由上面的分析可知，Angular项目中的 <code>tsconfig.json</code> 文件是一个全局配置文件，<code>tsconfig.app.json</code>掌管app的编译选项，<code>tsconfig.spec.json</code>负责测试文件的配置，这两者分别继承了 <code>tsconfig.json</code> 文件，同时可以做一些个性化的配置。</p>
+<p>那么<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件是如何被使用的呢？这就需要分析另一个文件：<code>angular.json</code>：</p>
+<h3 id="2-4-angular-json"><a href="#2-4-angular-json" class="headerlink" title="2.4 angular.json"></a>2.4 angular.json</h3><p>可以看到在<code>projects | my-app | architect | build | options</code>中，有一个<code>tsConfig</code>选项，这个选项指定了<code>tsconfig.app.json</code>文件的路径，这就是告诉Angular CLI在编译app时要使用<code>tsconfig.app.json</code>文件。</p>
+<p>同时，在<code>projects | my-app | architect | test | options</code>中，有一个<code>tsConfig</code>选项，这个选项指定了<code>tsconfig.spec.json</code>文件的路径，这就是告诉Angular CLI在编译测试文件时要使用<code>tsconfig.spec.json</code>文件。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;$schema&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./node_modules/@angular/cli/lib/config/schema.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;newProjectRoot&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;projects&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;my-app&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;projectType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;application&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:application&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tsconfig.app.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 1 &lt;-- here</span></span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:karma&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="string">&quot;zone.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">              <span class="string">&quot;zone.js/testing&quot;</span></span><br><span class="line">            <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tsconfig.spec.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 2 &lt;-- here</span></span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>总结一下：</p>
+<ul>
+<li><code>tsconfig.json</code> 是全局配置文件</li>
+<li><code>tsconfig.app.json</code> 是app的编译配置文件，继承了<code>tsconfig.json</code>文件。</li>
+<li><code>tsconfig.spec.json</code> 是测试文件的配置文件，继承了<code>tsconfig.json</code>文件。</li>
+<li><code>angular.json</code> 文件中的<code>tsConfig</code>选项指定了<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件的路径</li>
+</ul>
+<p>上图：<br><img src="/../images/angular-single-project-tsconfig.png" alt="angular-single-project-tsconfig"></p>
+<h2 id="3-Angular-Multi-Project"><a href="#3-Angular-Multi-Project" class="headerlink" title="3. Angular Multi Project"></a>3. Angular Multi Project</h2><p>关于如何创建Angular多项目应用，可以参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/26/angular-module-federation/">这篇</a></p>
+<p>多项目应用的文件结构如下，projects目录负责存放所有的子项目，这里有两个子项目：mfe1和shell。<br>每个子项目分别有自己的<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件，这两个文件分别继承了全局的<code>tsconfig.json</code>文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">my-app/</span><br><span class="line">├─ node_modules/</span><br><span class="line">├─ projects/</span><br><span class="line">│  ├─ mfe1/</span><br><span class="line">│  │  ├─ ...</span><br><span class="line">│  │  ├─ tsconfig.app.json</span><br><span class="line">│  │  ├─ tsconfig.spec.json</span><br><span class="line">│  ├─ shell/</span><br><span class="line">│  │  ├─ ...</span><br><span class="line">│  │  ├─ tsconfig.app.json</span><br><span class="line">│  │  ├─ tsconfig.spec.json</span><br><span class="line">├─ ...</span><br><span class="line">├─ angular.json</span><br><span class="line">├─ package.json</span><br><span class="line">├─ tsconfig.json</span><br></pre></td></tr></table></figure>
+
+<p><code>angular.json</code>文件中的<code>tsConfig</code>选项指定了每个子项目的<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件的路径。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;$schema&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./node_modules/@angular/cli/lib/config/schema.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;newProjectRoot&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;projects&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;shell&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="comment">// project shell &lt;-- here</span></span><br><span class="line">      <span class="attr">&quot;projectType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;application&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">      <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ngx-build-plus:browser&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line">            <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/shell/tsconfig.app.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 1 &lt;-- here</span></span><br><span class="line">          <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="comment">// ...</span></span><br><span class="line">          <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/shell/tsconfig.spec.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 2 &lt;-- here</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;mfe1&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="comment">// project mfe1 &lt;-- here</span></span><br><span class="line">      <span class="attr">&quot;projectType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;application&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">      <span class="attr">&quot;architect&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ngx-build-plus:browser&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line">            <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/mfe1/tsconfig.app.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 3 &lt;-- here</span></span><br><span class="line">          <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:karma&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line">            <span class="attr">&quot;tsConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/mfe1/tsconfig.spec.json&quot;</span><span class="punctuation">,</span> <span class="comment">// 4 &lt;-- here</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>总结一下：<br>多项目Angular应用的tsconfig文件使用情况</p>
+<ul>
+<li><code>tsconfig.json</code> 是全局配置文件，位于workspace根目录下</li>
+<li>每个子项目有自己的<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件，分别继承了全局的<code>tsconfig.json</code>文件</li>
+<li><code>angular.json</code> 文件中的<code>tsConfig</code>选项指定了每个子项目的<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件的路径</li>
+</ul>
+<p>上图：<br><img src="/../images/angular-multiple-projects-tsconfig.png" alt="angular-multiple-projects-tsconfig"></p>
+<h2 id="4-Nx-Mono-Repo"><a href="#4-Nx-Mono-Repo" class="headerlink" title="4. Nx Mono Repo"></a>4. Nx Mono Repo</h2><p>使用Nx创建的Mono Repo项目，Nx会自动创建一个<code>tsconfig.base.json</code>文件，这个文件是全局的配置文件，所有的子项目都会继承这个文件。并且没有<code>angular.json</code>文件，每个子项目有自己的<code>project.json</code>文件，负责引用子项目中的<code>tsconfig</code>文件。</p>
+<p>假设我们的mono repo包含一个app，名为<code>todo</code>, 一个library, 名为<code>data-access</code>，则文件结构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Nx mono repo/</span><br><span class="line">├─ apps/</span><br><span class="line">│  ├─ todo/</span><br><span class="line">│  │  ├─ ...</span><br><span class="line">│  │  ├─ project.json</span><br><span class="line">│  │  ├─ tsconfig.app.json</span><br><span class="line">│  │  ├─ tsconfig.json</span><br><span class="line">│  │  ├─ tsconfig.spec.json</span><br><span class="line">├─ libs/</span><br><span class="line">│  ├─ data-access/</span><br><span class="line">│  │  ├─ ...</span><br><span class="line">│  │  ├─ project.json</span><br><span class="line">│  │  ├─ tsconfig.json</span><br><span class="line">│  │  ├─ tsconfig.lib.json</span><br><span class="line">│  │  ├─ tsconfig.spec.json</span><br><span class="line">├─ node_modules/</span><br><span class="line">├─ package.json</span><br><span class="line">├─ tsconfig.base.json</span><br><span class="line">├─ ...</span><br></pre></td></tr></table></figure>
+
+<p>总结一下：</p>
+<ul>
+<li><code>tsconfig.base.json</code> 是全局配置文件，位于workspace根目录下</li>
+<li>app项目有自己的<code>tsconfig.app.json</code>和<code>tsconfig.spec.json</code>文件以及<code>tsconfig.json</code>，继承关系如下：<ul>
+<li><code>tsconfig.app.json</code>继承<code>tsconfig.json</code></li>
+<li><code>tsconfig.spec.json</code>继承<code>tsconfig.json</code></li>
+<li><code>tsconfig.json</code>继承<code>tsconfig.base.json</code></li>
+</ul>
+</li>
+<li>library项目有自己的<code>tsconfig.lib.json</code>和<code>tsconfig.spec.json</code>文件以及<code>tsconfig.json</code>，继承关系如下：<ul>
+<li><code>tsconfig.lib.json</code>继承<code>tsconfig.json</code></li>
+<li><code>tsconfig.spec.json</code>继承<code>tsconfig.json</code></li>
+<li><code>tsconfig.json</code>继承<code>tsconfig.base.json</code></li>
+</ul>
+</li>
+<li>每个子项目的<code>project.json</code>文件负责引用子项目中的<code>tsconfig</code>文件</li>
+</ul>
+<p>一图胜千言<br><img src="/../images/nx-mono-repo-tsconfig.png" alt="nx-mono-repo-tsconfig"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/04/typescript-type-assertion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -754,443 +1185,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/21/angular-ngc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/21/angular-ngc/" class="post-title-link" itemprop="url">angular-ngc</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-05-21 19:41:51 / Modified: 21:53:08" itemprop="dateCreated datePublished" datetime="2024-05-21T19:41:51+08:00">2024-05-21</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What-is-angular-ngc"><a href="#What-is-angular-ngc" class="headerlink" title="What is angular ngc?"></a>What is angular ngc?</h2><p>ngc stands fore Angular Compiler. It is a tool that compiles Angular applications. ngc was built on tsc(TypeScript Compiler) and extends it to support Angular.</p>
-<h2 id="Angular-compile-options"><a href="#Angular-compile-options" class="headerlink" title="Angular compile options"></a>Angular compile options</h2><p>You can see the ngc compile options in the tsconfig.json file under your Angular project root.</p>
-<p>We can see that the output directory is set to dist&#x2F;out-tsc. and there is a special section <code>angularCompilerOptions</code> used for angular.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compileOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist/out-tsc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;angularCompilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;enableI18nLegacyMessageIdFormat&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInjectionParameters&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInputAccessModifiers&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictTemplates&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Run-ngc-manually"><a href="#Run-ngc-manually" class="headerlink" title="Run ngc manually"></a>Run <code>ngc</code> manually</h2><p>You can run <code>ngc</code> manually by using the command <code>ngc</code> in the terminal. and then found the compiled files in the dist&#x2F;out-tsc directory.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549">https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/19/angular-service/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/19/angular-service/" class="post-title-link" itemprop="url">angular-service</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-19 16:06:46" itemprop="dateCreated datePublished" datetime="2024-05-19T16:06:46+08:00">2024-05-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-04 10:34:00" itemprop="dateModified" datetime="2024-12-04T10:34:00+08:00">2024-12-04</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Angular-Service"><a href="#Angular-Service" class="headerlink" title="Angular Service"></a>Angular Service</h2><p>在Angular中，<code>Service</code>是一个可注入的类，用于封装可重用的功能。<code>Service</code>可以在任何<code>Component</code>中使用，也可以用于其他<code>Service</code>。</p>
-<p>Service可以完成以下工作，很多和UI无关的操作都可以用Service来完成，这样可以保持<code>Component</code>的简洁。</p>
-<ul>
-<li>调用API获取后台数据 - API Service</li>
-<li>验证用户输入 - Form Validation</li>
-<li>日志服务 - Logging Service</li>
-<li>数据库操作 - Database Service</li>
-</ul>
-<h2 id="创建Service"><a href="#创建Service" class="headerlink" title="创建Service"></a>创建Service</h2><p>使用Angular CLI创建Service，下面的CLI命令生成一个<code>OrderService</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate service order <span class="comment"># or, ng g s order</span></span><br></pre></td></tr></table></figure>
-<p>该命令会在项目根目录下生成一个<code>order.service.ts</code>文件，我们在其中添加一个<code>getOrder</code>方法，用于获取订单信息。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// order.service.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Order</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./Order&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getOrder</span>():<span class="title class_">Promise</span>&lt;<span class="title class_">Order</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="title function_">resolve</span>(&#123;</span><br><span class="line">          <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">name</span>: <span class="string">&#x27;Order 1&#x27;</span>,</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;, <span class="number">1000</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Order类型定义如下</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// order.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">Order</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，<code>OrderService</code>对应的Class是用<code>@Injectable</code>装饰器修饰的，这样Angular就可以将其注入到<code>Component</code>中。我们还给<code>@Injectable</code>传递了一个参数<code>providedIn: &#39;root&#39;</code>，这表示该Service是一个全局Service，可以在整个Application中使用。</p>
-<h2 id="使用Service"><a href="#使用Service" class="headerlink" title="使用Service"></a>使用Service</h2><p>在<code>ProductComponent</code>中使用<code>OrderService</code>，我们需要在<code>ProductComponent</code>的构造函数中注入<code>OrderService</code>，然后调用<code>OrderService</code>的方法。（注意，由于OrderService是<code>providedIn: &#39;root&#39;</code>的，所以使用者不需要在<code>providers</code>数组中声明它）</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">OrderService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../order.service&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Order</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../Order&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">order</span>: <span class="title class_">Order</span> | <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// inject OrderService</span></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">order</span> = <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">order</span> = <span class="keyword">await</span> <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">getOrder</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">order</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>Angular 14</code>引入了一个新的函数<code>inject</code>, 可以用来注入Service，如下: 使用这种方式，我们不必再依赖构造函数的参数，可以在任何地方注入Service。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">OrderService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../order.service&quot;</span>;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  orderService = <span class="title function_">inject</span>(<span class="title class_">OrderService</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么使用<code>inject</code>函数注入比使用<code>constructor</code>注入有何好处呢？主要体现在继承时，假设我有一个<code>BaseComponent</code>，其构造函数中注入了某个service, 另外一个组件<code>ProductComponent</code>继承自<code>BaseComponent</code>，则<code>ProductComponent</code>的构造函数也需要注入这个<code>service</code>才能调用<code>super</code>方法。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// base.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">BaseComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">protected</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BaseComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">override</span> orderService: OrderService</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(orderService);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而使用<code>inject</code>函数注入则不需要。父组件的service会自动注入到子组件中。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// base.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">BaseComponent</span> &#123;</span><br><span class="line">  orderService = <span class="title function_">inject</span>(<span class="title class_">OrderService</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">extends</span> <span class="title class_ inherited__">BaseComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// this.orderService is available here</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">getOrder</span>().<span class="title function_">then</span>(<span class="function"><span class="params">order</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(order);</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="providedIn-vs-providers"><a href="#providedIn-vs-providers" class="headerlink" title="providedIn vs providers"></a>providedIn vs providers</h2><p>在Angular中，我们可以使用<code>providedIn</code>或者<code>providers</code>来指定Service的提供范围。<code>providedIn</code>是Angular 6中引入的新特性，用于替代<code>providers</code>。</p>
-<p>如果在定义Service时指定了<code>providedIn: &#39;root&#39;</code>，那么Angular会在应用启动时自动将该Service注入到根模块中，这样就可以在整个应用中使用该Service。在使用该Service的Component中，就不必再在<code>providers</code>中声明该Service。</p>
-<p>如果定义Service时没有指定<code>providedIn</code>，那么就需要在使用该Service的Component中的<code>providers</code>中声明该Service。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>] <span class="comment">// &lt;--- provide service here</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>当Angular找不到一个Service的提供者时，会抛出一个错误，相信大家都见过这个错误，从下面的错误可知，<code>_OrderService</code>没有提供者。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ERROR Error [NullInjectorError]: R3InjectorError(Environment Injector)[_OrderService -&gt; _OrderService]: </span><br><span class="line">  NullInjectorError: No provider <span class="keyword">for</span> _OrderService!</span><br></pre></td></tr></table></figure>
-
-<p>更进一步，我们可以将Service的使用范围限定在某个Component中，这样其他Component就无法使用该Service。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// order.service.ts</span></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="title class_">ProductComponent</span>, <span class="comment">// --- only available in ProductComponent</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>注意</strong>，以上代码无法在应用启动时自动注入Service，使用者仍然需要在<code>providers</code>中声明该Service。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>] <span class="comment">// &lt;--- provide service here</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>如果在其他Component中尝试使用该Service，会抛出一个错误，如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR TypeError: Cannot <span class="built_in">read</span> properties of undefined (reading <span class="string">&#x27;provide&#x27;</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Service的Scope"><a href="#Service的Scope" class="headerlink" title="Service的Scope"></a>Service的Scope</h2><h3 id="providedIn-‘root’"><a href="#providedIn-‘root’" class="headerlink" title="providedIn: ‘root’"></a>providedIn: ‘root’</h3><p><code>providedIn: &#39;root&#39;</code>表示Service是一个全局Service，可以在整个应用中使用。Angular会在应用启动时自动将该Service注入到根模块中。</p>
-<h3 id="providedIn-‘platform’"><a href="#providedIn-‘platform’" class="headerlink" title="providedIn: ‘platform’"></a>providedIn: ‘platform’</h3><p><code>providedIn: &#39;platform&#39;</code>表示Service是一个平台Service，可以在整个应用中使用。Angular会在应用启动时自动将该Service注入到平台模块中。</p>
-<h3 id="providedIn-‘any’"><a href="#providedIn-‘any’" class="headerlink" title="providedIn: ‘any’"></a>providedIn: ‘any’</h3><p><code>providedIn: &#39;any&#39;</code>表示Service是一个局部Service，只能在指定的Component中使用。Angular不会自动将该Service注入到任何模块中，使用者需要在<code>providers</code>中声明该Service。</p>
-<h2 id="lazy-loading与Service实例"><a href="#lazy-loading与Service实例" class="headerlink" title="lazy loading与Service实例"></a>lazy loading与Service实例</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/18/angular-pipe/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/18/angular-pipe/" class="post-title-link" itemprop="url">angular-pipe</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-18 21:45:34" itemprop="dateCreated datePublished" datetime="2024-05-18T21:45:34+08:00">2024-05-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-06-03 21:21:45" itemprop="dateModified" datetime="2024-06-03T21:21:45+08:00">2024-06-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What-is-a-pipe"><a href="#What-is-a-pipe" class="headerlink" title="What is a pipe"></a>What is a pipe</h2><p>Angular中的pipe就是一个简单的函数，该函数接收一个输入值，然后返回一个转换后的值。pipe只需在一处定义，然后任意模板都可使用。</p>
-<h2 id="Generate-pipe"><a href="#Generate-pipe" class="headerlink" title="Generate pipe"></a>Generate pipe</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate pipe full-name</span><br></pre></td></tr></table></figure>
-
-<p>This will create a new file <code>full-name.pipe.ts</code> in the <code>src/app</code> folder.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Pipe</span>, <span class="title class_">PipeTransform</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">  <span class="attr">firstName</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">lastName</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Pipe</span>(&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;fullName&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">FullNamePipe</span> <span class="keyword">implements</span> <span class="title class_">PipeTransform</span> &#123;</span><br><span class="line">  <span class="title function_">transform</span>(<span class="attr">value</span>: <span class="title class_">Person</span>, ...<span class="attr">args</span>: <span class="built_in">unknown</span>[]): <span class="built_in">unknown</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> value.<span class="property">lastName</span> + <span class="string">&#x27;, &#x27;</span> + value.<span class="property">firstName</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>用@Pipe装饰器来定义pipe，<code>name</code>属性是pipe的名字，<code>standalone</code>属性是可选的，如果设置为<code>true</code>，则表示该pipe是一个独立的pipe，不依赖于任何Module。<code>pure</code>参数是可选的，默认为true。pure pipe只有当输入变化时才重新计算。</p>
-<p>每个Pipe都实现了<code>PipeTransform</code>接口，该接口只有一个方法<code>transform</code>，该方法接收一个输入值和一些可选参数，然后返回一个转换后的值。在这里，我们根据输入的Person变量，返回对应的全名。</p>
-<h2 id="How-to-use-pipe"><a href="#How-to-use-pipe" class="headerlink" title="How to use pipe"></a>How to use pipe</h2><p>在component中引入pipe，然后在模板中使用。上面的FullNamePipe可以这样使用：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">FullNamePipe</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../full-name.pipe&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">FullNamePipe</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">person = &#123;</span><br><span class="line">  <span class="attr">firstName</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">lastName</span>: <span class="string">&#x27;Zhang&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- component.html --&gt;</span></span><br><span class="line">&#123;&#123; person | fullName &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>也可以直接在代码中使用pipe：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">FullNamePipe</span> &#125; <span class="keyword">from</span> <span class="string">&quot;../full-name.pipe&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">FullNamePipe</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">YourComponent</span> &#123;</span><br><span class="line">  person = &#123;</span><br><span class="line">    <span class="attr">firstName</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">    <span class="attr">lastName</span>: <span class="string">&#x27;Zhang&#x27;</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> fullNamePipe: FullNamePipe</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> fullName = <span class="variable language_">this</span>.<span class="property">fullNamePipe</span>.<span class="title function_">transform</span>(<span class="variable language_">this</span>.<span class="property">person</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(fullName); <span class="comment">// logs &quot;Zhang, Philip&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Naming-convention"><a href="#Naming-convention" class="headerlink" title="Naming convention"></a>Naming convention</h2><ol>
-<li><code>pipe</code> name should be in <code>camelCase</code>. - <code>fullName</code></li>
-<li><code>pipe</code> class should be in <code>PascalCase</code> and end with <code>Pipe</code>. - <code>FullNamePipe</code></li>
-</ol>
-<h2 id="Pass-parameter-to-pipe"><a href="#Pass-parameter-to-pipe" class="headerlink" title="Pass parameter to pipe"></a>Pass parameter to pipe</h2><p>pipe可以接收多个参数，参数之间使用<code>:</code>分隔。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value | pipe:param1:param2... &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Pipe-chaining"><a href="#Pipe-chaining" class="headerlink" title="Pipe chaining"></a>Pipe chaining</h2><p>多个pipe可以使用<code>|</code>符号连接在一起，前一个pipe的输出会作为后一个pipe的输入。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value | pipe1 | pipe2 | pipe3 &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Pipe-precedence"><a href="#Pipe-precedence" class="headerlink" title="Pipe precedence"></a>Pipe precedence</h2><p>pipe的执行顺序是从左到右，并且pipe的优先级高于 :?操作符.</p>
-<p>Bad</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value &gt; 0 ? expression1 : expression2 | pipe &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>is equal to</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value &gt; 0 ? expression1 : (expression2 | pipe) &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Good</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; (value &gt; 0 ? expression1 : expression2) | pipe &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://angular.io/guide/pipes-custom-data-trans">https://angular.io/guide/pipes-custom-data-trans</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/14/useful-commands/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/14/useful-commands/" class="post-title-link" itemprop="url">useful-commands-all-in-one</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-14 21:34:28" itemprop="dateCreated datePublished" datetime="2024-05-14T21:34:28+08:00">2024-05-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-12 11:28:22" itemprop="dateModified" datetime="2024-12-12T11:28:22+08:00">2024-12-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="VSCode"><a href="#VSCode" class="headerlink" title="VSCode"></a>VSCode</h1><ol>
-<li><code>Ctrl + P</code> - Search by file name</li>
-<li><code>Ctrl + Shift + P</code> - Open command palette</li>
-<li><code>Alt + Left Arrow</code> - Go back</li>
-<li><code>Ctrl + K, Ctrl + 0</code> - Fold all</li>
-<li><code>Ctrl + K, Ctrl + J</code> - Unfold all</li>
-</ol>
-<h1 id="Angular"><a href="#Angular" class="headerlink" title="Angular"></a>Angular</h1><h2 id="Create-project-with-specific-version"><a href="#Create-project-with-specific-version" class="headerlink" title="Create project with specific version"></a>Create project with specific version</h2><p>The following command create angular app with angular 15</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@15 new my-app</span><br></pre></td></tr></table></figure>
-
-<h1 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h1><h2 id="Branch"><a href="#Branch" class="headerlink" title="Branch"></a>Branch</h2><h3 id="1-merge-main-branch-to-current-branch"><a href="#1-merge-main-branch-to-current-branch" class="headerlink" title="1. merge main branch to current branch"></a>1. merge main branch to current branch</h3><p>This is very useful when you work on a branch for a long time, and every day before you start coding, you sync your branch with <code>main</code> branch.<br>Suppose you are on the <code>feature-branch</code> branch, and you want to merge the <code>main</code> branch to the <code>feature-branch</code> branch, just use the following command.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull origin main</span><br></pre></td></tr></table></figure>
-
-<h3 id="Move-changes-from-one-branch-to-another"><a href="#Move-changes-from-one-branch-to-another" class="headerlink" title="Move changes from one branch to another"></a>Move changes from one branch to another</h3><p>Suppose you made some modifications on branch <code>A</code>, and you want to move these changes to branch <code>B</code>, you can use the following command.<br>If branch <code>B</code> is existing and has the latest code, you can use the following command.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git switch B <span class="comment"># the modification code will automatically bring to branch B</span></span><br></pre></td></tr></table></figure>
-
-<p>If branch <code>B</code> is not existing, you can use the following command.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git stash <span class="comment"># save the changes</span></span><br><span class="line">git checkout main <span class="comment"># switch to main branch</span></span><br><span class="line">git pull <span class="comment"># pull the latest code</span></span><br><span class="line">git checkout -b B <span class="comment"># create a new branch B</span></span><br><span class="line">git stash pop <span class="comment"># apply the changes to branch B</span></span><br></pre></td></tr></table></figure>
-
-<p><code>git checkout</code> vs <code>git switch</code>?</p>
-<h3 id="Checkout-a-remote-branch"><a href="#Checkout-a-remote-branch" class="headerlink" title="Checkout a remote branch"></a>Checkout a remote branch</h3><p>For <code>single</code> remote, use the following command.</p>
-<ol>
-<li><code>git fetch</code> – fetch the remote branch</li>
-<li><code>git checkout -b local-branch-name origin/remote-branch-name</code> – checkout the remote branch</li>
-<li><code>git switch -t remote-branch-name</code> – switch to the remote branch, use s<code>git branch -v -a</code> to make sure your branch is ready.</li>
-<li>checkout from tag: <code>git checkout tags/v1.0.0 -b branch-name</code></li>
-</ol>
-<h3 id="Delete-branch"><a href="#Delete-branch" class="headerlink" title="Delete branch"></a>Delete branch</h3><ol>
-<li><code>git branch -d branch-name</code> – delete a local branch</li>
-<li><code>git branch -D branch-name</code> – force delete a local branch</li>
-<li><code>git push origin --delete branch-name</code> – delete a remote branch</li>
-</ol>
-<h2 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h2><h3 id="Diff-staged-x2F-indexed-changes"><a href="#Diff-staged-x2F-indexed-changes" class="headerlink" title="Diff staged&#x2F;indexed changes"></a>Diff staged&#x2F;indexed changes</h3><ol>
-<li><code>git diff --cached</code> </li>
-<li><code>git status -v</code> – show the changes in the index(staged changes)</li>
-</ol>
-<h3 id="2-checkout-remote-branch"><a href="#2-checkout-remote-branch" class="headerlink" title="2. checkout remote branch"></a>2. checkout remote branch</h3><p>Before checking out a remote branch, you need to fetch the remote branch first.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git fetch</span><br><span class="line">git checkout -b local-branch-name origin/remote-branch-name</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-Checkout-a-specific-commit"><a href="#3-Checkout-a-specific-commit" class="headerlink" title="3. Checkout a specific commit."></a>3. Checkout a specific commit.</h3><p>The following command will create a new branch from the specific commit, you can find the commit id by <code>git log</code> command or from the git history.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b new_branch commit-hash</span><br></pre></td></tr></table></figure>
-
-<h2 id="Undo"><a href="#Undo" class="headerlink" title="Undo"></a>Undo</h2><h3 id="1-Undo-last-commit"><a href="#1-Undo-last-commit" class="headerlink" title="1. Undo last commit"></a>1. Undo last commit</h3><ol>
-<li><code>git reset --soft HEAD~1</code> &#x2F;&#x2F; undo the last commit and keep the changes in working directory.</li>
-<li><code>git reset --hard HEAD~1</code> &#x2F;&#x2F; undo the last commit and remove all changes.</li>
-</ol>
-<h3 id="2-Undo-staged-changes-not-committed-yet"><a href="#2-Undo-staged-changes-not-committed-yet" class="headerlink" title="2. Undo staged changes(not committed yet)"></a>2. Undo staged changes(not committed yet)</h3><ol>
-<li><code>git reset HEAD file-name</code> &#x2F;&#x2F; unstage a file</li>
-<li><code>git reset HEAD .</code> &#x2F;&#x2F; unstage all files</li>
-</ol>
-<h3 id="3-Undo-unstaged-changes-changes-are-not-added-or-committed"><a href="#3-Undo-unstaged-changes-changes-are-not-added-or-committed" class="headerlink" title="3. Undo unstaged changes(changes are not added or committed)"></a>3. Undo unstaged changes(changes are not added or committed)</h3><ol>
-<li><code>git checkout -- .</code> &#x2F;&#x2F; undo all changes in the working directory, same as <code>git checkout .</code>?</li>
-<li><code>git checkout -- file-name</code> &#x2F;&#x2F; undo changes in a specific file</li>
-<li><code>git checkout -- &#39;*.js&#39;</code> &#x2F;&#x2F; undo changes in all js files</li>
-</ol>
-<h3 id="4-Undo-untracked-files"><a href="#4-Undo-untracked-files" class="headerlink" title="4. Undo untracked files"></a>4. Undo untracked files</h3><ol>
-<li><code>git clean -f</code> &#x2F;&#x2F; remove untracked files</li>
-<li><code>git clean -f -d</code> &#x2F;&#x2F; remove untracked files and directories</li>
-</ol>
-<p><code>git restore</code>和<code>git reset</code>的区别是什么？</p>
-<h2 id="Stash"><a href="#Stash" class="headerlink" title="Stash"></a>Stash</h2><p><code>git stash</code> – save the changes<br><code>git stash list</code> – list all stashes<br><code>git stash apply &quot;stash@&#123;n&#125;&quot;</code> – apply the nth stash<br><code>git stash apply n</code> – apply the nth stash<br><code>git stash pop</code> – apply the latest stash and remove it from the stash list</p>
-<h1 id="NPM"><a href="#NPM" class="headerlink" title="NPM"></a>NPM</h1><ol>
-<li><code>npm list -g</code> – list all global packages</li>
-<li><code>npm list -g --depth 0</code> – list all global packages without dependencies</li>
-</ol>
-<h2 id="1-npm-install-error"><a href="#1-npm-install-error" class="headerlink" title="1. npm install error"></a>1. npm install error</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">code ERESOLVE</span><br><span class="line">npm ERR! ERESOLVE could not resolve</span><br><span class="line">npm ERR! </span><br><span class="line">npm ERR! While resolving: karma-jasmine-html-reporter@1.6.0</span><br><span class="line">npm ERR! Found: jasmine-core@3.6.0</span><br></pre></td></tr></table></figure>
-<p>This is caused by dependency conflict, you can try to install the package with <code>--force</code> or <code>--legacy-peer-deps</code> flag. see <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/64573177/unable-to-resolve-dependency-tree-error-when-installing-npm-packages">here</a> for more details.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --force</span><br></pre></td></tr></table></figure>
-<p>or</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --legacy-peer-deps</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-List-global-packages"><a href="#2-List-global-packages" class="headerlink" title="2. List global packages"></a>2. List global packages</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm list -g</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Find-where-nodejs-was-installed-Windows-OS"><a href="#3-Find-where-nodejs-was-installed-Windows-OS" class="headerlink" title="3. Find where nodejs was installed(Windows OS)"></a>3. Find where nodejs was installed(Windows OS)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">where</span> node</span><br></pre></td></tr></table></figure>
-
-<h1 id="Chrome"><a href="#Chrome" class="headerlink" title="Chrome"></a>Chrome</h1><ol>
-<li><code>F12</code> - Open developer tools</li>
-<li><code>Ctrl + Shift + P</code> - Open command palette(only works after you open developer tools)</li>
-<li><code>Ctrl + P</code> - Open file(after you open developer tools), this is pretty useful when you want to find a file in the source tab.</li>
-<li><code>Ctrl</code> + <code>Mouse Left Click</code> - Open a link in a new tab. (also can use <code>Mouse Wheel</code> click)</li>
-</ol>
-<h1 id="Yarn"><a href="#Yarn" class="headerlink" title="Yarn"></a>Yarn</h1><ol start="5">
-<li>Input <code>chrome://settings</code> in the address bar to open the settings page.</li>
-</ol>
-<h1 id="Nx"><a href="#Nx" class="headerlink" title="Nx"></a>Nx</h1><h1 id="Jest"><a href="#Jest" class="headerlink" title="Jest"></a>Jest</h1><ol>
-<li><code>jest</code> - Run all test</li>
-<li><code>jest --coverage</code> - Run test with coverage report</li>
-<li><code>jest --watch</code> - Run test in watch mode</li>
-<li><code>jest test.spec.ts</code> - Run a specific test file</li>
-<li><code>jest test.spec.ts --coverage</code> - Run a specific test file with coverage report</li>
-</ol>
-<h1 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h1><p><code>Win + Shift + S</code> - Take a screenshot</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/cli">https://jestjs.io/docs/cli</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1260,14 +1254,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

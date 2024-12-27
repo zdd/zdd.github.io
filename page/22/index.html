@@ -181,6 +181,334 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/07/how-jest-works/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/07/how-jest-works/" class="post-title-link" itemprop="url">how-jest-works</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-01-07 19:56:50 / Modified: 20:32:17" itemprop="dateCreated datePublished" datetime="2024-01-07T19:56:50+08:00">2024-01-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-Jest-Works-Jest是如何工作的"><a href="#How-Jest-Works-Jest是如何工作的" class="headerlink" title="How Jest Works(Jest是如何工作的)"></a>How Jest Works(Jest是如何工作的)</h1><h2 id="1-什么是Jest"><a href="#1-什么是Jest" class="headerlink" title="1. 什么是Jest"></a>1. 什么是Jest</h2><p>Jest是由Facebook(Meta)开发的一个Javascript测试框架。支持多种前端框架，比如Babel, TypeScript, Node, React, Angular, Vue等等。它的特点是快速，简单，可扩展。</p>
+<h2 id="2-基于Nx框架的Jest配置"><a href="#2-基于Nx框架的Jest配置" class="headerlink" title="2. 基于Nx框架的Jest配置"></a>2. 基于Nx框架的Jest配置</h2><p>我们目前的项目基于Nx框架，其实Nx本身对于Jest已经支持的很好了，几乎不用做太多的配置，但是本文仍以Angular为例，看看如何配置Jest。</p>
+<p>当我们使用Nx创建一个Angular项目时，会自动创建一个<code>jest.config.ts</code>文件，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* eslint-disable */</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="attr">displayName</span>: <span class="string">&#x27;todos&#x27;</span>,</span><br><span class="line">  <span class="attr">preset</span>: <span class="string">&#x27;../../jest.preset.js&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/src/test-setup.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">globals</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;ts-jest&#x27;</span>: &#123;</span><br><span class="line">      <span class="attr">tsconfig</span>: <span class="string">&#x27;&lt;rootDir&gt;/tsconfig.spec.json&#x27;</span>,</span><br><span class="line">      <span class="attr">stringifyContentPathRegex</span>: <span class="string">&#x27;\\.(html|svg)$&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">coverageDirectory</span>: <span class="string">&#x27;../../coverage/apps/todos&#x27;</span>,</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|mjs|js|html)$&#x27;</span>: <span class="string">&#x27;jest-preset-angular&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">transformIgnorePatterns</span>: [<span class="string">&#x27;node_modules/(?!.*\\.mjs$)&#x27;</span>],</span><br><span class="line">  <span class="attr">snapshotSerializers</span>: [</span><br><span class="line">    <span class="string">&#x27;jest-preset-angular/build/serializers/no-ng-attributes&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;jest-preset-angular/build/serializers/ng-snapshot&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;jest-preset-angular/build/serializers/html-comment&#x27;</span>,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在<code>transform</code>一节，我们看到了<code>jest-preset-angular</code>，这个是Angular官方提供的一个Jest预设，它会自动帮我们处理Angular的一些特殊文件，比如<code>.ts</code>, <code>.html</code>, <code>.svg</code>等等。如果我们不使用Angular，而是使用React，那么我们需要使用<code>jest-preset-react</code>，如果是Vue，那么我们需要使用<code>vue-jest</code>。如果我们使用的是Nx，那么我们可以使用<code>@nrwl/jest</code>，它会自动帮我们处理Nx的一些特殊文件，比如<code>.ts</code>, <code>.html</code>, <code>.svg</code>等等。</p>
+<p>为什么需要<code>transform</code>呢？因为Jest只能处理JavaScript，对于TypeScript&#x2F;JSX等高级的文件格式，我们不许先将其转换为JavaScript，然后再交给Jest处理。</p>
+<p>该<code>transform</code>块的含义是，对于所有以<code>.ts</code>, <code>.mjs</code>, <code>.js</code>, <code>.html</code>结尾的文件，都使用<code>jest-preset-angular</code>来处理。</p>
+<p>如果<code>transform</code>配置不正确，就会出现如下错误：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Jest encountered an unexpected token</span><br><span class="line">Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.</span><br><span class="line"></span><br><span class="line">Out of the box Jest supports Babel, <span class="built_in">which</span> will be used to transform your files into valid JS based on your Babel configuration.</span><br><span class="line">By default <span class="string">&quot;node_modules&quot;</span> folder is ignored by transformers.</span><br></pre></td></tr></table></figure>
+
+<h2 id="How-jest-parse-config-and-execute-tests"><a href="#How-jest-parse-config-and-execute-tests" class="headerlink" title="How jest parse config and execute tests?"></a>How jest parse config and execute tests?</h2><p>Jest是如何解析配置文件，并执行测试的呢？我们可以通过<code>--debug</code>参数来查看Jest的执行过程。</p>
+<p><strong>To be continue…</strong></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://jestjs.io/">Jest官网</a></li>
+<li><a target="_blank" rel="noopener" href="https://thymikee.github.io/jest-preset-angular/docs/">jest-preset-angular</a></li>
+<li><a target="_blank" rel="noopener" href="https://kulshekhar.github.io/ts-jest/docs/processing/">ts-jest</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/18/%E4%B9%A6%E6%B3%95%E6%9D%82%E8%B0%88-%E4%B8%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/18/%E4%B9%A6%E6%B3%95%E6%9D%82%E8%B0%88-%E4%B8%80/" class="post-title-link" itemprop="url">书法杂谈(一)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-18 21:45:52" itemprop="dateCreated datePublished" datetime="2023-12-18T21:45:52+08:00">2023-12-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-15 19:07:43" itemprop="dateModified" datetime="2024-12-15T19:07:43+08:00">2024-12-15</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="如何写榜书"><a href="#如何写榜书" class="headerlink" title="如何写榜书"></a>如何写榜书</h1><p>榜书需用熟纸，最好是铜版纸，十分光滑。墨需要用浓墨，最好买超浓墨汁，也可以自制宿墨（将墨水准备好之后，放置一晚），最见精神，如果写完纸张发皱，可用熨斗熨一下。笔可用兼毫，写大字时一定要将笔毫铺开，方能如意！不可只用笔尖，那是小字的笔法。<br>初练榜书时，可用报纸，将一张报纸从中间裁开，每张写一字，</p>
+<h1 id="如何让墨汁好写"><a href="#如何让墨汁好写" class="headerlink" title="如何让墨汁好写"></a>如何让墨汁好写</h1><p>可以在墨汁中添加洗洁精或者液态胶水，今天晚上我就加了一点液态胶水，效果很好，墨汁不会太稀，也不会太浓，很好写。非常丝滑，胶水不用太好的，就文具店那种白色液体胶水即可。</p>
+<h1 id="宿墨"><a href="#宿墨" class="headerlink" title="宿墨"></a>宿墨</h1><p>宿墨可以自行制作，也可以买现成的宿墨，今日见抖音作者用宣和宿墨写豆腐宣，很是得手。</p>
+<h1 id="笔法"><a href="#笔法" class="headerlink" title="笔法"></a>笔法</h1><p>写字需笔笔交待清楚！要把动作做到位，不可草率。</p>
+<h1 id="毛笔"><a href="#毛笔" class="headerlink" title="毛笔"></a>毛笔</h1><ol>
+<li>山马就是马尾巴，这个称呼来自岛国，这事今天在抖音武京生老师直播间学到的，特此记录。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/15/how-value-convert-to-string/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/15/how-value-convert-to-string/" class="post-title-link" itemprop="url">how-value-convert-to-string</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-15 12:16:00" itemprop="dateCreated datePublished" datetime="2023-12-15T12:16:00+08:00">2023-12-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-12 10:35:13" itemprop="dateModified" datetime="2024-12-12T10:35:13+08:00">2024-12-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-many-ways-to-convert-a-value-to-string-in-JavaScript"><a href="#How-many-ways-to-convert-a-value-to-string-in-JavaScript" class="headerlink" title="How many ways to convert a value to string in JavaScript"></a>How many ways to convert a value to string in JavaScript</h1><h2 id="1-value-toString"><a href="#1-value-toString" class="headerlink" title="1. value.toString()"></a>1. value.toString()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> str = num.<span class="title function_">toString</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-String-value"><a href="#2-String-value" class="headerlink" title="2. String(value)"></a>2. String(value)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> str = <span class="title class_">String</span>(num);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str);</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-value-‘’"><a href="#3-value-‘’" class="headerlink" title="3. value + ‘’"></a>3. value + ‘’</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> str = num + <span class="string">&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-value"><a href="#4-value" class="headerlink" title="4. `${value}`"></a>4. `${value}`</h2><p>const num &#x3D; 123;<br>const str &#x3D; `${num}`;</p>
+<h2 id="5-JSON-stringify-value"><a href="#5-JSON-stringify-value" class="headerlink" title="5. JSON.stringify(value)"></a>5. JSON.stringify(value)</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> num = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">const</span> str = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(num);</span><br></pre></td></tr></table></figure>
+
+<p>What’s the difference between them?</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/15/undefined-in-javascript/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/12/15/undefined-in-javascript/" class="post-title-link" itemprop="url">undefined-in-javascript</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-15 12:13:00" itemprop="dateCreated datePublished" datetime="2023-12-15T12:13:00+08:00">2023-12-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-26 19:53:02" itemprop="dateModified" datetime="2024-12-26T19:53:02+08:00">2024-12-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="undefined-in-javascript"><a href="#undefined-in-javascript" class="headerlink" title="undefined in javascript"></a>undefined in javascript</h1><p>什么情况下JavaScript会产生<code>undefined</code>类型？</p>
+<h2 id="1-显式undefined类型"><a href="#1-显式undefined类型" class="headerlink" title="1. 显式undefined类型"></a>1. 显式<code>undefined</code>类型</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = <span class="literal">undefined</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// undefined.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-未初始化的变量"><a href="#2-未初始化的变量" class="headerlink" title="2. 未初始化的变量"></a>2. 未初始化的变量</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// undefined.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-访问对象中不存在的属性"><a href="#3-访问对象中不存在的属性" class="headerlink" title="3. 访问对象中不存在的属性"></a>3. 访问对象中不存在的属性</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">41</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">gender</span>); <span class="comment">// undefined.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Array in JavaScript is also Object.</span></span><br><span class="line"><span class="keyword">const</span> a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a[<span class="number">3</span>]); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-函数没有返回值"><a href="#4-函数没有返回值" class="headerlink" title="4. 函数没有返回值"></a>4. 函数没有返回值</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">test</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hello, world!&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">test</span>()); <span class="comment">// undefined.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-调用函数没有传递对应的参数"><a href="#5-调用函数没有传递对应的参数" class="headerlink" title="5. 调用函数没有传递对应的参数"></a>5. 调用函数没有传递对应的参数</h2><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// output undefined.</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// output undefined.</span></span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">add</span>(); <span class="comment">// no arguments passed in.</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="undefined-x3D-not-defined"><a href="#undefined-x3D-not-defined" class="headerlink" title="undefined !&#x3D; not defined"></a><code>undefined</code> !&#x3D; <code>not defined</code></h1><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// undefined.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// error, b is not defined</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="undefined-vs-void-0"><a href="#undefined-vs-void-0" class="headerlink" title="undefined vs void 0"></a><code>undefined</code> vs <code>void 0</code></h1><p>既然已经有了<code>undefined</code>，为什么有很多JavaScript库中还使用<code>void 0</code>呢？ 原因就是<code>undefined</code>是一个值，而不是关键字，能被用户串改，看下面的代码：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="literal">undefined</span> = <span class="number">1</span>; <span class="comment">// undefined被用户篡改！</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">add</span> = (<span class="params">a, b</span>) =&gt; &#123;</span><br><span class="line">  <span class="comment">// 这里判断参数是否传入，结果失效了，因为undefined值在前面被改成了1</span></span><br><span class="line">  <span class="keyword">if</span> (a === <span class="literal">undefined</span> || b === <span class="literal">undefined</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;请输入两个数&#x27;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 这里会执行add函数中的if分支，是不是很崩溃？</span></span><br></pre></td></tr></table></figure>
+
+<p>使用<code>void 0</code>就不会有这个问题。 </p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="literal">undefined</span> = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">add</span> = (<span class="params">a, b</span>) =&gt; &#123;</span><br><span class="line">  <span class="comment">// 写成void 0就没有问题了，无论undefined被改成什么，都不影响。</span></span><br><span class="line">  <span class="keyword">if</span> (a === <span class="keyword">void</span> <span class="number">0</span> || b === <span class="keyword">void</span> <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;请输入两个数&#x27;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>));</span><br></pre></td></tr></table></figure>
+
+<p><code>void expression</code> - 先对<code>expression</code>求值，然后返回<code>undefined</code></p>
+<h1 id="undefined-in-regex"><a href="#undefined-in-regex" class="headerlink" title="undefined in regex"></a><code>undefined</code> in regex</h1><p>In regex, you can use <code>test</code> to check whether a string matches a pattern.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="regexp">/^hello/</span>.<span class="title function_">test</span>(<span class="string">&#x27;hello, world!&#x27;</span>)); <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<p>If you didn’t pass any parameter to <code>test</code>, it will try to match string <code>undefined</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="regexp">/undefined/</span>.<span class="title function_">test</span>()); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>This is equivalent to the following code, since <code>undefined</code> convert to string is <code>&#39;undefined&#39;</code>, so the result is true.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="regexp">/undefined/</span>.<span class="title function_">test</span>(<span class="literal">undefined</span>));</span><br></pre></td></tr></table></figure>
+<p>See <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/02/22/javascript-regex-test/">here</a> for details of <code>test</code> in javascript regex.</p>
+<h1 id="undefined-vs-null"><a href="#undefined-vs-null" class="headerlink" title="undefined vs null"></a><code>undefined</code> vs <code>null</code></h1><p>Conceptually, <code>undefined</code> indicates the absence of a <em>value</em>, while <code>null</code> indicates the absence of an <em>object</em> (which could also make up an excuse for <code>[typeof null === &quot;object&quot;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof#typeof_null)</code>). The language usually defaults to <code>undefined</code> when something is devoid of a value:</p>
+<ul>
+<li>A <code>[return](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/return)</code> statement with no value (<code>return;</code>) implicitly returns <code>undefined</code>.</li>
+<li>Accessing a nonexistent <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a> property (<code>obj.iDontExist</code>) returns <code>undefined</code>.</li>
+<li>A variable declaration without initialization (<code>let x;</code>) implicitly initializes the variable to <code>undefined</code>.</li>
+<li>Many methods, such as <code>[Array.prototype.find()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)</code> and <code>[Map.prototype.get()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get)</code>, return <code>undefined</code> when no element is found.</li>
+</ul>
+<p><code>null</code> is used much less often in the core language. The most important place is the end of the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">prototype chain</a> — subsequently, methods that interact with prototypes, such as <code>[Object.getPrototypeOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf)</code>, <code>[Object.create()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)</code>, etc., accept or return <code>null</code> instead of <code>undefined</code>.</p>
+<p><code>null</code> is a <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords">keyword</a>, but <code>undefined</code> is a normal <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#identifiers">identifier</a> that happens to be a global property. In practice, the difference is minor, since <code>undefined</code> should not be redefined or shadowed.</p>
+<h1 id="undefined-convert-to-other-types"><a href="#undefined-convert-to-other-types" class="headerlink" title="undefined convert to other types"></a>undefined convert to other types</h1><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">String</span>(<span class="literal">undefined</span>)); <span class="comment">// &quot;undefined&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Number</span>(<span class="literal">undefined</span>)); <span class="comment">// NaN</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Boolean</span>(<span class="literal">undefined</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<p>注意<code>null</code>转换为其他类型时与<code>undefined</code>的区别</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">String</span>(<span class="literal">null</span>)); <span class="comment">// &quot;null&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Number</span>(<span class="literal">null</span>)); <span class="comment">// 0</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Boolean</span>(<span class="literal">null</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="References："><a href="#References：" class="headerlink" title="References："></a>References：</h1><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#undefined_type">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#undefined_type</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/06/optional-chaining/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -297,7 +625,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-06-13 20:55:33" itemprop="dateModified" datetime="2024-06-13T20:55:33+08:00">2024-06-13</time>
+                <time title="Modified: 2024-12-26 19:55:28" itemprop="dateModified" datetime="2024-12-26T19:55:28+08:00">2024-12-26</time>
               </span>
 
           
@@ -320,7 +648,7 @@
 
 <h2 id="not-defined"><a href="#not-defined" class="headerlink" title="not defined"></a>not defined</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// Uncaught ReferenceError: b is not defined</span></span><br></pre></td></tr></table></figure>
 
-<p>Whenever you try to access a variable that is not declared, JavaScript throws an error: <code>Uncaught ReferenceError: xxx is not defined</code>. This is because the variable b is not declared anywhere in the code. but you can still use <code>typeof</code> to check if a variable is defined or not.</p>
+<p>Whenever you try to access a variable that is not declared, JavaScript throws an error: <code>Uncaught ReferenceError: xxx is not defined</code>. This is because variable b is not declared anywhere in the code. but you can still use <code>typeof</code> to check if a variable is defined or not.</p>
 <h2 id="typeof"><a href="#typeof" class="headerlink" title="typeof"></a>typeof</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">typeof</span> a); <span class="comment">// undefined</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">typeof</span> b); <span class="comment">// undefined, even b is not defined</span></span><br></pre></td></tr></table></figure>
 
       
@@ -793,346 +1121,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/12/interact-with-jira-confluence-rest-api-with-python/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/12/interact-with-jira-confluence-rest-api-with-python/" class="post-title-link" itemprop="url">interact with jira/confluence rest api with python</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2023-11-12 21:29:42 / Modified: 22:05:50" itemprop="dateCreated datePublished" datetime="2023-11-12T21:29:42+08:00">2023-11-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-to-interact-Jira-x2F-Confluence-REST-API-with-Python"><a href="#How-to-interact-Jira-x2F-Confluence-REST-API-with-Python" class="headerlink" title="How to interact Jira&#x2F;Confluence REST API with Python"></a>How to interact Jira&#x2F;Confluence REST API with Python</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="comment"># Jira API endpoint and authentication</span></span><br><span class="line">jira_url = <span class="string">&quot;https://your-jira-instance/rest/api/2/search&quot;</span></span><br><span class="line">jira_token = <span class="string">&quot;your-jira-personal-access-token&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Confluence API endpoint and authentication</span></span><br><span class="line">confluence_url = <span class="string">&quot;https://your-confluence-instance/rest/api/content&quot;</span></span><br><span class="line">confluence_token = <span class="string">&quot;your-confluence-personal-access-token&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 1: Get stories from Jira</span></span><br><span class="line">jira_headers = &#123;</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">f&quot;Bearer <span class="subst">&#123;jira_token&#125;</span>&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/json&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">jira_params = &#123;</span><br><span class="line">    <span class="string">&quot;jql&quot;</span>: <span class="string">&quot;labels = release&quot;</span>,</span><br><span class="line">    <span class="string">&quot;maxResults&quot;</span>: <span class="number">100</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.get(jira_url, headers=jira_headers, params=jira_params)</span><br><span class="line">jira_stories = response.json()[<span class="string">&quot;issues&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 2: Create a new Confluence page</span></span><br><span class="line">confluence_headers = &#123;</span><br><span class="line">    <span class="string">&quot;Authorization&quot;</span>: <span class="string">f&quot;Bearer <span class="subst">&#123;confluence_token&#125;</span>&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/json&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">confluence_payload = &#123;</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;page&quot;</span>,</span><br><span class="line">    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Release Stories&quot;</span>,</span><br><span class="line">    <span class="string">&quot;space&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;key&quot;</span>: <span class="string">&quot;your-space-key&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;body&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;storage&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;value&quot;</span>: <span class="string">&quot;&lt;h2&gt;Release Stories&lt;/h2&gt;&quot;</span>,</span><br><span class="line">            <span class="string">&quot;representation&quot;</span>: <span class="string">&quot;storage&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.post(confluence_url, headers=confluence_headers, json=confluence_payload)</span><br><span class="line">confluence_page_id = response.json()[<span class="string">&quot;id&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 3: Add the stories to the Confluence page</span></span><br><span class="line"><span class="keyword">for</span> story <span class="keyword">in</span> jira_stories:</span><br><span class="line">    story_title = story[<span class="string">&quot;fields&quot;</span>][<span class="string">&quot;summary&quot;</span>]</span><br><span class="line">    story_description = story[<span class="string">&quot;fields&quot;</span>][<span class="string">&quot;description&quot;</span>]</span><br><span class="line"></span><br><span class="line">    confluence_payload[<span class="string">&quot;body&quot;</span>][<span class="string">&quot;storage&quot;</span>][<span class="string">&quot;value&quot;</span>] += <span class="string">f&quot;&lt;h3&gt;<span class="subst">&#123;story_title&#125;</span>&lt;/h3&gt;&lt;p&gt;<span class="subst">&#123;story_description&#125;</span>&lt;/p&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">response = requests.put(<span class="string">f&quot;<span class="subst">&#123;confluence_url&#125;</span>/<span class="subst">&#123;confluence_page_id&#125;</span>&quot;</span>, headers=confluence_headers, json=confluence_payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 4: Verify the response</span></span><br><span class="line"><span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Page created successfully!&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Failed to create the page.&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>Here is another example with Excel export support</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> openpyxl <span class="keyword">import</span> Workbook</span><br><span class="line"><span class="keyword">from</span> openpyxl.styles <span class="keyword">import</span> Color, PatternFill, Font</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> timedelta</span><br><span class="line"></span><br><span class="line">start_date = <span class="string">&#x27;2021-05-29&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_issue_list</span>():</span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;Authorization&#x27;</span>: <span class="string">&#x27;Basic YOUR_TOKEN&#x27;</span>&#125;</span><br><span class="line">    project = <span class="string">&#x27;YOUR_PROJECT&#x27;</span></span><br><span class="line">    issue_type = <span class="string">&#x27;Story&#x27;</span></span><br><span class="line">    sprint = <span class="string">&#x27;YOUR_SPRINT_ID&#x27;</span></span><br><span class="line">    order_by = <span class="string">&#x27;key&#x27;</span></span><br><span class="line">    order_by_type = <span class="string">&#x27;ASC&#x27;</span></span><br><span class="line">    jql = <span class="string">f&#x27;project = <span class="subst">&#123;project&#125;</span> AND issuetype = <span class="subst">&#123;issue_type&#125;</span> AND Sprint = <span class="subst">&#123;sprint&#125;</span> AND created &gt;= <span class="subst">&#123;start_date&#125;</span> ORDER BY <span class="subst">&#123;order_by&#125;</span> <span class="subst">&#123;order_by_type&#125;</span>&#x27;</span></span><br><span class="line">    params = &#123;</span><br><span class="line">        <span class="string">&#x27;jql&#x27;</span>: jql,</span><br><span class="line">        <span class="string">&#x27;fields&#x27;</span>: [<span class="string">&#x27;summary&#x27;</span>, <span class="string">&#x27;created&#x27;</span>, <span class="string">&#x27;status&#x27;</span>, <span class="string">&#x27;priority&#x27;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    url = <span class="string">f&#x27;https://jira.xxx.com/rest/agile/1.0/sprint/<span class="subst">&#123;sprint&#125;</span>/issue&#x27;</span></span><br><span class="line">    r = requests.get(url, headers=headers, params=params)</span><br><span class="line">    <span class="keyword">return</span> r.json()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_response</span>(<span class="params">response</span>):</span><br><span class="line">    issue_list = []</span><br><span class="line">    i = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> response[<span class="string">&#x27;issues&#x27;</span>]:</span><br><span class="line">        created = <span class="built_in">str</span>(issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;created&#x27;</span>]).split(<span class="string">&#x27;T&#x27;</span>)[<span class="number">0</span>]</span><br><span class="line">        due_date = datetime.date.fromisoformat(created) + timedelta(<span class="number">2</span>)</span><br><span class="line">        issue_item = &#123;<span class="string">&#x27;id&#x27;</span>: i, <span class="string">&#x27;issue key&#x27;</span>: issue[<span class="string">&#x27;key&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;summary&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;summary&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;status&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;status&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;priority&#x27;</span>: issue[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;priority&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                      <span class="string">&#x27;created&#x27;</span>: created,</span><br><span class="line">                      <span class="string">&#x27;due date&#x27;</span>: due_date&#125;</span><br><span class="line">        issue_list.append(issue_item)</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> issue_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">issue_mapping</span>(<span class="params">issue_list</span>):</span><br><span class="line">    new_issue_list = []</span><br><span class="line"></span><br><span class="line">    priority_mapping = &#123;</span><br><span class="line">        <span class="string">&#x27;Low&#x27;</span>: <span class="string">&#x27;Minor&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Medium&#x27;</span>: <span class="string">&#x27;Minor&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;High&#x27;</span>: <span class="string">&#x27;Major&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    status_mapping = &#123;</span><br><span class="line">        <span class="string">&#x27;To Do&#x27;</span>: <span class="string">&#x27;Open&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> issue_list:</span><br><span class="line">        <span class="keyword">if</span> issue[<span class="string">&#x27;priority&#x27;</span>] <span class="keyword">in</span> priority_mapping:</span><br><span class="line">            issue[<span class="string">&#x27;priority&#x27;</span>] = priority_mapping[issue[<span class="string">&#x27;priority&#x27;</span>]]</span><br><span class="line">        <span class="keyword">if</span> issue[<span class="string">&#x27;status&#x27;</span>] <span class="keyword">in</span> status_mapping:</span><br><span class="line">            issue[<span class="string">&#x27;status&#x27;</span>] = status_mapping[issue[<span class="string">&#x27;status&#x27;</span>]]</span><br><span class="line">        new_issue_list.append(issue)</span><br><span class="line">    <span class="keyword">return</span> new_issue_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_to_excel</span>(<span class="params">issue_list</span>):</span><br><span class="line">    issue_list = issue_mapping(issue_list)</span><br><span class="line">    workbook = Workbook()</span><br><span class="line">    sheet = workbook.active</span><br><span class="line">    sheet.title = <span class="string">&#x27;jira issue&#x27;</span></span><br><span class="line">    sheet.append([<span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;issue key&#x27;</span>, <span class="string">&#x27;summary&#x27;</span>, <span class="string">&#x27;status&#x27;</span>, <span class="string">&#x27;priority&#x27;</span>, <span class="string">&#x27;created&#x27;</span>, <span class="string">&#x27;due date&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># set color for header</span></span><br><span class="line">    <span class="keyword">for</span> rows <span class="keyword">in</span> sheet.iter_rows(min_row=<span class="number">1</span>, max_row=<span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> cell <span class="keyword">in</span> rows:</span><br><span class="line">            cell.fill = PatternFill(fgColor=<span class="string">&quot;002060&quot;</span>, fill_type=<span class="string">&quot;solid&quot;</span>)</span><br><span class="line">            cell.font = Font(color=<span class="string">&quot;FFFFFF&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> issue <span class="keyword">in</span> issue_list:</span><br><span class="line">        sheet.append(<span class="built_in">list</span>(issue.values()))</span><br><span class="line">    <span class="comment"># fill in color</span></span><br><span class="line">    my_red = Color(rgb=<span class="string">&#x27;00B050&#x27;</span>)</span><br><span class="line">    my_fill = PatternFill(patternType=<span class="string">&#x27;solid&#x27;</span>, fgColor=my_red)</span><br><span class="line">    <span class="keyword">for</span> row_cells <span class="keyword">in</span> sheet.iter_rows(min_row=<span class="number">1</span>, max_row=sheet.max_row):</span><br><span class="line">        <span class="keyword">if</span> row_cells[<span class="number">3</span>].value == <span class="string">&#x27;Done&#x27;</span>:</span><br><span class="line">            row_cells[<span class="number">3</span>].fill = my_fill</span><br><span class="line"></span><br><span class="line">    file_name = <span class="string">&#x27;report_issue_list_&#x27;</span> + start_date + <span class="string">&#x27;.xlsx&#x27;</span></span><br><span class="line">    workbook.save(file_name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">response = get_issue_list()</span><br><span class="line">issue_list = parse_response(response)</span><br><span class="line">write_to_excel(issue_list)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Done&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference:"></a>Reference:</h1><p><a target="_blank" rel="noopener" href="https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/">https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.atlassian.com/cloud/jira/software/rest/api-group-sprint/">The Jira Software Cloud REST API</a></p>
-<p><a target="_blank" rel="noopener" href="https://docs.atlassian.com/software/jira/docs/api/REST/7.12.0/#api/2/search-searchUsingSearchRequest">JIRA 7.12.0</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/07/nx-commands/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/07/nx-commands/" class="post-title-link" itemprop="url">nx commands</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-11-07 21:11:24" itemprop="dateCreated datePublished" datetime="2023-11-07T21:11:24+08:00">2023-11-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-23 11:53:16" itemprop="dateModified" datetime="2024-09-23T11:53:16+08:00">2024-09-23</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Generate-app"><a href="#Generate-app" class="headerlink" title="Generate app"></a>Generate app</h1><p>Take <code>Angular</code> as an example, first, install angular <a target="_blank" rel="noopener" href="https://nx.dev/plugin-registry">plugin</a> for Nx.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx add @nx/angular</span><br></pre></td></tr></table></figure>
-
-<p>Then, generate an app.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx g @nx/angular:app appName</span><br></pre></td></tr></table></figure>
-
-<h1 id="Generate-library"><a href="#Generate-library" class="headerlink" title="Generate library"></a>Generate library</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx g @nx/angular:lib libName</span><br></pre></td></tr></table></figure>
-
-<h1 id="Generate-Angular-component"><a href="#Generate-Angular-component" class="headerlink" title="Generate Angular component"></a>Generate Angular component</h1><p>The following command generate a angular component for project <code>my-app</code>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx generate @nx/angular:component my-component --project=my-app</span><br></pre></td></tr></table></figure>
-<p>Note that <code>--project</code> is deprecated and will be removed in Nx v20, use <code>--directory</code> instead.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx generate @nx/angular:component my-component --directory=apps/my-app/src/app</span><br></pre></td></tr></table></figure>
-<p>The value of <code>--directory</code> is relative to the root of the project.</p>
-<p><strong>Note</strong> –directory is only used for <code>component</code>, to generate <code>service</code> in Angular, you can still use <code>--project</code>. </p>
-<h1 id="Show-affected-apps"><a href="#Show-affected-apps" class="headerlink" title="Show affected apps"></a>Show affected apps</h1><p>nx v15</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx affected:apps</span><br></pre></td></tr></table></figure>
-<p>nx v16</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx print-affected --<span class="built_in">type</span>=app --select=projects</span><br></pre></td></tr></table></figure>
-<p>nx v17+</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nx show projects --affected</span><br><span class="line">nx affected --graph -t build</span><br><span class="line">nx graph --affected</span><br></pre></td></tr></table></figure>
-<p>If there is no affected apps, <code>nx print-affected</code> will show the following output. look at the <code>projects</code> property, its empty, which means there is no affected apps.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;tasks&quot;</span>: [],</span><br><span class="line">  <span class="string">&quot;projects&quot;</span>: [],</span><br><span class="line">  <span class="string">&quot;projectGraph&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;nodes&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;content-templates&quot;</span>,</span><br><span class="line">      <span class="string">&quot;todos-e2e&quot;</span>,</span><br><span class="line">      <span class="string">&quot;todos&quot;</span>,</span><br><span class="line">      <span class="string">&quot;data&quot;</span>,</span><br><span class="line">      <span class="string">&quot;api&quot;</span>,</span><br><span class="line">      <span class="string">&quot;ui&quot;</span></span><br><span class="line">    ],</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>If your apps&#x2F;libs was created manually, you have to make sure that there is a file <code>project.json</code> under the root of your app&#x2F;lib, and have the following content at least.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;content-templates&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;projectType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;application&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="Show-graph"><a href="#Show-graph" class="headerlink" title="Show graph"></a>Show graph</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nx dep-graph</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/10/27/JavaScript-is-pass-by-value/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/10/27/JavaScript-is-pass-by-value/" class="post-title-link" itemprop="url">JavaScript-is-pass-by-value</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-10-27 21:07:48" itemprop="dateCreated datePublished" datetime="2023-10-27T21:07:48+08:00">2023-10-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-14 20:23:36" itemprop="dateModified" datetime="2023-11-14T20:23:36+08:00">2023-11-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>#References:</p>
-<ol>
-<li><a target="_blank" rel="noopener" href="https://www.javadude.com/articles/passbyvalue.htm">https://www.javadude.com/articles/passbyvalue.htm</a></li>
-<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_value">https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_value</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/10/15/Android-tips-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/10/15/Android-tips-1/" class="post-title-link" itemprop="url">Android Studio tips - 1</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-10-15 20:49:30" itemprop="dateCreated datePublished" datetime="2023-10-15T20:49:30+08:00">2023-10-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-28 11:12:46" itemprop="dateModified" datetime="2024-08-28T11:12:46+08:00">2024-08-28</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Android-Studio-Tips-1"><a href="#Android-Studio-Tips-1" class="headerlink" title="Android Studio Tips -1"></a>Android Studio Tips -1</h1><h2 id="1-Wireless-debugging-with-Android-device"><a href="#1-Wireless-debugging-with-Android-device" class="headerlink" title="1. Wireless debugging with Android device"></a>1. Wireless debugging with Android device</h2><ol>
-<li>Select <code>Pair Devices using Wi-Fi</code> under emulator dropdown list.</li>
-<li>Enable debug mode on your android device(see <a target="_blank" rel="noopener" href="https://developer.android.com/studio/debug/dev-options">here</a> for more details).</li>
-<li>On your android device, select <code>Settings | Developer options | Wireless debugging | Pair using QR code</code> to enable wireless debugging.<br><img src="/../images/android-wireless-debug.png" alt="Alt text"></li>
-</ol>
-<h2 id="2-Fix-Manifest-merged-errors"><a href="#2-Fix-Manifest-merged-errors" class="headerlink" title="2. Fix Manifest merged errors"></a>2. Fix Manifest merged errors</h2><ol>
-<li>Open <code>AndroidManifest.xml</code> file.</li>
-<li>Click <code>Merged Manifest</code> tab at the bottom of the editor.</li>
-<li>Scroll down to the bottom to see the errors.<br><img src="/../images/android-manifest-merge-error.png" alt="Alt text"></li>
-</ol>
-<h2 id="3-View-database-file-in-Android-Studio"><a href="#3-View-database-file-in-Android-Studio" class="headerlink" title="3. View database file in Android Studio"></a>3. View database file in Android Studio</h2><ol>
-<li>Select <code>View | Tools Window | App Inspection</code> from the main menu.</li>
-<li>Launch your app on a device&#x2F;Emulator running API level 26 or higher.<br>  <img src="/../images/android-studio-app-inspector.png" alt="Alt text"></li>
-<li>If you see a red <code>close</code> icon on your database file which means your database was not opened, you can operate on your app to open the database(such as click a button, open a fragment or whatever action which can open the database).</li>
-<li>If you database was opened, you can click the table under this database to view the data.</li>
-</ol>
-<h2 id="4-Filter-logs-in-Logcat"><a href="#4-Filter-logs-in-Logcat" class="headerlink" title="4. Filter logs in Logcat"></a>4. Filter logs in Logcat</h2><ol>
-<li>Select <code>Logcat</code> at the bottom of Android Studio.</li>
-<li>Select the emulator&#x2F;device where your app runs on.</li>
-<li>Focus the filter input box, and press <code>Ctrl + Space</code> to open the filter dialog. then select the filter options you want.<br><img src="/../images/android-studio-filter-logcat.png" alt="Alt text"></li>
-<li>For example, if you want to see only <code>error</code> logs for package <code>com.jiyuzhai.kaishuzidian</code>, you can input <code>package: com.jiyuzhai.kaishuzidian level: error</code> as a filter.</li>
-</ol>
-<h2 id="5-Open-xml-layout-file-in-split-mode"><a href="#5-Open-xml-layout-file-in-split-mode" class="headerlink" title="5. Open xml layout file in split mode"></a>5. Open xml layout file in <code>split</code> mode</h2><p>Do you ever encounter this situation? whenever you open an xml layout file, it opens in <code>design</code> mode by default. You can do the following to open it in <code>split</code> mode by default.</p>
-<ol>
-<li>Open <code>Settings | Editor | Design Tools</code> from the main menu.</li>
-<li>Check <code>Prefer XML editor</code> option.</li>
-<li>Click <code>OK</code> button.<br><img src="/../images/android-open-xml-layout-file-in-split-mode.png" alt="Alt text"></li>
-</ol>
-<h2 id="File-xxx-already-exists-it-cannot-be-overwritten-by-SerializableChange-file-x3D-xxx-fileStatus-x3D-NEW-normalizedPath-x3D-xxx-class"><a href="#File-xxx-already-exists-it-cannot-be-overwritten-by-SerializableChange-file-x3D-xxx-fileStatus-x3D-NEW-normalizedPath-x3D-xxx-class" class="headerlink" title="File xxx already exists, it cannot be overwritten by SerializableChange(file&#x3D;xxx, fileStatus&#x3D;NEW, normalizedPath&#x3D;xxx.class)."></a>File xxx already exists, it cannot be overwritten by SerializableChange(file&#x3D;xxx, fileStatus&#x3D;NEW, normalizedPath&#x3D;xxx.class).</h2><ol>
-<li>In Android menu, select <code>Build | Clean Project</code>, then rebuild, that’s it!</li>
-</ol>
-<h2 id="Android-emulator-stop-working"><a href="#Android-emulator-stop-working" class="headerlink" title="Android emulator stop working."></a>Android emulator stop working.</h2><p>Delete the lock file under avd folder, here is the lock file path under android sdk folder.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$android_sdk_dir\.android\avd\Pixel_XL_API_34.avd\xxx.lock</span><br></pre></td></tr></table></figure>
-
-<h2 id="xxx-is-already-defined-in-a-single-type-import"><a href="#xxx-is-already-defined-in-a-single-type-import" class="headerlink" title="xxx is already defined in a single-type import"></a>xxx is already defined in a single-type import</h2><p>在Android Java中，同一个java文件不能导入两个同名的包，比如两个来自不同module的R文件，解决方法是使用全路径名，比如：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">com.jiyuzhai.kaishuzidian.R.string.app_name</span><br><span class="line">com.jiyuzhai.kaishuzidian2.R.string.app_name</span><br></pre></td></tr></table></figure>
-
-<h2 id="java-lang-OutOfMemoryError-Java-heap-space"><a href="#java-lang-OutOfMemoryError-Java-heap-space" class="headerlink" title="java.lang.OutOfMemoryError: Java heap space"></a>java.lang.OutOfMemoryError: Java heap space</h2><p>Gradle内存过小导致的错误，可以增加gradle的内存。</p>
-<ol>
-<li>打开<code>gradle.properties</code>文件，如果没有则新建一个。</li>
-<li>添加<code>org.gradle.jvmargs=-Xmx4096m</code>，其中4096m是内存大小，可以根据需要调整。<br>我的电脑是32G内存，所以给出如下配置，最高8g, 最低4g内存。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.gradle.jvmargs=-Xmx8g -XX:MaxPermSize=4g -XX:+HeapDumpOnOutOfMemoryError -Dfile\</span><br><span class="line">  .encoding=UTF-8</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Android-live-reload"><a href="#Android-live-reload" class="headerlink" title="Android live reload"></a>Android live reload</h2><ol>
-<li>Run your app in Emulator or device.</li>
-<li>Change your code.</li>
-<li>Click <code>Apply Changes</code> button in the toolbar.<br><img src="/../images/android-apply-change.png" alt="android-apply-changes"></li>
-</ol>
-<h2 id="Connect-to-Google-App-Vitals"><a href="#Connect-to-Google-App-Vitals" class="headerlink" title="Connect to Google App Vitals"></a>Connect to <code>Google App Vitals</code></h2><ol>
-<li>Sign in to your developer account in Android Studio using the profile icon  at the end of the toolbar.</li>
-<li>Open App Quality Insights by clicking the tool window in Android Studio or clicking View &gt; Tool Windows &gt; App Quality Insights.</li>
-<li>Click the Android vitals tab within App Quality Insights.</li>
-</ol>
-<h2 id="Can-not-resolve-symbol-‘BuildConfig’"><a href="#Can-not-resolve-symbol-‘BuildConfig’" class="headerlink" title="Can not resolve symbol ‘BuildConfig’"></a>Can not resolve symbol ‘BuildConfig’</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1202,14 +1190,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">245</span>
+          <span class="site-state-item-count">249</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">351</span>
+        <span class="site-state-item-count">354</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
