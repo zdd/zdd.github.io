@@ -28,13 +28,13 @@
 <meta property="og:description" content="In Angular, the resolution modifier is used to control how the dependency injector resolves dependencies. There are four resolution modifiers in Angular: 先来给这几个操作符分个类：  @SkipSelf - 何时开始查找。 @Self, @Hos">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-02T12:54:05.000Z">
-<meta property="article:modified_time" content="2024-12-04T11:39:33.076Z">
+<meta property="article:modified_time" content="2024-12-31T13:08:39.276Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="di">
-<meta property="article:tag" content="host">
 <meta property="article:tag" content="optional">
 <meta property="article:tag" content="self">
+<meta property="article:tag" content="host">
 <meta property="article:tag" content="skipself">
 <meta name="twitter:card" content="summary">
 
@@ -220,7 +220,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-04 19:39:33" itemprop="dateModified" datetime="2024-12-04T19:39:33+08:00">2024-12-04</time>
+                <time title="Modified: 2024-12-31 21:08:39" itemprop="dateModified" datetime="2024-12-31T21:08:39+08:00">2024-12-31</time>
               </span>
 
           
@@ -247,7 +247,7 @@
 <p>如果我们在依赖注入的时候加上<code>@Optional()</code>修饰符，那么Angular就不会抛出错误，而是返回<code>null</code>。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>注意：上面这种写法，在使用<code>orderService</code>时，需要判断是否为<code>null</code>，否则仍然会抛出<code>Cannot read properties of null (reading &#39;fetchData&#39;)</code>的错误。</p>
-<p>像下面这样加上Optional Chaining Operator，就不会抛出错误了：</p>
+<p>我们可以针对<code>orderService</code>使用?(Optional Chaining Operator)，就不会抛出错误了：</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">orderService</span>?.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Self"><a href="#Self" class="headerlink" title="@Self"></a>@Self</h2><p><code>@Self</code>也比较简单，就是告诉Angular只在当前Component或者Directive中搜索某个依赖项，而不会去父级Component或者Directive中搜索。假设有OrderService，且是<code>providedIn: &#39;root&#39;</code>的。</p>
@@ -268,28 +268,28 @@
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">dir1</span> <span class="attr">dir2</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>Directive1中提供了OrderService</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive1</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir1]&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir1Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive1</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[dir1]&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir1Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>Directive2中使用<code>@Self</code>来获取OrderService。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive2</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appDir2]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir2Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Directive2</span></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[dir2]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Dir2Directive</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="meta">@Self</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>为什么这样可以呢？因为<code>dir1</code>和<code>dir2</code>位于同一个dom元素-<code>p</code>标签上，Angular会为这个p标签创建一个Injector，<code>dir1</code>和<code>dir2</code>会share这个Injector，所以<code>dir2</code>可以通过<code>@Self</code>来获取dir1中提供的OrderService。</p>
 <h2 id="Host"><a href="#Host" class="headerlink" title="@Host"></a>@Host</h2><p><code>@Host</code>修饰符告诉Angular依赖注入器，只在当前Component或者Host元素中搜索某个依赖项。</p>
 <ul>
 <li>当不使用<code>ng-content</code>时，Host就是注入依赖的Component。</li>
-<li>当使用<code>ng-content</code>时，Host就是投射内容的Component。see <a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">here</a> for details.</li>
+<li>当使用<code>ng-content</code>时，Host就是投射内容的Component(也就是<code>ng-content</code>所在的Component)。see <a target="_blank" rel="noopener" href="https://v17.angular.io/guide/dependency-injection-in-action#make-a-dependency-optional-and-limit-search-with-host">here</a> for details.</li>
 </ul>
 <p>@Host的作用体现在使用<code>ng-content</code>进行内容投射的时候。下面的例子中，我们有一个ProductComponent，它的模板中有<code>ng-content</code>，我们将ProductDetailComponent投射到ProductComponent中。- 此时，ProductComponent就是ProductDetailComponent的Host。</p>
-<p>然后我们在ProductDetailComponent中使用<code>@Host</code>来获取OrderService，并在ProductComponent中提供OrderService。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;header&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-content</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;footer&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>然后在<code>AppComponent</code>的模板中使用<code>ProductComponent</code></p>
+<p>然后我们在ProductComponent中提供OrderService，并在ProductDetailComponent中使用<code>@Host</code>来获取OrderService。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Host</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后在<code>AppComponent</code>的模板中使用<code>ProductComponent</code></p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--app.component.html--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>这时，<code>app-product</code>就是<code>app-product-detail</code>的<code>Host</code>，如果我们在<code>ProductDetailComponent</code>中使用<code>@Host</code>来获取<code>OrderService</code>，那么Angular会首先在<code>ProductDetailComponent</code>中查找，结果没找到，然后再去<code>ProductComponent</code>中查找OrderService，结果找到了。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product-detail.component.ts</span></span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Host</span>() <span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="attr">providers</span>: [<span class="title class_">OrderService</span>],</span><br></pre></td></tr></table></figure>
-
 <h2 id="SkipSelf"><a href="#SkipSelf" class="headerlink" title="@SkipSelf"></a>@SkipSelf</h2><p><code>@SkipSelf</code>就是查找依赖时不在当前Component或者Directive中查找，而是跳过当前Component或者Directive，去父级Component或者Directive中查找。</p>
 <p>所以，<code>@SkipSelf</code>修饰符的使用场景到底是啥？</p>
 <h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
@@ -306,9 +306,9 @@
           <div class="post-tags">
               <a href="/tags/angular/" rel="tag"># angular</a>
               <a href="/tags/di/" rel="tag"># di</a>
-              <a href="/tags/host/" rel="tag"># host</a>
               <a href="/tags/optional/" rel="tag"># optional</a>
               <a href="/tags/self/" rel="tag"># self</a>
+              <a href="/tags/host/" rel="tag"># host</a>
               <a href="/tags/skipself/" rel="tag"># skipself</a>
           </div>
 
