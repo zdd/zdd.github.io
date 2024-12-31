@@ -181,6 +181,74 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/05/angular-lifecyle-ngonchanges/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/05/angular-lifecyle-ngonchanges/" class="post-title-link" itemprop="url">angular-lifecyle-ngonchanges</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-05 10:04:38 / Modified: 10:37:22" itemprop="dateCreated datePublished" datetime="2024-12-05T10:04:38+08:00">2024-12-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngOnChanges</code>是Angular中非常重要的一个声明周期函数，今天我们来详细讨论一下它的用法。</p>
+<h2 id="Angular什么时候调用ngOnChanges？"><a href="#Angular什么时候调用ngOnChanges？" class="headerlink" title="Angular什么时候调用ngOnChanges？"></a>Angular什么时候调用<code>ngOnChanges</code>？</h2><p><code>ngOnChanges</code>是一个生命周期钩子，当Angular检测到组件的输入属性发生变化时，就会调用<code>ngOnChanges</code>函数。这意味着，只有当组件的输入属性发生变化时，<code>ngOnChanges</code>才会被调用。</p>
+<h2 id="我们什么时候需要重写ngOnChanges？"><a href="#我们什么时候需要重写ngOnChanges？" class="headerlink" title="我们什么时候需要重写ngOnChanges？"></a>我们什么时候需要重写<code>ngOnChanges</code>？</h2><p>通常情况下，我们不需要重写<code>ngOnChanges</code>函数，因为Angular会自动调用它。但是，以下几种情况都需要重写<code>ngOnChanges</code>函数：</p>
+<ol>
+<li>当我们使用了<code>OnPush</code>时，且需要根据Input变化做相应操作时，那么就要响应<code>ngOnChanges</code>。</li>
+<li>当我们需要在组件的输入属性发生变化时执行一些自定义逻辑时，我们就需要重写<code>ngOnChanges</code>函数。</li>
+</ol>
+<h2 id="配合OnPush"><a href="#配合OnPush" class="headerlink" title="配合OnPush"></a>配合OnPush</h2><p>假设有一个父组件：ParentComponent，一个子组件ChildComponent，父组件中调用一个API，返回值作为Input传递给子组件，子组件要根据这个Input继续调用另外一个API，这时候就需要在子组件中重写<code>ngOnChanges</code>函数。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;Child Component&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params">changes: SimpleChanges</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">fetchData</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Call API</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义逻辑"><a href="#自定义逻辑" class="headerlink" title="自定义逻辑"></a>自定义逻辑</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-directive/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -212,7 +280,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-04 09:57:19" itemprop="dateModified" datetime="2024-12-04T09:57:19+08:00">2024-12-04</time>
+                <time title="Modified: 2024-12-31 14:38:32" itemprop="dateModified" datetime="2024-12-31T14:38:32+08:00">2024-12-31</time>
               </span>
 
           
@@ -226,10 +294,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Directive是Angular中最基础的概念，就连我们天天使用的component也是Directive的一种，Angular中有如下几种Directive：</p>
-<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>这个就不做过多介绍了，大家直接看官方文档吧：<a target="_blank" rel="noopener" href="https://angular.dev/guide/components">https://angular.dev/guide/components</a></p>
-<h2 id="Attribute-Directives"><a href="#Attribute-Directives" class="headerlink" title="Attribute Directives"></a>Attribute Directives</h2><h3 id="NgClass"><a href="#NgClass" class="headerlink" title="NgClass"></a>NgClass</h3><h3 id="NgStyle"><a href="#NgStyle" class="headerlink" title="NgStyle"></a>NgStyle</h3><h3 id="NgModel"><a href="#NgModel" class="headerlink" title="NgModel"></a>NgModel</h3><h2 id="Structural-Directives"><a href="#Structural-Directives" class="headerlink" title="Structural Directives"></a>Structural Directives</h2><h3 id="NgIf"><a href="#NgIf" class="headerlink" title="NgIf"></a>NgIf</h3><h3 id="NgFor"><a href="#NgFor" class="headerlink" title="NgFor"></a>NgFor</h3><h3 id="NgSwitch"><a href="#NgSwitch" class="headerlink" title="NgSwitch"></a>NgSwitch</h3><p>Angular17引入了新的控制流语句：<code>@if</code>, <code>@for</code>, <code>@switch</code>，这些语句可以替代NgIf, NgFor, NgSwitch，更加简洁，高效，我们建议使用新的控制流语句。</p>
-<h2 id="Customize-Directives"><a href="#Customize-Directives" class="headerlink" title="Customize Directives"></a>Customize Directives</h2><p>如果内置的Directive不能满足我们的需求，我们可以自定义Directive，下面我们自定义一个Directive来实现一个简单Hover变色功能，当鼠标移动到元素上时，元素背景色变为红色，鼠标移出时恢复原背景色。</p>
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Directives are classes that add additional behavior to elements in your Angular applications.</p>
+<p>Angular has many kinds of directives, including components, attribute directives, and structural directives.</p>
+<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>This is the most common one we used every day, a component is a directive with a template. Components are the most basic building block of an Angular application.<br><a target="_blank" rel="noopener" href="https://angular.dev/guide/components">https://angular.dev/guide/components</a></p>
+<h2 id="Structural-Directives"><a href="#Structural-Directives" class="headerlink" title="Structural Directives"></a>Structural Directives</h2><p>Structural directives are responsible for HTML layout. They shape or reshape the DOM’s structure, typically by adding, removing, or manipulating elements.</p>
+<h3 id="NgIf"><a href="#NgIf" class="headerlink" title="NgIf"></a>NgIf</h3><p><code>NgIf</code> is used to conditionally creates or disposes of subviews in a template. see <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/30/angular-ngif/">this post</a> for more details.</p>
+<h3 id="NgFor"><a href="#NgFor" class="headerlink" title="NgFor"></a>NgFor</h3><h3 id="NgSwitch"><a href="#NgSwitch" class="headerlink" title="NgSwitch"></a>NgSwitch</h3><p>Angular17引入了新的控制流语句：<code>@if</code>, <code>@for</code>, <code>@switch</code>，这些语句可以替代NgIf, NgFor, NgSwitch，更加简洁，高效，我们建议使用新的控制流语句。</p>
+<h2 id="Attribute-Directives"><a href="#Attribute-Directives" class="headerlink" title="Attribute Directives"></a>Attribute Directives</h2><p>Attribute directives are used to change the appearance or behavior of an element, component, or another directive. They are usually applied to elements as attributes.</p>
+<p>Attribute directives doesn’t change the layout of the template, just change the appearance of it, for example, change the color, font size, visibility etc.</p>
+<p>The most common attribute directives are as follows:</p>
+<h3 id="NgClass"><a href="#NgClass" class="headerlink" title="NgClass"></a>NgClass</h3><h3 id="NgStyle"><a href="#NgStyle" class="headerlink" title="NgStyle"></a>NgStyle</h3><h3 id="NgModel"><a href="#NgModel" class="headerlink" title="NgModel"></a>NgModel</h3><h2 id="Customize-Directives"><a href="#Customize-Directives" class="headerlink" title="Customize Directives"></a>Customize Directives</h2><p>如果内置的Directive不能满足我们的需求，我们可以自定义Directive，下面我们自定义一个Directive来实现一个简单Hover变色功能，当鼠标移动到元素上时，元素背景色变为红色，鼠标移出时恢复原背景色。</p>
 <h3 id="Create-a-directive"><a href="#Create-a-directive" class="headerlink" title="Create a directive"></a>Create a directive</h3><p>使用以下命令创建一个新的指令：<code>HoverDirective</code>，该命令会创建文件<code>src/app/hover.directive.ts</code>。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g d hover</span><br></pre></td></tr></table></figure>
 
@@ -307,7 +381,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-12 10:43:25" itemprop="dateModified" datetime="2024-12-12T10:43:25+08:00">2024-12-12</time>
+                <time title="Modified: 2024-12-31 17:07:29" itemprop="dateModified" datetime="2024-12-31T17:07:29+08:00">2024-12-31</time>
               </span>
 
           
@@ -361,6 +435,91 @@
 </ol>
 </li>
 </ol>
+<h2 id="What-is-Angular"><a href="#What-is-Angular" class="headerlink" title="What is Angular?"></a>What is Angular?</h2><p>Angular is a web framework which help developers to build fast and scalable web applications. It is developed and maintained by Google.</p>
+<p>It’s a MVC(or MVVM) framework to build SPA (Single Page Application) using HTML, CSS and JavaScript&#x2F;TypeScript.</p>
+<p>Angular has a lot of features like:</p>
+<ol>
+<li>Two-way data binding</li>
+<li>Dependency Injection</li>
+<li>Routing</li>
+<li>Directives</li>
+<li>Pipes</li>
+<li>Services</li>
+<li>Forms</li>
+<li>HttpClient</li>
+<li>Animations</li>
+<li>SSR (Server Side Rendering)</li>
+</ol>
+<h2 id="Differences-between-Angular-and-AngularJS"><a href="#Differences-between-Angular-and-AngularJS" class="headerlink" title="Differences between Angular and AngularJS"></a>Differences between Angular and AngularJS</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>AngularJS</th>
+<th>Angular</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Version</td>
+<td>1.x</td>
+<td>2+</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>JavaScript</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Controller</td>
+<td>Components</td>
+</tr>
+<tr>
+<td>Mobile Support</td>
+<td>No</td>
+<td>Yes(Ionic)</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Lazy loading</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SSR</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<h1 id="What-are-directives-in-Angular"><a href="#What-are-directives-in-Angular" class="headerlink" title="What are directives in Angular?"></a>What are directives in Angular?</h1><p>Directives are classes that add additional behavior to elements in your Angular applications. Angular has many kinds of directives, including:</p>
+<ul>
+<li>Component</li>
+<li>Attribute Directives<ul>
+<li>NgClass</li>
+<li>NgStyle</li>
+<li>NgModel</li>
+</ul>
+</li>
+<li>Structural Directives<ul>
+<li>NgIf</li>
+<li>NgFor</li>
+<li>NgSwitch</li>
+</ul>
+</li>
+</ul>
+<h1 id="Component-vs-Module"><a href="#Component-vs-Module" class="headerlink" title="Component vs Module"></a>Component vs Module</h1><p>Component is where you write you binding code, and Module groups components. An app contains many modules, and a module contains many components.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app</span><br><span class="line">├─ Login Module</span><br><span class="line">│  ├─ Login Component</span><br><span class="line">│  ├─ Register Component</span><br><span class="line">│  ├─ Forgot Password Component</span><br><span class="line">│  ├─ Reset Password Component</span><br></pre></td></tr></table></figure>
+<p>Before standalone component, Two components in different module can’t communicate with each other directly, they need to communicate by their enclosing module. See <a target="_blank" rel="noopener" href="https://zdd.github.io/2023/09/02/Angular-module/">here</a> for more details.</p>
+<h1 id="Angular-and-MVVM"><a href="#Angular-and-MVVM" class="headerlink" title="Angular and MVVM"></a>Angular and MVVM</h1><p>Angular is a MVVM framework, it’s a bit different from MVC. </p>
+<ul>
+<li>Model: Data types and Services</li>
+<li>View: HTML template</li>
+<li>ViewModel: Component</li>
+</ul>
+<p>In MVVM pattern, Model and View doesn’t communicate directly. ViewModel is a mediator between Model and View, it’s a class that contains the business logic of the application. In Angular, ViewModel is a Component.</p>
 
       
     </div>
@@ -998,83 +1157,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/30/angular-ngif/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/30/angular-ngif/" class="post-title-link" itemprop="url">angular-ngIf</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-30 14:32:43 / Modified: 21:30:10" itemprop="dateCreated datePublished" datetime="2024-11-30T14:32:43+08:00">2024-11-30</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngIf</code> is a structural directive in Angular, it is used to conditionally render a template.</p>
-<h2 id="Simple-if"><a href="#Simple-if" class="headerlink" title="Simple if"></a>Simple if</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition&quot;</span>&gt;</span></span><br><span class="line">  Content to render when condition is true</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>With the new built-in structural @if directive, you can use the following syntax:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@if (condition) &#123;</span><br><span class="line">  Content to render when condition is true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="If-else-then"><a href="#If-else-then" class="headerlink" title="If else then"></a>If else then</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>Or use <code>@if</code> directive:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  @if (condition) &#123;</span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>既然Angular已经有<code>ngIf</code>, <code>ngFor</code>, ngSwitch等内置的结构性指令，为什么还要引入新的<code>@if</code>，<code>@for</code>, <code>@switch</code>呢？主要有以下原因</p>
-<ol>
-<li>更简洁的语法，比如要实现if - else if - … - else的逻辑，使用<code>ngIf</code>就会显得很臃肿。而使用<code>@if</code>就可以很好的解决这个问题。</li>
-<li>更好的类型检查机制，这个不知道是怎么实现的。</li>
-<li>更好的运行时性能，Angular编译器会将<code>@if</code>，<code>@for</code>，<code>@switch</code>编译成更高效的代码，这样可以减少运行时的开销。</li>
-<li>更小的包体积，最多可以减少30kb的包体积。</li>
-<li>不需要额外导入<code>CommonModule</code>模块，直接使用即可，<code>ngIf</code>等指令则需要导入<code>CommonModule</code>模块。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1144,14 +1226,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">249</span>
+          <span class="site-state-item-count">250</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">354</span>
+        <span class="site-state-item-count">358</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
