@@ -181,6 +181,165 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/02/jest-troubleshooting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/02/jest-troubleshooting/" class="post-title-link" itemprop="url">jest-troubleshooting</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-09-02 21:15:09" itemprop="dateCreated datePublished" datetime="2024-09-02T21:15:09+08:00">2024-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-29 18:59:02" itemprop="dateModified" datetime="2024-09-29T18:59:02+08:00">2024-09-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="1-TypeError-configSet-processWithEsbuild-is-not-a-function"><a href="#1-TypeError-configSet-processWithEsbuild-is-not-a-function" class="headerlink" title="1. TypeError: configSet.processWithEsbuild is not a function"></a>1. TypeError: configSet.processWithEsbuild is not a function</h2><p>Solution: Update jest.config.js to use <code>jest-angular-preset</code> instead of <code>ts-preset</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|js|html)$&#x27;</span>: <span class="string">&#x27;ts-jest&#x27;</span>, <span class="comment">// &lt;-- update this line</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|js|html)$&#x27;</span>: <span class="string">&#x27;jest-preset-angular&#x27;</span>, <span class="comment">// &lt;-- update this line</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-SyntaxError-xxx-spec-ts-Missing-semicolon-26-42"><a href="#2-SyntaxError-xxx-spec-ts-Missing-semicolon-26-42" class="headerlink" title="2. SyntaxError: xxx.spec.ts: Missing semicolon. (26:42)"></a>2. SyntaxError: xxx.spec.ts: Missing semicolon. (26:42)</h2><p>Look into the error message, the error occurs on this line.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> compiled = fixture.<span class="property">nativeElement</span> <span class="keyword">as</span> <span class="title class_">HTMLElement</span>;</span><br></pre></td></tr></table></figure>
+<p>The reason is because <code>as</code>, it’s a keyword in <code>TypeScript</code>, but it’s not a keyword in <code>JavaScript</code>. So the root cause is <code>Jest</code> cannot understand the <code>TypeScript</code> syntax.<br>We need a <code>preset</code> to help <code>Jest</code> to understand <code>TypeScript</code> syntax. The <code>ts-jest</code> is the most popular one. </p>
+<ul>
+<li>If you project is a pure <code>TypeScript</code> project, see <a target="_blank" rel="noopener" href="https://jestjs.io/docs/getting-started#using-typescript">here</a> on how to config <code>ts-jest</code>.</li>
+<li>If you project is an <code>Angular</code> project, Please use <code>jest-preset-angular</code>, see <a target="_blank" rel="noopener" href="https://zdd.github.io/2023/06/07/Angular-Integrate-Jest-to-Angular-App/">here</a> for details.</li>
+</ul>
+<h2 id="3-jest-failed-to-cache-transform-results-in-xxx-x2F-jest-x2F-jest-transform-cache-map-Failure-message-ENOSPC-no-space-left-on-device-write"><a href="#3-jest-failed-to-cache-transform-results-in-xxx-x2F-jest-x2F-jest-transform-cache-map-Failure-message-ENOSPC-no-space-left-on-device-write" class="headerlink" title="3. jest: failed to cache transform results in: xxx&#x2F;jest&#x2F;jest-transform-cache.map, Failure message: ENOSPC: no space left on device, write"></a>3. jest: failed to cache transform results in: xxx&#x2F;jest&#x2F;jest-transform-cache.map, Failure message: ENOSPC: no space left on device, write</h2><p>This is because Jest is trying to transform itself, so add the following to your <code>jest.config.js</code> file will resolve this issue. see <a target="_blank" rel="noopener" href="https://github.com/jestjs/jest/issues/9503">here</a> for details.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">transformIgnorePatterns</span>: [</span><br><span class="line">    <span class="string">&#x27;&lt;rootDir&gt;/node_modules/@babel&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;&lt;rootDir&gt;/node_modules/@jest&#x27;</span>,</span><br><span class="line">  ],</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/24/run-typescript-with-node/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/24/run-typescript-with-node/" class="post-title-link" itemprop="url">run-typescript-with-node</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-08-24 21:01:51 / Modified: 21:06:31" itemprop="dateCreated datePublished" datetime="2024-08-24T21:01:51+08:00">2024-08-24</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Firstly, <code>node</code> can’t run <code>typescript</code> files directly. You need to compile the <code>typescript</code> files to <code>javascript</code> files and then run them with <code>node</code>.</p>
+<p>The following command won’t work!</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node ./src/main.ts</span><br></pre></td></tr></table></figure>
+
+<p>You’ll got error like this:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(node:13596) Warning: To load an ES module, <span class="built_in">set</span> <span class="string">&quot;type&quot;</span>: <span class="string">&quot;module&quot;</span> <span class="keyword">in</span> the package.json or use the .mjs extension.</span><br><span class="line"></span><br><span class="line">SyntaxError: Cannot use import statement outside a module</span><br></pre></td></tr></table></figure>
+
+<p>How to solve this problem?</p>
+<ol>
+<li>Use <code>ts-node</code> to run <code>typescript</code> files directly.<ol>
+<li><code>npm install -g ts-node</code></li>
+<li><code>ts-node ./src/main.ts</code></li>
+</ol>
+</li>
+<li>Use <code>tsc</code> to compile <code>typescript</code> files to <code>javascript</code> files and then run them with <code>node</code>.<ol>
+<li><code>npm install -g typescript</code></li>
+<li><code>tsc ./src/main.ts</code></li>
+<li><code>node ./src/main.js</code></li>
+</ol>
+</li>
+</ol>
+<p>Happy coding!</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/24/debugging/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -866,165 +1025,10 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/27/javascript-url-fragment/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/27/javascript-url-fragment/" class="post-title-link" itemprop="url">javascript-url-fragment</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-27 19:54:52" itemprop="dateCreated datePublished" datetime="2024-07-27T19:54:52+08:00">2024-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-14 10:45:28" itemprop="dateModified" datetime="2024-11-14T10:45:28+08:00">2024-11-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>URL fragment</code> is the part of the URL that comes after the <code>#</code> symbol. </p>
-<p><img src="/../images/http-url.png" alt="url"></p>
-<h2 id="1-A-fragment-in-a-url-specify-the-location-within-the-page"><a href="#1-A-fragment-in-a-url-specify-the-location-within-the-page" class="headerlink" title="1. A fragment in a url specify the location within the page."></a>1. A fragment in a url specify the location within the page.</h2><p>How to go to the specific location in the page? </p>
-<ol>
-<li>Create a empty <code>&lt;a&gt;</code> tag with <code>id</code> attribute set to the fragment part in url.</li>
-</ol>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">id</span>=<span class="string">&quot;fragment1&quot;</span>&gt;</span></span><br><span class="line">  content of fragment 1</span><br><span class="line"><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">id</span>=<span class="string">&quot;fragment2&quot;</span>&gt;</span></span><br><span class="line">  content of fragment 2</span><br><span class="line"><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>input the following url in your browser <code>http://example.com/page.html#fragment1</code>, the browser will scroll to the location of the <code>fragment1</code> in the page.</p>
-<p>If you want to jump to the specific location in the page by clicking a link in the page, you can create a link with its <code>href</code> set to the <code>id</code> part of the section. </p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;#fragment1&quot;</span>&gt;</span>Go to fragment 1<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;#fragment2&quot;</span>&gt;</span>Go to fragment 2<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="2-Fragment-never-send-to-server-in-http-request"><a href="#2-Fragment-never-send-to-server-in-http-request" class="headerlink" title="2. Fragment never send to server in http request."></a>2. Fragment never send to server in http request.</h2><p>The fragment part of the URL is never sent to the server. It is only used by the browser. Take the following URL as an example, when you input it in the browser, observe the network tab in the developer tools, you will find that the fragment part is not sent to the server. the server only receives the request for the URL <code>http://example.com/page.html</code>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://localhost:3000/page1<span class="comment">#fragment</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Anything-after-the-first-is-a-fragment-identifier"><a href="#3-Anything-after-the-first-is-a-fragment-identifier" class="headerlink" title="3. Anything after the first # is a fragment identifier."></a>3. Anything after the first <code>#</code> is a fragment identifier.</h2><p>The url below want to set the color by the fragment part of the URL, but it won’t work because browser will parse the fragment part as <code>#ffff&amp;shape=circle</code> instead of <code>#ffff</code>.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://example.com/?color=#ffff&amp;shape=circle</span><br></pre></td></tr></table></figure>
-
-<h2 id="4-Changing-fragment-id-doesn’t-reload-a-page-but-create-history"><a href="#4-Changing-fragment-id-doesn’t-reload-a-page-but-create-history" class="headerlink" title="4. Changing fragment id doesn’t reload a page but create history."></a>4. Changing fragment id doesn’t reload a page but create history.</h2><p>When you change the fragment part of the URL, the page will not reload, but it will create a new entry in the browser history. You can use the <code>forward</code> and <code>back</code> button in the browser to navigate between the history entries.</p>
-<pre><code class="html">## 5. Googlebot ignores the fragment part of the URL.
-
-# References:
-1. https://blog.httpwatch.com/2011/03/01/6-things-you-should-know-about-fragment-urls/
-2. https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Identifying_resources_on_the_Web#Fragment
-</code></pre>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/25/javascript-export/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/25/javascript-export/" class="post-title-link" itemprop="url">javascript-export</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-07-25 21:43:47 / Modified: 21:49:57" itemprop="dateCreated datePublished" datetime="2024-07-25T21:43:47+08:00">2024-07-25</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Export-from-…"><a href="#Export-from-…" class="headerlink" title="Export * from …"></a>Export * from …</h2><p>This syntax is used to re-export all named exports from another module. It does not work for default exports.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// math.mjs</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">add</span> = (<span class="params">a, b</span>) =&gt; a + b;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">subtract</span> = (<span class="params">a, b</span>) =&gt; a - b;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">multiply</span> = (<span class="params">a, b</span>) =&gt; a * b;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; add, subtract &#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> multiply; <span class="comment">// default export</span></span><br></pre></td></tr></table></figure>
-
-<p>File <code>index.mj</code> re-exports all named exports from <code>math.mjs</code>, in this case, <code>add</code> and <code>subtract</code>, but not <code>multiply</code>, since it is a default export.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index.mjs</span></span><br><span class="line"><span class="keyword">export</span> * <span class="keyword">from</span> <span class="string">&#x27;./math.mjs&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>Now you can import all named exports from <code>index.mjs</code> using the following syntax:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.mjs</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> mathfunc <span class="keyword">from</span> <span class="string">&#x27;./index.mjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(mathfunc.<span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>)); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(mathfunc.<span class="title function_">subtract</span>(<span class="number">2</span>, <span class="number">1</span>)); <span class="comment">// 1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// This one does not work, will cause an error: </span></span><br><span class="line"><span class="comment">/// mathfunc.multiply is not a function</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(mathfunc.<span class="title function_">multiply</span>(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1090,14 +1094,14 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">250</span>
+          <span class="site-state-item-count">252</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">358</span>
+        <span class="site-state-item-count">359</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1124,7 +1128,7 @@ When I build my app, I got the following error:<figure class="highlight bash"><t
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
