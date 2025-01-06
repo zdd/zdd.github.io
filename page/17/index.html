@@ -181,6 +181,120 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/" class="post-title-link" itemprop="url">NG0100: Expression has changed after it was checked</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-04-22 20:25:54" itemprop="dateCreated datePublished" datetime="2024-04-22T20:25:54+08:00">2024-04-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-03 11:37:34" itemprop="dateModified" datetime="2024-09-03T11:37:34+08:00">2024-09-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>不知各位冰雪聪明的朋友们是否遇到过如下错误？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NG0100: Expression has changed after it was checked</span><br></pre></td></tr></table></figure>
+
+<p>大家在第一次遇到这个错误的时候是什么反应呢？反正我是一头雾水，今天我就带大家揭开这个错误的神秘面纱，我现在很困。。。非常不想写，但是我还是要写，因为我是一个有责任心的人。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">为什么我的眼里常含泪水？因为我太困了。。。</span><br></pre></td></tr></table></figure>
+<p>言归正传！其实从这个错误的描述来看，聪明的你已经发现了，那就是在Angular刚刚进行完一次变更检测，你又更新了某个值。那么，有哪些场景会导致这个错误呢？我们依次来看。</p>
+<p>先来看一个最简单的例子：</p>
+<h2 id="Update-value-in-ngAfterViewInit"><a href="#Update-value-in-ngAfterViewInit" class="headerlink" title="Update value in ngAfterViewInit"></a>Update value in <code>ngAfterViewInit</code></h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; count &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子中，我们在<code>ngAfterViewInit</code>生命周期钩子中更新了<code>count</code>的值，在<code>ngAfterViewInit</code>之前，Angular刚刚进行完一次变更检测，我们在<code>ngAfterViewInit</code>中更新了<code>count</code>的值，此时下一次变更检测还未开始，所以就产生了这个错误。</p>
+<p><img src="/../images/update-value-in-ngafterviewinit.png" alt="error"></p>
+<p>他来了，他来了，他迈着箭步走来了！<br>我们可以点击红框中的文件链接，查看到底哪个变量出了问题。</p>
+<p><img src="/../images/ng0100.png" alt="ng0100"></p>
+<p>既然错误已经发生了，那么该如何解决它呢？</p>
+<ol>
+<li>不要在<code>ngAfterViewInit</code>中更新值。你可以在其他地方更新，比如用户点击了某个按钮，或者做了其他操作时。</li>
+<li>使用<code>ChangeDetectorRef</code>手动触发变更检测。既然Angular不让我们在变更检测之后更新值，那么我们就在更新值以后手动触发一次变更检测，如下：<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdr: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cdr</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>使用异步更新，比如用<code>setTimeout</code>，<code>Promise</code>等包裹一下更新值的操作。因为Angular内部使用<code>zone.js</code>对这些异步操作进行了hook，并自动加入了更新检测，所以这样做是安全的。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Use-random-values-in-template-bindings"><a href="#Use-random-values-in-template-bindings" class="headerlink" title="Use random values in template bindings"></a>Use random values in template bindings</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; randomValue &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">randomValue</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="title function_">random</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子中，我们在模板中使用了一个随机值，每次变更检测都会重新计算这个值，所以就会产生这个错误。</p>
+<h2 id="Update-parent-component-property-from-child-component"><a href="#Update-parent-component-property-from-child-component" class="headerlink" title="Update parent component property from child component"></a>Update parent component property from child component</h2><p>We declare a name property in parent component and show it on html template.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.component.ts</span></span><br><span class="line"><span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;Tom&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- parent.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>I&#x27;m Father, my name is: &#123;&#123; name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-child</span> (<span class="attr">onChangeName</span>)=<span class="string">&quot;changeName($event)&quot;</span> [<span class="attr">age</span>]=<span class="string">30</span> [<span class="attr">name</span>]=<span class="string">&quot;&#x27;Philip&#x27;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-child</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Then we update the name property in child component.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- child.<span class="property">component</span>.<span class="property">html</span> --&gt;</span><br><span class="line"><span class="meta">@Output</span>() onChangeName = <span class="keyword">new</span> <span class="title class_">EventEmitter</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"><span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">onChangeName</span>.<span class="title function_">emit</span>(<span class="string">&#x27;Jerry&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Run the application, you will see the error in the console.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:9171 ERROR Error: NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked. Previous value: <span class="string">&#x27;Tom&#x27;</span>. Current value: <span class="string">&#x27;Jerry&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><h3 id="There-are-several-scenarios-that-produce-this-error"><a href="#There-are-several-scenarios-that-produce-this-error" class="headerlink" title="There are several scenarios that produce this error."></a>There are several scenarios that produce this error.</h3><ol>
+<li>value in <code>ngAfterViewInit</code>.</li>
+<li>Use random values in template bindings</li>
+<li>Update parent component property from child component.</li>
+</ol>
+<h3 id="How-to-solve-this-problem"><a href="#How-to-solve-this-problem" class="headerlink" title="How to solve this problem"></a>How to solve this problem</h3><ol>
+<li>Refactor <code>ngAfterViewInit</code> lifecycle hook.</li>
+<li>Use <code>ChangeDetectorRef</code> to manually trigger change detection.</li>
+<li>Make getters idempotent.</li>
+<li>Make the update async(last resort)</li>
+</ol>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://angular.io/errors/NG0100">https://angular.io/errors/NG0100</a></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>话说我现在实在太困了，睁不开眼睛，写这破玩意能涨工资吗？大概率不能！但是老话儿说的好，凡事求个明白！不扯了，睡觉去了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/20/angular-bootstrap-standalone-component/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1270,151 +1384,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/13/angular-dependency-injection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/13/angular-dependency-injection/" class="post-title-link" itemprop="url">angular-dependency-injection</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-13 21:55:20" itemprop="dateCreated datePublished" datetime="2024-04-13T21:55:20+08:00">2024-04-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-31 20:25:16" itemprop="dateModified" datetime="2024-12-31T20:25:16+08:00">2024-12-31</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Dependency injection(DI) - 是Angular的核心概念之一 is a design pattern that allows us to remove the hard-coded dependencies and make our application loosely coupled, maintainable, and testable. It is a way to achieve Inversion of Control (IoC) in our application.</p>
-<p>DI is widely used in Angular, React, and other modern frameworks. In Angular, we can inject services, components, and other dependencies into our components, services, and directives.</p>
-<p>Some terms:</p>
-<ul>
-<li>Dependency 依赖</li>
-<li>Injector 注入器</li>
-<li>Registry 注册中心</li>
-<li>DI - Dependency Injection</li>
-<li>IoC - Inversion of Control</li>
-</ul>
-<p>Ways to implement DI:</p>
-<ul>
-<li>Constructor Injection</li>
-<li>Setter Injection</li>
-<li>Interface Injection</li>
-</ul>
-<h1 id="Angular-Dependency-Injection"><a href="#Angular-Dependency-Injection" class="headerlink" title="Angular Dependency Injection"></a>Angular Dependency Injection</h1><p>Angular通过一个叫做<code>Injector</code>（注入器）的服务来实现DI。注入器相当于依赖的生产者和依赖的消费者之间的桥梁。Angular会在启动时创建一个应用级别的注入器（也叫root injector），当然也会创建其他的injector（如果需要的话）。</p>
-<p>当需要一个依赖时，Angular首先会检查其注册中心是否有这个依赖，如果有则直接返回，如果没有则会根据依赖的类型创建一个实例并返回。同时将其加入到注册中心中，以便下次使用。</p>
-<p>在依赖注入中有两个主要的角色，一个是依赖的生产者，比如用来获取后台数据的<code>Service</code>，一个是依赖的消费者，比如使用这个<code>Service</code>的<code>Component</code>。而<code>Injector</code>就是这两者之间的桥梁。有了<code>Injector</code>，依赖生产者和依赖消费者之间便实现了解耦。</p>
-<h1 id="Provide-a-dependency"><a href="#Provide-a-dependency" class="headerlink" title="Provide a dependency"></a>Provide a dependency</h1><p>在Angular中，有三种方式提供一个依赖。</p>
-<h2 id="provideIn"><a href="#provideIn" class="headerlink" title="provideIn"></a>provideIn</h2><p>创建依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>使用依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> heroService: HeroService</span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>使用<code>provideIn：&#39;root&#39;</code>方式提供的依赖有如下特点：</p>
-<ol>
-<li>该依赖是全局共享的的，只有一个实例。</li>
-<li>所有组件、指令、服务等都可以使用该依赖。</li>
-<li>支持tree shaking, 如果该依赖没有被使用，则不会被打包到最终的bundle中。</li>
-</ol>
-<h2 id="providers"><a href="#providers" class="headerlink" title="providers"></a>providers</h2><p>创建依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// &lt;--- 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>使用依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>使用<code>providers</code>方式提供的依赖有如下特点：</p>
-<ol>
-<li>每个使用该依赖的模块对应的实例都会创建一个该依赖的实例。</li>
-<li>该依赖是局部的，只有在提供了<code>providers</code>的模块中才能使用。</li>
-<li>不支持tree shaking, 无论是否使用，都会被打包到最终的bundle中。</li>
-<li>此依赖实例的生命周期和组件相同，当组件销毁时，该依赖实例也销毁。</li>
-</ol>
-<p>注意，如果当前组件引入了一个依赖，比如一个Service，那么这个依赖：</p>
-<ul>
-<li>在当前模块可用</li>
-<li>在当前模块的模板中的所有组件中也可用</li>
-</ul>
-<p>举个例子：当前组件是ProductComponent，其模板中引用了ProductDetailComponent。ProductComponent引入了一个ProductService，那么：</p>
-<ul>
-<li>ProductService在ProductComponent中可用，</li>
-<li>ProductService在ProductDetailComponent中也可用（需要ProductDetailComponent的constructor中再次注入该服务）<br>详情请看这里：<a target="_blank" rel="noopener" href="https://angular.dev/guide/di/dependency-injection#at-the-component-level">https://angular.dev/guide/di/dependency-injection#at-the-component-level</a></li>
-</ul>
-<h2 id="ApplicationConfig"><a href="#ApplicationConfig" class="headerlink" title="ApplicationConfig"></a>ApplicationConfig</h2><p>创建依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// &lt;--- 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">    <span class="attr">providers</span>: [</span><br><span class="line">      &#123; <span class="attr">provide</span>: <span class="title class_">HeroService</span> &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;;</span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br></pre></td></tr></table></figure>
-
-<h2 id="NgModule-based-configuration"><a href="#NgModule-based-configuration" class="headerlink" title="NgModule based configuration"></a>NgModule based configuration</h2><p>创建依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// &lt;--- 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>A service provided in a module is available to all declarations of the module, or to any other modules which share the same ModuleInjector. To understand all edge-cases, see <a target="_blank" rel="noopener" href="https://angular.dev/guide/di/hierarchical-dependency-injection">Hierarchical injectors</a>.</p>
-<p>使用<code>ApplicationConfig</code>方式提供的依赖有如下特点：</p>
-<ol>
-<li>该依赖是全局共享的的，只有一个实例。</li>
-<li>所有组件、指令、服务等都可以使用该依赖。</li>
-<li>不支持tree shaking, 无论是否使用，都会被打包到最终的bundle中。</li>
-</ol>
-<p>此方式与<code>providedIn: &#39;root&#39;</code>颇为相似，不同的是这种方式不支持tree shaking。</p>
-<h1 id="Pros-of-DI"><a href="#Pros-of-DI" class="headerlink" title="Pros of DI:"></a>Pros of DI:</h1><ul>
-<li>Loose coupling</li>
-<li>Easy to test</li>
-<li>Easy to maintain</li>
-</ul>
-<h1 id="references"><a href="#references" class="headerlink" title="references:"></a>references:</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/di/dependency-injection">https://angular.dev/guide/di/dependency-injection</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified">https://www.jamesshore.com/v2/blog/2006/dependency-injection-demystified</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver">https://www.codeproject.com/Articles/615139/An-Absolute-Beginners-Tutorial-on-Dependency-Inver</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.io/guide/dependency-injection">Angular Dependency Injection</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1484,7 +1453,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-count">254</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

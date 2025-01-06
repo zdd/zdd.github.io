@@ -181,6 +181,128 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/19/javascript-event-loop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/19/javascript-event-loop/" class="post-title-link" itemprop="url">javascript-event-loop</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-19 20:51:48" itemprop="dateCreated datePublished" datetime="2024-02-19T20:51:48+08:00">2024-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-23 21:12:38" itemprop="dateModified" datetime="2024-12-23T21:12:38+08:00">2024-12-23</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-Event-Loop"><a href="#JavaScript-Event-Loop" class="headerlink" title="JavaScript Event Loop"></a>JavaScript Event Loop</h1><p>Event loop是JavaScript中一个非常重要的知识点，也是面试中常考的内容，今天我们来详细了解一下。</p>
+<h2 id="浏览器如何执行一段JavaScript代码？"><a href="#浏览器如何执行一段JavaScript代码？" class="headerlink" title="浏览器如何执行一段JavaScript代码？"></a>浏览器如何执行一段JavaScript代码？</h2><p>当浏览器加载一个页面时，它会创建一个主线程来执行JavaScript代码。主线程是单线程的，意味着它一次只能执行一个任务。当主线程执行JavaScript代码时，它会遵循以下步骤：</p>
+<ol>
+<li>先执行同步代码。</li>
+<li>遇到异步代码时，做如下处理<ol>
+<li>如果是宏任务代码，将其回调函数放到宏任务队列中。</li>
+<li>如果是微任务代码，将其回调函数放到微任务队列中。</li>
+</ol>
+</li>
+<li>同步代码执行完毕后，开始依次执行微任务队列中的微任务（即回调函数）。</li>
+<li>微任务队列清空后，开始依次执行宏任务队列中的宏任务（即回调函数）。</li>
+</ol>
+<p>注意：步骤3，4的执行也遵循第1， 2两点规则。这么做是为了处理微任务和宏任务的嵌套关系。</p>
+<h3 id="什么异步代码？"><a href="#什么异步代码？" class="headerlink" title="什么异步代码？"></a>什么异步代码？</h3><p>异步代码是指不会立即执行的代码，而是在将来某个时间点执行的代码。常见的异步代码有：</p>
+<ol>
+<li><code>setTimeout</code> 和 <code>setInterval</code>。</li>
+<li><code>Promise</code>，<code>async/await</code>。</li>
+<li><code>MutationObserver</code>等等。</li>
+</ol>
+<p>除了异步代码，剩下的就是同步代码。</p>
+<h3 id="宏任务"><a href="#宏任务" class="headerlink" title="宏任务"></a>宏任务</h3><ul>
+<li><code>setTimeout</code></li>
+<li><code>setInterval</code></li>
+</ul>
+<h3 id="微任务"><a href="#微任务" class="headerlink" title="微任务"></a>微任务</h3><ul>
+<li><code>Promise</code>，<code>async/await</code></li>
+<li><code>MutationObserver</code></li>
+<li><code>process.nextTick</code>（Node.js）</li>
+</ul>
+<p>对于Promise需要特别注意：Promise本身是同步代码，但是其<code>.then</code>, <code>.catch</code>, <code>.finally</code>对应的回调函数是异步代码。</p>
+<h2 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h2><h3 id="1-以下代码输出什么？"><a href="#1-以下代码输出什么？" class="headerlink" title="1. 以下代码输出什么？"></a>1. 以下代码输出什么？</h3>  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:blue&#x27;</span>;</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:black&#x27;</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>答：用户会直接看到一个黑色的页面，蓝色页面根本不会出现，连闪现的过程也没有。根据Event Loop模型，代码执行过程如下：</p>
+<ol>
+<li>执行同步代码，<code>document.body.style = &#39;background:blue&#39;;</code>，将页面背景色设置为蓝色。</li>
+<li>遇到微任务<code>Promise.resolve().then()</code>，将其回调函数放到微任务队列中。</li>
+<li>同步代码执行完毕，开始执行微任务队列中的微任务，即将页面背景色设置为黑色。</li>
+<li>浏览器开始渲染页面，用户看到的是黑色的页面。</li>
+</ol>
+<p>也就是说，在页面渲染之前，<code>document.body.style</code>早已经在 Promise 的回调函数中被赋值为<code>black</code> 了。<br>注意，浏览器会在每次微任务队列清空时渲染一次，如下图所示。<br><img src="/../images/event-loop-render.png" alt="event-loop"></p>
+<h3 id="2-以下代码输出什么？"><a href="#2-以下代码输出什么？" class="headerlink" title="2. 以下代码输出什么？"></a>2. 以下代码输出什么？</h3><p>注意以下代码需要在Node.js环境下运行。因为<code>process.nextTick</code>是Node.js的API。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Timeout&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Promise then&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">asyncFunction</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>();</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Async/Await&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">asyncFunction</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Node.js</span></span><br><span class="line">process.<span class="title function_">nextTick</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Next tick&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>答案：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Start</span><br><span class="line">End</span><br><span class="line">Promise <span class="keyword">then</span></span><br><span class="line">Async/Await</span><br><span class="line">Next tick</span><br><span class="line">Timeout</span><br></pre></td></tr></table></figure>
+<p>还是按照以下执行顺序来分析：</p>
+<ol>
+<li>先执行同步代码，输出<code>Start</code>和<code>End</code>。</li>
+<li>在执行微任务队列代码，输出<code>Promise then</code>和<code>Async/Await</code>和<code>Next tick</code>。</li>
+<li>最后执行宏任务队列代码，输出<code>Timeout</code>。</li>
+</ol>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference:"></a>Reference:</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop">MDN: Event Loop</a></li>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/8aGhZQkoFbQ">https://youtu.be/8aGhZQkoFbQ</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=SrNQS8J67zc">https://www.youtube.com/watch?v=SrNQS8J67zc</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=u1kqx6AenYw">https://www.youtube.com/watch?v=u1kqx6AenYw</a></li>
+<li><a target="_blank" rel="noopener" href="https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events">https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events</a>.</li>
+<li><a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/19/useful-online-tools/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1064,88 +1186,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/10/typescript-array-literal-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/10/typescript-array-literal-type/" class="post-title-link" itemprop="url">typescript-array-literal-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-10 17:14:08" itemprop="dateCreated datePublished" datetime="2024-02-10T17:14:08+08:00">2024-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-12 12:37:00" itemprop="dateModified" datetime="2024-11-12T12:37:00+08:00">2024-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TypeScript-Array-Literal-Type"><a href="#TypeScript-Array-Literal-Type" class="headerlink" title="TypeScript Array Literal Type"></a>TypeScript Array Literal Type</h1><h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>考虑下面的类型定义：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">      <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意这里的<code>students</code>是一个数组字面量，而不是普通的数组，数组中的元素是一个对象，对象中有<code>name</code>和<code>age</code>两个属性。我们在使用这个类型的时候，可能会遇到这样的情况：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Tom&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">20</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这样的情况下，<code>data</code>是一个符合<code>response</code>类型的对象，但是<code>students</code>数组中的元素个数是不对的，因为<code>students</code>的类型定义是一个元素的数组字面量。所以我们不能传入两个元素（这相当于把students当作数组类型来使用，而不是当作数组字面量来使用）。所以TS会给出如下提示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">is not assignable to <span class="built_in">type</span> [&#123; name: string; age: number; &#125;]</span><br><span class="line">Source has 2 element(s) but target allows only 1</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>这时候我们可以使用<code>Array</code>类型来定义<code>students</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: <span class="title class_">Array</span>&lt;&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">  &#125;&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样的定义，<code>students</code>是一个数组，数组中的元素是一个对象，对象中有<code>name</code>和<code>age</code>两个属性。这样的定义，<code>students</code>数组中的元素个数是不确定的，可以是0个或者多个。</p>
-<p>也可以使用<code>[]</code>来定义<code>students</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">  &#125;[];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样的定义和上面的是等价的。这时，我们再使用上面的<code>data</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Tom&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">20</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>就不会报错了。</p>
-<p>但是有一种特殊情况，就是类型定义有时是无法修改的，比如定义在第三方库中，这时候我们可以使用push完成同样的效果。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">data.<span class="property">students</span>.<span class="title function_">push</span>(&#123; <span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span> &#125;)</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1215,7 +1255,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">253</span>
+          <span class="site-state-item-count">254</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
