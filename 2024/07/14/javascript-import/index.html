@@ -28,7 +28,7 @@
 <meta property="og:description" content="Static importThe static import declaration is used to import read-only live bindings which are exported by another module. Static import is syntactic. Named importsEach import has a name, which must b">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-07-14T07:44:59.000Z">
-<meta property="article:modified_time" content="2024-08-20T14:11:14.728Z">
+<meta property="article:modified_time" content="2025-01-27T11:30:05.051Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="javascript">
 <meta property="article:tag" content="import">
@@ -216,7 +216,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-20 22:11:14" itemprop="dateModified" datetime="2024-08-20T22:11:14+08:00">2024-08-20</time>
+                <time title="Modified: 2025-01-27 19:30:05" itemprop="dateModified" datetime="2025-01-27T19:30:05+08:00">2025-01-27</time>
               </span>
 
           
@@ -254,7 +254,7 @@
 <p>This is very common in Angular code, especially with Module Federation, where you import a module for its side effects only.</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bootstrap.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; bootstrapApplication &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; appConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.config&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
 
-<p><code>main.ts</code> use side effect import here which will run all global code in <code>bootstrap.ts</code> but not import any bindings.</p>
+<p><code>main.ts</code> use side effect import here which will run all global code in <code>bootstrap.ts</code> but not import any bindings. (Note, the following code is dynamic import, not static import)</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span>(<span class="string">&#x27;./bootstrap&#x27;</span>)</span><br><span class="line">	.<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
 
 <h2 id="Static-import-only-execute-once"><a href="#Static-import-only-execute-once" class="headerlink" title="Static import only execute once"></a>Static import only execute once</h2><p>No matter how many times you import a module, it will only be executed once. Suppose you have a <code>math</code> module with the following code:</p>
@@ -297,10 +297,10 @@
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- You need type=&quot;module&quot; in script tag--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">import</span> &#123;load&#125; <span class="keyword">from</span> <span class="string">&quot;./chat-box.mjs&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">  <span class="title function_">load</span>();</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="pass-by-reference"><a href="#pass-by-reference" class="headerlink" title="pass by reference"></a>pass by reference</h2><p>There is no <code>real</code> pass by reference in JavaScript like in C&#x2F;C++ language, but you can use <code>import</code> to achieve similar effect.</p>
-<p>First, create a module <code>module.mjs</code>, in this file, we export and object <code>person</code>.</p>
+<p>First, create a module <code>module.mjs</code>, in this file, we export an object <code>person</code>.</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// module.mjs</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<p>&#x2F;&#x2F; Create another module <code>module1.mjs</code>, in this file, we import <code>person</code> from <code>module.mjs</code> and change the <code>age</code> to 40.</p>
+<p>Create another module <code>module1.mjs</code>, in this file, we import <code>person</code> from <code>module.mjs</code> and change the <code>age</code> to 40.</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// module1.mjs</span></span><br><span class="line"><span class="keyword">import</span> &#123; person &#125; <span class="keyword">from</span> <span class="string">&#x27;./module.mjs&#x27;</span>;</span><br><span class="line">person.<span class="property">age</span> = <span class="number">40</span>;</span><br></pre></td></tr></table></figure>
 
 <p>Finally, import <code>module1.mjs</code> and <code>module.mjs</code> in <code>main.mjs</code>, and print the <code>person</code> object, you will found the <code>age</code> is 40 now.</p>
@@ -416,14 +416,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">254</span>
+          <span class="site-state-item-count">256</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">359</span>
+        <span class="site-state-item-count">361</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
