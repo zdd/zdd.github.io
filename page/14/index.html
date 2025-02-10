@@ -181,6 +181,109 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/16/what-s-new-in-angular-18/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/16/what-s-new-in-angular-18/" class="post-title-link" itemprop="url">What's new in Angular 18</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-06-16 10:16:28" itemprop="dateCreated datePublished" datetime="2024-06-16T10:16:28+08:00">2024-06-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-01-04 13:31:01" itemprop="dateModified" datetime="2025-01-04T13:31:01+08:00">2025-01-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Over the past three releases, Angular team introduced a lot of new features and improvements, Angular 18 focused on polishing the previous work and graduating many of the new APIs from experimental to stable. another exciting feature is <code>zoneless change detection</code> - still in experimental phase. Here is the content table:</p>
+<ol>
+<li>Zoneless Change Detection</li>
+<li>angular.dev is the new home for angular developers</li>
+<li>Stable features: Material 3, deferrable views, built-in control flows</li>
+<li>SSR improvements: i18n hydration support, better debugging, hydration support in Angular Material.</li>
+<li>Native await for zoneless apps.</li>
+<li>Fallback content for <code>ng-content</code>.</li>
+</ol>
+<h2 id="Zoneless-Change-Detection"><a href="#Zoneless-Change-Detection" class="headerlink" title="Zoneless Change Detection"></a>Zoneless Change Detection</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">App</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    <span class="title function_">provideExperimentalZonelessChangeDetection</span>()</span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Then remove zone.js from file <code>angular.json</code> in your project.</p>
+<h2 id="Testing"><a href="#Testing" class="headerlink" title="Testing"></a>Testing</h2><p><code>HttpClientTestingModule</code> is deprecated, use &#96;&#96; instead.</p>
+<p>Before:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClientTestingModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http/testing&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">beforeEach</span>(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">TestBed</span>.<span class="title function_">configureTestingModule</span>(&#123;</span><br><span class="line">    <span class="attr">imports</span>: [<span class="title class_">HttpClientTestingModule</span>], <span class="comment">// &lt;-- Here</span></span><br><span class="line">  &#125;).<span class="title function_">compileComponents</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Now</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; provideHttpClientTesting &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http/testing&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">beforeEach</span>(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">TestBed</span>.<span class="title function_">configureTestingModule</span>(&#123;</span><br><span class="line">    <span class="attr">providers</span>: [</span><br><span class="line">      <span class="title function_">provideHttpClientTesting</span>(),</span><br><span class="line">    ]</span><br><span class="line">  &#125;).<span class="title function_">compileComponents</span>();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Native-await-for-zoneless-apps"><a href="#Native-await-for-zoneless-apps" class="headerlink" title="Native await for zoneless apps"></a>Native await for zoneless apps</h2><p>因为Angular一直使用zone.js实现更新检测，但是async&#x2F;await语法zone.js一直无法做monkey patch，导致在zone.js中使用promise来模拟，现在如果你的app不是用zone.js，那么Angular就不会再使用promise来模拟async&#x2F;await，而是直接使用原生的async&#x2F;await。</p>
+<h2 id="Specifying-a-fallback-content-for-ng-content"><a href="#Specifying-a-fallback-content-for-ng-content" class="headerlink" title="Specifying a fallback content for ng-content"></a>Specifying a fallback content for ng-content</h2><p><code>ng-content</code>现在可以指定一个fallback content，当没有传递内容时，会显示这个fallback content。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-profile&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;ng-content select=&quot;.greeting&quot;&gt;Hello &lt;/ng-content&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    &lt;ng-content&gt;Unknown user&lt;/ng-content&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Profile</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;app-profile&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">&quot;greeting&quot;</span>&gt;</span>Good morning <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">&lt;/app-profile&gt;</span><br></pre></td></tr></table></figure>
+
+<p>which will result in:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;span class=<span class="string">&quot;greeting&quot;</span>&gt;Good morning &lt;/span&gt;</span><br><span class="line">Unknown user</span><br></pre></td></tr></table></figure>
+<ol>
+<li>We specified <code>Good morning</code> for the first <code>ng-content</code>, so the fallback <code>Hello </code> won’t be displayed.</li>
+<li>We didn’t specify any content for the second <code>ng-content</code>, so the fallback <code>Unknown user</code> will be displayed.</li>
+</ol>
+<h2 id="Unified-control-state-change-events"><a href="#Unified-control-state-change-events" class="headerlink" title="Unified control state change events"></a>Unified control state change events</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nameControl = <span class="keyword">new</span> <span class="title class_">FormControl</span>&lt;<span class="built_in">string</span>|<span class="literal">null</span>&gt;(<span class="string">&#x27;name&#x27;</span>, <span class="title class_">Validators</span>.<span class="property">required</span>);</span><br><span class="line">nameControl.<span class="property">events</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">event</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// process the individual events</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Router-redirect-as-function"><a href="#Router-redirect-as-function" class="headerlink" title="Router redirect as function"></a>Router redirect as function</h2><p>The <code>redirectTo</code> property in the route configuration can now be a function that returns a URL string or an array of URL segments.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&quot;first-component&quot;</span>, <span class="attr">component</span>: <span class="title class_">FirstComponent</span> &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&quot;old-user-page&quot;</span>,</span><br><span class="line">    <span class="attr">redirectTo</span>: <span class="function">(<span class="params">&#123; queryParams &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> errorHandler = <span class="title function_">inject</span>(<span class="title class_">ErrorHandler</span>);</span><br><span class="line">      <span class="keyword">const</span> userIdParam = queryParams[<span class="string">&#x27;userId&#x27;</span>];</span><br><span class="line">      <span class="keyword">if</span> (userIdParam !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">`/user/<span class="subst">$&#123;userIdParam&#125;</span>`</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        errorHandler.<span class="title function_">handleError</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Attempted navigation to user page without user ID.&#x27;</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="string">`/not-found`</span>; </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&quot;user/:userId&quot;</span>, <span class="attr">component</span>: <span class="title class_">OtherComponent</span> &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="Support-typescript-5-4"><a href="#Support-typescript-5-4" class="headerlink" title="Support typescript 5.4"></a>Support typescript 5.4</h2><h2 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.angular.dev/angular-v18-is-now-available-e79d5ac0affe">https://blog.angular.dev/angular-v18-is-now-available-e79d5ac0affe</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/16/what-s-new-in-angular-17/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1010,99 +1113,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/09/angular-change-detection-on-push/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/09/angular-change-detection-on-push/" class="post-title-link" itemprop="url">angular-change-detection-on-push</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-06-09 08:55:36" itemprop="dateCreated datePublished" datetime="2024-06-09T08:55:36+08:00">2024-06-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-21 18:17:48" itemprop="dateModified" datetime="2024-12-21T18:17:48+08:00">2024-12-21</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In this article, we will learn how to use <code>ChangeDetectionStrategy.OnPush</code> in Angular to improve the performance of your application. By default, Angular uses <code>ChangeDetectionStrategy.Default</code>, which means that the change detection runs every time an event is triggered in the application. This can be inefficient if your application has a lot of components that don’t need to be updated every time an event is triggered. By using <code>ChangeDetectionStrategy.OnPush</code>, you can tell Angular to only run change detection on a component when its input properties change. with <code>onPush</code> strategy, Angular will only trigger change detection in the following cases:</p>
-<ul>
-<li>When component’s input property changes</li>
-<li>When an event is triggered in the component</li>
-<li>When you manually trigger change detection</li>
-<li>注意：这里好像还有一条是async pipe，但是我找不到文档了，以后找到再补充吧。</li>
-</ul>
-<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><p>Take a look at the <code>product</code> component below, it has an input property <code>name</code>, and an event handler which changes the price of the product. We have set the <code>changeDetection</code> property to <code>ChangeDetectionStrategy.OnPush</code> in the component’s metadata.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;changePrice(10)&quot;</span>&gt;</span>Change price<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Name: &#123;&#123;name&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product Price: &#123;&#123;price&#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span>, <span class="title class_">DoCheck</span>, <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">price</span>: <span class="built_in">number</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// `ngDoCheck()` will called each time change detection run</span></span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;change detection triggered...&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// This will not trigger change detection</span></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">price</span> = <span class="number">20</span>;</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// click handler, will trigger change detection.</span></span><br><span class="line">  <span class="title function_">changePrice</span>(<span class="params">price: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">price</span> = price;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>When parent component change the input property <code>name</code>, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
-<li>When user click button to change the price, Angular will trigger change detection in the <code>product</code> component. and console will output <code>change detection triggered...</code></li>
-<li><code>setTimeout</code> function will not trigger change detection in the <code>product</code> component.</li>
-</ol>
-<h2 id="Change-Detection-with-OnPush-Diagram"><a href="#Change-Detection-with-OnPush-Diagram" class="headerlink" title="Change Detection with OnPush Diagram"></a>Change Detection with OnPush Diagram</h2><p>See <a target="_blank" rel="noopener" href="https://angular.dev/best-practices/skipping-subtrees#an-event-is-handled-by-a-component-with-default-change-detection">here</a> for details.</p>
-<h2 id="Do-I-need-OnPush-strategy-if-component-has-no-Input-bindings"><a href="#Do-I-need-OnPush-strategy-if-component-has-no-Input-bindings" class="headerlink" title="Do I need OnPush strategy if component has no @Input bindings?"></a>Do I need <code>OnPush</code> strategy if component has no <code>@Input</code> bindings?</h2><p>Yes, <code>OnPush</code> still make sense even if the component has no <code>@Input</code> bindings. </p>
-<ol>
-<li>With <code>OnPush</code>, change detection still triggers when an event is triggered in the component.</li>
-<li>With <code>OnPush</code>, you prevent the change detection running automatically when the parent component changes. </li>
-<li>With <code>OnPush</code>, you can manually trigger change detection when needed with <code>ChangeDetectorRef.detectChanges()</code>, or <code>ChangeDetectorRef.markForCheck()</code>.</li>
-</ol>
-<p><code>OnPush</code> + <a target="_blank" rel="noopener" href="https://angular.dev/guide/signals">signal</a> is the future of Angular.</p>
-<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/best-practices/skipping-subtrees">https://angular.dev/best-practices/skipping-subtrees</a></li>
-<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/change-detection-skipping-subtrees">https://v17.angular.io/guide/change-detection-skipping-subtrees</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1172,14 +1182,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">258</span>
+          <span class="site-state-item-count">259</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">364</span>
+        <span class="site-state-item-count">366</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
