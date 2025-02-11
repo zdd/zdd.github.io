@@ -20,19 +20,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="IntroductionThe most important work for frontend framework is state management and change detection. Angular uses Zone.js to detect changes in the application. In this article, we will discuss how Ang">
+  <meta name="description" content="Introduction前端框架的主要任务就是根据数据的变化来更新UI，Angular也不例外，而变更检测(Change Detection)就是完成这一任务的核心机制。  与React和Vue不同，Angular中的变更检测是自动触发的，是由异步事件触发的。Angular使用Zone.js来检测应用程序中的变化。 React中使用setState来触发变更检测。 1this.setState(&amp;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="angular-change-detection">
 <meta property="og:url" content="http://example.com/2024/04/28/angular-change-detection/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="IntroductionThe most important work for frontend framework is state management and change detection. Angular uses Zone.js to detect changes in the application. In this article, we will discuss how Ang">
+<meta property="og:description" content="Introduction前端框架的主要任务就是根据数据的变化来更新UI，Angular也不例外，而变更检测(Change Detection)就是完成这一任务的核心机制。  与React和Vue不同，Angular中的变更检测是自动触发的，是由异步事件触发的。Angular使用Zone.js来检测应用程序中的变化。 React中使用setState来触发变更检测。 1this.setState(&amp;">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/angular-cd-flow.png">
 <meta property="article:published_time" content="2024-04-28T12:47:10.000Z">
-<meta property="article:modified_time" content="2024-12-21T09:02:55.352Z">
+<meta property="article:modified_time" content="2025-02-10T13:12:04.553Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="change detection">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/angular-cd-flow.png">
 
 <link rel="canonical" href="http://example.com/2024/04/28/angular-change-detection/">
 
@@ -216,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-21 17:02:55" itemprop="dateModified" datetime="2024-12-21T17:02:55+08:00">2024-12-21</time>
+                <time title="Modified: 2025-02-10 21:12:04" itemprop="dateModified" datetime="2025-02-10T21:12:04+08:00">2025-02-10</time>
               </span>
 
           
@@ -230,14 +232,40 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>The most important work for frontend framework is state management and change detection. Angular uses Zone.js to detect changes in the application. In this article, we will discuss how Angular change detection works.</p>
-<p>Unlike React and Vue, Change detection in Angular is triggered automatically as a result of async event. Angular uses Zone.js to detect changes in the application. Zone.js is a library that <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patches</a> all asynchronous operations in the browser. It allows Angular to know when to run change detection.</p>
-<p>&#x2F;&#x2F; insert code example here.</p>
-<p>Angular patches all asynchronous operations in the browser, such as <code>setTimeout</code>, <code>setInterval</code>, <code>addEventListener</code>, <code>XMLHttpRequest</code>, <code>fetch</code>, <code>Promise</code>, <code>MutationObserver</code>, etc. When an asynchronous operation is executed, Angular will run change detection.</p>
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>前端框架的主要任务就是根据数据的变化来更新UI，Angular也不例外，而变更检测(Change Detection)就是完成这一任务的核心机制。</p>
+<p><img src="/../images/angular-cd-flow.png" alt="change-detection-flow"></p>
+<p>与React和Vue不同，Angular中的变更检测是自动触发的，是由异步事件触发的。Angular使用Zone.js来检测应用程序中的变化。</p>
+<p>React中使用setState来触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123; <span class="attr">count</span>: <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">count</span> + <span class="number">1</span> &#125;);</span><br></pre></td></tr></table></figure>
+<p>Vue中使用<code>$set</code>来触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.$set(<span class="variable language_">this</span>.<span class="property">data</span>, <span class="string">&#x27;count&#x27;</span>, <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">count</span> + <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Angular不需要开发者手动触发变更检测，它会自动检测到变化并更新视图。那么这种自动检测机制是如何实现的呢？这就要从Zone.js说起。</p>
+<p>在Angular程序启动时，会创建一个Zone，这个Zone会监控所有的异步操作，当异步操作执行时，Angular会运行变更检测。Zone.js会对浏览器中的所有异步操作进行<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patch</a>，这样Angular就能知道何时运行变更检测。</p>
+<p>这些被<code>monkey patch</code>的异步操作包括</p>
+<ul>
+<li><code>setTimeout</code>, <code>setInterval</code>,</li>
+<li><code>addEventListener</code>, </li>
+<li><code>XMLHttpRequest</code>,</li>
+<li><code>fetch</code>, </li>
+<li><code>Promise</code>, </li>
+<li><code>MutationObserver</code></li>
+<li><code>requestAnimationFrame</code></li>
+<li><code>async/await</code> - 这个会降级到Promise，因为Zone.js无法直接监控async&#x2F;await，所以会降级到Promise。</li>
+</ul>
 <p>Take the DOM event as an example, when user click a button on page, Angular will run change detection to update the view. Angular will run change detection after the event handler is executed.</p>
 <p>Here is the pseudo code, you can find the real code in <code>packages/zone.js/lib/browser/event-target.ts</code> in angular source code.(Note, initially, <code>zone.js</code> is a independent library, but it is moved to angular’s mono-repo.)</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Store a reference to the original addEventListener</span></span><br><span class="line"><span class="keyword">const</span> nativeAddEventListener = <span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Replace the original addEventListener with a patched version</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span> = <span class="keyword">function</span>(<span class="params">eventName, handler, options</span>) &#123;</span><br><span class="line">  <span class="comment">// Call the native addEventListener with the provided arguments</span></span><br><span class="line">  nativeAddEventListener.<span class="title function_">call</span>(<span class="variable language_">this</span>, eventName, handler, options);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional functionality to track the state of asynchronous operations</span></span><br><span class="line">  <span class="comment">// This could involve interacting with Zone.js&#x27;s internal data structures</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
+<h2 id="Change-Detection-steps"><a href="#Change-Detection-steps" class="headerlink" title="Change Detection steps"></a>Change Detection steps</h2><ol>
+<li>An event occurs (user action, timer, AJAX response, etc.).</li>
+<li>Angular’s zone (NgZone) notifies Angular that an async operation has completed.</li>
+<li>Angular triggers change detection starting from the root component.</li>
+<li>For each component, it checks the template bindings against the current component state.</li>
+<li>If a binding has changed, Angular updates the DOM accordingly.</li>
+<li>Components using OnPush strategy only check if their inputs have changed or if marked explicitly.</li>
+<li>The process continues down the component tree until all components are checked.</li>
+</ol>
 <h2 id="What-does-change-detection-do-in-Angular"><a href="#What-does-change-detection-do-in-Angular" class="headerlink" title="What does change detection do in Angular?"></a>What does change detection do in Angular?</h2><ol>
 <li>Update all bindings in templates.</li>
 <li>Update the view.</li>
@@ -343,7 +371,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-does-change-detection-do-in-Angular"><span class="nav-number">2.</span> <span class="nav-text">What does change detection do in Angular?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NgZone"><span class="nav-number">3.</span> <span class="nav-text">NgZone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#How-to-determine-when-change-detection-is-triggered-in-a-component"><span class="nav-number">4.</span> <span class="nav-text">How to determine when change detection is triggered in a component?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ngOnChanges"><span class="nav-number">5.</span> <span class="nav-text">ngOnChanges</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Change-Detection-steps"><span class="nav-number">2.</span> <span class="nav-text">Change Detection steps</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-does-change-detection-do-in-Angular"><span class="nav-number">3.</span> <span class="nav-text">What does change detection do in Angular?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NgZone"><span class="nav-number">4.</span> <span class="nav-text">NgZone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#How-to-determine-when-change-detection-is-triggered-in-a-component"><span class="nav-number">5.</span> <span class="nav-text">How to determine when change detection is triggered in a component?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ngOnChanges"><span class="nav-number">6.</span> <span class="nav-text">ngOnChanges</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -357,14 +385,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">259</span>
+          <span class="site-state-item-count">260</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">366</span>
+        <span class="site-state-item-count">370</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

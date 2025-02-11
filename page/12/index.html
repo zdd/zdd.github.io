@@ -181,6 +181,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/25/javascript-cache-request/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/25/javascript-cache-request/" class="post-title-link" itemprop="url">javascript-cache-request</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-25 21:10:16" itemprop="dateCreated datePublished" datetime="2024-07-25T21:10:16+08:00">2024-07-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-07-27 19:51:38" itemprop="dateModified" datetime="2024-07-27T19:51:38+08:00">2024-07-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近项目中出现一个问题，后端监测系统发现，同样一个请求在短时间内一次性发起了四次，这是极大的浪费，于是考虑使用缓存策略来解决。</p>
+<p>首先模拟一个获取后端数据的方法，这里使用<code>setTimeout</code>模拟一个异步请求。这个方法在延时一秒钟后返回一个结构化数据。<code>&#123;id: 1, name: &#39;Data 1&#39;&#125;</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(&#123;</span><br><span class="line">        <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;Data 1&#x27;</span>,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们模拟短时间内的四次请求，可以使用for循环来依次发送四次请求。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">  <span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们使用<code>async/await</code>语法封装一下上面的for循环。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchDataFourTimes</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="title function_">fetchData</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(data);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，我们调用一下<code>fetchDataFourTimes</code>方法，查看控制台输出。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetchDataFourTimes</span>();</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br></pre></td></tr></table></figure>
+<p>注意，这里有一个问题，我们很难区分这四次请求是不是真的发送了四次，因为返回的数据都是一样的。为了验证后续的<code>cache</code>策略确实能工作，我们可以在<code>fetchData</code>方法中加入一个<code>console.log</code>来验证。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;fetchData&#x27;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(&#123;</span><br><span class="line">        <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;Data 1&#x27;</span>,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次调用<code>fetchDataFourTimes</code>方法，查看控制台输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fetchData</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">fetchData</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">fetchData</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">fetchData</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br></pre></td></tr></table></figure>
+<p>接下来，使用缓存策略来解决这个问题。</p>
+<p>我们可以改造一下<code>fetchDataFourTimes</code>，使用一个全局变量来存储请求的数据，然后在下次请求时，先判断是否有缓存数据，如果有则直接返回缓存数据，否则发送请求。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cacheRequest = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchDataFourTimesWithCache</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>]) &#123;</span><br><span class="line">      cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>] = <span class="keyword">await</span> <span class="title function_">fetchData</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hit cache&#x27;</span>);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后运行<code>fetchDataFourTimesWithCache</code>方法，查看控制台输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fetchData</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">Hit cache</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">Hit cache</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br><span class="line">Hit cache</span><br><span class="line">&#123; id: 1, name: &#x27;Data 1&#x27; &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，第一次请求了数据，后面三次都是直接从缓存中获取的，这样就避免了多次请求的问题。</p>
+<p>这里有一点需要注意，那就是缓存用的<code>cacheRequest</code>必须是位于缓存函数外部，如果直接放在缓存函数内部，那么每次调用缓存函数都会重新初始化<code>cacheRequest</code>并将其设置为<code>&#123;&#125;</code>，导致缓存失效。</p>
+<p>我们也可以使用闭包的特性，将<code>cacheRequest</code>封装到函数内部，这样的话，<code>cacheRequest</code>就成了<code>fetchDataFourTimesWithCache</code>函数的内部变量，可以避免全局变量的污染。在<code>fetchDataFourTimesWithCache</code>中，我们返回了一个匿名异步函数，而<code>cacheRequest</code>相对于这个匿名函数是一个外部变量，这样就形成了一个闭包。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">fetchDataFourTimesWithCache</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> cacheRequest = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>]) &#123;</span><br><span class="line">        cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>] = <span class="keyword">await</span> <span class="title function_">fetchData</span>();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hit cache&#x27;</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(cacheRequest[<span class="string">&#x27;fetchData&#x27;</span>]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> fetchDataFourTimesWithCacheFn = <span class="title function_">fetchDataFourTimesWithCache</span>();</span><br><span class="line"><span class="title function_">fetchDataFourTimesWithCacheFn</span>();</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/20/angular-bindings/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -955,92 +1045,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/15/jest-localstorage-does-not-need-mock-now/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/15/jest-localstorage-does-not-need-mock-now/" class="post-title-link" itemprop="url">jest-localstorage-does-not-need-mock-now</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-07-15 20:07:52 / Modified: 21:12:10" itemprop="dateCreated datePublished" datetime="2024-07-15T20:07:52+08:00">2024-07-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="You-don’t-need-to-mock-localStorage-with-latest-jsdom"><a href="#You-don’t-need-to-mock-localStorage-with-latest-jsdom" class="headerlink" title="You don’t need to mock localStorage with latest jsdom"></a>You don’t need to mock <code>localStorage</code> with latest <code>jsdom</code></h1><p>Suppose you have a <code>localStorage</code> utility function like this:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// storage-utils.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">saveItem</span>(<span class="params">item: any</span>) &#123;</span><br><span class="line">  <span class="variable language_">localStorage</span>.<span class="title function_">setItem</span>(<span class="string">&#x27;item&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(item));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">getItem</span>(<span class="params">name: string</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> jsonString = <span class="variable language_">localStorage</span>.<span class="title function_">getItem</span>(name);</span><br><span class="line">  <span class="keyword">if</span> (jsonString) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(jsonString);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>To test above code, you have the following test file:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// storage-utils.spec.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; getItem, saveItem &#125; <span class="keyword">from</span> <span class="string">&#x27;./storage-utils&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;local storage should work&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should set and get item&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> item = &#123; <span class="attr">name</span>: <span class="string">&#x27;John Doe&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span> &#125;;</span><br><span class="line">    <span class="title function_">saveItem</span>(item);</span><br><span class="line">    <span class="keyword">const</span> storedItem = <span class="title function_">getItem</span>(<span class="string">&#x27;item&#x27;</span>);</span><br><span class="line">    <span class="title function_">expect</span>(storedItem).<span class="title function_">toEqual</span>(item);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>When you run this test with <code>Jest</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># first, navigate to the directory where the test file is located.</span></span><br><span class="line">jest storage-utils.spec.ts</span><br></pre></td></tr></table></figure>
-<p>Everything works fine, but <code>localStorage</code> is only available in <code>browser environment</code>, and you didn’t mock it, why?</p>
-<p>This is because <code>Jest</code> now use <code>jsdom</code> as the default environment, and <code>jsdom</code> has implemented <code>localStorage</code> and <code>sessionStorage</code> APIs, so you don’t need to mock them anymore.</p>
-<p>To test this, you can find the <code>jest.config.js</code> file in the root directory of your project, and add the following line to the <code>testEnvironment</code> property:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">preset</span>: <span class="string">&#x27;jest-preset-angular&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/setup-jest.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">testEnvironment</span>: <span class="string">&#x27;node&#x27;</span>, <span class="comment">// &lt;-- change this to &#x27;node&#x27;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>Then run the test again, you will see the test failed because <code>localStorage</code> is not available in the <code>node</code> environment, and you will get the following error:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">localStorage is not defined</span><br><span class="line">ReferenceError: localStorage is not defined</span><br></pre></td></tr></table></figure>
-
-<h1 id="Use-jsdom-by-in-test-file"><a href="#Use-jsdom-by-in-test-file" class="headerlink" title="Use jsdom by in test file"></a>Use <code>jsdom</code> by in test file</h1><p>Suppose you global jest config is <code>node</code>(in file <code>jest.config.js</code> under project root), but you want to use <code>jsdom</code> in some test cases, you can use the following code in the test file, add @jest-environment jsdom at the top of the file.(Don’t use <code>//</code> comment, it will not work)</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@jest</span>-environment jsdom</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; getItem, saveItem &#125; <span class="keyword">from</span> <span class="string">&#x27;./storage-utils&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;local storage should work&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should set and get item&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> item = &#123; <span class="attr">name</span>: <span class="string">&#x27;John Doe&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span> &#125;;</span><br><span class="line">    <span class="title function_">saveItem</span>(item);</span><br><span class="line">    <span class="keyword">const</span> storedItem = <span class="title function_">getItem</span>(<span class="string">&#x27;item&#x27;</span>);</span><br><span class="line">    <span class="title function_">expect</span>(storedItem).<span class="title function_">toEqual</span>(item);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h1 id="Mock-localStorage"><a href="#Mock-localStorage" class="headerlink" title="Mock localStorage"></a>Mock <code>localStorage</code></h1><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mockLocalStorage.ts</span></span><br><span class="line"><span class="keyword">const</span> mockLocalStorage = (<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> store = &#123;&#125; <span class="keyword">as</span> <span class="title class_">Storage</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="title function_">getItem</span>(<span class="params">key: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> store[key];</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="title function_">setItem</span>(<span class="params">key: <span class="built_in">string</span>, value: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">      store[key] = value;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="title function_">removeItem</span>(<span class="params">key: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">      <span class="keyword">delete</span> store[key];</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="title function_">clear</span>(<span class="params"></span>) &#123;</span><br><span class="line">      store = &#123;&#125; <span class="keyword">as</span> <span class="title class_">Storage</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> mockLocalStorage;</span><br></pre></td></tr></table></figure>
-
-<p>Test file, note that we use <code>globalThis</code> here, it’s environment independently, and works both in <code>node</code> and <code>browser</code> environment.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// storage-utils.spec.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; getItem, saveItem &#125; <span class="keyword">from</span> <span class="string">&#x27;./storage-utils&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> mockLocalStorage <span class="keyword">from</span> <span class="string">&#x27;./mockLocalStorage&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;local storage should work&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">beforeEach</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(globalThis, <span class="string">&#x27;localStorage&#x27;</span>, &#123;</span><br><span class="line">      <span class="attr">value</span>: mockLocalStorage,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should set and get item&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> item = &#123; <span class="attr">name</span>: <span class="string">&#x27;John Doe&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span> &#125;;</span><br><span class="line">    <span class="title function_">saveItem</span>(item);</span><br><span class="line">    <span class="keyword">const</span> storedItem = <span class="title function_">getItem</span>(<span class="string">&#x27;item&#x27;</span>);</span><br><span class="line">    <span class="title function_">expect</span>(storedItem).<span class="title function_">toEqual</span>(item);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/configuration#testenvironment-string">https://jestjs.io/docs/configuration#testenvironment-string</a> - the official document still said that <code>node</code> is the default environment, but in my case, it’s <code>jsdom</code>, not sure why.</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/jsdom/jsdom/blob/main/Changelog.md#11120">https://github.com/jsdom/jsdom/blob/main/Changelog.md#11120</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1110,14 +1114,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">259</span>
+          <span class="site-state-item-count">260</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">366</span>
+        <span class="site-state-item-count">370</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
