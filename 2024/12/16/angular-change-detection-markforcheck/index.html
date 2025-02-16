@@ -28,7 +28,7 @@
 <meta property="og:description" content="Angular更新检测是自动执行的，但是有些情况下我们需要手动触发更新检测，Angular提供以下方法来手动触发更新检测：  detectChanges(): Forces an immediate check for the component and its children. markForCheck(): Marks the component to be checked in the n">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-16T08:44:33.000Z">
-<meta property="article:modified_time" content="2025-02-10T13:13:41.198Z">
+<meta property="article:modified_time" content="2025-02-13T13:34:09.775Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="change detection">
@@ -220,7 +220,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-10 21:13:41" itemprop="dateModified" datetime="2025-02-10T21:13:41+08:00">2025-02-10</time>
+                <time title="Modified: 2025-02-13 21:34:09" itemprop="dateModified" datetime="2025-02-13T21:34:09+08:00">2025-02-13</time>
               </span>
 
           
@@ -253,8 +253,8 @@
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ChangeDetectionStrategy</span>, <span class="title class_">ChangeDetectorRef</span>, <span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;reflect-metadata&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductDetailComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-detail/product-detail.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CardComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../card/card.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HoverDirective</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../hover.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Dir1Directive</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../dir1.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">OrderService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../order.service&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Dir2Directive</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../dir2.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductItem</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.model&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>, <span class="comment">// OnPush mode</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">product</span>: <span class="title class_">ProductItem</span> | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> orderService: OrderService, <span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="function"><span class="params">product</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">product</span> = product;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>(); <span class="comment">// &lt;--- must</span></span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Difference-between-detectChanges-and-markForCheck"><a href="#Difference-between-detectChanges-and-markForCheck" class="headerlink" title="Difference between detectChanges and markForCheck"></a>Difference between <code>detectChanges</code> and <code>markForCheck</code></h2><ol>
-<li><code>detectChanges</code> triggers change detection for the component and its children.</li>
-<li><code>markForCheck</code> marks the component and its ancestors for change detection, but it doesn’t trigger change detection immediately.</li>
+<li><code>detectChanges</code> triggers change detection for the <code>component and its children</code>.</li>
+<li><code>markForCheck</code> marks the <code>component and its ancestors</code> for change detection, but it doesn’t trigger change detection immediately.</li>
 <li><code>detectChanges</code> still work even when change detector is <code>detached</code>, but <code>markForCheck</code> doesn’t.</li>
 </ol>
 
@@ -359,14 +359,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">264</span>
+          <span class="site-state-item-count">267</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">376</span>
+        <span class="site-state-item-count">378</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
