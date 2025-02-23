@@ -181,6 +181,171 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/16/refactor-replace-temp-with-query/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/16/refactor-replace-temp-with-query/" class="post-title-link" itemprop="url">refactor-replace-temp-with-query</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-16 10:24:57" itemprop="dateCreated datePublished" datetime="2023-09-16T10:24:57+08:00">2023-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-12 09:29:34" itemprop="dateModified" datetime="2024-11-12T09:29:34+08:00">2024-11-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Replace-Temp-with-Query"><a href="#Replace-Temp-with-Query" class="headerlink" title="Replace Temp with Query"></a>Replace Temp with Query</h1><p>以查询取代临时变量的方法只适用于处理某些类型的临时变量，即那些只被赋值一次，而且之后再也没有被修改的临时变量。<br>看下面的代码：我们可以将 <code>price()</code>中的临时变量 <code>basePrice</code> 和<code>discountFactor</code> 替换为查询函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Order</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">    <span class="keyword">const</span> basePrice = <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">    <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">    <span class="keyword">if</span> (basePrice &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">      discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> basePrice * discountFactor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改后如下：可以看到，修改后，<code>price()</code>内的代码明显更加简洁，更加容易理解。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">price</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">basePrice</span> * <span class="variable language_">this</span>.<span class="property">discountFactor</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">basePrice</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">discountFactor</span>() &#123;</span><br><span class="line">  <span class="keyword">let</span> discountFactor = <span class="number">0.98</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">    discountFactor -= <span class="number">0.03</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> discountFactor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，<code>discountFactor()</code>函数还可以进一步简化：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">get</span> <span class="title function_">discountFactor</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">basePrice</span> &gt; <span class="number">1000</span> ? <span class="number">0.95</span> : <span class="number">0.98</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果是在不支持<code>getter</code>和<code>setter</code>的语言中，我们可以使用<code>extract function</code>的方法来实现。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params">quantity, item</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">quantity</span> = quantity;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">item</span> = item;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">getPrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getBasePrice</span>() * <span class="variable language_">this</span>.<span class="title function_">getDiscountFactor</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable basePrice</span></span><br><span class="line"><span class="title function_">getBasePrice</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">quantity</span> * <span class="variable language_">this</span>.<span class="property">item</span>.<span class="property">price</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Use this method to replace the temp variable discountFactor</span></span><br><span class="line"><span class="title function_">getDiscountFactor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getBasePrice</span>() &gt; <span class="number">1000</span> ? <span class="number">0.95</span> : <span class="number">0.98</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-standalone-component/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/09/02/Angular-standalone-component/" class="post-title-link" itemprop="url">Angular-standalone-component</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-09-02 21:56:59" itemprop="dateCreated datePublished" datetime="2023-09-02T21:56:59+08:00">2023-09-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-08 14:01:55" itemprop="dateModified" datetime="2024-05-08T14:01:55+08:00">2024-05-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Standalone-Component"><a href="#Angular-Standalone-Component" class="headerlink" title="Angular Standalone Component"></a>Angular Standalone Component</h1><p><code>standalone component</code>是Angular 14的一个新特性，它可以让我们在不创建module的情况下创建一个component。注意：<code>Directive</code>和<code>Pipe</code>也可以是standalone的。</p>
+<h2 id="创建一个standalone-component"><a href="#创建一个standalone-component" class="headerlink" title="创建一个standalone component"></a>创建一个standalone component</h2><p>组件代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>, <span class="comment">// 添加这一句，表示这是一个standalone component。</span></span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">CommonModule</span>],</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;lifecycle-order&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./order.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./order.component.less&#x27;</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">OrderComponent</span>&#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>standalone component和module的交互使用有如下两种情况。</p>
+<h2 id="standalone-component引入其他module"><a href="#standalone-component引入其他module" class="headerlink" title="standalone component引入其他module"></a>standalone component引入其他module</h2><p>如果standalone component需要引入其他module，那么需要在<code>imports</code>属性中引入其他module，比如上面代码中引入的<code>CommonModule</code>。</p>
+<p>注意：只有standalone component才能引入其他module，<code>普通的component(non-standalone component)不能引入其他module</code>。所以只有standalone component才能使用<code>imports</code>属性。</p>
+<p>如果你遇到如下报错，那么说明你在非standalone组件中使用了<code>imports</code>属性，这是不允许的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error NG2010: <span class="string">&#x27;imports&#x27;</span> is only valid on a component that is standalone.</span><br></pre></td></tr></table></figure>
+
+<p>这种情况经常发生在，ComponentA(非独立组件)想在template中使用ComponentB(独立组件)，那么应该在ComponentA所在的module中的imports属性中引入ComponentB。</p>
+<h2 id="module引入standalone-component"><a href="#module引入standalone-component" class="headerlink" title="module引入standalone component"></a>module引入standalone component</h2><p>如果一个module要使用一个standalone component，那么<code>不再</code>需要在<code>declarations</code>属性中声明这个standalone component，只需要在<code>imports</code>属性中引入这个standalone component所在的module即可。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="comment">// OrderComponent, // no need to declare standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span>,</span><br><span class="line">    <span class="title class_">OrderComponent</span>, <span class="comment">// imports standalone component here</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="lazy-load-module"><a href="#lazy-load-module" class="headerlink" title="lazy load module"></a>lazy load module</h2><p>在NgModel时代，我们可以使用<code>loadChildren</code>来实现懒加载，比如下面的<code>product module</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>, <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./product/product.module&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductModule</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="Lazy-load-standalone-component"><a href="#Lazy-load-standalone-component" class="headerlink" title="Lazy load standalone component"></a>Lazy load standalone component</h2><p>在Angular 14中，我们可以使用<code>loadComponent</code>来实现懒加载standalone component，比如下面的<code>order component</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>, <span class="attr">component</span>: <span class="title class_">HomeComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;order&#x27;</span>, <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./order/order.component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">OrderComponent</span>)&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AboutComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;**&#x27;</span>, <span class="attr">component</span>: <span class="title class_">NotFoundComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<h3 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h3><ul>
+<li>lazy load module: <code>loadChildren</code></li>
+<li>lazy load standalone component: <code>loadComponent</code></li>
+</ul>
+<h2 id="Bootstrap-standalone-component"><a href="#Bootstrap-standalone-component" class="headerlink" title="Bootstrap standalone component"></a>Bootstrap standalone component</h2><p>See <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/20/angular-bootstrap-standalone-component/">here</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><p><a target="_blank" rel="noopener" href="https://angular.io/guide/standalone-components">Angular standalone component</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/02/Angular-module/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1128,252 +1293,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/13/javascript-cors/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/13/javascript-cors/" class="post-title-link" itemprop="url">JavaScript CORS</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-13 21:51:11" itemprop="dateCreated datePublished" datetime="2023-07-13T21:51:11+08:00">2023-07-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-16 21:16:39" itemprop="dateModified" datetime="2024-12-16T21:16:39+08:00">2024-12-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="什么是跨域"><a href="#什么是跨域" class="headerlink" title="什么是跨域"></a>什么是跨域</h2><p>相信很多做前端开发的同学都在浏览器控制台遇到过如下错误。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to XMLHttpRequest at &#x27;http://localhost:3000/api/xxx&#x27; from origin &#x27;http://localhost:4200&#x27; has been blocked by CORS policy: No &#x27;Access-Control-Allow-Origin&#x27; header is present on the requested resource.</span><br></pre></td></tr></table></figure>
-<p>这个错误是由于浏览器的同源策略导致的，同源策略是浏览器的一种安全策略，它要求浏览器只能向同源网址发送请求，同源网址指的是协议、域名、端口号都相同的网址。</p>
-<p>以下几种情况都不同源，都会导致跨域。</p>
-<ol>
-<li>域名不同<br><code>remotehost</code> vs <code>localhost</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:4200 和 http://remotehost:3000</span><br></pre></td></tr></table></figure></li>
-<li>协议不同<br><code>http</code> vs <code>https</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 https://localhost:3000</span><br></pre></td></tr></table></figure></li>
-<li>端口不同<br><code>3000</code> vs <code>4200</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 http://localhost:4200</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>文章开头的错误消息中，<code>http://localhost:4200</code>(4200是Angular项目常用端口)和<code>http://localhost:3000</code>（3000是Node.js项目常用端口）就不是同源网址，因为它们的端口号不同。</p>
-<p>同源策略的目的是为了防止恶意的网站窃取数据，但是对于前端开发来说，这个策略有时候就显得有点过于严格了，比如我们在开发时，前端项目和后端项目往往是分开的，前端项目一般运行在<code>http://localhost:4200</code>，而后端项目一般运行在<code>http://localhost:3000</code>，这样就导致了前端项目无法向后端项目发送请求，从而导致了上面的错误。那么如何解决这个问题呢？我们可以在后端项目中启用CORS，从而解决这个问题。下面我们就来看看如何在Node和Express中启用CORS。</p>
-<h2 id="什么是CORS"><a href="#什么是CORS" class="headerlink" title="什么是CORS"></a>什么是CORS</h2><p>CORS是Cross-Origin Resource Sharing的缩写，中文名是跨域资源共享，它是一种机制，它使用额外的HTTP头来告诉浏览器，允许运行在一个源上的Web应用访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，会发起一个跨域HTTP请求。</p>
-<p>哪些请求会使用CORS呢？</p>
-<ul>
-<li>Fetch与XMLHttpRequest</li>
-<li>Web Fonts，@font-face within CSS</li>
-<li>WebGL textures</li>
-</ul>
-<h2 id="简单请求与非简单请求"><a href="#简单请求与非简单请求" class="headerlink" title="简单请求与非简单请求"></a>简单请求与非简单请求</h2><p>为什么要介绍简单请求和非简单请求呢？因为对于简单请求和非简单请求，浏览器的处理方式是不同的。</p>
-<ul>
-<li>简单请求， 浏览器会自动处理跨域请求，不需要额外的处理。</li>
-<li>非简单请求，浏览器会先发送一个OPTIONS请求，询问服务器是否允许跨域请求，如果服务器允许，浏览器才会发送真正的请求。</li>
-</ul>
-<h3 id="简单请求："><a href="#简单请求：" class="headerlink" title="简单请求："></a>简单请求：</h3><p>满足以下条件的请求是简单请求。</p>
-<ol>
-<li>请求方法是以下三种方法之一：<ul>
-<li>HEAD</li>
-<li>GET</li>
-<li>POST</li>
-</ul>
-</li>
-<li>HTTP的头信息不超出以下几种字段：<ul>
-<li>Accept</li>
-<li>Accept-Language</li>
-<li>Content-Language</li>
-<li>Last-Event-ID</li>
-<li>Content-Type：只限于三个值： <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code>,  <code>text/plain</code></li>
-</ul>
-</li>
-</ol>
-<h3 id="非简单请求"><a href="#非简单请求" class="headerlink" title="非简单请求"></a>非简单请求</h3><p>除了简单请求，都是非简单请求。</p>
-<h3 id="Preflight请求"><a href="#Preflight请求" class="headerlink" title="Preflight请求"></a>Preflight请求</h3><p>又称为预检请求，在非简单请求之前，浏览器会发送一个preflight请求，询问后端服务器是否支持跨域，preflight请求都是Option请求，下面是一个列子。</p>
-<ol>
-<li>General块中可以看到，预检请求用的是 <code>OPTIONS</code>请求，而且返回值是200，说明请求成功了。</li>
-</ol>
-<p><strong>General</strong></p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Request</span> <span class="attr">URL</span>: <span class="attr">http</span>:<span class="comment">//10.10.143.144:9898/bff/api/v1/application/sysVariable/list?_t=1641265683731</span></span><br><span class="line">**<span class="title class_">Request</span> <span class="title class_">Method</span>**: <span class="variable constant_">OPTIONS</span></span><br><span class="line"><span class="title class_">Status</span> <span class="title class_">Code</span>: <span class="number">200</span> <span class="variable constant_">OK</span></span><br><span class="line"><span class="title class_">Remote</span> <span class="title class_">Address</span>: <span class="number">10.10</span><span class="number">.143</span><span class="number">.144</span>:<span class="number">9898</span></span><br><span class="line"><span class="title class_">Referrer</span> <span class="title class_">Policy</span>: strict-origin-when-cross-origin</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>Request Header区块中<strong>Access-Control-Request-Headers</strong>指定的是GET请求，说明接下来要进行的跨域请求是GET请求，而且有自定义请求头，放在<strong>Access-Control-Request-Headers</strong>字段中，请求的来源是<strong>Origin</strong>字段标明的，是<code>http://localhost:3001</code>，表示当前正在本机进行调试。</li>
-</ol>
-<p><strong>Request Header</strong></p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Accept: */*</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: en,zh-CN;q=0.9,zh;q=0.8,zh-TW;q=0.7</span><br><span class="line">**Access-Control-Request-Headers**: app,cache-control,dcid,nounce,timestamp,userid,uuid</span><br><span class="line">**Access-Control-Request-Method**: GET</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Host: 10.10.143.144:9898</span><br><span class="line">**Origin**: http://localhost:3001</span><br><span class="line">Referer: http://localhost:3001/</span><br><span class="line">Sec-Fetch-Mode: cors</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>Response Header区块中反应的是OPTIONS请求后的结果，图中四个标红加粗的字段表示服务器的跨域请求设置<ul>
-<li><strong>Access-Control-Allow-Headers</strong>表示允许的自定义请求头。</li>
-<li><strong>Access-Control-Allow-Methods</strong>表示允许的请求方法</li>
-<li><strong>Access-Control-Allow-Origin</strong>表示允许的跨域请求的来源</li>
-<li><strong>Access-Control-Max-Age</strong>表示预检请求的缓存时间，在这个时间内，如果再发生跨域请求，则无需发送预检请求。</li>
-</ul>
-</li>
-</ol>
-<p><strong>Response Header</strong></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Headers</span>: app, cache-control, dcid, nounce, timestamp, userid, uuid</span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Methods</span>: <span class="variable constant_">PUT</span>,<span class="variable constant_">DELETE</span>,<span class="variable constant_">GET</span>,<span class="variable constant_">POST</span>,<span class="variable constant_">OPTIONS</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Origin</span>: <span class="attr">http</span>:<span class="comment">//localhost:3001</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Expose</span>-<span class="title class_">Headers</span>: access-control-allow-headers, access-control-allow-methods, access-control-allow-origin, access-control-max-age, X-<span class="title class_">Frame</span>-<span class="title class_">Options</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Max</span>-<span class="title class_">Age</span>: <span class="number">3600</span></span><br><span class="line"><span class="title class_">Allow</span>: <span class="variable constant_">GET</span>, <span class="variable constant_">HEAD</span>, <span class="variable constant_">POST</span>, <span class="variable constant_">PUT</span>, <span class="variable constant_">DELETE</span>, <span class="variable constant_">TRACE</span>, <span class="variable constant_">OPTIONS</span>, <span class="variable constant_">PATCH</span></span><br><span class="line"><span class="title class_">Cache</span>-<span class="title class_">Control</span>: no-store</span><br><span class="line"><span class="title class_">Connection</span>: keep-alive</span><br><span class="line"><span class="title class_">Content</span>-<span class="title class_">Length</span>: <span class="number">0</span></span><br><span class="line"><span class="title class_">Date</span>: <span class="title class_">Tue</span>, <span class="number">04</span> <span class="title class_">Jan</span> <span class="number">2022</span> <span class="number">03</span>:<span class="number">08</span>:<span class="number">03</span> <span class="variable constant_">GMT</span></span><br><span class="line"><span class="title class_">Pragma</span>: no-cache</span><br><span class="line"><span class="title class_">Server</span>: nginx/<span class="number">1.17</span><span class="number">.5</span></span><br><span class="line"><span class="title class_">Strict</span>-<span class="title class_">Transport</span>-<span class="title class_">Security</span>: max-age=<span class="number">8995000</span>; includeSubdomains</span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Origin</span></span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Request</span>-<span class="title class_">Method</span></span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Request</span>-<span class="title class_">Headers</span></span><br><span class="line">X-<span class="title class_">Content</span>-<span class="title class_">Type</span>-<span class="title class_">Options</span>: nosniff</span><br><span class="line">X-<span class="title class_">Frame</span>-<span class="title class_">Options</span>: <span class="variable constant_">SAMEORIGIN</span></span><br><span class="line">X-<span class="variable constant_">XSS</span>-<span class="title class_">Protection</span>: <span class="number">1</span>; mode=block</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决跨域"><a href="#解决跨域" class="headerlink" title="解决跨域"></a>解决跨域</h2><p>解决跨域的方法很多，常用的有以下几种：</p>
-<h3 id="后端开启CORS"><a href="#后端开启CORS" class="headerlink" title="后端开启CORS"></a>后端开启CORS</h3><p>根据同源策略，我们可以在后端设置<code>Access-Control-Allow-Origin</code>这个响应头，来允许指定的域名访问该资源。下面我们来看看如何在Node和Express中启用CORS。</p>
-<ol>
-<li>创建一个Express项目并安装cors<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm init</span><br><span class="line">npm install express --save</span><br><span class="line">npm install cors --save</span><br></pre></td></tr></table></figure></li>
-<li>在项目根目录下创建<code>server.js</code>文件，添加如下内容，这个服务器提供两个接口，一个是<code>/</code>，一个是<code>/users</code>，其中<code>/users</code>接口返回一个用户列表。而且在<code>server.js</code>中启用了CORS，允许<code>http://localhost:4200</code>这个地址访问该服务提供的接口。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">&#x27;cors&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Enable CORS</span></span><br><span class="line"><span class="keyword">let</span> corsOptions = &#123;</span><br><span class="line"> origin : [<span class="string">&#x27;http://localhost:4200&#x27;</span>], <span class="comment">// 前端项目地址</span></span><br><span class="line">&#125;;</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>(corsOptions));</span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> res.<span class="title function_">send</span>(<span class="string">&#x27;Hello World!&#x27;</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/users&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> <span class="keyword">const</span> users = [</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Jane&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span>&#125;,</span><br><span class="line"> ];</span><br><span class="line"></span><br><span class="line"> res.<span class="title function_">json</span>(users);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
-<li>启动项目<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node server.js</span><br></pre></td></tr></table></figure></li>
-<li>新建一个前端项目（Angular），启动项目后运行在localhost:4200,通过前端访问这个api时就不会有跨域问题了。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">UsersModel</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./users.model&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClient</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/common/http&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-users&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./users.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./users.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">UsersComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">users</span>: <span class="title class_">UsersModel</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> http: HttpClient</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">UsersModel</span>[]&gt;(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>)</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">users: UsersModel[]</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">users</span> = users;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>记得在app.module.ts中启用HttpClientModule<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClientModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">   <span class="attr">declarations</span>: [</span><br><span class="line">   <span class="title class_">AppComponent</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">imports</span>: [</span><br><span class="line">     <span class="title class_">HttpClientModule</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">providers</span>: [],</span><br><span class="line">   <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="使用JsonP"><a href="#使用JsonP" class="headerlink" title="使用JsonP"></a>使用JsonP</h3><p>JSONP (JSON with Padding) 是一种跨域数据交互协议，它允许页面从不同的域名下获取数据。其实现跨域的原理主要基于浏览器对<code>&lt;script&gt;</code>标签的宽松政策，即浏览器允许页面通过<code>&lt;script&gt;</code>标签加载并执行来自任何来源（即任何域名）的JavaScript代码。</p>
-<p>浏览器对一些html标签允许跨域访问，比如<code>&lt;img&gt;</code>、<code>&lt;link&gt;</code>、<code>&lt;script&gt;</code>等，详情参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy#cross-origin_network_access">这里</a></p>
-<p>以下是JSONP实现跨域的基本步骤：</p>
-<ol>
-<li><p><strong>创建<code>&lt;script&gt;</code>标签</strong>：在需要请求数据的网页中动态创建一个<code>&lt;script&gt;</code>标签，并设置其<code>src</code>属性为要请求的数据接口地址。这个地址通常会包含一个回调函数名作为参数。</p>
-</li>
-<li><p><strong>定义回调函数</strong>：在网页中定义一个JavaScript函数，该函数的名字就是之前在<code>src</code>属性中指定的回调函数名。当服务器响应返回时，这个函数会被调用，且响应的数据会作为参数传递给这个函数。</p>
-</li>
-<li><p><strong>服务器端响应</strong>：服务器接收到请求后，会将数据包装在一个函数调用中返回。这个函数名就是客户端请求中指定的那个回调函数名。例如，如果回调函数名为<code>handleResponse</code>，而返回的数据是<code>&#123;&quot;name&quot;: &quot;John&quot;&#125;</code>，那么服务器可能会返回如下内容：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">handleResponse</span>(&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;John&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>执行回调函数</strong>：由于<code>&lt;script&gt;</code>标签加载的是一个有效的JavaScript脚本，所以浏览器会执行这个脚本，即执行<code>handleResponse</code>函数，并将数据作为参数传入。这样，客户端就可以处理从服务器接收到的数据了。</p>
-</li>
-</ol>
-<p>JsonP实现示意图。<br><img src="/../images/jsonp.png" alt="JSONP"></p>
-<p>JSONP的主要优点是简单易用，不需要特殊的服务器配置，且几乎所有的浏览器都支持。然而，它也存在一些限制和安全风险：</p>
-<ul>
-<li><strong>仅支持GET请求</strong>：JSONP只能发起GET请求，无法使用POST等其他HTTP方法。</li>
-<li><strong>安全性问题</strong>：因为JSONP本质上是在执行来自外部源的任意JavaScript代码，所以存在注入攻击的风险。必须确保数据来源可靠。</li>
-<li><strong>错误处理困难</strong>：JSONP没有标准的错误处理机制，一旦请求失败，很难确定失败的原因。</li>
-</ul>
-<p>因此，在选择是否使用JSONP时，开发者需要权衡其带来的便利性和潜在的安全风险。随着CORS（跨源资源共享）等更现代的解决方案的出现，JSONP的使用正在逐渐减少。</p>
-<p>Angular中HttpClient模块也提供了JSONP的支持，使用方法如下：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-jsonp&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./jsonp.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./jsonp.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">JsonpComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> http: HttpClient</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">jsonp</span>(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>, <span class="string">&#x27;callback&#x27;</span>)</span><br><span class="line">        .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">data: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">data</span> = data;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="前端使用反向代理"><a href="#前端使用反向代理" class="headerlink" title="前端使用反向代理"></a>前端使用反向代理</h3><p>这种方法一般是开发阶段使用的，因为本质上，前端是无法解决跨域问题的，只能通过后端来解决。</p>
-<h4 id="Angular项目"><a href="#Angular项目" class="headerlink" title="Angular项目"></a>Angular项目</h4><p>Angular项目中可以使用<code>proxy.conf.json</code>文件配置反向代理，然后在<code>angular.json</code>或者<code>project.json</code>(基于Nx的Mono repo)中配置<code>proxyConfig</code>指向该文件即可。</p>
-<p><code>proxy.conf.json</code>文件内容如下：<br>   <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;/api&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://localhost:3000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;secure&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p>
-<p><code>angular.json</code>或<code>project.json</code>文件内容如下：<br>   <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;serve&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:dev-server&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;proxyConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;proxy.conf.json&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="使用浏览器插件"><a href="#使用浏览器插件" class="headerlink" title="使用浏览器插件"></a>使用浏览器插件</h3><p>这个不做过多介绍，大家自行探索</p>
-<h3 id="使用非安全模式启动浏览器"><a href="#使用非安全模式启动浏览器" class="headerlink" title="使用非安全模式启动浏览器"></a>使用非安全模式启动浏览器</h3><p>在Windows系统上，可以通过以下命令启动Chrome浏览器，这样就可以绕过浏览器的同源策略。这种方式也不推荐。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chrome.exe --user-data-dir=&quot;C://Chrome dev session&quot; --disable-web-security</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Communication-between-components-directives-by-service/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/07/12/Communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-07-12 18:44:28" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-18 21:17:47" itemprop="dateModified" datetime="2024-09-18T21:17:47+08:00">2024-09-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
-<h2 id="Create-a-service"><a href="#Create-a-service" class="headerlink" title="Create a service"></a>Create a service</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params">message: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Send-message"><a href="#Directive-Send-message" class="headerlink" title="Directive(Send message)"></a>Directive(Send message)</h2><p>该指令使用上面定义的service发送消息</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Directive-Receive-message"><a href="#Directive-Receive-message" class="headerlink" title="Directive(Receive message)"></a>Directive(Receive message)</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> communicationService: CommunicationService</span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="AppModule"><a href="#AppModule" class="headerlink" title="AppModule"></a>AppModule</h2><p>我们需要在appModule中声明这两个指令</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1443,14 +1362,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">271</span>
+          <span class="site-state-item-count">273</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">384</span>
+        <span class="site-state-item-count">386</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

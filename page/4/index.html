@@ -181,6 +181,156 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/16/angular-change-detection-markforcheck/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/16/angular-change-detection-markforcheck/" class="post-title-link" itemprop="url">angular-change-detection-manually-control</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-16 16:44:33" itemprop="dateCreated datePublished" datetime="2024-12-16T16:44:33+08:00">2024-12-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 21:34:09" itemprop="dateModified" datetime="2025-02-13T21:34:09+08:00">2025-02-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Angular更新检测是自动执行的，但是有些情况下我们需要手动触发更新检测，Angular提供以下方法来手动触发更新检测：</p>
+<ul>
+<li>detectChanges(): Forces an immediate check for the component and its children.</li>
+<li>markForCheck(): Marks the component to be checked in the next cycle (useful with OnPush).</li>
+<li>detach()&#x2F;reattach(): Temporarily disables or re-enables change detection for a component.</li>
+</ul>
+<h2 id="When-to-use-detectChanges"><a href="#When-to-use-detectChanges" class="headerlink" title="When to use detectChanges"></a>When to use <code>detectChanges</code></h2><p>The follow cases are when you should use <code>detectChanges</code>:</p>
+<h3 id="1-When-change-detector-is-detached-from-current-component"><a href="#1-When-change-detector-is-detached-from-current-component" class="headerlink" title="1. When change detector is detached from current component."></a>1. When change detector is <code>detached</code> from current component.</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngDoCheck</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">currentAge</span>! &lt; <span class="number">50</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">detach</span>(); <span class="comment">// stop change detection</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>(); <span class="comment">// not work, use detectChanges instead.</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">reattach</span>(); <span class="comment">// restore change detection</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-An-update-is-happened-but-its-not-in-Angular-zone-for-example-3rd-party-libraries"><a href="#2-An-update-is-happened-but-its-not-in-Angular-zone-for-example-3rd-party-libraries" class="headerlink" title="2. An update is happened, but its not in Angular zone, for example: 3rd party libraries."></a>2. An update is happened, but its not in Angular zone, for example: 3rd party libraries.</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">myFunction</span>(<span class="params"></span>)&#123;</span><br><span class="line">  <span class="title function_">someFunctionThatIsRunByAThirdPartyCode</span>();</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cd</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>Note that we can also fix this by wrapping the third party code in <code>setTimeout</code> or <code>NgZone.run</code>:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">myFunction</span>(<span class="params"></span>)&#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">someFunctionThatIsRunByAThirdPartyCode</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">myFunction</span>(<span class="params"></span>)&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">someFunctionThatIsRunByAThirdPartyCode</span>();</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">cd</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Angular has monkey patched <code>setTimeout</code>, and will do the change detection after the <code>setTimeout</code> is finished.</p>
+<h3 id="3-There-are-also-cases-where-you-update-the-model-after-the-change-detection-cycle-is-finished-where-in-those-cases-you-get-this-dreaded-error-quot-Expression-has-changed-after-it-was-checked-quot"><a href="#3-There-are-also-cases-where-you-update-the-model-after-the-change-detection-cycle-is-finished-where-in-those-cases-you-get-this-dreaded-error-quot-Expression-has-changed-after-it-was-checked-quot" class="headerlink" title="3. There are also cases where you update the model after the change detection cycle is finished, where in those cases you get this dreaded error: &quot;Expression has changed after it was checked&quot;;"></a>3. There are also cases where you update the model after the change detection cycle is finished, where in those cases you get this dreaded error: <code>&quot;Expression has changed after it was checked&quot;;</code></h3><h2 id="When-to-use-markForCheck"><a href="#When-to-use-markForCheck" class="headerlink" title="When to use markForCheck"></a>When to use <code>markForCheck</code></h2><p>The most common case to use <code>markForCheck</code> is when your component use <code>OnPush</code> change detection strategy and you want to trigger change detection for the component and its ancestors.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ChangeDetectionStrategy</span>, <span class="title class_">ChangeDetectorRef</span>, <span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;reflect-metadata&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductDetailComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../product-detail/product-detail.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">CardComponent</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../card/card.component&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HoverDirective</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../hover.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Dir1Directive</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../dir1.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">OrderService</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../order.service&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Dir2Directive</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../dir2.directive&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ProductItem</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./product.model&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span>, <span class="comment">// OnPush mode</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">product</span>: <span class="title class_">ProductItem</span> | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> orderService: OrderService, <span class="keyword">private</span> cdf: ChangeDetectorRef</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">orderService</span>.<span class="title function_">fetchData</span>(<span class="number">1</span>).<span class="title function_">then</span>(<span class="function"><span class="params">product</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">product</span> = product;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">cdf</span>.<span class="title function_">markForCheck</span>(); <span class="comment">// &lt;--- must</span></span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Difference-between-detectChanges-and-markForCheck"><a href="#Difference-between-detectChanges-and-markForCheck" class="headerlink" title="Difference between detectChanges and markForCheck"></a>Difference between <code>detectChanges</code> and <code>markForCheck</code></h2><ol>
+<li><code>detectChanges</code> triggers change detection for the <code>component and its children</code>.</li>
+<li><code>markForCheck</code> marks the <code>component and its ancestors</code> for change detection, but it doesn’t trigger change detection immediately.</li>
+<li><code>detectChanges</code> still work even when change detector is <code>detached</code>, but <code>markForCheck</code> doesn’t.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/16/angular-provider-multi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/16/angular-provider-multi/" class="post-title-link" itemprop="url">angular-provider-multi</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-12-16 16:15:34 / Modified: 16:22:18" itemprop="dateCreated datePublished" datetime="2024-12-16T16:15:34+08:00">2024-12-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在Angular中，我们可以通过<code>useClass</code>、<code>useValue</code>、<code>useFactory</code>、<code>useExisting</code>等属性来指定依赖注入的提供者，但是这些属性只能指定一个提供者，如果我们需要指定多个提供者，该怎么办呢？这时候就需要使用<code>multi</code>属性了。</p>
+<p>比如下面这个例子：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">InjectionToken</span>, <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">MY_MULTI_TOKEN</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="built_in">string</span>[]&gt;(<span class="string">&#x27;MyMultiToken&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    &#123; <span class="attr">provide</span>: <span class="variable constant_">MY_MULTI_TOKEN</span>, <span class="attr">useValue</span>: <span class="string">&#x27;Value1&#x27;</span>, <span class="attr">multi</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">provide</span>: <span class="variable constant_">MY_MULTI_TOKEN</span>, <span class="attr">useValue</span>: <span class="string">&#x27;Value2&#x27;</span>, <span class="attr">multi</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>对于<code>MY_MULTI_TOKEN</code>，我们多次使用<code>useValue</code>属性来指定提供者，然后通过<code>multi: true</code>来指定这是一个多提供者。Angular最终会将这些值放到一个数组中返回。所以<code>MY_MULTI_TOKEN</code>最终的值是<code>[&#39;Value1&#39;, &#39;Value2&#39;]</code></p>
+<p>Angular内置的<code>ROUTES</code>token也是multi的，从它的定义就可以看出来，它返回的是<code>Route[]</code>的数组。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">declare</span> <span class="keyword">const</span> <span class="attr">ROUTES</span>: <span class="title class_">InjectionToken</span>&lt;<span class="title class_">Route</span>[][]&gt;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/15/node-misc/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -754,139 +904,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/12/javascript-template-string/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/12/12/javascript-template-string/" class="post-title-link" itemprop="url">javascript-template-string</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-12-12 10:35:59 / Modified: 10:39:49" itemprop="dateCreated datePublished" datetime="2024-12-12T10:35:59+08:00">2024-12-12</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>JavaScript模板字符串是ES6新增的一种字符串形式，它可以让我们在字符串中插入变量，而不需要使用<code>+</code>号连接字符串，这样使得字符串的拼接更加简洁。以下是模板字符串的特点。</p>
-<h2 id="Interpolation"><a href="#Interpolation" class="headerlink" title="Interpolation"></a>Interpolation</h2><p>模板字符串中可以插入变量，使用<code>$&#123;&#125;</code>包裹变量名。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> name = <span class="string">&#x27;zdd&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> str = <span class="string">`Hello, <span class="subst">$&#123;name&#125;</span>`</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str); <span class="comment">// Hello, zdd</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Multiple-lines-of-string"><a href="#Multiple-lines-of-string" class="headerlink" title="Multiple lines of string"></a>Multiple lines of string</h2><p>模板字符串可以跨行，这样我们就可以直接在字符串中换行，而不需要使用<code>\n</code>。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">`Hello</span></span><br><span class="line"><span class="string">World`</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Tagged-template"><a href="#Tagged-template" class="headerlink" title="Tagged template"></a>Tagged template</h2><p>模板字符串还支持标签模板，即在模板字符串前面加上一个函数名，这个函数会处理模板字符串的内容。所以，这个模板字符串的应用场景是什么？在项目中好像没见过这么用的。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">tag</span>(<span class="params">strings, ...values</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(strings); <span class="comment">// [&#x27;Hello, &#x27;, &#x27;&#x27;]</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(values); <span class="comment">// [&#x27;zdd&#x27;]</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;Hello, &#x27;</span> + values[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> name = <span class="string">&#x27;zdd&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> str = tag<span class="string">`Hello, <span class="subst">$&#123;name&#125;</span>`</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(str); <span class="comment">// Hello, zdd</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/05/rxjs-interview-questions/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/12/05/rxjs-interview-questions/" class="post-title-link" itemprop="url">rxjs-interview-questions</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-12-05 15:53:17 / Modified: 16:06:11" itemprop="dateCreated datePublished" datetime="2024-12-05T15:53:17+08:00">2024-12-05</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>There are some questions about RxJS that are often asked in interviews. Let’s take a look at them.</p>
-<h2 id="What’s-the-difference-between-Promise-and-Observable"><a href="#What’s-the-difference-between-Promise-and-Observable" class="headerlink" title="What’s the difference between Promise and Observable?"></a>What’s the difference between <code>Promise</code> and <code>Observable</code>?</h2><ol>
-<li><code>Promise</code>是一对一的，而<code>Observable</code>可以是一对多的。（一个Observer可以有多个订阅者）</li>
-<li><code>Promise</code>不能取消（配合某些Library也许可以），而<code>Observable</code>可以。</li>
-<li><code>Promise</code>定义后立即执行，而<code>Observable</code>是惰性的。订阅后才执行。</li>
-<li><code>Promise</code>可以配合<code>async/await</code>使用，而<code>Observable</code>不行。</li>
-<li><code>Promise</code>没有操作符，而<code>Observable</code>有很多操作符，比如map，retry等，在处理复杂请求时更加方便。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -956,14 +973,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">271</span>
+          <span class="site-state-item-count">273</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">384</span>
+        <span class="site-state-item-count">386</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
