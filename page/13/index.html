@@ -181,6 +181,239 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/18/angular-ssr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/18/angular-ssr/" class="post-title-link" itemprop="url">angular-ssr</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-08-18 20:56:05" itemprop="dateCreated datePublished" datetime="2024-08-18T20:56:05+08:00">2024-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-14 21:16:23" itemprop="dateModified" datetime="2024-11-14T21:16:23+08:00">2024-11-14</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Angular-Server-Side-Rendering-For-New-Project"><a href="#Angular-Server-Side-Rendering-For-New-Project" class="headerlink" title="Angular Server Side Rendering For New Project"></a>Angular Server Side Rendering For New Project</h1><h2 id="Step-by-step-guide"><a href="#Step-by-step-guide" class="headerlink" title="Step by step guide"></a>Step by step guide</h2><p>Start from Angular 17, SSR was enabled by default when you create a new Angular project. To create a new Angular project, run the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new angular-ssr</span><br></pre></td></tr></table></figure>
+<p>Press <code>Y</code> on keyboard when prompted with the following question, then Angular will generate the boilerplate code for you.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Do you want to <span class="built_in">enable</span> Server-Side Rendering (SSR) and Static Site Generation (SSG/Prerendering)? (y/N)</span><br></pre></td></tr></table></figure>
+<p>Compared with the traditional pure client-side rendering project, the Angular SSR project has the following differences:</p>
+<h2 id="Project-structure-changes-for-SSR"><a href="#Project-structure-changes-for-SSR" class="headerlink" title="Project structure changes for SSR"></a>Project structure changes for SSR</h2><p>The following new files were added to the project:</p>
+<ol>
+<li>The <code>server.ts</code> file is added to the project root directory.</li>
+<li>The <code>src/main.server.ts</code> file is added to the project source directory.</li>
+<li>The <code>src/app/app.config.server.ts</code> file is added to the project source directory.</li>
+</ol>
+<p>The following changes were made to the existing files:</p>
+<ol>
+<li>The <code>package.json</code> file has a new <code>server</code> script.<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line">   <span class="attr">&quot;serve:ssr:angular-ssr&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node dist/angular-ssr/server/server.mjs&quot;</span> <span class="comment">// &lt;--- new</span></span><br><span class="line"> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
+<li>The <code>angular.json</code> file has a new <code>server</code> configuration under the <code>architect | build | options</code> section.<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">&quot;server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/main.server.ts&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;prerender&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;ssr&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;entry&quot;</span><span class="punctuation">:</span> <span class="string">&quot;server.ts&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure></li>
+<li>The <code>tsconfig.app.json</code> file <code>file</code> section is updated to include the <code>src/main.server.ts</code> file.<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"> <span class="comment">// ...</span></span><br><span class="line"> <span class="attr">&quot;files&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">   <span class="string">&quot;src/main.ts&quot;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="string">&quot;src/main.server.ts&quot;</span><span class="punctuation">,</span> <span class="comment">// &lt;--- new</span></span><br><span class="line">   <span class="string">&quot;server.ts&quot;</span> <span class="comment">// &lt;--- new</span></span><br><span class="line"> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line"> <span class="comment">// ...</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li>The <code>src/app/app.config.ts</code> file add <code>provideClientHydration</code> in <code>providers</code>.<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">   <span class="attr">providers</span>: [<span class="title function_">provideRouter</span>(routes), <span class="title function_">provideClientHydration</span>()]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Run-app"><a href="#Run-app" class="headerlink" title="Run app"></a>Run app</h2><h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><h2 id="How-to-check-if-page-is-rendered-by-server-or-client"><a href="#How-to-check-if-page-is-rendered-by-server-or-client" class="headerlink" title="How to check if page is rendered by server or client"></a>How to check if page is rendered by server or client</h2><ol>
+<li>Open the page in Chrome browser.</li>
+<li>Right-click on the page and select <code>View page source</code>.</li>
+<li>Check the body tag, if the body tag is empty, it means the page is rendered in client side, the following page is a CSR page, since the body tag only contains <code>&lt;app-root&gt;&lt;/app-root&gt;</code>. that’s for the client side rendering.<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!doctype <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span> <span class="attr">src</span>=<span class="string">&quot;/@vite/client&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line">     <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">title</span>&gt;</span>Angular SSR In Depth<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">base</span> <span class="attr">href</span>=<span class="string">&quot;/&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;icon&quot;</span> <span class="attr">type</span>=<span class="string">&quot;image/x-icon&quot;</span> <span class="attr">href</span>=<span class="string">&quot;favicon.ico&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">&quot;https://fonts.googleapis.com/css?family=Roboto:300,400,500<span class="symbol">&amp;amp;</span> display=swap&quot;</span>   <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">&quot;https://fonts.googleapis.com/icon?family=Material+Icons&quot;</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;styles.css&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">body</span> <span class="attr">class</span>=<span class="string">&quot;mat-typography&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">app-root</span>&gt;</span><span class="tag">&lt;/<span class="name">app-root</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;polyfills.js&quot;</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;main.js&quot;</span>    <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="language-javascript">&lt;<span class="regexp">/  script&gt;&lt;/</span>body&gt;</span></span><br><span class="line"><span class="language-javascript">&lt;/html&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="Angular-SSR-for-existing-project"><a href="#Angular-SSR-for-existing-project" class="headerlink" title="Angular SSR for existing project"></a>Angular SSR for existing project</h1><p>If you have an existing project and want to enable SSR, you can follow the steps below.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng add @angular/ssr</span><br></pre></td></tr></table></figure>
+<p>This command will add the necessary files and configurations to your project to enable SSR.</p>
+<ol>
+<li><p>Create <code>src/main.server.ts</code> file.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; bootstrapApplication &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; config &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.config.server&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">bootstrap</span> = (<span class="params"></span>) =&gt; <span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, config);</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> bootstrap;</span><br></pre></td></tr></table></figure></li>
+<li><p>Create <code>src/app/app.config.server.ts</code> file.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; mergeApplicationConfig, <span class="title class_">ApplicationConfig</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; provideServerRendering &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-server&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; appConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.config&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">serverConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    <span class="title function_">provideServerRendering</span>()</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> config = <span class="title function_">mergeApplicationConfig</span>(appConfig, serverConfig);</span><br></pre></td></tr></table></figure></li>
+<li><p>Create <code>server.ts</code> file.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="variable constant_">APP_BASE_HREF</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommonEngine</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/ssr&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> express <span class="keyword">from</span> <span class="string">&#x27;express&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; fileURLToPath &#125; <span class="keyword">from</span> <span class="string">&#x27;node:url&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; dirname, join, resolve &#125; <span class="keyword">from</span> <span class="string">&#x27;node:path&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> bootstrap <span class="keyword">from</span> <span class="string">&#x27;./src/main.server&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// The Express app is exported so that it can be used by serverless Functions.</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">app</span>(<span class="params"></span>): express.<span class="property">Express</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> server = <span class="title function_">express</span>();</span><br><span class="line">  <span class="keyword">const</span> serverDistFolder = <span class="title function_">dirname</span>(<span class="title function_">fileURLToPath</span>(<span class="keyword">import</span>.<span class="property">meta</span>.<span class="property">url</span>));</span><br><span class="line">  <span class="keyword">const</span> browserDistFolder = <span class="title function_">resolve</span>(serverDistFolder, <span class="string">&#x27;../browser&#x27;</span>);</span><br><span class="line">  <span class="keyword">const</span> indexHtml = <span class="title function_">join</span>(serverDistFolder, <span class="string">&#x27;index.server.html&#x27;</span>);</span><br><span class="line">  <span class="keyword">const</span> commonEngine = <span class="keyword">new</span> <span class="title class_">CommonEngine</span>();</span><br><span class="line"></span><br><span class="line">  server.<span class="title function_">set</span>(<span class="string">&#x27;view engine&#x27;</span>, <span class="string">&#x27;html&#x27;</span>);</span><br><span class="line">  server.<span class="title function_">set</span>(<span class="string">&#x27;views&#x27;</span>, browserDistFolder);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Example Express Rest API endpoints</span></span><br><span class="line">  <span class="comment">// server.get(&#x27;/api/**&#x27;, (req, res) =&gt; &#123; &#125;);</span></span><br><span class="line">  <span class="comment">// Serve static files from /browser</span></span><br><span class="line">  server.<span class="title function_">get</span>(<span class="string">&#x27;**&#x27;</span>, express.<span class="title function_">static</span>(browserDistFolder, &#123;</span><br><span class="line">    <span class="attr">maxAge</span>: <span class="string">&#x27;1y&#x27;</span>,</span><br><span class="line">    <span class="attr">index</span>: <span class="string">&#x27;index.html&#x27;</span>,</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// All regular routes use the Angular engine</span></span><br><span class="line">  server.<span class="title function_">get</span>(<span class="string">&#x27;**&#x27;</span>, <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; protocol, originalUrl, baseUrl, headers &#125; = req;</span><br><span class="line">    commonEngine</span><br><span class="line">      .<span class="title function_">render</span>(&#123;</span><br><span class="line">        bootstrap,</span><br><span class="line">        <span class="attr">documentFilePath</span>: indexHtml,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">`<span class="subst">$&#123;protocol&#125;</span>://<span class="subst">$&#123;headers.host&#125;</span><span class="subst">$&#123;originalUrl&#125;</span>`</span>,</span><br><span class="line">        <span class="attr">publicPath</span>: browserDistFolder,</span><br><span class="line">        <span class="attr">providers</span>: [&#123; <span class="attr">provide</span>: <span class="variable constant_">APP_BASE_HREF</span>, <span class="attr">useValue</span>: baseUrl &#125;],</span><br><span class="line">      &#125;)</span><br><span class="line">      .<span class="title function_">then</span>(<span class="function">(<span class="params">html</span>) =&gt;</span> res.<span class="title function_">send</span>(html))</span><br><span class="line">      .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="title function_">next</span>(err));</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> server;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">run</span>(<span class="params"></span>): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> port = process.<span class="property">env</span>[<span class="string">&#x27;PORT&#x27;</span>] || <span class="number">4000</span>;</span><br><span class="line">  <span class="comment">// Start up the Node server</span></span><br><span class="line">  <span class="keyword">const</span> server = <span class="title function_">app</span>();</span><br><span class="line">  server.<span class="title function_">listen</span>(port, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Node Express server listening on http://localhost:<span class="subst">$&#123;port&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">run</span>();</span><br></pre></td></tr></table></figure></li>
+<li><p>Update <code>angular.json</code> file. </p>
+<p>Add the following in <code>architect | build | options</code> section.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/main.server.ts&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;prerender&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;ssr&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;entry&quot;</span><span class="punctuation">:</span> <span class="string">&quot;server.ts&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>Update <code>tsconfig.app.json</code> file.</p>
+</li>
+<li><p>Update <code>src/app/app.config.ts</code> file.</p>
+</li>
+<li><p>Update <code>package.json</code> file.</p>
+</li>
+</ol>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=U1MP4uCuUVI">https://www.youtube.com/watch?v=U1MP4uCuUVI</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/12/angular-di-define-dependency-providers/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/12/angular-di-define-dependency-providers/" class="post-title-link" itemprop="url">angular-di-define-dependency-providers</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-08-12 20:09:07" itemprop="dateCreated datePublished" datetime="2024-08-12T20:09:07+08:00">2024-08-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-10 15:50:21" itemprop="dateModified" datetime="2025-02-10T15:50:21+08:00">2025-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>There are many ways to define a dependency provider in Angular. In this article, we will discuss the following ways:</p>
+<h1 id="useClass"><a href="#useClass" class="headerlink" title="useClass"></a>useClass</h1><p><code>useClass</code>是依赖注入中提供provider最常见的方式，我们项目中90%用的都是这种方式，下面来看看怎么使用这种方式，假设我们有一个ProductComponent组件，它依赖一个OrderService服务，我们可以像下面这样提供OrderService：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>], <span class="comment">// &lt;-- Provide OrderService</span></span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子其实是简写形式，它等价于下面的完整形式：也就是当<code>provide</code>对应的值和<code>useClass</code>对应的值相同时，我们可以采用这种简写形式。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123; <span class="attr">provide</span>: <span class="title class_">OrderService</span>, <span class="attr">useClass</span>: <span class="title class_">OrderService</span> &#125;],</span><br></pre></td></tr></table></figure>
+<p>还有一点需要注意的是：如果<code>OrderService</code>是<code>providedIn: &#39;root&#39;</code>的话，那么我们就不需要在<code>providers</code>中再次提供<code>OrderService</code>了，直接在构造函数中注入即可。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>useClass</code>在单元测试中特别有用，如果要测试的Service很复杂，我们可以提供一个mockService来代替他，这个mockService只要满足最小测试范围内即可，这样就可以保证测试的独立性。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123; <span class="attr">provide</span>: <span class="title class_">UserService</span>, <span class="attr">useClass</span>: mockUserService&#125;]</span><br></pre></td></tr></table></figure>
+
+<h1 id="useExisting"><a href="#useExisting" class="headerlink" title="useExisting"></a>useExisting</h1><p><code>useExisting</code>通常用于提供一个别名，也就是说，<code>useExisting</code>提供了多种访问同一Service的方式，下面来看一个例子：<br>假设我们的Order分为线下订单和线上订单，那么线上订单我们可以单独定义一个Service，叫做<code>OnlineOrderService</code>，这个Service需要的功能OrderService中都有，所以我们可以如下使用它。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>, &#123;<span class="attr">provide</span>: <span class="title class_">OnlineOrderService</span>, <span class="attr">useExisting</span>: <span class="title class_">OrderService</span>&#125;], </span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里：<code>OnlineOrderService</code>是<code>OrderService</code>的别名，我们可以通过<code>OnlineOrderService</code>来访问<code>OrderService</code>的实例。</p>
+<p>这种方式通常发生在旧系统到新系统的迁移时，比如迁移的时候，我们可能会更改一些Service的名字，但是为了兼容旧系统，我们可以通过<code>useExisting</code>来提供别名。</p>
+<p>以Logger为例，假设旧系统使用的是OldLoggerService, 新系统使用的是NewLoggerService，那么我们可以这样定义：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="title class_">OldLoggerService</span>, <span class="attr">useExisting</span>: <span class="title class_">NewLoggerService</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+<h1 id="useFactory"><a href="#useFactory" class="headerlink" title="useFactory"></a>useFactory</h1><p><code>useFactory</code>，顾名思义，这种方式使用一个工厂方法来提供依赖的实例，通常用在需要参数的Service中，上面的例子中，我们提供的Service都是无参数的，下面我们来看一个需要参数的Service。</p>
+<p>下面这个<code>HeroService</code>需要一个<code>Logger</code>和一个<code>isAuthorized</code>参数，无论是<code>useClass</code>，还是<code>useExisting</code>都无法满足这个需求，这时我们就可以使用<code>useFactory</code>来提供这个Service。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> logger: Logger,</span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> isAuthorized: <span class="built_in">boolean</span></span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getHeroes</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> auth = <span class="variable language_">this</span>.<span class="property">isAuthorized</span> ? <span class="string">&#x27;authorized&#x27;</span> : <span class="string">&#x27;unauthorized&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">logger</span>.<span class="title function_">log</span>(<span class="string">`Getting heroes for <span class="subst">$&#123;auth&#125;</span> user.`</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable constant_">HEROES</span>.<span class="title function_">filter</span>(<span class="function"><span class="params">hero</span> =&gt;</span> <span class="variable language_">this</span>.<span class="property">isAuthorized</span> || !hero.<span class="property">isSecret</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>useFactory</code>后面跟的是一个函数，所以我们先定义这个函数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">heroServiceFactory</span> = (<span class="params">logger: Logger, userService: UserService</span>) =&gt;</span><br><span class="line">  <span class="keyword">new</span> <span class="title class_">HeroService</span>(logger, userService.<span class="property">user</span>.<span class="property">isAuthorized</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>useFactory</code>来提供<code>HeroService</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [</span><br><span class="line">  <span class="title class_">Logger</span>,</span><br><span class="line">  <span class="title class_">UserService</span>,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">provide</span>: <span class="title class_">HeroService</span>,</span><br><span class="line">    <span class="attr">useFactory</span>: heroServiceFactory,</span><br><span class="line">    <span class="attr">deps</span>: [<span class="title class_">Logger</span>, <span class="title class_">UserService</span>] <span class="comment">// deps是用来给工厂方法传递参数的</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>注意观察，上面的工厂函数<code>heroServiceFactory</code>中的参数<code>logger</code>和<code>userService</code>是通过<code>deps</code>传递进来的。</p>
+<h1 id="useValue"><a href="#useValue" class="headerlink" title="useValue"></a>useValue</h1><p><code>useValue</code>允许你绑定一个静态值到一个token上，这种方式通常用于提供一些常量，比如配置信息等。如果我们需要运行时动态取值，就可以使用这种方式了。</p>
+<p><code>useValue</code>的使用步骤如下：</p>
+<ol>
+<li>定义一个token</li>
+<li>使用<code>useValue</code>来提供这个token</li>
+<li>在构造函数中注入这个token</li>
+</ol>
+<h2 id="token是简单值"><a href="#token是简单值" class="headerlink" title="token是简单值"></a>token是简单值</h2><h3 id="定义一个token"><a href="#定义一个token" class="headerlink" title="定义一个token"></a>定义一个token</h3><p>首先新建一个文件<code>src/app/config/AppConfig.ts</code>用来存储token。这里我们创建一个token用来存储主题信息。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">InjectionToken</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/core&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="title class_">AppTheme</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;appTheme&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用useValue来提供这个token"><a href="#使用useValue来提供这个token" class="headerlink" title="使用useValue来提供这个token"></a>使用<code>useValue</code>来提供这个token</h3><p>由于我们这个token比较简单，就是字符串类型的，所以直接用字符串’light’来提供这个token。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="title class_">AppTheme</span>, <span class="attr">useValue</span>: <span class="string">&#x27;light&#x27;</span>&#125;],</span><br></pre></td></tr></table></figure>
+
+<h3 id="在构造函数中注入这个token"><a href="#在构造函数中注入这个token" class="headerlink" title="在构造函数中注入这个token"></a>在构造函数中注入这个token</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Inject</span>(AppTheme) <span class="keyword">private</span> theme: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(theme);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="token是对象"><a href="#token是对象" class="headerlink" title="token是对象"></a>token是对象</h2><p>对于复杂的token，我们将其封装到一个JS对象中，如果一个app中有多个配置项，我们可以将这些配置项封装到一个对象<code>AppConfig</code>中，然后使用<code>useValue</code>来提供这个对象。</p>
+<h3 id="定义一个token-1"><a href="#定义一个token-1" class="headerlink" title="定义一个token"></a>定义一个token</h3><p>首先定义token对应的对象类型，这里使用typescript中的interface来定义。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/app/config/AppConfig.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line">    <span class="attr">theme</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">version</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">production</span>: <span class="built_in">boolean</span>;</span><br><span class="line">    <span class="attr">baseUrl</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">apiEndpoint</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后定义该类型对应的token实例。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/app/config/AppConfig.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">APP_CONFIG</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="title class_">AppConfig</span>&gt;(<span class="string">&#x27;app config&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用useValue来提供这个token-1"><a href="#使用useValue来提供这个token-1" class="headerlink" title="使用useValue来提供这个token"></a>使用<code>useValue</code>来提供这个token</h3><p>先创建一个<code>AppConfig</code>对象，然后使用<code>useValue</code>来提供这个对象。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">currentAppConfig</span>: <span class="title class_">AppConfig</span> = &#123;</span><br><span class="line">  <span class="attr">theme</span>: <span class="string">&#x27;light&#x27;</span>,</span><br><span class="line">  <span class="attr">version</span>: <span class="string">&#x27;1.0.0&#x27;</span>,</span><br><span class="line">  <span class="attr">production</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">baseUrl</span>: <span class="string">&#x27;https://example.com&#x27;</span>,</span><br><span class="line">  <span class="attr">apiEndpoint</span>: <span class="string">&#x27;https://example.com/api&#x27;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="variable constant_">APP_CONFIG</span>, <span class="attr">useValue</span>: currentAppConfig&#125;],</span><br></pre></td></tr></table></figure>
+
+<h3 id="在构造函数中注入这个token-1"><a href="#在构造函数中注入这个token-1" class="headerlink" title="在构造函数中注入这个token"></a>在构造函数中注入这个token</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Inject</span>(APP_CONFIG) <span class="keyword">private</span> config: AppConfig</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(config);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样在Component中，就可以使用<code>this.config</code>来访问这个配置对象了。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/di/dependency-injection-providers">https://angular.dev/guide/di/dependency-injection-providers</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@matsal.dev/angular-usevalue-useclass-useexisting-and-usefactory-in-a-nutshell-97db8d206084">https://medium.com/@matsal.dev/angular-usevalue-useclass-useexisting-and-usefactory-in-a-nutshell-97db8d206084</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/01/css-last-child-vs-last-of-type/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -817,196 +1050,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/20/angular-ng-class/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/20/angular-ng-class/" class="post-title-link" itemprop="url">angular-ng-class</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-20 21:59:20" itemprop="dateCreated datePublished" datetime="2024-07-20T21:59:20+08:00">2024-07-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-07-21 09:59:32" itemprop="dateModified" datetime="2024-07-21T09:59:32+08:00">2024-07-21</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngClass</code> is a directive in Angular that allows you to add or remove classes on an HTML element.</p>
-<h1 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h1><p>First, create a <code>Student</code> component in your app.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component student</span><br></pre></td></tr></table></figure>
-
-<h2 id="1-import-NgClass-from-angular-common"><a href="#1-import-NgClass-from-angular-common" class="headerlink" title="1. import NgClass from @angular/common;"></a>1. import <code>NgClass</code> from <code>@angular/common</code>;</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">NgClass</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/common&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-Add-NgClass-to-the-imports-array-in-the-component-x2F-module"><a href="#2-Add-NgClass-to-the-imports-array-in-the-component-x2F-module" class="headerlink" title="2. Add NgClass to the imports array in the component&#x2F;module;"></a>2. Add <code>NgClass</code> to the <code>imports</code> array in the component&#x2F;module;</h2><p>We’re using standalone component here.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-student&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./student.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">NgClass</span>], <span class="comment">// &lt;--- here</span></span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./student.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<h2 id="3-Use-the-ngClass-directive-in-the-HTML-template"><a href="#3-Use-the-ngClass-directive-in-the-HTML-template" class="headerlink" title="3. Use the ngClass directive in the HTML template."></a>3. Use the <code>ngClass</code> directive in the HTML template.</h2><p>We’ll categorize students based on their grades, different grades will have different colors.</p>
-<p><code>ngClass</code> accepts <code>string</code>, <code>array</code>, <code>object</code>, <code>map</code>, <code>set</code>, <code>function</code>, and <code>binding to a CSS class</code>. we’ll use all of them in the following examples.</p>
-<h3 id="1-String-syntax"><a href="#1-String-syntax" class="headerlink" title="1. String syntax"></a>1. String syntax</h3><p>Note, since <code>ngClass</code> is a property binding, we need to wrap the class name in <code>&#39;&#39;</code> to make it a hard-coded string, otherwise the class name will be treated as a variable in your component.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;&#x27;grade-A&#x27;&quot;</span>&gt;</span>Student A<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p><code>ngClass</code> is commonly used to bind a variable in component, for example, we can define a variable <code>grade</code> in the component, and bind it to the <code>ngClass</code> directive.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grade = <span class="string">&#x27;grade-A&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;grade&quot;</span>&gt;</span>Student A<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>If you want to apply a class without a condition, you can simply use the following syntax.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;grade-A&quot;</span>&gt;</span>Student A<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-Array-syntax"><a href="#2-Array-syntax" class="headerlink" title="2. Array syntax"></a>2. Array syntax</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;[&#x27;grade-A&#x27;, &#x27;grade-B&#x27;]&quot;</span>&gt;</span>Student B<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="3-Object-syntax"><a href="#3-Object-syntax" class="headerlink" title="3. Object syntax"></a>3. Object syntax</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;&#123;&#x27;grade-A&#x27;: true, &#x27;grade-B&#x27;: false&#125;&quot;</span>&gt;</span>Student C<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="4-Map-syntax"><a href="#4-Map-syntax" class="headerlink" title="4. Map syntax"></a>4. Map syntax</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;gradeMap&quot;</span>&gt;</span>Student D<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gradeMap = <span class="keyword">new</span> <span class="title class_">Map</span>&lt;<span class="built_in">string</span>, <span class="built_in">boolean</span>&gt;([</span><br><span class="line">  [<span class="string">&#x27;grade-A&#x27;</span>, <span class="literal">true</span>],</span><br><span class="line">  [<span class="string">&#x27;grade-B&#x27;</span>, <span class="literal">false</span>]</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-Set-syntax"><a href="#5-Set-syntax" class="headerlink" title="5. Set syntax"></a>5. Set syntax</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;gradeSet&quot;</span>&gt;</span>Student E<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gradeSet = <span class="keyword">new</span> <span class="title class_">Set</span>&lt;<span class="built_in">string</span>&gt;([<span class="string">&#x27;grade-A&#x27;</span>, <span class="string">&#x27;grade-B&#x27;</span>]);</span><br></pre></td></tr></table></figure>
-
-<p><span style="color:#d7520e">With any object-like bindings such as <code>Array</code>, <code>Object</code>, <code>Map</code>, and <code>Set</code> syntax, the identity of the object must change for Angular to apply the new class. Updating the property without changing the identify has no effect</span>, for example:</p>
-<p>This one doest not work, because <code>gradeObject</code> is the same object.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">gradeObject</span>[<span class="string">&quot;grade-b&quot;</span>] = <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
-
-<p>This one works, because <code>gradeObject</code> is a new object.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">gradeObject</span> = &#123;...<span class="variable language_">this</span>.<span class="property">gradeObject</span>, <span class="string">&quot;grade-b&quot;</span>: <span class="literal">false</span>&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>Note that, <code>Map</code> and <code>Set</code> syntax are rarely used, <code>object</code> and <code>array</code> syntax are the most common.</p>
-<h3 id="6-Expression-syntax"><a href="#6-Expression-syntax" class="headerlink" title="6. Expression syntax"></a>6. Expression syntax</h3><p><code>grade</code> is a component variable, we can use it in the expression.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">``</span><span class="string">`html</span></span><br><span class="line"><span class="string">&lt;div [ngClass]=&quot;grade === &#x27;isGradeA&#x27; ? &#x27;grade-A&#x27; : &#x27;&#x27;&quot;&gt;Student F&lt;/div&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="7-Function-syntax"><a href="#7-Function-syntax" class="headerlink" title="7. Function syntax"></a>7. Function syntax</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;getGrade()&quot;</span>&gt;</span>Student F<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">getGrade</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;grade-A&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Difference-between-ngClass-and-class"><a href="#Difference-between-ngClass-and-class" class="headerlink" title="Difference between [ngClass] and [class]"></a>Difference between <code>[ngClass]</code> and <code>[class]</code></h2><p><code>[ngClass]</code> is a directive that allows you to add or remove classes based on conditions, while <code>[class]</code> is a property binding that allows you to add a class without a condition.</p>
-<p>Most of the above case can be achieved by <code>[class]</code> as well, except the following case.</p>
-<p>This one works</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">ngClass</span>]=<span class="string">&quot;&#123;&#x27;grade-a grade-b&#x27;: true&#125;&quot;</span>&gt;</span>Student<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>But this one <code>doesn&#39;t</code> work</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> [<span class="attr">class</span>]=<span class="string">&quot;&#123;&#x27;grade-a grade-b&#x27;: true&#125;&quot;</span>&gt;</span>Student<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/api/common/NgClass?tab=api">https://angular.dev/api/common/NgClass?tab=api</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/directives#import-ngclass-in-the-component">https://angular.dev/guide/directives#import-ngclass-in-the-component</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/17/great-blogs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/17/great-blogs/" class="post-title-link" itemprop="url">great-blogs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-17 20:45:33" itemprop="dateCreated datePublished" datetime="2024-07-17T20:45:33+08:00">2024-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-07-20 04:46:13" itemprop="dateModified" datetime="2024-07-20T04:46:13+08:00">2024-07-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li><a target="_blank" rel="noopener" href="https://thehistoryoftheweb.com/">The history of the web</a></li>
-<li><a target="_blank" rel="noopener" href="https://web.archive.org/">web archive</a></li>
-<li><a target="_blank" rel="noopener" href="https://webdevelopmenthistory.com/">Web development history</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1076,14 +1119,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">276</span>
+          <span class="site-state-item-count">278</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">392</span>
+        <span class="site-state-item-count">398</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
