@@ -181,6 +181,181 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/05/angular-lifecyle-ngonchanges/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/05/angular-lifecyle-ngonchanges/" class="post-title-link" itemprop="url">angular-lifecyle-ngonchanges</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-05 10:04:38" itemprop="dateCreated datePublished" datetime="2024-12-05T10:04:38+08:00">2024-12-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-10 15:01:34" itemprop="dateModified" datetime="2025-02-10T15:01:34+08:00">2025-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngOnChanges</code>是Angular中非常重要的一个生命周期函数，今天我们来详细讨论一下它的用法。</p>
+<h2 id="Angular什么时候调用ngOnChanges？"><a href="#Angular什么时候调用ngOnChanges？" class="headerlink" title="Angular什么时候调用ngOnChanges？"></a>Angular什么时候调用<code>ngOnChanges</code>？</h2><p><code>ngOnChanges</code>是一个生命周期钩子，当Angular检测到组件的输入属性发生变化时，就会调用<code>ngOnChanges</code>函数。这意味着，只有当组件的输入属性发生变化时，<code>ngOnChanges</code>才会被调用。</p>
+<h2 id="我们什么时候需要重写ngOnChanges？"><a href="#我们什么时候需要重写ngOnChanges？" class="headerlink" title="我们什么时候需要重写ngOnChanges？"></a>我们什么时候需要重写<code>ngOnChanges</code>？</h2><p>通常情况下，我们不需要重写<code>ngOnChanges</code>函数，因为Angular会自动调用它。但是，以下几种情况都需要重写<code>ngOnChanges</code>函数：</p>
+<ol>
+<li>当我们使用了<code>OnPush</code>时，且需要根据Input变化做相应操作时，那么就要响应<code>ngOnChanges</code>。</li>
+<li>当我们需要在组件的输入属性发生变化时执行一些自定义逻辑时，我们就需要重写<code>ngOnChanges</code>函数。</li>
+</ol>
+<h2 id="配合OnPush"><a href="#配合OnPush" class="headerlink" title="配合OnPush"></a>配合OnPush</h2><p>假设有一个父组件：ParentComponent，一个子组件ChildComponent，父组件中调用一个API，返回值作为Input传递给子组件，子组件要根据这个Input继续调用另外一个API，这时候就需要在子组件中重写<code>ngOnChanges</code>函数。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;Child Component&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params">changes: SimpleChanges</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">fetchData</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Call API</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义逻辑"><a href="#自定义逻辑" class="headerlink" title="自定义逻辑"></a>自定义逻辑</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-directive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/03/angular-directive/" class="post-title-link" itemprop="url">angular-directive</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-03 21:25:16" itemprop="dateCreated datePublished" datetime="2024-12-03T21:25:16+08:00">2024-12-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-31 14:38:32" itemprop="dateModified" datetime="2024-12-31T14:38:32+08:00">2024-12-31</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Directives are classes that add additional behavior to elements in your Angular applications.</p>
+<p>Angular has many kinds of directives, including components, attribute directives, and structural directives.</p>
+<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>This is the most common one we used every day, a component is a directive with a template. Components are the most basic building block of an Angular application.<br><a target="_blank" rel="noopener" href="https://angular.dev/guide/components">https://angular.dev/guide/components</a></p>
+<h2 id="Structural-Directives"><a href="#Structural-Directives" class="headerlink" title="Structural Directives"></a>Structural Directives</h2><p>Structural directives are responsible for HTML layout. They shape or reshape the DOM’s structure, typically by adding, removing, or manipulating elements.</p>
+<h3 id="NgIf"><a href="#NgIf" class="headerlink" title="NgIf"></a>NgIf</h3><p><code>NgIf</code> is used to conditionally creates or disposes of subviews in a template. see <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/30/angular-ngif/">this post</a> for more details.</p>
+<h3 id="NgFor"><a href="#NgFor" class="headerlink" title="NgFor"></a>NgFor</h3><h3 id="NgSwitch"><a href="#NgSwitch" class="headerlink" title="NgSwitch"></a>NgSwitch</h3><p>Angular17引入了新的控制流语句：<code>@if</code>, <code>@for</code>, <code>@switch</code>，这些语句可以替代NgIf, NgFor, NgSwitch，更加简洁，高效，我们建议使用新的控制流语句。</p>
+<h2 id="Attribute-Directives"><a href="#Attribute-Directives" class="headerlink" title="Attribute Directives"></a>Attribute Directives</h2><p>Attribute directives are used to change the appearance or behavior of an element, component, or another directive. They are usually applied to elements as attributes.</p>
+<p>Attribute directives doesn’t change the layout of the template, just change the appearance of it, for example, change the color, font size, visibility etc.</p>
+<p>The most common attribute directives are as follows:</p>
+<h3 id="NgClass"><a href="#NgClass" class="headerlink" title="NgClass"></a>NgClass</h3><h3 id="NgStyle"><a href="#NgStyle" class="headerlink" title="NgStyle"></a>NgStyle</h3><h3 id="NgModel"><a href="#NgModel" class="headerlink" title="NgModel"></a>NgModel</h3><h2 id="Customize-Directives"><a href="#Customize-Directives" class="headerlink" title="Customize Directives"></a>Customize Directives</h2><p>如果内置的Directive不能满足我们的需求，我们可以自定义Directive，下面我们自定义一个Directive来实现一个简单Hover变色功能，当鼠标移动到元素上时，元素背景色变为红色，鼠标移出时恢复原背景色。</p>
+<h3 id="Create-a-directive"><a href="#Create-a-directive" class="headerlink" title="Create a directive"></a>Create a directive</h3><p>使用以下命令创建一个新的指令：<code>HoverDirective</code>，该命令会创建文件<code>src/app/hover.directive.ts</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g d hover</span><br></pre></td></tr></table></figure>
+
+<h3 id="Implement-the-directive"><a href="#Implement-the-directive" class="headerlink" title="Implement the directive"></a>Implement the directive</h3><p>以下是该指令的实现代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">color: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = color;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单解释一下上述代码：</p>
+<ol>
+<li>selector: <code>appHover</code>，这个是Directive的名字，我们在HTML中使用这个名字来引用这个Directive。</li>
+<li>constructor中注入了<code>ElementRef</code>，这个是Angular提供的一个服务，用来获取当前元素的引用。这里的当前元素就是使用了该Directive的元素。</li>
+<li>两个HostListener分别监听<code>mouseenter</code>和<code>mouseleave</code>事件，当鼠标移入时，设置背景色为红色，移出时恢复原色。</li>
+</ol>
+<h3 id="Use-the-directive"><a href="#Use-the-directive" class="headerlink" title="Use the directive"></a>Use the directive</h3><p>首先，在需要使用这个指令的组件或者模块中的<code>imports</code>数组中导入这个Directive。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">imports</span>: [<span class="title class_">HoverDirective</span>],</span><br></pre></td></tr></table></figure>
+<p>然后，在需要使用这个Directive的元素上加上<code>appHover</code>属性即可(注意：<code>appHover</code>就是定义Directive时指定的<code>selector</code>)。此时，当鼠标移入时，该段落的背景色会变为红色，移出时恢复原背景色。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个自定义指令非常简单，虽然现在可以工作，但是有一个缺点，就是颜色的变化是固定的，如果我想让用户自定义Hover时的颜色，该怎么办呢？这就涉及到如何给自定义指令传递参数了。</p>
+<p>我们修改一下实现，将颜色作为参数传递给Directive，这里我们定义了一个@Input属性，用来接收参数。@Input属性的名字是<code>appHover</code>，所以这里<code>appHover</code>同时作为Directive的selector和Input属性的名字。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Add an input property to the directive</span></span><br><span class="line"><span class="meta">@Input</span>(<span class="string">&#x27;appHover&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// use this.hoverColor in setHoverColor method</span></span><br><span class="line"><span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外，为了防止用户忘记传递参数，我们给hoverColor设置了一个默认值<code>&#39;red&#39;</code>，这样即使用户不传递参数，也不会报错。</p>
+<p>现在，我们可以在HTML中传递颜色参数了。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span>=<span class="string">&quot;green&quot;</span>&gt;</span>Hover me<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子只有一个参数，所以我们在定义<code>@Input</code>的时候，直接把参数定义到了Directive的selector上，如果有多个参数，这种方法就不好使了，为了说明问题，我们再加一个参数，字体颜色，就是当鼠标Hover时改变背景色，同时也改变字体颜色。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Directive</span>, <span class="title class_">ElementRef</span>, <span class="title class_">HostListener</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appHover]&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">HoverDirective</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverBackgroundColor&#x27;</span>) <span class="attr">hoverColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;hoverFontColor&#x27;</span>) <span class="attr">hoverFontColor</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> element: ElementRef</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseenter&#x27;</span>) <span class="title function_">onMouseEnter</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="variable language_">this</span>.<span class="property">hoverFontColor</span> || <span class="string">&#x27;black&#x27;</span>, <span class="variable language_">this</span>.<span class="property">hoverColor</span> || <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;mouseleave&#x27;</span>) <span class="title function_">onMouseLeave</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setHoverColor</span>(<span class="string">&#x27;black&#x27;</span>, <span class="string">&#x27;white&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="title function_">setHoverColor</span>(<span class="params">fontColor: <span class="built_in">string</span>, backgroundColor: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">color</span> = fontColor;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">element</span>.<span class="property">nativeElement</span>.<span class="property">style</span>.<span class="property">backgroundColor</span> = backgroundColor;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用时：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">appHover</span> <span class="attr">hoverFontColor</span>=<span class="string">&quot;red&quot;</span> <span class="attr">hoverBackgroundColor</span>=<span class="string">&quot;yellow&quot;</span>&gt;</span>This is a paragraph<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/12/03/angular-interview-questions/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1012,173 +1187,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/30/angular-ngif/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/30/angular-ngif/" class="post-title-link" itemprop="url">angular-ngIf</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-30 14:32:43" itemprop="dateCreated datePublished" datetime="2024-11-30T14:32:43+08:00">2024-11-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-31 12:10:49" itemprop="dateModified" datetime="2024-12-31T12:10:49+08:00">2024-12-31</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngIf</code> is a structural directive in Angular, it is used to conditionally render content in a template. Remember to import <code>CommonModule</code> in the module where you want to use <code>ngIf</code>.</p>
-<h2 id="Full-syntax-with-ng-template"><a href="#Full-syntax-with-ng-template" class="headerlink" title="Full syntax with ng-template"></a>Full syntax with <code>ng-template</code></h2><p><code>Structural directives</code> are used in <code>ng-template</code>, here is an example:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;hero&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Shorthand-syntax"><a href="#Shorthand-syntax" class="headerlink" title="Shorthand syntax"></a>Shorthand syntax</h2><p>But, in practice, we often use <code>ngIf</code> in a more concise way by prefix a <code>*</code> before it, this is called the shorthand syntax:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;hero&quot;</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>Note, even we write it in the shorthand syntax, Angular will still convert it to the <code>ng-template</code> syntax after compiling.</p>
-<p>The above template will create a <code>div</code> element in the template, What if you don’t want to create a <code>div</code> element? You can use <code>ng-container</code> instead of <code>div</code>:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition&quot;</span>&gt;</span></span><br><span class="line">  Content to render when condition is true</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>In this way, Angular will render the text directly without creating a <code>div</code> element.</p>
-<h2 id="New-syntax-with-if"><a href="#New-syntax-with-if" class="headerlink" title="New syntax with @if"></a>New syntax with <code>@if</code></h2><p>With the new built-in structural @if directive, you can use the following syntax:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@if (condition) &#123;</span><br><span class="line">  Content to render when condition is true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="If-else-then-with-ngIf"><a href="#If-else-then-with-ngIf" class="headerlink" title="If else then with *ngIf"></a>If else then with *ngIf</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="If-else-then-with-if"><a href="#If-else-then-with-if" class="headerlink" title="If else then with @if"></a>If else then with @if</h2><p>With <code>@if</code> directive, you can use the following syntax, it’s more simple and readable:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  @if (condition) &#123;</span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>既然Angular已经有<code>ngIf</code>, <code>ngFor</code>, ngSwitch等内置的结构性指令，为什么还要引入新的<code>@if</code>，<code>@for</code>, <code>@switch</code>呢？主要有以下原因</p>
-<ol>
-<li>更简洁的语法，比如要实现if - else if - … - else的逻辑，使用<code>ngIf</code>就会显得很臃肿。而使用<code>@if</code>就可以很好的解决这个问题。</li>
-<li>更好的类型检查机制，这个不知道是怎么实现的。</li>
-<li>更好的运行时性能，Angular编译器会将<code>@if</code>，<code>@for</code>，<code>@switch</code>编译成更高效的代码，这样可以减少运行时的开销。</li>
-<li>更小的包体积，最多可以减少30kb的包体积。</li>
-<li>不需要额外导入<code>CommonModule</code>模块，直接使用即可，<code>ngIf</code>等指令则需要导入<code>CommonModule</code>模块。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/29/rxjs-use-case/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/29/rxjs-use-case/" class="post-title-link" itemprop="url">rxjs-use-case</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-29 22:21:02" itemprop="dateCreated datePublished" datetime="2024-11-29T22:21:02+08:00">2024-11-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-06 19:48:56" itemprop="dateModified" datetime="2025-02-06T19:48:56+08:00">2025-02-06</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="RxJS-Use-Case"><a href="#RxJS-Use-Case" class="headerlink" title="RxJS Use Case"></a>RxJS Use Case</h1><h2 id="统计页面点击次数"><a href="#统计页面点击次数" class="headerlink" title="统计页面点击次数"></a>统计页面点击次数</h2><p>注意，RxJS中的<code>scan</code>相当于JavaScript中的<code>Array.prototype.reduce</code>，下面的例子展示了如何统计页面点击次数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
-
-<h2 id="节流"><a href="#节流" class="headerlink" title="节流"></a>节流</h2><h3 id="Resize窗口"><a href="#Resize窗口" class="headerlink" title="Resize窗口"></a>Resize窗口</h3><p>resize时间触发非常频繁，我们可以使用<code>throttleTime</code>来节流，下面的例子展示了如何节流resize事件。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">window</span>, <span class="string">&quot;resize&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">throttleTime</span>(<span class="number">500</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window width: <span class="subst">$&#123;<span class="variable language_">window</span>.innerWidth&#125;</span>`</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window height: <span class="subst">$&#123;<span class="variable language_">window</span>.innerHeight&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="统计点击次数"><a href="#统计点击次数" class="headerlink" title="统计点击次数"></a>统计点击次数</h3><p><code>throttleTime</code>可以用来实现节流，下面的例子展示了如何实现节流，无论用户点击的有多快，我们都是每隔1秒统计一次点击次数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(</span><br><span class="line">    <span class="title function_">throttleTime</span>(<span class="number">1000</span>),</span><br><span class="line">    <span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line">  )</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
-
-<h2 id="设置最大并发请求数"><a href="#设置最大并发请求数" class="headerlink" title="设置最大并发请求数"></a>设置最大并发请求数</h2><p><code>mergeMap</code> with <code>concurrency</code>参数可以设置最大并发请求数，下面的例子展示了如何设置最大并发请求数。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, mergeMap, <span class="keyword">of</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="title function_">interval</span>(<span class="number">1000</span>);</span><br><span class="line">source.<span class="title function_">pipe</span>(<span class="title function_">mergeMap</span>(<span class="function">() =&gt;</span> <span class="title function_">of</span>(<span class="string">&#x27;request&#x27;</span>), <span class="number">2</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="避免重复请求"><a href="#避免重复请求" class="headerlink" title="避免重复请求"></a>避免重复请求</h2><p>使用<code>switchMap</code>可以避免重复请求，下面的例子展示了如何避免重复请求。</p>
-<h2 id="忽略某个值"><a href="#忽略某个值" class="headerlink" title="忽略某个值"></a>忽略某个值</h2><p>使用<code>skip</code>， 以下代码忽略了<code>interval</code>的前两个值，然后取3个值。所以忽略0和1，取2, 3, 4。关于interval的详细信息，请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/28/rxjs-create/#interval">这里</a></p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, skip, take &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">pipe</span>(<span class="title function_">skip</span>(<span class="number">2</span>), <span class="title function_">take</span>(<span class="number">3</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 2, 3, 4</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1248,14 +1256,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">278</span>
+          <span class="site-state-item-count">280</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-count">403</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
