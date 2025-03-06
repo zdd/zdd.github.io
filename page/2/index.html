@@ -505,10 +505,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-02-16 10:48:10 / Modified: 20:17:45" itemprop="dateCreated datePublished" datetime="2025-02-16T10:48:10+08:00">2025-02-16</time>
+              <time title="Created: 2025-02-16 10:48:10" itemprop="dateCreated datePublished" datetime="2025-02-16T10:48:10+08:00">2025-02-16</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-06 20:08:39" itemprop="dateModified" datetime="2025-03-06T20:08:39+08:00">2025-03-06</time>
+              </span>
 
           
 
@@ -527,12 +533,12 @@
 <p>Applying the ::ng-deep pseudo-class to any CSS rule completely disables view-encapsulation for that rule. Any style with ::ng-deep applied becomes a global style. In order to scope the specified style to the current component and all its descendants, be sure to include the :host selector before ::ng-deep. If the ::ng-deep combinator is used without the :host pseudo-class selector, the style can bleed into other components.</p>
 <h2 id="为什么需要-ng-deep"><a href="#为什么需要-ng-deep" class="headerlink" title="为什么需要::ng-deep?"></a>为什么需要<code>::ng-deep</code>?</h2><p>根据我的经验，使用<code>::ng-deep</code>的场景有：</p>
 <ol>
-<li>第三方库的样式覆盖，因为第三方库的样式有时候是无法直接通过选择器来覆盖的，这时候就需要使用<code>::ng-deep</code>。</li>
+<li>第三方库的样式覆盖，因为第三方库的样式有时候是无法直接通过选择器来修改的，这时候就需要使用<code>::ng-deep</code>。</li>
 </ol>
-<h2 id="为什么要配合-host一起使用"><a href="#为什么要配合-host一起使用" class="headerlink" title="为什么要配合:host一起使用?"></a>为什么要配合<code>:host</code>一起使用?</h2><p>在我们日常的项目中，<code>::ng-deep</code>很少单独使用，有上面对ng<code>::deep</code>的描述可知，它相当于将样式变成了全局样式，如果不加<code>:host</code>，那么这个样式会影响到所有的组件，加了<code>:host</code>,则只会影响到当前组件。</p>
+<h2 id="为什么要配合-host一起使用"><a href="#为什么要配合-host一起使用" class="headerlink" title="为什么要配合:host一起使用?"></a>为什么要配合<code>:host</code>一起使用?</h2><p>在我们日常的项目中，<code>::ng-deep</code>很少单独使用，由上面对ng<code>::deep</code>的描述可知，它相当于将样式变成了全局样式，如果不加<code>:host</code>，那么这个样式会影响到所有的组件，加了<code>:host</code>,则只会影响到当前组件及其后代组件。</p>
 <p>注意：</p>
 <ol>
-<li>使用了<code>::ng-deep</code>的组件，只有当前显示在页面上（该组建对应的前端路由生效时），才会影响其他组件的样式。如果该组件没有显示在页面上，那么它的样式是不会影响其他组件的。</li>
+<li>使用了<code>::ng-deep</code>的组件，只有显示在页面上时（该组建对应的前端路由生效时），才会影响其他组件的样式。如果该组件没有显示在页面上，那么它的样式是不会影响其他组件的。</li>
 <li>如果当前页面只显示了使用了<code>::ng-deep</code>的组件，而没有显示其他组件，那么<code>ng::deep</code>的样式也不会影响到其他组件。</li>
 </ol>
 <p>也就是说使用了<code>::ng-deep</code>的组件，只有和其他组件一起显示在页面上，才会影响其他组件的样式。</p>
@@ -542,7 +548,7 @@
 <p>组件B也有一个三级标题，但是没有设置样式。</p>
 <p>如果组件A和组件B同时显示在页面上，那么组件A的样式会覆盖组件B的样式，此时页面上的所有h3标题都会显示为红色。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component-a</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-component-b</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-b</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>此时，组件B中的h3标题也会显示为红色。<br>我们在浏览器中inspect，可以看到组件A设置的三级标题样式放到了整个html的head部分。</p>
+<p>我们在浏览器中inspect，可以看到组件A设置的三级标题样式放到了整个html的head部分。</p>
 <p>如果组件A中在<code>::ng-deep</code>前加上<code>:host</code>，则只有组件A中的h3标题显示为红色，组件B中的h3标题不会受到影响。</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line"><span class="selector-pseudo">:host</span> ::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
