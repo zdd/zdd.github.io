@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="概述今天来聊一聊Angular中的effect, 使用过React框架的同学对effect应该都不陌生，不过，Angular中的effect和React中的effect有所不同。 123effect(() &#x3D;&gt; &amp;#123;  console.log(&#96;The current count is: $&amp;#123;count()&amp;#125;&#96;);&amp;#125;);  effect函数特点effec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="angular-signal-effect">
+<meta property="og:url" content="http://example.com/2025/03/07/angular-signal-effect/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="概述今天来聊一聊Angular中的effect, 使用过React框架的同学对effect应该都不陌生，不过，Angular中的effect和React中的effect有所不同。 123effect(() &#x3D;&gt; &amp;#123;  console.log(&#96;The current count is: $&amp;#123;count()&amp;#125;&#96;);&amp;#125;);  effect函数特点effec">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-03-07T11:25:52.000Z">
+<meta property="article:modified_time" content="2025-03-07T13:16:14.033Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="angular">
+<meta property="article:tag" content="signal">
+<meta property="article:tag" content="effect">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2025/03/07/angular-signal-effect/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>angular-signal-effect | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/03/07/angular-signal-effect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          angular-signal-effect
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-03-07 19:25:52 / Modified: 21:16:14" itemprop="dateCreated datePublished" datetime="2025-03-07T19:25:52+08:00">2025-03-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>今天来聊一聊Angular中的<code>effect</code>, 使用过React框架的同学对<code>effect</code>应该都不陌生，不过，Angular中的<code>effect</code>和React中的<code>effect</code>有所不同。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">effect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`The current count is: <span class="subst">$&#123;count()&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="effect函数特点"><a href="#effect函数特点" class="headerlink" title="effect函数特点"></a><code>effect</code>函数特点</h2><p><code>effect</code>函数有如下特点：</p>
+<ol>
+<li><code>effect</code>函数至少运行一次，无论<code>effect</code>函数中是否读取<code>signal</code>，也无论<code>signal</code>的值是否发生变化。</li>
+<li>如果<code>effect</code>函数中读取了<code>signal</code>，那么当<code>signal</code>的值发生变化时，<code>effect</code>函数会再次运行。</li>
+<li>如果<code>effect</code>函数中没有读取<code>signal</code>，那么<code>effect</code>函数只会运行一次。当signal变化时，<code>effect</code>函数不会再次运行。</li>
+<li><code>effect</code>函数中不要更新<code>signal</code>的值，否则会导致死循环。（因为signal更新—&gt;effect运行—&gt;更新signal—&gt;effect运行…）</li>
+</ol>
+<p>比如下面这个<code>effect</code>函数，只会运行一次，因为<code>effect</code>函数中没有读取<code>count</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">effect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;This is a effect function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>比如下面这个<code>effect</code>函数，会导致死循环。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">effect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  count.<span class="title function_">set</span>(<span class="title function_">count</span>() + <span class="number">1</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><code>effect</code>函数只能运行在injection context中（比如构造函数体内）, 如果<code>effect</code>函数的使用位置不对（比如放到了ngOnInit函数中），那么Angular会报如下错误：关于injection context的更多信息，可以查看<a target="_blank" rel="noopener" href="https://zdd.github.io/2025/02/18/angular-di-injection-context/">这里</a>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:6643 ERROR RuntimeError: NG0203: effect() can only be used within an injection context such as a constructor, a factory <span class="keyword">function</span>, a field initializer, or a <span class="keyword">function</span> used with `runInInjectionContext`. Find more at https://angular.dev/errors/NG0203</span><br></pre></td></tr></table></figure>
+
+<h2 id="effect函数的使用场景"><a href="#effect函数的使用场景" class="headerlink" title="effect函数的使用场景"></a><code>effect</code>函数的使用场景</h2><p>Effects are rarely needed in most application code, but may be useful in specific circumstances. Here are some examples of situations where an effect might be a good solution:</p>
+<ul>
+<li>Logging data being displayed and when it changes, either for analytics or as a debugging tool.</li>
+<li>Keeping data in sync with window.localStorage.</li>
+<li>Adding custom DOM behavior that can’t be expressed with template syntax.</li>
+<li>Performing custom rendering to a <code>&lt;canvas&gt;</code>, charting library, or other third party UI library.</li>
+</ul>
+<h2 id="Destroy-effect"><a href="#Destroy-effect" class="headerlink" title="Destroy effect"></a>Destroy effect</h2><p>effect函数会在组件销毁时自动销毁，不需要手动清理。当然effect函数返回<code>EffectRef</code>对象，可以手动调用<code>destroy</code>方法销毁effect函数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> effectRef = <span class="title function_">effect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;This is a effect function&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">effectRef.<span class="title function_">destroy</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="untrack模式"><a href="#untrack模式" class="headerlink" title="untrack模式"></a>untrack模式</h2><p><a target="_blank" rel="noopener" href="https://angular.dev/guide/signals#reading-without-tracking-dependencies">https://angular.dev/guide/signals#reading-without-tracking-dependencies</a></p>
+<h2 id="cleanup-function"><a href="#cleanup-function" class="headerlink" title="cleanup function."></a>cleanup function.</h2><p><code>effect</code>函数中可以定义一个清理函数<code>onCleanup</code>，当<code>effect</code>函数被销毁时，清理函数会被调用。下面的代码演示了如何使用<code>onCleanup</code>函数清理定时器。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">effect</span>(<span class="function">(<span class="params">onCleanup</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="title function_">currentUser</span>();</span><br><span class="line">  <span class="keyword">const</span> timer = <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`1 second ago, the user became <span class="subst">$&#123;user&#125;</span>`</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">onCleanup</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">clearTimeout</span>(timer);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/signals#effects">https://angular.dev/guide/signals#effects</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/angular/" rel="tag"># angular</a>
+              <a href="/tags/signal/" rel="tag"># signal</a>
+              <a href="/tags/effect/" rel="tag"># effect</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/03/04/react-interview-batching/" rel="prev" title="react-interview-batching">
+      <i class="fa fa-chevron-left"></i> react-interview-batching
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#effect%E5%87%BD%E6%95%B0%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">effect函数特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#effect%E5%87%BD%E6%95%B0%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">effect函数的使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Destroy-effect"><span class="nav-number">4.</span> <span class="nav-text">Destroy effect</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#untrack%E6%A8%A1%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">untrack模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cleanup-function"><span class="nav-number">6.</span> <span class="nav-text">cleanup function.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">281</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">404</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

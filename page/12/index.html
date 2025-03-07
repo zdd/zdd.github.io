@@ -181,6 +181,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/20/jest-mockxxxonce/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/20/jest-mockxxxonce/" class="post-title-link" itemprop="url">jest-mockXXXOnce</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-20 19:24:41 / Modified: 19:52:04" itemprop="dateCreated datePublished" datetime="2024-09-20T19:24:41+08:00">2024-09-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>There are lots of mockXXXOnce functions in Jest API, for example:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn">mockImplementationOnce</a></li>
+<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockreturnvalueoncevalue">mockReturnValueOnce</a></li>
+<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/mock-function-api#mockfnmockresolvedvalueoncevalue">mockResolvedValueOnce</a></li>
+</ul>
+<p>These functions are only mocked on the first call, all the subsequent calls will use the original implementations or return the original values.</p>
+<p>Be careful when using such functions, it may not be what you want, take the following code as example:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;jest-demo&#x27;</span>;</span><br><span class="line">  lastTime = <span class="title class_">Date</span>.<span class="title function_">now</span>();</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">getIdleTime</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Date</span>.<span class="title function_">now</span>() - <span class="variable language_">this</span>.<span class="property">lastTime</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">getDuration</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="title function_">getIdleTime</span>() &gt; <span class="number">5</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;5+ hours&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="title function_">getIdleTime</span>() &gt;= <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;1 ~ 5 hours&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;in an hour&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Here are the test codes, the first one pass test, but the second one will failed. Do you know why?</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">it</span>(<span class="string">`should return 5+ hours`</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> fixture = <span class="title class_">TestBed</span>.<span class="title function_">createComponent</span>(<span class="title class_">AppComponent</span>);</span><br><span class="line">  <span class="keyword">const</span> component = fixture.<span class="property">componentInstance</span>;</span><br><span class="line">  jest.<span class="title function_">spyOn</span>(component, <span class="string">&#x27;getIdleTime&#x27;</span>).<span class="title function_">mockImplementationOnce</span>(<span class="function">() =&gt;</span> <span class="number">6</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="title function_">getDuration</span>()).<span class="title function_">toBe</span>(<span class="string">&#x27;5+ hours&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">it</span>(<span class="string">`should return 1 ~ 5 hours`</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> fixture = <span class="title class_">TestBed</span>.<span class="title function_">createComponent</span>(<span class="title class_">AppComponent</span>);</span><br><span class="line">  <span class="keyword">const</span> component = fixture.<span class="property">componentInstance</span>;</span><br><span class="line">  jest.<span class="title function_">spyOn</span>(component, <span class="string">&#x27;getIdleTime&#x27;</span>).<span class="title function_">mockImplementationOnce</span>(<span class="function">() =&gt;</span> <span class="number">4</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">  <span class="title function_">expect</span>(component.<span class="title function_">getDuration</span>()).<span class="title function_">toBe</span>(<span class="string">&#x27;1 ~ 5 hours&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Because the first test case only reach the first <code>if</code> branch in <code>getDuration</code> function, it only call <code>getIdleTime</code> once. So there is no problem.</p>
+<p>But the second test case need to reach the second <code>if</code> branch in <code>getDuration</code> function, but the mock only take effect in the first if branch, the second branch will still use the original implementation of <code>getIdleTime</code> function, so the test failed.</p>
+<p>To fix this issue, you can use <code>mockImplementation</code> instead of <code>mockImplementationOnce</code> in the second test case.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/19/nx-library-types/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1081,90 +1155,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/24/run-typescript-with-node/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/08/24/run-typescript-with-node/" class="post-title-link" itemprop="url">run-typescript-with-node</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-08-24 21:01:51 / Modified: 21:06:31" itemprop="dateCreated datePublished" datetime="2024-08-24T21:01:51+08:00">2024-08-24</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Firstly, <code>node</code> can’t run <code>typescript</code> files directly. You need to compile the <code>typescript</code> files to <code>javascript</code> files and then run them with <code>node</code>.</p>
-<p>The following command won’t work!</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node ./src/main.ts</span><br></pre></td></tr></table></figure>
-
-<p>You’ll got error like this:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(node:13596) Warning: To load an ES module, <span class="built_in">set</span> <span class="string">&quot;type&quot;</span>: <span class="string">&quot;module&quot;</span> <span class="keyword">in</span> the package.json or use the .mjs extension.</span><br><span class="line"></span><br><span class="line">SyntaxError: Cannot use import statement outside a module</span><br></pre></td></tr></table></figure>
-
-<p>How to solve this problem?</p>
-<ol>
-<li>Use <code>ts-node</code> to run <code>typescript</code> files directly.<ol>
-<li><code>npm install -g ts-node</code></li>
-<li><code>ts-node ./src/main.ts</code></li>
-</ol>
-</li>
-<li>Use <code>tsc</code> to compile <code>typescript</code> files to <code>javascript</code> files and then run them with <code>node</code>.<ol>
-<li><code>npm install -g typescript</code></li>
-<li><code>tsc ./src/main.ts</code></li>
-<li><code>node ./src/main.js</code></li>
-</ol>
-</li>
-</ol>
-<p>Happy coding!</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/28/">28</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/29/">29</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1230,14 +1224,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">280</span>
+          <span class="site-state-item-count">281</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">403</span>
+        <span class="site-state-item-count">404</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
