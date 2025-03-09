@@ -181,6 +181,202 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/22/react-interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/22/react-interview/" class="post-title-link" itemprop="url">React-interview</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-22 10:08:05" itemprop="dateCreated datePublished" datetime="2025-02-22T10:08:05+08:00">2025-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-06 16:52:10" itemprop="dateModified" datetime="2025-03-06T16:52:10+08:00">2025-03-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="React-Fiber架构"><a href="#React-Fiber架构" class="headerlink" title="React Fiber架构"></a>React Fiber架构</h2><p>React的渲染可以分为两个主要阶段：Reconciler(协调阶段)，和Committer(提交阶段)。</p>
+<h3 id="Reconciler-协调阶段"><a href="#Reconciler-协调阶段" class="headerlink" title="Reconciler(协调阶段)"></a>Reconciler(协调阶段)</h3><p>工作内容： 构建Fiber树，比较新旧虚拟DOM的不同之处，生成一个变更记录，即一系列需要对真实DOM进行的操作。此阶段的特点：异步，并发，可中断。如果执行过程中有更高优先级的任务来了，那么会中断当前Reconciler的工作，转而处理更重要的任务。</p>
+<h3 id="Committer阶段"><a href="#Committer阶段" class="headerlink" title="Committer阶段"></a>Committer阶段</h3><p>工作内容：将Reconciler阶段生成的变更记录应用到真实的DOM上。此阶段是同步的，不可中断的。<br>工作阶段：</p>
+<ol>
+<li>Dom更新前 - useEffect在这个阶段执行，通过微任务队列异步执行（页面渲染后执行）</li>
+<li>Dom更新 - 执行真实DOM的更新</li>
+<li>Dom更新后 - useLayoutEffect在这个阶段执行，同步（页面渲染前执行）</li>
+</ol>
+<p>注意页面的渲染和JS的执行是互斥的，只有JS代码执行完，页面才能渲染，这就是<code>useLayoutEffect</code>的作用，可以在页面渲染前执行一些操作，比如调整布局。</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>Fiber架构中采用<code>FiberNod</code>e和<code>FiberTree</code>来描述虚拟DOM树。<code>FiberNode</code>是一个双向链表，每个节点都有一个指向父节点的指针，一个指向子节点的指针，一个指向兄弟节点的指针。<code>FiberTree</code>是一个树形结构，由<code>FiberNode</code>组成。</p>
+<h2 id="React-diff算法"><a href="#React-diff算法" class="headerlink" title="React diff算法"></a>React diff算法</h2><h3 id="树比较"><a href="#树比较" class="headerlink" title="树比较"></a>树比较</h3><p>只做同层级结点比较，如果结点不存在了，则直接删除。不会继续比较其子树。这避免了夸层级移动操作，对于跨层级移动操作，相当于删除再重建。同层级结点移动呢？可以处理。</p>
+<h3 id="组件比较"><a href="#组件比较" class="headerlink" title="组件比较"></a>组件比较</h3><p>只做同类型的组件比较，比如div和div比较，p和p比较，只有组件的类型相同，才进入子树进行深层次比较。如果类型不一致，则删除重新创建。</p>
+<h3 id="元素比较"><a href="#元素比较" class="headerlink" title="元素比较"></a>元素比较</h3><p>对于同层级的元素结点。</p>
+<ol>
+<li>元素在新集合中，但是不在原来的集合中，属于全新的结点，对集合进行插入操作。</li>
+<li>元素在原来的集合中，但是不在新的集合中，则删除该元素。</li>
+<li>元素在新集合中，也在原来的集合中，且元素并未更新，只是位置发生了变化，则进行移动操作。</li>
+</ol>
+<h3 id="双缓冲策略："><a href="#双缓冲策略：" class="headerlink" title="双缓冲策略："></a>双缓冲策略：</h3><ol>
+<li>current树负责呈现当前页面，而所有的更新都由workInProgress树来承接，当变更完成需要渲染时，将workInProgress树变成current树。</li>
+</ol>
+<h2 id="setState是同步还是异步？"><a href="#setState是同步还是异步？" class="headerlink" title="setState是同步还是异步？"></a><code>setState</code>是同步还是异步？</h2><p>这个问题需要区分开来看，在React18之前，如果<code>executionContext</code>被赋值了，代表该任务已经进入React调度流程中，此时React会对该任务进行异步处理（批量处理），如果<code>executionContext</code>没有被赋值，代表该任务还没有进入React调度流程，此时React会对该任务进行同步处理。想<code>setTimeout</code>, <code>setInterval</code>等函数都是不会进入React调度流程的，所以是同步处理。而合成事件都会进入到React调度流程中，所以会被异步处理。在React18后，如果使用<code>createRoot</code>创建根节点，那么<code>setState</code>会变成同步的。但是如果还是使用传统的<code>render</code>方式，那么和React18之前的处理逻辑一样。</p>
+<h2 id="虚拟DOM"><a href="#虚拟DOM" class="headerlink" title="虚拟DOM"></a>虚拟DOM</h2><p>虚拟DOM是React的核心概念之一，它是一个轻量级的JavaScript对象，用来描述真实DOM的层次结构。React通过比较新旧虚拟DOM的差异，然后只更新需要更新的部分，从而提高页面的渲染性能。</p>
+<p>虚拟DOM的量大作用：</p>
+<ol>
+<li>跨平台，因为虚拟DOM只是一个数据结构，所以可以在不同平台上使用，比如浏览器，移动端App等。这是虚拟DOM的重要特性，很多人没有意识到。</li>
+<li>高性能，通过比较新旧虚拟DOM的差异，只更新需要更新的部分，减少了对真实DOM的操作，提高了页面的渲染性能。</li>
+</ol>
+<h2 id="React中嵌套组件的渲染顺序，生命周期，销毁顺序。"><a href="#React中嵌套组件的渲染顺序，生命周期，销毁顺序。" class="headerlink" title="React中嵌套组件的渲染顺序，生命周期，销毁顺序。"></a>React中嵌套组件的渲染顺序，生命周期，销毁顺序。</h2><h3 id="渲染顺序"><a href="#渲染顺序" class="headerlink" title="渲染顺序"></a>渲染顺序</h3><p>当React开始渲染过程时，它首先从上到下、从父到子地渲染组件树。这意味着父组件会先于其子组件进行渲染。一旦父组件完成它的渲染（包括执行相关的生命周期方法），React会递归地进入该父组件的子组件，并按照同样的方式渲染它们。</p>
+<h3 id="生命周期顺序"><a href="#生命周期顺序" class="headerlink" title="生命周期顺序"></a>生命周期顺序</h3><ul>
+<li>首次挂载时：<ul>
+<li>父组件：constructor -&gt; static getDerivedStateFromProps -&gt; render -&gt; 子组件重复相同流程 -&gt; 子组件componentDidMount -&gt; 父组件componentDidMount</li>
+</ul>
+</li>
+<li>更新时（由于props变化或state变化）：<ul>
+<li>父组件：static getDerivedStateFromProps -&gt; shouldComponentUpdate -&gt; render -&gt; 子组件重复相同流程 -&gt; 子组件componentDidUpdate -&gt; 父组件componentDidUpdate</li>
+</ul>
+</li>
+</ul>
+<h3 id="销毁顺序"><a href="#销毁顺序" class="headerlink" title="销毁顺序"></a>销毁顺序</h3><p>当组件被卸载时，React会以相反的顺序卸载组件树中的组件。也就是说，React首先卸载最深层的子组件，然后逐步向上，直到根组件。</p>
+<h2 id="受控组件和非受控组件"><a href="#受控组件和非受控组件" class="headerlink" title="受控组件和非受控组件"></a>受控组件和非受控组件</h2><p>受控组件是指组件的值是由React的state来控制的，比如下面的input，其中关键一句就是<code>value=&#123;this.state.value&#125;</code> 这样就把input的value和组件的state关联起来了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">NameForm</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(props);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">state</span> = &#123;<span class="attr">value</span>: <span class="string">&#x27;&#x27;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">handleChange</span> = <span class="variable language_">this</span>.<span class="property">handleChange</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">handleSubmit</span> = <span class="variable language_">this</span>.<span class="property">handleSubmit</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleChange</span>(<span class="params">event</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;<span class="attr">value</span>: event.<span class="property">target</span>.<span class="property">value</span>&#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleSubmit</span>(<span class="params">event</span>) &#123;</span><br><span class="line">    <span class="title function_">alert</span>(<span class="string">&#x27;A name was submitted: &#x27;</span> + <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">value</span>);</span><br><span class="line">    event.<span class="title function_">preventDefault</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">form</span> <span class="attr">onSubmit</span>=<span class="string">&#123;this.handleSubmit&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">label</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          Name:</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&#123;this.state.value&#125;</span> <span class="attr">onChange</span>=<span class="string">&#123;this.handleChange&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">label</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义hook"><a href="#自定义hook" class="headerlink" title="自定义hook"></a>自定义hook</h2><h3 id="模拟componentDidMount"><a href="#模拟componentDidMount" class="headerlink" title="模拟componentDidMount"></a>模拟<code>componentDidMount</code></h3><p>当我们为<code>useEffect</code>的依赖传递空数组时，它只会在组件初始化时执行一次，这就相当于<code>componentDidMount</code>。注意，这个只是粗略的模拟，因为<code>useEffect</code>是异步执行，且时机是在浏览器渲染完成后，而<code>componentDidMount</code>是在浏览器渲染前同步执行。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useEffect&#125; <span class="keyword">from</span> <span class="string">&quot;react&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> useMount = (<span class="function">(<span class="params">callBack</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">callBack</span>();</span><br><span class="line">  &#125;, []);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="模拟componentDidUpdate"><a href="#模拟componentDidUpdate" class="headerlink" title="模拟componentDidUpdate"></a>模拟<code>componentDidUpdate</code></h3><p>componentDidUpdate是在每次组件的state或props更新是调用的，但是组件mount的时候不调用，所以我们需要一个变量来标志组件是否是第一次加载，这里我们使用<code>useRef</code>来标志组件是否是第一次加载。因为<code>useRef</code>包裹的值在整个组件声明周期内引用不变（有点像静态变量），并且这个值改变后不会触发组件的重新渲染。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="title function_">useUpdate</span> = (<span class="params">callback, deps</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> isMounted = <span class="title function_">useRef</span>(<span class="literal">false</span>); <span class="comment">// 🚩 关键点</span></span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isMounted.<span class="property">current</span>) &#123;</span><br><span class="line">      <span class="title function_">callback</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      isMounted.<span class="property">current</span> = <span class="literal">true</span>; <span class="comment">// 挂载后切换标识</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, deps);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，如果在React18+严格模式下运行该函数，还是会执行一次，因为React18+的严格模式会执行两次。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">createRoot</span>(<span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>)).<span class="title function_">render</span>(</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">StrictMode</span>&gt;</span> // 严格模式，去掉即可得到正确结果</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">BrowserRouter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">App</span>/&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">BrowserRouter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">StrictMode</span>&gt;</span></span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="模拟componentWillUnmount"><a href="#模拟componentWillUnmount" class="headerlink" title="模拟componentWillUnmount"></a>模拟<code>componentWillUnmount</code></h3><p>这个就比较简单了，<code>componentWillUnmount</code>是在组件卸载时调用的，我们可以使用<code>useEffect</code>的返回值来模拟这个生命周期。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> useUnmount = (<span class="function">(<span class="params">callback</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">callback</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, []);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/22/css-interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/22/css-interview/" class="post-title-link" itemprop="url">css-interview</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-22 09:01:41" itemprop="dateCreated datePublished" datetime="2025-02-22T09:01:41+08:00">2025-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-25 20:14:38" itemprop="dateModified" datetime="2025-02-25T20:14:38+08:00">2025-02-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ol>
+<li>How to implement responsive layout with CSS?</li>
+<li>What’s flex layout in CSS?</li>
+<li>简述CSS中盒模型是什么？</li>
+<li>grid布局极其优点？</li>
+<li>手写一个圣杯布局。</li>
+<li>如何实现垂直居中？除了flex布局还有其他方案吗？</li>
+<li>float不是完全脱离文档流，这点和position: absolute有区别的。</li>
+<li>CSS中有哪些实现透明的方式？</li>
+<li>CSS中选择器有哪些？优先级是怎样的？</li>
+<li>如何实现一个三角形？</li>
+<li>如何实现一个圆形？</li>
+<li>如何实现一个梯形？</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/18/angular-di-injection-context/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -433,10 +629,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-02-18 10:41:17 / Modified: 15:54:56" itemprop="dateCreated datePublished" datetime="2025-02-18T10:41:17+08:00">2025-02-18</time>
+              <time title="Created: 2025-02-18 10:41:17" itemprop="dateCreated datePublished" datetime="2025-02-18T10:41:17+08:00">2025-02-18</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-07 21:35:40" itemprop="dateModified" datetime="2025-03-07T21:35:40+08:00">2025-03-07</time>
+              </span>
 
           
 
@@ -452,15 +654,15 @@
           <p>今天这篇我们讲解一下Angular中的Input，Input是Angular中的一个装饰器，它用来接收父组件传递过来的数据。</p>
 <h2 id="传统的-Input-写法"><a href="#传统的-Input-写法" class="headerlink" title="传统的@Input()写法"></a>传统的@Input()写法</h2><p>为了方便展示，我们定义两个组件, 一个父组件：<code>ListComponent</code>， 一个子组件：<code>ListItemComponent</code>。为了便于展示，我们将template和style都写在component.ts中。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list-item.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list-item&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list-item&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;id: &#123;&#123;id&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;name: &#123;&#123;name&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styles</span>: [<span class="string">`</span></span><br><span class="line"><span class="string">    .list-item &#123;</span></span><br><span class="line"><span class="string">      border: 1px solid #ccc;</span></span><br><span class="line"><span class="string">      margin-bottom: 10px;</span></span><br><span class="line"><span class="string">      padding: 10px;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  `</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(&#123;<span class="attr">required</span>: <span class="literal">true</span>&#125;) <span class="attr">id</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在<code>ListItemComponent</code>中，我们定义了两个属性：<code>id</code>和<code>name</code>，并且使用了<code>@Input</code>装饰器。<code>@Input</code>装饰器有一个可选的参数<code>required</code>，如果设置为<code>true</code>，则表示这个属性是必须的，如果没有传递，则会报错。</p>
+<p>在<code>ListItemComponent</code>中，我们定义了两个属性：<code>id</code>和<code>name</code>，并且使用了<code>@Input</code>装饰器。<code>@Input</code>装饰器有一个可选的参数<code>required</code>，如果设置为<code>true</code>，则表示这个属性是必须的，如果使用组件时没有给该字段赋值，则会报错。</p>
 <p>接下来我们在<code>ListComponent</code>中使用<code>ListItemComponent</code>组件，并传递数据。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ListItemComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../list-item/list-item.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ListItemComponent</span>],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list&quot;&gt;</span></span><br><span class="line"><span class="string">      @for (item of listItems; track item.id) &#123;</span></span><br><span class="line"><span class="string">        &lt;app-list-item [id]=&quot;item.id&quot; [name]=&quot;item.name&quot;/&gt;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./list.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListComponent</span> &#123;</span><br><span class="line">  listItems = [</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 1&#x27;</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 2&#x27;</span>&#125;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><code>@Input</code>定义个输入数据，需要通过property binding的方式传递数据，即<code>[id]=&quot;item.id&quot;</code>和<code>[name]=&quot;item.name&quot;</code>。</p>
+<p><code>@Input</code>定义的字段，需要通过property binding的方式传递数据，即<code>[id]=&quot;item.id&quot;</code>和<code>[name]=&quot;item.name&quot;</code>。</p>
 <h2 id="基于signal的input写法"><a href="#基于signal的input写法" class="headerlink" title="基于signal的input写法"></a>基于signal的<code>input</code>写法</h2><p>以上是旧版的写法，从Angular 17.1开始，我们可以使用新版的基于signal的<code>input</code>语法了。</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, input&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>; <span class="comment">// import &#x27;input&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="comment">// @Input(&#123;required: true&#125;) id: string = &#x27;&#x27;;</span></span><br><span class="line">  <span class="comment">// @Input() name: string = &#x27;&#x27;;</span></span><br><span class="line"></span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = input&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>由于这种类型的input的值对应的是一个signal, 所以使用的时候，要加<code>()</code>当然也需要更新使用方式，id -&gt; <code>id()</code>, name -&gt; <code>name()</code>。</p>
+<p>由于这种类型的input的值对应的是一个signal, 所以读取值的时候，要加<code>()</code>，id -&gt; <code>id()</code>, name -&gt; <code>name()</code>。</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template: `</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;list-item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>id: &#123;&#123;id()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>name: &#123;&#123;name()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  `</span><br></pre></td></tr></table></figure>
 
 <h2 id="default-value"><a href="#default-value" class="headerlink" title="default value"></a>default value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="title function_">input</span>(<span class="number">0</span>); <span class="comment">// 0 is default value</span></span><br></pre></td></tr></table></figure>
@@ -870,225 +1072,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/11/css-display-inline-inlineblock-block/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/css-display-inline-inlineblock-block/" class="post-title-link" itemprop="url">css-display-inline-inlineblock-block</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-02-11 20:20:55 / Modified: 20:27:54" itemprop="dateCreated datePublished" datetime="2025-02-11T20:20:55+08:00">2025-02-11</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ol>
-<li><strong>display: inline</strong> 的局限性</li>
-</ol>
-<ul>
-<li>不能设置宽高 ：因为 <code>inline</code> 元素的尺寸完全由内容决定，无法通过 CSS 手动调整。</li>
-<li>垂直方向的 <code>margin</code> 和 <code>padding</code> 无效 ：虽然可以设置这些属性，但它们不会影响其他元素的布局。</li>
-<li>适合文本内容 ：通常用于 <code>&lt;span&gt;</code>、<code>&lt;a&gt;</code> 等需要与文本混合排版的元素。</li>
-</ul>
-<ol start="2">
-<li><strong>display: inline-block</strong> 的优势,结合了 <code>inline</code> 和 <code>block</code> 的优点 ：</li>
-</ol>
-<ul>
-<li>像 <code>inline</code> 一样可以同行排列。</li>
-<li>像 <code>block</code> 一样可以设置宽高和垂直方向的 <code>padding/margin</code>。</li>
-<li>适合需要精确控制尺寸的行内元素 ：例如导航栏中的按钮、图片画廊等。</li>
-</ul>
-<ol start="3">
-<li><strong>display: block</strong> 的典型用途</li>
-</ol>
-<ul>
-<li>结构化布局 ：用于页面的主要结构划分，例如标题、段落、表格等。</li>
-<li>独占一行 ：确保元素不会与其他元素共享同一行。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>display:block</th>
-<th>display:inline-block</th>
-<th>display:inline</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>是否独占一行</td>
-<td>是</td>
-<td>否</td>
-<td>否</td>
-</tr>
-<tr>
-<td>是否可以设置宽高</td>
-<td>可以</td>
-<td>可以</td>
-<td>不可以</td>
-</tr>
-<tr>
-<td>是否受空白符影响</td>
-<td>不受影响</td>
-<td>受影响（元素之间可能有间隙）</td>
-<td>不受影响</td>
-</tr>
-<tr>
-<td>默认宽度</td>
-<td>填满父容器</td>
-<td>仅包裹内容</td>
-<td>仅包裹内容</td>
-</tr>
-<tr>
-<td>是否可以设置垂直 padding&#x2F;margin</td>
-<td>可以</td>
-<td>可以</td>
-<td>不可以</td>
-</tr>
-<tr>
-<td>适用场景</td>
-<td>需要独占一行的布局（如标题、段落）</td>
-<td>需要同行排列且能设置宽高的布局（如按钮）</td>
-<td>需要同行排列且无需设置宽高的布局（如文本）</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/11/css-style-types/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/css-style-types/" class="post-title-link" itemprop="url">css-style-types</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-02-11 19:12:58 / Modified: 19:20:44" itemprop="dateCreated datePublished" datetime="2025-02-11T19:12:58+08:00">2025-02-11</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="内联样式"><a href="#内联样式" class="headerlink" title="内联样式"></a>内联样式</h3><p>CSS中一共有三种样式，分别是，内联样式，内部样式，外部样式。</p>
-<h3 id="内联样式-1"><a href="#内联样式-1" class="headerlink" title="内联样式"></a>内联样式</h3><p>所谓内联样式，是指直接写在html元素上的样式，通过给html指定style属性，比如下面的代码给<code>h1</code>设置文本居中。</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">style</span>=<span class="string">&quot;text-align: center&quot;</span>&gt;</span>Inline style<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="内部样式"><a href="#内部样式" class="headerlink" title="内部样式"></a>内部样式</h3><p>所谓内部样式，是指直接写在<code>&lt;style&gt;</code>块上的样式，<code>&lt;style&gt;</code>块一般位于html中的head区块中。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width,initial-scale=1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;content-type&quot;</span> <span class="attr">content</span>=<span class="string">&quot;text/html&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.parent</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>: flex;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">justify-content</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">align-items</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">800px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">600px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span> auto;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: <span class="number">#DDDDDD</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;parent&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="外部样式"><a href="#外部样式" class="headerlink" title="外部样式"></a>外部样式</h3><p>所谓外部样式，是指写在独立的css文件中的样式，然后引入到html文件中供使用。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span> <span class="attr">href</span>=<span class="string">&quot;mystyle.css&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>This is a heading<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a paragraph.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>这三种样式的优先级如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">内联样式 &gt; 内部样式 &gt; 外部样式</span><br></pre></td></tr></table></figure>
-
-<p>看一个列子，下面这个html包含了以上三种样式</p>
-<ul>
-<li>div元素中的内联样式 - 设置文本为蓝色</li>
-<li>head&#x2F;style标签中的内部样式 - 设置文本为绿色</li>
-<li>head&#x2F;link标签中的外部样式 - 设置文本为红色</li>
-</ul>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width,initial-scale=1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;content-type&quot;</span> <span class="attr">content</span>=<span class="string">&quot;text/html&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span> <span class="attr">href</span>=<span class="string">&quot;mystyles.css&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.parent</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>: flex;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">justify-content</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">align-items</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-size</span>: <span class="number">30px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">800px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">max-width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">600px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span> auto;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>: green;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: <span class="number">#DDDDDD</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&quot;color: blue&quot;</span> <span class="attr">class</span>=<span class="string">&quot;parent&quot;</span>&gt;</span>This is a div<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>这个页面会显示蓝色字符串：<code>This is a div</code>.</p>
-<p>用Chrome浏览器打开这个html，按键盘上的F12键进入开发者工具，并点击右侧的 <code>Elements</code>tab，然后点击 <code>Styles</code>tab，可以看到三种样式。</p>
-<p><img src="/../images/css-style-types.png" alt="css-style-type"></p>
-<p><code>Styles</code>标签下依次列出了四种样式，优先级从高到低</p>
-<ul>
-<li>element.style - 内联样式，颜色是蓝色，有最高优先级。</li>
-<li>.parent - 内部样式，优先级次之</li>
-<li>.parent (mystyles.css:1) - 外部样式，优先级再次之</li>
-<li>div (user agent stylesheet) - 浏览器默认样式，优先级最低</li>
-</ul>
-<p>带删除线的样式（内部样式中的color: green, 和外部样式中的color: red）表示这个样式被覆盖了，有更高优先级的样式抢先了。我们可以将高优先级的样式勾掉（单击样式左侧的checkbox），这样浏览器就会自动应用低优先级的样式。 </p>
-<p>下图就是把内联样式和内部样式中的color全部勾掉，浏览器就是用了外部样式中的color，文本也就变成了红色。</p>
-<p><img src="/../images/css-chrome-tool.png" alt="css-chrome-tool"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1158,14 +1141,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">281</span>
+          <span class="site-state-item-count">283</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">404</span>
+        <span class="site-state-item-count">406</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
