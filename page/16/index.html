@@ -181,6 +181,348 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/09/angular-ngtemplateoutlet/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/09/angular-ngtemplateoutlet/" class="post-title-link" itemprop="url">angular-ngTemplateOutlet</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-09 20:49:24" itemprop="dateCreated datePublished" datetime="2024-07-09T20:49:24+08:00">2024-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-30 14:29:01" itemprop="dateModified" datetime="2024-11-30T14:29:01+08:00">2024-11-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="What’s-ngTemplateOutlet"><a href="#What’s-ngTemplateOutlet" class="headerlink" title="What’s ngTemplateOutlet?"></a>What’s ngTemplateOutlet?</h1><p><code>ngTemplateOutlet</code> is a directive that allows you to render a template dynamically.</p>
+<h1 id="Use-Cases"><a href="#Use-Cases" class="headerlink" title="Use Cases"></a>Use Cases</h1><p>一个大的页面，可能有一部分会多次被渲染，这种情况下，我们可以使用 <code>ngTemplateOutlet</code> 来减少重复的代码。</p>
+<p>考虑如下需求：我们需要在一个页面上多次渲染某个产品信息，首先可以将产品信息的模板放在一个 <code>ng-template</code>中，并给它起一个名字叫做<code>product</code>, 然后通过 <code>ngTemplateOutlet</code> 来渲染。<code>ngTemplateOutlet</code>接受一个模板变量作为参数，然后将这个模板变量所指向的模板渲染到当前的位置。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 1<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 2<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product name: computer<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product price: 100$<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>ngTemplateOutlet</code> 还可以接受一个上下文参数，用来传递数据到模板中。比如上例中，我们可以把Product name和price进行参数化。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 1<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;name: &#x27;computer&#x27;, price: 100&#125;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 2<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;name: &#x27;phone&#x27;, price: 200&#125;&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">product</span> <span class="attr">let-name</span>=<span class="string">&quot;name&quot;</span> <span class="attr">let-price</span>=<span class="string">&quot;price&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product name: &#123;&#123; name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product price: &#123;&#123; price &#125;&#125;$<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>更进一步的，我们可以把name和price封装到一个对象中，然后传递这个对象。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 1<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;product: &#123;name: &#x27;computer&#x27;, price: 100&#125;&#125;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 2<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;product: &#123;name: &#x27;phone&#x27;, price: 200&#125;&#125;&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">product</span> <span class="attr">let-product</span>=<span class="string">&quot;product&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product name: &#123;&#123; product.name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product price: &#123;&#123; product.price &#125;&#125;$<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>渲染结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Product 1</span><br><span class="line">Product name: computer</span><br><span class="line">Product price: 100$</span><br><span class="line"></span><br><span class="line">Product 2</span><br><span class="line">Product name: phone</span><br><span class="line">Product price: 200$</span><br></pre></td></tr></table></figure>
+
+<p>再进一步，我们可以将product信息放到组件中，然后通过<code>ngTemplateOutlet</code>来渲染。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line">products = [</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Book 1&#x27;</span>, <span class="attr">price</span>: <span class="number">100</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Book 2&#x27;</span>, <span class="attr">price</span>: <span class="number">200</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Book 3&#x27;</span>, <span class="attr">price</span>: <span class="number">300</span>&#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 1<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;product: products[0]&#125;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Product 2<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;product; context: &#123;product: products[1]&#125;&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">product</span> <span class="attr">let-product</span>=<span class="string">&quot;product&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product name: &#123;&#123; product.name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product price: &#123;&#123; product.price &#125;&#125;$<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>再再进一步，我们可以用ngFor来循环渲染。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let product of products&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngTemplateOutlet</span>=<span class="string">&quot;productTemplate; context: &#123;$implicit: product&#125;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">productTemplate</span> <span class="attr">let-product</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product name: &#123;&#123; product.name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Product price: &#123;&#123; product.price &#125;&#125;$<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意，这里使用了<code>$implicit</code>, 这是一个特殊的关键字，表示默认的上下文参数。如果不指定上下文参数，<code>$implicit</code>会被用作默认的上下文参数。也就是说，<code>let-product=&quot;product&quot;</code>可以简写为<code>let-product</code>。而<code>$implicit</code>后面的参数就是product. (注意，这句我已经看不懂了，有空重新整理一下。)</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://angular.dev/api/common/NgTemplateOutlet?tab=usage-notes">https://angular.dev/api/common/NgTemplateOutlet?tab=usage-notes</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/09/angular-ng-content/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/09/angular-ng-content/" class="post-title-link" itemprop="url">angular-ng-content</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-09 20:25:03" itemprop="dateCreated datePublished" datetime="2024-07-09T20:25:03+08:00">2024-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-01 19:27:45" itemprop="dateModified" datetime="2024-12-01T19:27:45+08:00">2024-12-01</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="What-is-ng-content-in-Angular"><a href="#What-is-ng-content-in-Angular" class="headerlink" title="What is ng-content in Angular?"></a>What is ng-content in Angular?</h1><p>Angular’s <code>ng-content</code> element is used to project content into a component.</p>
+<p>通常我们定义一个组件时，都会在某个html模板中使用组件对应的selector来引用组件。例如：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-my-component</span>&gt;</span><span class="tag">&lt;/<span class="name">app-my-component</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意观察以上组件的html结构，<code>app-my-component</code>标签中间是没有内容的。这种组件的特点是静态的，无法动态插入内容。如果我们需要动态的更改组件中的某个部分，那就需要用到<code>ng-content</code>了。</p>
+<p>考虑下面的例子，假设我们有一个Card组件，我们希望Card组件的内容是动态的，可以根据不同的需求插入不同的内容。但是我们又希望Card的Header和Footer是固定的，不会变化。这个需求就可以用<code>ng-content</code>来实现。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">header</span>&gt;</span>Card Header<span class="tag">&lt;/<span class="name">header</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-content</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-content</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">footer</span>&gt;</span>Card Footer<span class="tag">&lt;/<span class="name">footer</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>假设我们要创建一个内容为<code>Hello, world!</code>的Card组件，我们可以这样写：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-card</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-card</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Angular最终会将<code>&lt;p&gt;Hello, world!&lt;/p&gt;</code>插入到<code>&lt;ng-content&gt;&lt;/ng-content&gt;</code>标签的位置，渲染结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">header</span>&gt;</span>Card Header<span class="tag">&lt;/<span class="name">header</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">footer</span>&gt;</span>Card Footer<span class="tag">&lt;/<span class="name">footer</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这就是<code>ng-content</code>的作用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>使用<code>ng-content</code>可以实现动态插入内容到组件中，使得组件更加灵活。</p>
+<ol>
+<li>固定不变的内容直接书写到组件模板中。</li>
+<li>动态的内容使用<code>ng-content</code>来插入。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/09/angular-ng-template/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/09/angular-ng-template/" class="post-title-link" itemprop="url">angular-ng-template</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-07-09 20:24:56 / Modified: 22:08:30" itemprop="dateCreated datePublished" datetime="2024-07-09T20:24:56+08:00">2024-07-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="What-is-ng-template-in-Angular"><a href="#What-is-ng-template-in-Angular" class="headerlink" title="What is ng-template in Angular?"></a>What is ng-template in Angular?</h1><p>Angular’s <code>ng-template</code> element defines a template that is not rendered by default.</p>
+<p><code>ng-template</code>必须配合Angular指令使用，例如<code>ngIf</code>、<code>ngFor</code>、<code>ngSwitch</code>等。或者定义模板变量以做他用（详情看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/07/22/Angular-template-reference-variables/">这里</a>），单纯使用<code>ng-template</code>是不会渲染的。</p>
+<p>以下内容不会渲染。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  Hello, world!</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以下内容也不会渲染，为什么？</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  Hello, world!</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>以下内容可以渲染：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  Hello, world!</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="指令的简写形式"><a href="#指令的简写形式" class="headerlink" title="指令的简写形式"></a>指令的简写形式</h2><p>Angular会将指令的简写形式转换成<code>ng-template</code>的完整形式。<br>以下代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>会被Angular内部转换为</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;true&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">div</span>&gt;</span>Hello, world!<span class="tag">&lt;/<span class="name">div</span>&gt;</span><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>但是渲染的时候，<code>&lt;ng-template&gt;</code>不会被渲染，只会渲染<code>&lt;div&gt;</code>。<code>ng-container</code>和<code>ng-template</code>一样，都不会向DOM中插入元素，而只会渲染他们所包裹的元素。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/09/angular-ng-container/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/09/angular-ng-container/" class="post-title-link" itemprop="url">angular-ng-container</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-09 20:24:42" itemprop="dateCreated datePublished" datetime="2024-07-09T20:24:42+08:00">2024-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-30 14:24:21" itemprop="dateModified" datetime="2024-11-30T14:24:21+08:00">2024-11-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="What’s-ng-container"><a href="#What’s-ng-container" class="headerlink" title="What’s ng-container?"></a>What’s ng-container?</h1><p>来看一下官方定义：<br><code>ng-container</code> is a special element that can hold structural directives like <code>*ngIf</code>, <code>*ngFor</code>, etc. without adding an extra element to the DOM.</p>
+<p>翻译过来就是：<code>ng-container</code> 是一个特殊的元素，可以包含结构性指令，比如 <code>*ngIf</code>, <code>*ngFor</code> 等等，而不会在 DOM 中添加额外的元素。</p>
+<p>从名字来看，<code>ng-container</code> 是一个容器，而且是一个隐形的容器，渲染后<code>ng-container</code>本身不会在DOM中生成任何元素。</p>
+<p>比如下面的代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>渲染后的结果是：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，上面仅仅是一个例子，现实中没人会如此这般写代码，我们一般都这么写。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span>Content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="Use-Cases"><a href="#Use-Cases" class="headerlink" title="Use Cases"></a>Use Cases</h1><h2 id="1-使用-ng-container-来包裹多个元素，而不需要额外的-div-或者-span-等元素。"><a href="#1-使用-ng-container-来包裹多个元素，而不需要额外的-div-或者-span-等元素。" class="headerlink" title="1. 使用 ng-container 来包裹多个元素，而不需要额外的 div 或者 span 等元素。"></a>1. 使用 <code>ng-container</code> 来包裹多个元素，而不需要额外的 <code>div</code> 或者 <code>span</code> 等元素。</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- This way will generate an extra div element --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 1<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- This way will not generate any extra div element --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 1<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-使用-ng-container来分隔多个结构化指令。"><a href="#2-使用-ng-container来分隔多个结构化指令。" class="headerlink" title="2. 使用 ng-container来分隔多个结构化指令。"></a>2. 使用 <code>ng-container</code>来分隔多个结构化指令。</h2><p>在Angular中，一个元素只能有一个结构性指令，比如 <code>*ngIf</code>, <code>*ngFor</code> 等等。如果需要在一个元素上使用多个结构性指令，可以使用 <code>ng-container</code> 来分隔。<br>比如下面的代码我们在<code>li</code>元素上同时使用了<code>ngFor</code>和<code>ngIf</code>，这会导致编译错误：<code>Only one structural directive can be applied</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let item of items&quot;</span> *<span class="attr">ngIf</span>=<span class="string">&quot;item.isValid&quot;</span>&gt;</span> &#123;&#123; item.name &#125;&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以使用 <code>ng-container</code> 来分隔这两个指令。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let item of items&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> *<span class="attr">ngIf</span>=<span class="string">&quot;item.isValid&quot;</span>&gt;</span> &#123;&#123; item.name &#125;&#125; /&gt;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意下面的代码虽然也能工作，但是会生成多个<code>ul</code>元素（每个<code>ul</code>元素包含一个<code>li</code>元素），这可能不是我们想要的结果。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let item of items&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span> *<span class="attr">ngIf</span>=<span class="string">&quot;item.isValid&quot;</span>&gt;</span> &#123;&#123; item.name &#125;&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-配合-ng-template-来实现-else-逻辑。"><a href="#3-配合-ng-template-来实现-else-逻辑。" class="headerlink" title="3. 配合 ng-template 来实现 else 逻辑。"></a>3. 配合 <code>ng-template</code> 来实现 <code>else</code> 逻辑。</h2><p>注意：<code>#elseBlock</code> 是一个模板引用变量，只能在<code>ng-template</code>中使用。在<code>ng-container</code>中使用<code>#elseBlock</code>是不会生效的。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;true; else elseBlock&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 2<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>Content 3<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-配合-ngTemplateOutlet-来实现动态模板。"><a href="#4-配合-ngTemplateOutlet-来实现动态模板。" class="headerlink" title="4. 配合 ngTemplateOutlet 来实现动态模板。"></a>4. 配合 <code>ngTemplateOutlet</code> 来实现动态模板。</h2><p>详情看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/07/09/angular-ngtemplateoutlet/">这里</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/api/core/ng-container">https://angular.dev/api/core/ng-container</a></li>
+<li><code>ng-template</code>: <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/07/09/angular-ng-template/">https://zdd.github.io/2024/07/09/angular-ng-template/</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/08/angular-test-component-test/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -684,395 +1026,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/16/what-s-new-in-angular-16/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/16/what-s-new-in-angular-16/" class="post-title-link" itemprop="url">What's new in Angular 16</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-06-16 10:15:48" itemprop="dateCreated datePublished" datetime="2024-06-16T10:15:48+08:00">2024-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-18 08:51:06" itemprop="dateModified" datetime="2025-02-18T08:51:06+08:00">2025-02-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Table-of-content"><a href="#Table-of-content" class="headerlink" title="Table of content"></a>Table of content</h1><table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a href='#self-closing-tags'>Self closing tags</a></td>
-<td>It’s a small improvement that could save you some typing</td>
-</tr>
-<tr>
-<td><a href='#signals'>Signals</a></td>
-<td></td>
-</tr>
-<tr>
-<td><a href='#take-until-destroyed'>takeUntilDestroyed</a></td>
-<td>A more simple version of <code>takeUntil</code></td>
-</tr>
-</tbody></table>
-<h2 id="Self-closing-tags"><a href="#Self-closing-tags" class="headerlink" title="Self closing tags"></a>Self closing tags</h2><p><a id='self-closing-tags'></a><br>In Angular 16, you can use self-closing tags in the template. This is really useful for a components with long names.</p>
-<p>Before</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>Now</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Angular-Signals"><a href="#Angular-Signals" class="headerlink" title="Angular Signals"></a>Angular Signals</h2><p><a id='signals'></a></p>
-<h2 id="takeUntilDestroyed"><a href="#takeUntilDestroyed" class="headerlink" title="takeUntilDestroyed"></a>takeUntilDestroyed</h2><p><a id='#take-until-destroyed' target="_blank" rel="noopener" href='https://medium.com/@chandrashekharsingh25/exploring-the-takeuntildestroyed-operator-in-angular-d7244c24a43e'>Detail example</a></p>
-<h2 id="SSR"><a href="#SSR" class="headerlink" title="SSR"></a>SSR</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  bootstrapApplication,</span><br><span class="line">  provideClientHydration,</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">RootCmp</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title function_">provideClientHydration</span>()]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/hydration">https://v17.angular.io/guide/hydration</a></p>
-<h2 id="Transition-to-standalone"><a href="#Transition-to-standalone" class="headerlink" title="Transition to standalone"></a>Transition to standalone</h2><p>You can use the following cli command to transit your app to standalone.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate @angular/core:standalone</span><br></pre></td></tr></table></figure>
-<p>and you’ll see the following options in terminal, use the arrow key to select the options.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">? Choose the <span class="built_in">type</span> of migration: (Use arrow keys)</span><br><span class="line">&gt; Convert all components, directives and pipes to standalone</span><br><span class="line">  Remove unnecessary NgModule classes</span><br><span class="line">  Bootstrap the application using standalone APIs</span><br></pre></td></tr></table></figure>
-
-<h2 id="Create-new-project-with-standalone"><a href="#Create-new-project-with-standalone" class="headerlink" title="Create new project with standalone"></a>Create new project with standalone</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new --standalone</span><br></pre></td></tr></table></figure>
-
-<h2 id="Required-Inputs"><a href="#Required-Inputs" class="headerlink" title="Required Inputs"></a>Required Inputs</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(...)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">App</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(&#123; <span class="attr">required</span>: <span class="literal">true</span> &#125;) <span class="attr">title</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Passing-router-data-as-component-input"><a href="#Passing-router-data-as-component-input" class="headerlink" title="Passing router data as component input"></a>Passing router data as component input</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> routes = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;about&#x27;</span>,</span><br><span class="line">    <span class="attr">loadComponent</span>: <span class="keyword">import</span>(<span class="string">&#x27;./about&#x27;</span>),</span><br><span class="line">    <span class="attr">resolve</span>: &#123; <span class="attr">contact</span>: <span class="function">() =&gt;</span> <span class="title function_">getContact</span>() &#125;</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(...)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">About</span> &#123;</span><br><span class="line">  <span class="comment">// The value of &quot;contact&quot; is passed to the contact input</span></span><br><span class="line">  <span class="meta">@Input</span>() contact?: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Flexible-ngOnDestroy"><a href="#Flexible-ngOnDestroy" class="headerlink" title="Flexible ngOnDestroy"></a>Flexible ngOnDestroy</h2><p>现在还不懂，需要继续研究。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://blog.angular.dev/angular-v16-is-here-4d7a28ec680d">https://blog.angular.dev/angular-v16-is-here-4d7a28ec680d</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/16/what-s-new-in-angular-15/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/16/what-s-new-in-angular-15/" class="post-title-link" itemprop="url">What's new in Angular 15</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-06-16 10:15:26" itemprop="dateCreated datePublished" datetime="2024-06-16T10:15:26+08:00">2024-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-01-03 11:15:31" itemprop="dateModified" datetime="2025-01-03T11:15:31+08:00">2025-01-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><h2 id="Tree-shakable-router"><a href="#Tree-shakable-router" class="headerlink" title="Tree-shakable router"></a>Tree-shakable router</h2><p>You can build multiple routes applications with the new router standalone API.</p>
-<p>Define the root routes in <code>app.routes.ts</code>, and use <code>loadChildren</code> to load the lazy routes.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routes.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appRoutes</span>: <span class="title class_">Routes</span> = [&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;lazy&#x27;</span>,</span><br><span class="line">  <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./lazy/lazy.routes&#x27;</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">routes</span> =&gt;</span> routes.<span class="property">lazyRoutes</span>)</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
-
-<p>Define the lazy routes in <code>lazy.routes.ts</code>.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lazy.routes.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Routes</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">LazyComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;./lazy.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">lazyRoutes</span>: <span class="title class_">Routes</span> = [&#123;<span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">component</span>: <span class="title class_">LazyComponent</span>&#125;];</span><br></pre></td></tr></table></figure>
-<p>Provide the router in file <code>main.ts</code>.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    <span class="title function_">provideRouter</span>(appRoutes) <span class="comment">// tree-shakable</span></span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>The benefit of <code>provideRouter</code> is that it is tree-shakable.</p>
-<h2 id="Directive-composition-API"><a href="#Directive-composition-API" class="headerlink" title="Directive composition API"></a>Directive composition API</h2><p>这个我没太看懂，需要进一步研究它的来历。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;mat-menu&#x27;</span>,</span><br><span class="line">  <span class="attr">hostDirectives</span>: [<span class="title class_">HasColor</span>, &#123;</span><br><span class="line">    <span class="attr">directive</span>: <span class="title class_">CdkMenu</span>,</span><br><span class="line">    <span class="attr">inputs</span>: [<span class="string">&#x27;cdkMenuDisabled: disabled&#x27;</span>],</span><br><span class="line">    <span class="attr">outputs</span>: [<span class="string">&#x27;cdkMenuClosed: closed&#x27;</span>]</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MatMenu</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="NgOptimizedImage"><a href="#NgOptimizedImage" class="headerlink" title="NgOptimizedImage"></a>NgOptimizedImage</h2><p><code>NgOptimizedImage</code> is a new directive that optimizes images for the web.<br>First, import <code>NgOptimizedImage</code> in your component.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgOptimizedImage</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common&#x27;</span>;</span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">NgOptimizedImage</span>],</span><br><span class="line">  ...</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>Then, replace <code>src</code> in img tag with <code>ngSrc</code>.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> [<span class="attr">ngSrc</span>]=<span class="string">&quot;url&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;image&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Functional-router-guards"><a href="#Functional-router-guards" class="headerlink" title="Functional router guards."></a>Functional router guards.</h2><p>You can now use functional router guards.</p>
-<p>Before:</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123; <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span> &#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">MyGuardWithDependency</span> <span class="keyword">implements</span> <span class="title class_">CanActivate</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> loginService: LoginService</span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">canActivate</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">loginService</span>.<span class="title function_">isLoggedIn</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> route = &#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;somePath&#x27;</span>,</span><br><span class="line">  <span class="attr">canActivate</span>: [<span class="title class_">MyGuardWithDependency</span>]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>After:</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> route = &#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;admin&#x27;</span>,</span><br><span class="line">  <span class="attr">canActivate</span>: [<span class="function">() =&gt;</span> <span class="title function_">inject</span>(<span class="title class_">LoginService</span>).<span class="title function_">isLoggedIn</span>()]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Route-unwraps-default-imports"><a href="#Route-unwraps-default-imports" class="headerlink" title="Route unwraps default imports"></a>Route unwraps default imports</h2><p>Before:<br>You need <code>.then</code> to unwrap the default import.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;lazy&#x27;</span>,</span><br><span class="line">  <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./lazy-file&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">LazyComponent</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Now: with the default export enabled, you can directly use the default import.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;lazy&#x27;</span>,</span><br><span class="line">  <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./lazy-file&#x27;</span>), <span class="comment">// &lt;--- no need to unwrap manually.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>You must use <code>default export</code> in the lazy file.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;...&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> <span class="title class_">LazyComponent</span> &#123; ... &#125; <span class="comment">// default export.</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Automatic-imports-in-language-service"><a href="#Automatic-imports-in-language-service" class="headerlink" title="Automatic imports in language service."></a>Automatic imports in language service.</h2><p>When you type a component selector in the template, the language service will prompt to import the component for you.</p>
-<h2 id="CLI-improvements"><a href="#CLI-improvements" class="headerlink" title="CLI improvements"></a>CLI improvements</h2><h3 id="Generate-standalone-components-with-the-following-command"><a href="#Generate-standalone-components-with-the-following-command" class="headerlink" title="Generate standalone components with the following command"></a>Generate standalone components with the following command</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g component --standalone</span><br></pre></td></tr></table></figure>
-<h3 id="Simplify-the-output-of-the-ng-serve-command"><a href="#Simplify-the-output-of-the-ng-serve-command" class="headerlink" title="Simplify the output of the ng serve command."></a>Simplify the output of the <code>ng serve</code> command.</h3><ol>
-<li>Remove File <code>test.ts</code>, <code>polyfills.ts</code>, and <code>environments</code></li>
-<li>Specify polyfills in <code>angular.json</code><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;polyfills&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">  <span class="string">&quot;zone.js&quot;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Global-format-for-Date-pipe"><a href="#Global-format-for-Date-pipe" class="headerlink" title="Global format for Date pipe"></a>Global format for <code>Date</code> pipe</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, &#123;</span><br><span class="line">  <span class="attr">providers</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">provide</span>: <span class="variable constant_">DATE_PIPE_DEFAULT_OPTIONS</span>,</span><br><span class="line">      <span class="attr">useValue</span>: &#123; <span class="attr">dateFormat</span>: <span class="string">&#x27;shortDate&#x27;</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Deprecations"><a href="#Deprecations" class="headerlink" title="Deprecations"></a>Deprecations</h2><ol>
-<li><code>providedIn: &#39;any&#39;</code> is deprecated. Use <code>providedIn: &#39;root&#39;</code> instead.</li>
-<li><code>providedIn: NgModule</code> is deprecated. Use <code>providedIn: &#39;root&#39;</code> or <code>providedIn: NgModule</code> instead.</li>
-</ol>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://blog.angular.dev/angular-v15-is-now-available-df7be7f2f4c8">https://blog.angular.dev/angular-v15-is-now-available-df7be7f2f4c8</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/16/what-s-new-in-angular-14/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/16/what-s-new-in-angular-14/" class="post-title-link" itemprop="url">What's new in Angular 14</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-06-16 10:14:35" itemprop="dateCreated datePublished" datetime="2024-06-16T10:14:35+08:00">2024-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-01-03 11:04:16" itemprop="dateModified" datetime="2025-01-03T11:04:16+08:00">2025-01-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Table-of-content"><a href="#Table-of-content" class="headerlink" title="Table of content"></a>Table of content</h1><table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Standalone components</td>
-<td></td>
-</tr>
-<tr>
-<td>Typed Angular Forms</td>
-<td></td>
-</tr>
-<tr>
-<td><a href='#inject'>inject</a></td>
-<td>a new function to inject dependencies</td>
-</tr>
-</tbody></table>
-<h2 id="Standalone-Directives-x2F-Components-x2F-Pipes"><a href="#Standalone-Directives-x2F-Components-x2F-Pipes" class="headerlink" title="Standalone Directives&#x2F;Components&#x2F;Pipes"></a>Standalone Directives&#x2F;Components&#x2F;Pipes</h2><h2 id="Typed-Angular-Forms"><a href="#Typed-Angular-Forms" class="headerlink" title="Typed Angular Forms"></a>Typed Angular Forms</h2><h2 id="Define-title-in-router"><a href="#Define-title-in-router" class="headerlink" title="Define title in router"></a>Define <code>title</code> in router</h2><p>You can specify the title of a page in the router configuration now.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;Home Page&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-
-<p>Use <code>TitleStrategy</code> to set the title in the browser tab for complex scenarios.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>()</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">TemplatePageTitleStrategy</span> <span class="keyword">extends</span> <span class="title class_ inherited__">TitleStrategy</span> &#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="title function_">updateTitle</span>(<span class="params">routerState: RouterStateSnapshot</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> title = <span class="variable language_">this</span>.<span class="title function_">buildTitle</span>(routerState);</span><br><span class="line">    <span class="keyword">if</span> (title !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="variable language_">document</span>.<span class="property">title</span> = <span class="string">`My App - <span class="subst">$&#123;title&#125;</span>`</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">document</span>.<span class="property">title</span> = <span class="string">`My App - Home`</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="title class_">TitleStrategy</span>,  <span class="attr">useClass</span>: <span class="title class_">TemplatePageTitleStrategy</span>&#125;]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Target-TypeScript-4-7-and-ES2020"><a href="#Target-TypeScript-4-7-and-ES2020" class="headerlink" title="Target TypeScript 4.7 and ES2020"></a>Target TypeScript 4.7 and ES2020</h2><h2 id="Bind-to-protected-component-members"><a href="#Bind-to-protected-component-members" class="headerlink" title="Bind to protected component members."></a>Bind to protected component members.</h2><p>Start form Angular 14, you can bind protected properties in component class to your template.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;my-component&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&#123;&#123; message &#125;&#125;&#x27;</span>,  <span class="comment">// &lt;--- Now compiles!</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">MyComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="attr">message</span>: <span class="built_in">string</span> = <span class="string">&#x27;Hello world&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Optional-injectors-in-Embedded-Views"><a href="#Optional-injectors-in-Embedded-Views" class="headerlink" title="Optional injectors in Embedded Views"></a>Optional injectors in Embedded Views</h2><p>What’s Embedded views? Need further research.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">viewContainer.<span class="title function_">createEmbeddedView</span>(templateRef, context, &#123;</span><br><span class="line">  <span class="attr">injector</span>: injector,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<h2 id="New-CLI-commands"><a href="#New-CLI-commands" class="headerlink" title="New CLI commands"></a>New CLI commands</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ng completion</span><br><span class="line">ng analytics</span><br><span class="line">ng cache</span><br><span class="line">ng cache info</span><br></pre></td></tr></table></figure>
-
-<h2 id="Experimental-ESM-Application-build"><a href="#Experimental-ESM-Application-build" class="headerlink" title="Experimental ESM Application build"></a>Experimental ESM Application build</h2><p>Update the build config in <code>angular.json</code> to use the new esbuild builder.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:browser&quot;</span></span><br><span class="line"><span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:browser-esbuild&quot;</span> <span class="comment">// &lt;-- new</span></span><br></pre></td></tr></table></figure>
-<h2 id="inject-functions"><a href="#inject-functions" class="headerlink" title="inject functions"></a>inject functions</h2><p><a id='inject'></a>The new <code>inject</code> function in Angular 14 is a new way to inject dependencies into your components.</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://blog.angular.dev/angular-v14-is-now-available-391a6db736af">https://blog.angular.dev/angular-v14-is-now-available-391a6db736af</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/06/13/javascript-return-undefined-in-else-branch/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/06/13/javascript-return-undefined-in-else-branch/" class="post-title-link" itemprop="url">javascript-return-undefined-in-else-branch</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-06-13 20:56:12 / Modified: 21:00:54" itemprop="dateCreated datePublished" datetime="2024-06-13T20:56:12+08:00">2024-06-13</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Dost-it-make-sense-to-return-undefined-in-else-branch"><a href="#Dost-it-make-sense-to-return-undefined-in-else-branch" class="headerlink" title="Dost it make sense to return undefined in else branch?"></a>Dost it make sense to return <code>undefined</code> in <code>else</code> branch?</h2><p>Today, I noticed a code snippet during code review, it looks like this:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUserInfo</span>(<span class="params">user: User</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (user.<span class="property">isActive</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> user.<span class="property">info</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">undefined</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>The code is trying to get the user info, if the user is active, it will return the user info, otherwise, it will return <code>undefined</code>. But does it make sense to return <code>undefined</code> in the <code>else</code> branch? In JavaScript, if a function does not return anything, it implicitly returns <code>undefined</code>. So, the above code can be refactored to:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUserInfo</span>(<span class="params">user: User</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (user.<span class="property">isActive</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> user.<span class="property">info</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Similarly to the following code.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://api.example.com/data&#x27;</span>);</span><br><span class="line">    <span class="keyword">return</span> data.<span class="title function_">json</span>();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">undefined</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>Which can be simplified to:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">fetchData</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;https://api.example.com/data&#x27;</span>);</span><br><span class="line">    <span class="keyword">return</span> data.<span class="title function_">json</span>();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1142,14 +1095,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">283</span>
+          <span class="site-state-item-count">287</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">406</span>
+        <span class="site-state-item-count">409</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

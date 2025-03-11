@@ -181,6 +181,356 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/17/javascript-destruction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/17/javascript-destruction/" class="post-title-link" itemprop="url">javascript-destruction</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-17 10:04:09" itemprop="dateCreated datePublished" datetime="2024-03-17T10:04:09+08:00">2024-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-31 10:04:53" itemprop="dateModified" datetime="2024-03-31T10:04:53+08:00">2024-03-31</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="javascript-destruction"><a href="#javascript-destruction" class="headerlink" title="javascript destruction"></a>javascript destruction</h1><h2 id="1-Object-destruction"><a href="#1-Object-destruction" class="headerlink" title="1. Object destruction"></a>1. Object destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> response = &#123;</span><br><span class="line">  <span class="attr">code</span>: <span class="number">200</span>,</span><br><span class="line">  <span class="attr">status</span>: <span class="string">&#x27;success&#x27;</span>,</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; code, status, <span class="attr">data</span>: &#123; name, age &#125; &#125; = response;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(code); <span class="comment">// 200</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(status); <span class="comment">// &quot;success&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(name); <span class="comment">// &quot;zdd&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(age); <span class="comment">// 18</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-String-destruction"><a href="#2-String-destruction" class="headerlink" title="2. String destruction"></a>2. String destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [a, b, c, d, e] = <span class="string">&#x27;hello&#x27;</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// &quot;h&quot;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// &quot;e&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-rename-on-destruction"><a href="#3-rename-on-destruction" class="headerlink" title="3. rename on destruction"></a>3. rename on destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> &#123; <span class="attr">name</span>: myName &#125; = person;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myName); <span class="comment">// &quot;zdd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-default-value-on-destruction"><a href="#4-default-value-on-destruction" class="headerlink" title="4. default value on destruction"></a>4. default value on destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; name, age = <span class="number">20</span>, gender = <span class="string">&#x27;male&#x27;</span> &#125; = person;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(name); <span class="comment">// &#x27;zdd&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(age); <span class="comment">// 18</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(gender); <span class="comment">// &#x27;male&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Note</strong>: Each destructed property can have a default value if and only if the property is not present or its value is <code>undefined</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">  <span class="attr">address</span>: <span class="literal">null</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; name, address = <span class="string">&#x27;Dalian&#x27;</span>, gender = <span class="string">&#x27;male&#x27;</span> &#125; = person;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(name); <span class="comment">// zdd</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(address); <span class="comment">// null</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(gender); <span class="comment">// male</span></span><br></pre></td></tr></table></figure>
+
+<p>In the above code, <code>address</code> is present in the <code>person</code> object, but its value is <code>null</code>, so the default value <code>Dalian</code> is not used.</p>
+<p>如果解构中的属性值为<code>null</code>，则无法进行嵌套解构，会报错。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">address</span>: <span class="literal">null</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; name, <span class="attr">address</span>: &#123; city = <span class="string">&#x27;Dalian&#x27;</span>, street = <span class="string">&#x27;Jiefang Road&#x27;</span> &#125; = &#123;&#125; &#125; = person;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(name); <span class="comment">// zdd</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(city); <span class="comment">// Cannot read properties of null (reading &#x27;city&#x27;)</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(street); <span class="comment">// Cannot read properties of null (reading &#x27;street&#x27;)</span></span><br></pre></td></tr></table></figure>
+<p>注意，以上代码会报错，虽然我们给了<code>address</code>一个默认值<code>&#123;&#125;</code>，但是<code>address</code>的原始值是<code>null</code>，所以默认值无法生效，这导致了<code>city</code>和<code>street</code>的解构报错。（相当于在<code>null</code>值中读取<code>city</code>和<code>street</code>）</p>
+<p>要想解决这个问题，只能将嵌套解构变为二次解构。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">address</span>: <span class="literal">null</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; name, address = &#123;&#125; &#125; = person;</span><br><span class="line"><span class="keyword">const</span> &#123; city = <span class="string">&#x27;Dalian&#x27;</span>, street = <span class="string">&#x27;Jiefang Road&#x27;</span> &#125; = address || &#123;&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(name); <span class="comment">// zdd</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(city); <span class="comment">// Dalian</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(street); <span class="comment">// Jiefang Road</span></span><br></pre></td></tr></table></figure>
+<p>第一次解构后，<code>address</code>的值为<code>null</code>，所以我们给<code>address</code>一个默认值<code>&#123;&#125;</code>，然后再次解构<code>city</code>和<code>street</code>，这样就不会报错了。</p>
+<h2 id="5-rename-and-default-value-at-the-same-time"><a href="#5-rename-and-default-value-at-the-same-time" class="headerlink" title="5. rename and default value at the same time"></a>5. rename and default value at the same time</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; <span class="attr">name</span>: myName, <span class="attr">age</span>: myAge = <span class="number">20</span>, <span class="attr">gender</span>: myGender = <span class="string">&#x27;male&#x27;</span>&#125; = person;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myName); <span class="comment">// &#x27;zdd&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myAge); <span class="comment">// 18</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myGender); <span class="comment">// &#x27;male&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-Array-destruction"><a href="#6-Array-destruction" class="headerlink" title="6. Array destruction"></a>6. Array destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> [a, b, c] = nums;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// 1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c); <span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+<p>数组解构与对象解构不同，不需要指定属性名，只需要按照顺序解构即可。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> [firstColor, secondColor] = colors;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(firstColor); <span class="comment">// &#x27;red&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(secondColor); <span class="comment">// &#x27;green&#x27;</span></span><br></pre></td></tr></table></figure>
+<h2 id="7-get-element-at-specific-position"><a href="#7-get-element-at-specific-position" class="headerlink" title="7. get element at specific position"></a>7. get element at specific position</h2><p>The following code get the color at the third position, ignore the first two colors.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> [, , thirdColor] = colors;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(thirdColor); <span class="comment">// &#x27;blue&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="8-ignore-some-elements"><a href="#8-ignore-some-elements" class="headerlink" title="8. ignore some elements"></a>8. ignore some elements</h2><p>Get all elements in array except the first two.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>, <span class="string">&#x27;yellow&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> [, , ...restColors] = colors;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(restColors); <span class="comment">// [&#x27;blue&#x27;, &#x27;yellow&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：数组解构中，不定元素必须放在最后，如果不定元素后面还有其他元素，会报错。</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>, <span class="string">&#x27;yellow&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> [...restColors, lastColor] = colors; <span class="comment">// SyntaxError: Rest element must be last element</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="9-Copy-array"><a href="#9-Copy-array" class="headerlink" title="9. Copy array"></a>9. Copy array</h2><p>ES5</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> newColors = colors.<span class="title function_">slice</span>(); <span class="comment">// or colors.concat();</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(newColors); <span class="comment">// [&#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>ES6</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> colors = [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> [...newColors] = colors;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(newColors); <span class="comment">// [&#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="9-swap-two-variables"><a href="#9-swap-two-variables" class="headerlink" title="9. swap two variables"></a>9. swap two variables</h2><p>Before ES6, we must introduce a temporary variable to swap two variables. But with destruction, we can swap two variables easily.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">let</span> b = <span class="number">2</span>;</span><br><span class="line">[a, b] = [b, a];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="10-Nested-array-destruction"><a href="#10-Nested-array-destruction" class="headerlink" title="10. Nested array destruction"></a>10. Nested array destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>], <span class="number">4</span>];</span><br><span class="line"><span class="keyword">const</span> [a, [b, c], d] = nums;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// 1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(d); <span class="comment">// 4</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/16/javascript-promise-reject/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/16/javascript-promise-reject/" class="post-title-link" itemprop="url">javascript-promise-reject</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-16 20:38:32" itemprop="dateCreated datePublished" datetime="2024-03-16T20:38:32+08:00">2024-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-04-13 22:53:45" itemprop="dateModified" datetime="2024-04-13T22:53:45+08:00">2024-04-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-Promise-Reject"><a href="#JavaScript-Promise-Reject" class="headerlink" title="JavaScript Promise Reject"></a>JavaScript Promise Reject</h1><p>See the following code, what’s the output?</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleResponse</span>(<span class="params">response</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (response.<span class="property">code</span> !== <span class="number">200</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;rejected!&#x27;</span>);</span><br><span class="line">      <span class="title function_">reject</span>(response.<span class="property">code</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> &#123;</span><br><span class="line">      <span class="attr">data</span>: &#123; token &#125;,</span><br><span class="line">    &#125; = response;</span><br><span class="line">    <span class="keyword">if</span> (token) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;resolved!&#x27;</span>);</span><br><span class="line">      <span class="title function_">resolve</span>(token);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> response = &#123;</span><br><span class="line">  <span class="attr">code</span>: <span class="number">201</span>,</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">token</span>: <span class="string">&#x27;123455&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">handleResponse</span>(response)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(res);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(err);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>The output is:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rejected!</span><br><span class="line">resolved!</span><br><span class="line"><span class="number">201</span></span><br></pre></td></tr></table></figure>
+
+<p>Why?</p>
+<p><code>reject</code> or <code>resolve</code> will not terminate the execution of the promise, it will continue to execute subsequent code.</p>
+<p>To solve this problem, you can add a <code>return</code> statement after <code>reject(response.code)</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleResponse</span>(<span class="params">response</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (response.<span class="property">code</span> !== <span class="number">200</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;rejected!&#x27;</span>);</span><br><span class="line">      <span class="keyword">return</span> <span class="title function_">reject</span>(response.<span class="property">code</span>); <span class="comment">// return reject here.</span></span><br><span class="line">      <span class="comment">// return; // or return here.</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> &#123;</span><br><span class="line">      <span class="attr">data</span>: &#123; token &#125;,</span><br><span class="line">    &#125; = response;</span><br><span class="line">    <span class="keyword">if</span> (token) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;resolved!&#x27;</span>);</span><br><span class="line">      <span class="title function_">resolve</span>(token);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Or use the else statement to make the exclusive execution.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleResponse</span>(<span class="params">response</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (response.<span class="property">code</span> !== <span class="number">200</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;rejected!&#x27;</span>);</span><br><span class="line">      <span class="title function_">reject</span>(response.<span class="property">code</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;</span><br><span class="line">        <span class="attr">data</span>: &#123; token &#125;,</span><br><span class="line">      &#125; = response;</span><br><span class="line">      <span class="keyword">if</span> (token) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;resolved!&#x27;</span>);</span><br><span class="line">        <span class="title function_">resolve</span>(token);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then we got the correct output as:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rejected!</span><br><span class="line"><span class="number">201</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h1><ul>
+<li><code>reject</code> or <code>return</code>will not terminate the execution of the promise, it will continue to execute subsequent code.</li>
+</ul>
+<p>Three ways to solve this problem:</p>
+<ol>
+<li><code>return resolved(xxx)</code> or <code>return reject(xxx)</code>, the return value will be ignored, so we can save a line then way 2.</li>
+<li>Add a <code>return</code> statement after <code>reject(response.code)</code>.</li>
+<li>Use the <code>if/else</code> statement to make the exclusive execution.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/10/webstorm-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/10/webstorm-tips/" class="post-title-link" itemprop="url">webstorm-tips</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-03-10 11:12:38 / Modified: 11:15:29" itemprop="dateCreated datePublished" datetime="2024-03-10T11:12:38+08:00">2024-03-10</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="webstorm-tips"><a href="#webstorm-tips" class="headerlink" title="webstorm-tips"></a>webstorm-tips</h1><h1 id="Conflict-between-prettier-and-eslint"><a href="#Conflict-between-prettier-and-eslint" class="headerlink" title="Conflict between prettier and eslint"></a>Conflict between prettier and eslint</h1><h2 id="ESlint-delete-cr-prettier-x2F-prettier"><a href="#ESlint-delete-cr-prettier-x2F-prettier" class="headerlink" title="[ESlint] delete cr (prettier&#x2F;prettier)"></a>[ESlint] delete cr (prettier&#x2F;prettier)</h2><p>Resolution: put the following config in your .eslintrc.js under project root.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">rules</span>: &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="string">&#x27;prettier/prettier&#x27;</span>: [</span><br><span class="line">    <span class="string">&#x27;error&#x27;</span>,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&#x27;endOfLine&#x27;</span>: <span class="string">&#x27;auto&#x27;</span> <span class="comment">// This line will remove the warning</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/10/nest-js-geting-start/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/10/nest-js-geting-start/" class="post-title-link" itemprop="url">nest.js - geting start</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-10 09:46:16" itemprop="dateCreated datePublished" datetime="2024-03-10T09:46:16+08:00">2024-03-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-11 21:22:05" itemprop="dateModified" datetime="2024-03-11T21:22:05+08:00">2024-03-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="nest-js-geting-start"><a href="#nest-js-geting-start" class="headerlink" title="nest.js - geting start"></a>nest.js - geting start</h1><h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -g @nestjs/cli</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-project"><a href="#Create-a-new-project" class="headerlink" title="Create a new project"></a>Create a new project</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest new project-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-module"><a href="#Create-a-new-module" class="headerlink" title="Create a new module"></a>Create a new module</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest g module module-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-controller"><a href="#Create-a-new-controller" class="headerlink" title="Create a new controller"></a>Create a new controller</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest g controller controller-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-service"><a href="#Create-a-new-service" class="headerlink" title="Create a new service"></a>Create a new service</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest g service service-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-pipe"><a href="#Create-a-new-pipe" class="headerlink" title="Create a new pipe"></a>Create a new pipe</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest g pipe pipe-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-a-new-resource"><a href="#Create-a-new-resource" class="headerlink" title="Create a new resource"></a>Create a new resource</h2>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nest g resource resource-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="Database"><a href="#Database" class="headerlink" title="Database"></a>Database</h2><p>Nest.js is database agnostic, you can use any database you want. For example, you can use TypeORM, Sequelize, Mongoose, etc.</p>
+<h3 id="Install-TypeORM-with-mysql-driver"><a href="#Install-TypeORM-with-mysql-driver" class="headerlink" title="Install TypeORM with mysql driver"></a>Install TypeORM with mysql driver</h3>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save @nestjs/typeorm typeorm mysql2</span><br></pre></td></tr></table></figure>
+
+<h2 id="Troubleshooting"><a href="#Troubleshooting" class="headerlink" title="Troubleshooting"></a>Troubleshooting</h2><h3 id="Error-Nest-can’t-resolve-dependencies-of-the-SearchHistoryService-Please-make-sure-that-the-argument-“SearchHistoryRepository”-at-index-0-is-available-in-the-SearchHistoryModule-context"><a href="#Error-Nest-can’t-resolve-dependencies-of-the-SearchHistoryService-Please-make-sure-that-the-argument-“SearchHistoryRepository”-at-index-0-is-available-in-the-SearchHistoryModule-context" class="headerlink" title="Error: Nest can’t resolve dependencies of the SearchHistoryService (?). Please make sure that the argument “SearchHistoryRepository” at index [0] is available in the SearchHistoryModule context."></a>Error: Nest can’t resolve dependencies of the SearchHistoryService (?). Please make sure that the argument “SearchHistoryRepository” at index [0] is available in the SearchHistoryModule context.</h3><ol>
+<li>如果这个错误发生在一个module中（即不存在Module之间相互引用的情况），那么很可能是Module文件中缺少imports。加上下面这句：</li>
+</ol>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Module</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@nestjs/common&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SearchHistoryService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./search_history.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SearchHistoryController</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./search_history.controller&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">TypeOrmModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@nestjs/typeorm&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SearchHistory</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./entities/search_history.entity&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Module</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">TypeOrmModule</span>.<span class="title function_">forFeature</span>([<span class="title class_">SearchHistory</span>])], <span class="comment">// 这一句不能少！！！这个问题困扰了我一整天！</span></span><br><span class="line">  <span class="attr">controllers</span>: [<span class="title class_">SearchHistoryController</span>],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">SearchHistoryService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SearchHistoryModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>如果这个错误发生在module交叉引用中，比如A module中的service引用了B module的service，那么需<br>要：</li>
+</ol>
+<ul>
+<li>在B module中exports需要被引用的service</li>
+<li>在A module中imports B module<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A module</span></span><br><span class="line"><span class="attr">imports</span>: [<span class="title class_">BModule</span>],</span><br><span class="line"></span><br><span class="line"><span class="comment">// B module</span></span><br><span class="line"><span class="attr">exports</span>: [<span class="title class_">BService</span>],</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Database-data-was-deleted-after-start-nest-js"><a href="#Database-data-was-deleted-after-start-nest-js" class="headerlink" title="Database data was deleted after start nest.js"></a>Database data was deleted after start nest.js</h3><p>将app.module.ts中的<code>synchronize</code>设置为<code>false</code>，这样每次启动都不会删除数据。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Module</span>(&#123;</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">TypeOrmModule</span>.<span class="title function_">forRoot</span>(&#123;</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">      <span class="attr">host</span>: <span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">      <span class="attr">port</span>: <span class="number">1234</span>,</span><br><span class="line">      <span class="attr">username</span>: <span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">      <span class="attr">password</span>: <span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">      <span class="attr">database</span>: <span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">      <span class="attr">entities</span>: [xxx],</span><br><span class="line">      <span class="attr">logging</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="attr">synchronize</span>: <span class="literal">false</span>, <span class="comment">// 这里设置为false！！！切记</span></span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="title class_">XXXModule</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">controllers</span>: [<span class="title class_">AppController</span>],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">AppService</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/06/typeerror-cannot-read-property-setstate-of-undefined/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -698,357 +1048,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/01/javascript-cookie/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/03/01/javascript-cookie/" class="post-title-link" itemprop="url">javascript-cookie</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-03-01 22:11:36" itemprop="dateCreated datePublished" datetime="2024-03-01T22:11:36+08:00">2024-03-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-12 20:03:18" itemprop="dateModified" datetime="2024-11-12T20:03:18+08:00">2024-11-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="1-什么是cookie"><a href="#1-什么是cookie" class="headerlink" title="1. 什么是cookie"></a>1. 什么是cookie</h2><p>In Node.js, you can use the <code>response.setHeader</code> method to set cookies from the server side. Here’s an example using the Express.js framework:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">cookie</span>(<span class="string">&#x27;username&#x27;</span>, <span class="string">&#x27;John Doe&#x27;</span>, &#123; <span class="attr">maxAge</span>: <span class="number">900000</span>, <span class="attr">httpOnly</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&#x27;Cookie has been set&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">3000</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Server is running on port 3000&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>In this example, <code>res.cookie(&#39;username&#39;, &#39;John Doe&#39;, &#123; maxAge: 900000, httpOnly: true &#125;);</code> sets a cookie named “username” with the value “John Doe”. The <code>maxAge</code> option sets the expiry time for the cookie in milliseconds. The <code>httpOnly</code> option is a security enhancement that restricts the cookie from being accessed by client-side scripts.</p>
-<h2 id="Get-cookie-by-request-header"><a href="#Get-cookie-by-request-header" class="headerlink" title="Get cookie by request header"></a>Get cookie by request header</h2><p>In Node.js, you can use the <code>request.headers.cookie</code> property to get cookies from the client side. Here’s an example using the Express.js framework:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> cookie = req.<span class="property">headers</span>.<span class="property">cookie</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(cookie);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&#x27;Cookie has been set&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>In this example, <code>const cookie = req.headers.cookie;</code> gets the cookie from the client side and logs it to the console.</p>
-<p>You can also use <code>cookie-parser</code> middleware to parse the cookie from the request header. Here’s an example using the <code>cookie-parser</code> middleware:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cookieParser = <span class="built_in">require</span>(<span class="string">&#x27;cookie-parser&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cookieParser</span>());</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; cookies &#125; = req;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(cookies);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用JavaScript操作cookie"><a href="#使用JavaScript操作cookie" class="headerlink" title="使用JavaScript操作cookie"></a>使用JavaScript操作cookie</h2><h3 id="Create-cookie"><a href="#Create-cookie" class="headerlink" title="Create cookie"></a>Create cookie</h3><p>Note that the cookie value cannot contain semicolons, commas, or whitespace. For a solution, use the encodeURIComponent() function to encode the value.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">&quot;username=John Doe; expires=Thu, 18 Dec 2023 12:00:00 UTC; path=/&quot;</span>;</span><br></pre></td></tr></table></figure>
-<p>document.cookie will return all cookies in one string, each cookie is separated by a semicolon and a space.</p>
-<h3 id="Read-a-cookie"><a href="#Read-a-cookie" class="headerlink" title="Read a cookie"></a>Read a cookie</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> allCookies = <span class="variable language_">document</span>.<span class="property">cookie</span>;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Delete-a-cookie"><a href="#Delete-a-cookie" class="headerlink" title="Delete a cookie"></a>Delete a cookie</h3><p>To delete a cookie, just set the expires parameter to a passed date.</p>
-<pre><code class="javascript">document.cookie = &quot;username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;&quot;;
-
-# References
-- [MDN web docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
-</code></pre>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/28/working-efficiently/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/28/working-efficiently/" class="post-title-link" itemprop="url">working-efficiently</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-02-28 22:09:24 / Modified: 22:18:37" itemprop="dateCreated datePublished" datetime="2024-02-28T22:09:24+08:00">2024-02-28</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Working-Efficiently"><a href="#Working-Efficiently" class="headerlink" title="Working Efficiently"></a>Working Efficiently</h1><h2 id="Useful-VSCode-Plugins"><a href="#Useful-VSCode-Plugins" class="headerlink" title="Useful VSCode Plugins"></a>Useful VSCode Plugins</h2><ol>
-<li>Code Runner - Run code snippet or code file for multiple languages. </li>
-<li>Mithril Emmet - Quickly write Html&#x2F;CSS&#x2F;JSX tags.</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/28/http-content-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/28/http-content-type/" class="post-title-link" itemprop="url">http_content-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-28 21:29:40" itemprop="dateCreated datePublished" datetime="2024-02-28T21:29:40+08:00">2024-02-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-06-16 12:37:41" itemprop="dateModified" datetime="2024-06-16T12:37:41+08:00">2024-06-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="HTTP-Content-Type"><a href="#HTTP-Content-Type" class="headerlink" title="HTTP Content-Type"></a>HTTP Content-Type</h1><h2 id="x-www-form-urlencoded"><a href="#x-www-form-urlencoded" class="headerlink" title="x-www-form-urlencoded"></a>x-www-form-urlencoded</h2><p>先看一个例子：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span></span></span><br><span class="line"><span class="tag">  <span class="attr">action</span>=<span class="string">&quot;/urlencoded?firstname=philip&amp;lastname=zhang&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span></span></span><br><span class="line"><span class="tag">&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;user1&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;pwd1&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里的 <code>enctype</code> 属性指定了表单数据的编码类型，<code>application/x-www-form-urlencoded</code> 是默认的编码类型，也是最常用的编码类型。当表单数据被编码为 <code>application/x-www-form-urlencoded</code> 时：</p>
-<ul>
-<li>表单数据会被编码为键值对，键值对之间用 <code>&amp;</code> 连接。</li>
-<li>键和值之间用 <code>=</code> 连接。</li>
-</ul>
-<p>上面的例子中，表单数据被编码为 <code>username=user1&amp;password=pwd1</code>。（实际上和url中的参数格式一样，所以才叫<code>urlencoded</code>）</p>
-<p>用浏览器打开这个页面，然后点击 <code>Submit</code> 按钮，按F12打开开发者工具，切换到 <code>Network</code> 选项卡，在<code>Headers</code>Tab可以看到请求的 <code>Content-Type</code> 是 <code>application/x-www-form-urlencoded</code>。<br><img src="/../images/content-type.png" alt="alt text"></p>
-<p>在<code>Payload</code>Tab可以看到请求的详细信息：</p>
-<ul>
-<li><code>Query String</code>： <code>firstname=philip&amp;lastname=zhang</code> - 对应form <code>action</code>中的url参数</li>
-<li><code>Form Data</code>：<code>username=user1&amp;password=pwd1</code>- 对应form体中的两个<code>input</code>。</li>
-</ul>
-<p><img src="/../images/x-www-form-url-encoded.png" alt="alt text"></p>
-<p>但是，上面这个例子并没有展示出url-encoded的精髓，这里的encoded到底encoded了什么呢？我们来看一个更加直观的例子：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span></span></span><br><span class="line"><span class="tag">  <span class="attr">action</span>=<span class="string">&quot;/urlencoded?firstname=philip&amp;lastname=zhang&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span></span></span><br><span class="line"><span class="tag">&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;foo&amp;bar&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;1=2?&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里的 <code>username</code> 和 <code>password</code> 的值中包含了 <code>&amp;</code> 和 <code>=</code>，这些字符在url中有特殊含义，如果直接放在url中，会导致url解析错误。但是，当表单数据被编码为 <code>application/x-www-form-urlencoded</code> 时，这些特殊字符会被转义，所以编码后的表单数据如下图所示。</p>
-<ul>
-<li>username: foo%26bar, 其中 <code>%26</code> 是 <code>&amp;</code> 的转义</li>
-<li>password: 1%3D2%3F, 其中 <code>%3D</code> 是 <code>=</code> 的转义，<code>%3F</code> 是 <code>?</code> 的转义<br>如果不转义的话那么最终的结果就是<code>username=foo&amp;bar&amp;password=1=2?</code>，此时浏览器就懵逼了。导致数据解析出错。<br><img src="/../images/x-www-form-url-encoded2.png" alt="alt text"></li>
-</ul>
-<p>那么到底哪些字符需要编码呢？参考这里：<a target="_blank" rel="noopener" href="http://www.blooberry.com/indexdot/html/topics/urlencoding.htm">http://www.blooberry.com/indexdot/html/topics/urlencoding.htm</a></p>
-<h2 id="multipart-x2F-form-data"><a href="#multipart-x2F-form-data" class="headerlink" title="multipart&#x2F;form-data"></a>multipart&#x2F;form-data</h2><h2 id="application-x2F-json"><a href="#application-x2F-json" class="headerlink" title="application&#x2F;json"></a>application&#x2F;json</h2><h2 id="text-x2F-plain"><a href="#text-x2F-plain" class="headerlink" title="text&#x2F;plain"></a>text&#x2F;plain</h2><h2 id="references"><a href="#references" class="headerlink" title="references"></a>references</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">MDN - HTTP Headers</a></li>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">MDN - Content-Type</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/28/web-api/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/28/web-api/" class="post-title-link" itemprop="url">web-api</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-02-28 10:22:51 / Modified: 11:34:04" itemprop="dateCreated datePublished" datetime="2024-02-28T10:22:51+08:00">2024-02-28</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Web-API"><a href="#Web-API" class="headerlink" title="Web API"></a>Web API</h1><ul>
-<li>REST - Representational State Transfer</li>
-<li>SOAP - Simple Object Access Protocol</li>
-<li>GraphQL - A query language for your API</li>
-</ul>
-<h2 id="difference-between-REST-and-SOAP"><a href="#difference-between-REST-and-SOAP" class="headerlink" title="difference between REST and SOAP"></a>difference between REST and SOAP</h2><table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>REST</th>
-<th>SOAP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Protocol</td>
-<td>Can use any protocol but typically uses HTTP&#x2F;HTTPS</td>
-<td>Uses HTTP, SMTP, TCP, and more</td>
-</tr>
-<tr>
-<td>Standards</td>
-<td>No official standard, uses HTTP methods (GET, POST, PUT, DELETE)</td>
-<td>Official standard by W3C</td>
-</tr>
-<tr>
-<td>Performance</td>
-<td>Lightweight, less data overhead</td>
-<td>Heavyweight, more data overhead due to XML usage</td>
-</tr>
-<tr>
-<td>Message format</td>
-<td>Can use multiple formats (JSON, XML, etc.)</td>
-<td>Uses XML</td>
-</tr>
-<tr>
-<td>Security</td>
-<td>Uses web security standards</td>
-<td>Uses WS-Security which is more robust</td>
-</tr>
-<tr>
-<td>Transaction support</td>
-<td>No official support</td>
-<td>Official support</td>
-</tr>
-<tr>
-<td>State management</td>
-<td>Stateless</td>
-<td>Stateful</td>
-</tr>
-</tbody></table>
-<p>说明：</p>
-<ol>
-<li>SOAP by itself is a protocol, but it can use any protocol to transport its messages, REST is not a protocol, it typically uses HTTP&#x2F;HTTPS.</li>
-<li>REST is stateless which means <code>each request from client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server. Session state is therefore kept entirely on the client.</code></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1118,14 +1117,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">283</span>
+          <span class="site-state-item-count">287</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">406</span>
+        <span class="site-state-item-count">409</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

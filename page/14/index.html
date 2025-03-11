@@ -181,6 +181,365 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/12/angular-di-define-dependency-providers/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/12/angular-di-define-dependency-providers/" class="post-title-link" itemprop="url">angular-di-define-dependency-providers</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-08-12 20:09:07" itemprop="dateCreated datePublished" datetime="2024-08-12T20:09:07+08:00">2024-08-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-10 15:50:21" itemprop="dateModified" datetime="2025-02-10T15:50:21+08:00">2025-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>There are many ways to define a dependency provider in Angular. In this article, we will discuss the following ways:</p>
+<h1 id="useClass"><a href="#useClass" class="headerlink" title="useClass"></a>useClass</h1><p><code>useClass</code>是依赖注入中提供provider最常见的方式，我们项目中90%用的都是这种方式，下面来看看怎么使用这种方式，假设我们有一个ProductComponent组件，它依赖一个OrderService服务，我们可以像下面这样提供OrderService：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>], <span class="comment">// &lt;-- Provide OrderService</span></span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子其实是简写形式，它等价于下面的完整形式：也就是当<code>provide</code>对应的值和<code>useClass</code>对应的值相同时，我们可以采用这种简写形式。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123; <span class="attr">provide</span>: <span class="title class_">OrderService</span>, <span class="attr">useClass</span>: <span class="title class_">OrderService</span> &#125;],</span><br></pre></td></tr></table></figure>
+<p>还有一点需要注意的是：如果<code>OrderService</code>是<code>providedIn: &#39;root&#39;</code>的话，那么我们就不需要在<code>providers</code>中再次提供<code>OrderService</code>了，直接在构造函数中注入即可。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> orderService: OrderService</span>) &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>useClass</code>在单元测试中特别有用，如果要测试的Service很复杂，我们可以提供一个mockService来代替他，这个mockService只要满足最小测试范围内即可，这样就可以保证测试的独立性。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123; <span class="attr">provide</span>: <span class="title class_">UserService</span>, <span class="attr">useClass</span>: mockUserService&#125;]</span><br></pre></td></tr></table></figure>
+
+<h1 id="useExisting"><a href="#useExisting" class="headerlink" title="useExisting"></a>useExisting</h1><p><code>useExisting</code>通常用于提供一个别名，也就是说，<code>useExisting</code>提供了多种访问同一Service的方式，下面来看一个例子：<br>假设我们的Order分为线下订单和线上订单，那么线上订单我们可以单独定义一个Service，叫做<code>OnlineOrderService</code>，这个Service需要的功能OrderService中都有，所以我们可以如下使用它。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">OrderService</span>, &#123;<span class="attr">provide</span>: <span class="title class_">OnlineOrderService</span>, <span class="attr">useExisting</span>: <span class="title class_">OrderService</span>&#125;], </span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里：<code>OnlineOrderService</code>是<code>OrderService</code>的别名，我们可以通过<code>OnlineOrderService</code>来访问<code>OrderService</code>的实例。</p>
+<p>这种方式通常发生在旧系统到新系统的迁移时，比如迁移的时候，我们可能会更改一些Service的名字，但是为了兼容旧系统，我们可以通过<code>useExisting</code>来提供别名。</p>
+<p>以Logger为例，假设旧系统使用的是OldLoggerService, 新系统使用的是NewLoggerService，那么我们可以这样定义：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="title class_">OldLoggerService</span>, <span class="attr">useExisting</span>: <span class="title class_">NewLoggerService</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+<h1 id="useFactory"><a href="#useFactory" class="headerlink" title="useFactory"></a>useFactory</h1><p><code>useFactory</code>，顾名思义，这种方式使用一个工厂方法来提供依赖的实例，通常用在需要参数的Service中，上面的例子中，我们提供的Service都是无参数的，下面我们来看一个需要参数的Service。</p>
+<p>下面这个<code>HeroService</code>需要一个<code>Logger</code>和一个<code>isAuthorized</code>参数，无论是<code>useClass</code>，还是<code>useExisting</code>都无法满足这个需求，这时我们就可以使用<code>useFactory</code>来提供这个Service。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> logger: Logger,</span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> isAuthorized: <span class="built_in">boolean</span></span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">getHeroes</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> auth = <span class="variable language_">this</span>.<span class="property">isAuthorized</span> ? <span class="string">&#x27;authorized&#x27;</span> : <span class="string">&#x27;unauthorized&#x27;</span>;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">logger</span>.<span class="title function_">log</span>(<span class="string">`Getting heroes for <span class="subst">$&#123;auth&#125;</span> user.`</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable constant_">HEROES</span>.<span class="title function_">filter</span>(<span class="function"><span class="params">hero</span> =&gt;</span> <span class="variable language_">this</span>.<span class="property">isAuthorized</span> || !hero.<span class="property">isSecret</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>useFactory</code>后面跟的是一个函数，所以我们先定义这个函数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">heroServiceFactory</span> = (<span class="params">logger: Logger, userService: UserService</span>) =&gt;</span><br><span class="line">  <span class="keyword">new</span> <span class="title class_">HeroService</span>(logger, userService.<span class="property">user</span>.<span class="property">isAuthorized</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>useFactory</code>来提供<code>HeroService</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [</span><br><span class="line">  <span class="title class_">Logger</span>,</span><br><span class="line">  <span class="title class_">UserService</span>,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">provide</span>: <span class="title class_">HeroService</span>,</span><br><span class="line">    <span class="attr">useFactory</span>: heroServiceFactory,</span><br><span class="line">    <span class="attr">deps</span>: [<span class="title class_">Logger</span>, <span class="title class_">UserService</span>] <span class="comment">// deps是用来给工厂方法传递参数的</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>注意观察，上面的工厂函数<code>heroServiceFactory</code>中的参数<code>logger</code>和<code>userService</code>是通过<code>deps</code>传递进来的。</p>
+<h1 id="useValue"><a href="#useValue" class="headerlink" title="useValue"></a>useValue</h1><p><code>useValue</code>允许你绑定一个静态值到一个token上，这种方式通常用于提供一些常量，比如配置信息等。如果我们需要运行时动态取值，就可以使用这种方式了。</p>
+<p><code>useValue</code>的使用步骤如下：</p>
+<ol>
+<li>定义一个token</li>
+<li>使用<code>useValue</code>来提供这个token</li>
+<li>在构造函数中注入这个token</li>
+</ol>
+<h2 id="token是简单值"><a href="#token是简单值" class="headerlink" title="token是简单值"></a>token是简单值</h2><h3 id="定义一个token"><a href="#定义一个token" class="headerlink" title="定义一个token"></a>定义一个token</h3><p>首先新建一个文件<code>src/app/config/AppConfig.ts</code>用来存储token。这里我们创建一个token用来存储主题信息。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">InjectionToken</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/core&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="title class_">AppTheme</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;appTheme&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用useValue来提供这个token"><a href="#使用useValue来提供这个token" class="headerlink" title="使用useValue来提供这个token"></a>使用<code>useValue</code>来提供这个token</h3><p>由于我们这个token比较简单，就是字符串类型的，所以直接用字符串’light’来提供这个token。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="title class_">AppTheme</span>, <span class="attr">useValue</span>: <span class="string">&#x27;light&#x27;</span>&#125;],</span><br></pre></td></tr></table></figure>
+
+<h3 id="在构造函数中注入这个token"><a href="#在构造函数中注入这个token" class="headerlink" title="在构造函数中注入这个token"></a>在构造函数中注入这个token</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Inject</span>(AppTheme) <span class="keyword">private</span> theme: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(theme);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="token是对象"><a href="#token是对象" class="headerlink" title="token是对象"></a>token是对象</h2><p>对于复杂的token，我们将其封装到一个JS对象中，如果一个app中有多个配置项，我们可以将这些配置项封装到一个对象<code>AppConfig</code>中，然后使用<code>useValue</code>来提供这个对象。</p>
+<h3 id="定义一个token-1"><a href="#定义一个token-1" class="headerlink" title="定义一个token"></a>定义一个token</h3><p>首先定义token对应的对象类型，这里使用typescript中的interface来定义。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/app/config/AppConfig.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line">    <span class="attr">theme</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">version</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">production</span>: <span class="built_in">boolean</span>;</span><br><span class="line">    <span class="attr">baseUrl</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">apiEndpoint</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后定义该类型对应的token实例。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/app/config/AppConfig.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="variable constant_">APP_CONFIG</span> = <span class="keyword">new</span> <span class="title class_">InjectionToken</span>&lt;<span class="title class_">AppConfig</span>&gt;(<span class="string">&#x27;app config&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用useValue来提供这个token-1"><a href="#使用useValue来提供这个token-1" class="headerlink" title="使用useValue来提供这个token"></a>使用<code>useValue</code>来提供这个token</h3><p>先创建一个<code>AppConfig</code>对象，然后使用<code>useValue</code>来提供这个对象。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">currentAppConfig</span>: <span class="title class_">AppConfig</span> = &#123;</span><br><span class="line">  <span class="attr">theme</span>: <span class="string">&#x27;light&#x27;</span>,</span><br><span class="line">  <span class="attr">version</span>: <span class="string">&#x27;1.0.0&#x27;</span>,</span><br><span class="line">  <span class="attr">production</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">baseUrl</span>: <span class="string">&#x27;https://example.com&#x27;</span>,</span><br><span class="line">  <span class="attr">apiEndpoint</span>: <span class="string">&#x27;https://example.com/api&#x27;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attr">providers</span>: [&#123;<span class="attr">provide</span>: <span class="variable constant_">APP_CONFIG</span>, <span class="attr">useValue</span>: currentAppConfig&#125;],</span><br></pre></td></tr></table></figure>
+
+<h3 id="在构造函数中注入这个token-1"><a href="#在构造函数中注入这个token-1" class="headerlink" title="在构造函数中注入这个token"></a>在构造函数中注入这个token</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Inject</span>(APP_CONFIG) <span class="keyword">private</span> config: AppConfig</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(config);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样在Component中，就可以使用<code>this.config</code>来访问这个配置对象了。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/di/dependency-injection-providers">https://angular.dev/guide/di/dependency-injection-providers</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@matsal.dev/angular-usevalue-useclass-useexisting-and-usefactory-in-a-nutshell-97db8d206084">https://medium.com/@matsal.dev/angular-usevalue-useclass-useexisting-and-usefactory-in-a-nutshell-97db8d206084</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/01/css-last-child-vs-last-of-type/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/01/css-last-child-vs-last-of-type/" class="post-title-link" itemprop="url">css-last-child-vs-last-of-type</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-08-01 20:49:41" itemprop="dateCreated datePublished" datetime="2024-08-01T20:49:41+08:00">2024-08-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-11-18 21:17:49" itemprop="dateModified" datetime="2024-11-18T21:17:49+08:00">2024-11-18</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="last-child"><a href="#last-child" class="headerlink" title=":last-child"></a>:last-child</h2><p>The <code>:last-child</code> CSS pseudo-class represents the last element among a group of sibling elements.</p>
+<h2 id="last-of-type"><a href="#last-of-type" class="headerlink" title=":last-of-type"></a>:last-of-type</h2><p>The :last-of-type CSS pseudo-class represents the last element of its type among a group of sibling elements.</p>
+<p>Given the following types of elements, mark the background color of the last <code>li</code> element as green.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Angular<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>React<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Vue<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">span</span>&gt;</span>JavaScript<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>The following css will not work, because the last element is <code>span</code>, not <code>li</code>.</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">li</span><span class="selector-pseudo">:last-child</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>But the following css works</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">li</span><span class="selector-pseudo">:last-of-type</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>See <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/play?id=FF41abhgvLgFICAeu/s1mH1eX4ogSM5sk6lPN8iXs2M4Pu7Zhzv73YLI9mL97NjLKhcuKG01T9TU40kU">here</a> for details.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/28/what-s-new-in-angular-6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/28/what-s-new-in-angular-6/" class="post-title-link" itemprop="url">what's new in angular 6</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-07-28 10:30:00 / Modified: 10:31:40" itemprop="dateCreated datePublished" datetime="2024-07-28T10:30:00+08:00">2024-07-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Table-of-content"><a href="#Table-of-content" class="headerlink" title="Table of content"></a>Table of content</h1><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href='#providein'>provideIn</a></td>
+<td>A new way to declare service scope</td>
+</tr>
+</tbody></table>
+<h2 id="provideIn"><a href="#provideIn" class="headerlink" title="provideIn"></a>provideIn</h2><p><a id='providein'></a><br>In Angular 6, you can use the <code>provideIn</code> property in the <code>@Injectable</code> decorator to declare the scope of the service.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/27/angular-troubleshooting-setter-getter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/07/27/angular-troubleshooting-setter-getter/" class="post-title-link" itemprop="url">angular-troubleshooting-setter-getter</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-27 20:49:03" itemprop="dateCreated datePublished" datetime="2024-07-27T20:49:03+08:00">2024-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-07-28 09:41:12" itemprop="dateModified" datetime="2024-07-28T09:41:12+08:00">2024-07-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>The <code>get</code> syntax binds an object property to a function that will be called when that property is looked up. It can also be used in <code>classes</code>.</p>
+<p>Here is an example:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Case"><a href="#Case" class="headerlink" title="Case"></a>Case</h2><p>When you use <code>getter</code>, you would better provide <code>setter</code> for the property too. If you only provide <code>getter</code>, you might got errors, here is a real case.</p>
+<p>We have a <code>child</code> component with a <code>name</code> property, and we want to format the <code>name</code> to uppercase in the <code>child</code> component. the <code>name</code> property is passed from the <code>parent</code> component.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./child.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./child.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _name = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Input</span>() <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_name</span> = name</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">formatName</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- child.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Uppercase name: &#123;&#123; formatName(name) &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>And in the <code>parent</code> component’s template, we pass the <code>name</code> property to the <code>child</code> component.</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- parent.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-child</span> <span class="attr">name</span>=<span class="string">&quot;Philip&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-child</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>When you run the code, you will get the following error:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: Cannot read properties of undefined (reading &#x27;toUpperCase&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>The error is caused by the <code>formatName</code> function in the <code>child</code> component, here <code>name</code> is <code>undefined</code>, we can’t call <code>toUpperCase</code> on <code>undefined</code>, but why?</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br></pre></td></tr></table></figure>
+
+<p>When we read name in the <code>formatName</code> function, it will trigger the <code>getter</code> of the <code>name</code> property, but we only provide the <code>setter</code> for the <code>name</code> property, so <code>name</code> is <code>undefined</code>.</p>
+<p>To fix this error, we need to provide the <code>getter</code> for the <code>name</code> property.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./child.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./child.component.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> _name = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Input</span>() <span class="keyword">set</span> <span class="title function_">name</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_name</span> = name</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> <span class="title function_">name</span>() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_name</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">formatName</span>(<span class="params">name: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> name.<span class="title function_">toUpperCase</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get">get in object</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/27/angular-decorator-input/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -702,296 +1061,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/17/great-blogs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/17/great-blogs/" class="post-title-link" itemprop="url">great-blogs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-17 20:45:33" itemprop="dateCreated datePublished" datetime="2024-07-17T20:45:33+08:00">2024-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-07-20 04:46:13" itemprop="dateModified" datetime="2024-07-20T04:46:13+08:00">2024-07-20</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li><a target="_blank" rel="noopener" href="https://thehistoryoftheweb.com/">The history of the web</a></li>
-<li><a target="_blank" rel="noopener" href="https://web.archive.org/">web archive</a></li>
-<li><a target="_blank" rel="noopener" href="https://webdevelopmenthistory.com/">Web development history</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/17/javascript-the-most-powerful-line-of-code/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/17/javascript-the-most-powerful-line-of-code/" class="post-title-link" itemprop="url">javascript-the-most-powerful-line-of-code</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-07-17 20:22:36 / Modified: 20:24:10" itemprop="dateCreated datePublished" datetime="2024-07-17T20:22:36+08:00">2024-07-17</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>From Quora: <a target="_blank" rel="noopener" href="https://www.quora.com/What-is-the-most-elegant-piece-of-JavaScript-code-you-can-write">https://www.quora.com/What-is-the-most-elegant-piece-of-JavaScript-code-you-can-write</a></p>
-<p>I actually have two candidates for the title of “most powerful line of code ever written in JavaScript”. The first is this line:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">element.innerHTML = &quot;...&quot;; </span><br></pre></td></tr></table></figure>
-
-<p>The innerHTML property was introduced by Microsoft in the Internet Explorer 4.0 browser (IE4), which was released in October 1997. Prior to this, the only way to modify the HTML content of a page from JavaScript was using the document.write method. Unfortunately, calling document.write on a loaded document automatically calls document.open, which clears the entire document. In other words, it was only with the introduction of innerHTML that JavaScript gained the ability to modify a specific portion of a page, by inserting a bit of arbitrary HTML inside an existing element. And thus, modern Web applications were born.</p>
-<p>My other candidate is this line:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> <span class="title class_">XMLHttpRequest</span>(); </span><br></pre></td></tr></table></figure>
-
-<p>Prior to this, content could only be downloaded into the browser by requesting a whole new page. Developers resorted to all sorts of tricks, primarily using hidden frames, to circumvent this limitation, but such code was very unwieldy, and had problematic side-effects. It was Microsoft again that changed the game by introducing the XMLHttpRequest object in Internet Explorer 5.0 (IE5) in March 1999. And just like that, AJAX was created, and along with it Single-Page Applications, and the modern Web we know today.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/17/javascript-logical-or-operator/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/17/javascript-logical-or-operator/" class="post-title-link" itemprop="url">javascript-logical-or-operator</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-07-17 19:53:40 / Modified: 20:12:24" itemprop="dateCreated datePublished" datetime="2024-07-17T19:53:40+08:00">2024-07-17</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="How-logical-or-operator-works-in-JavaScript"><a href="#How-logical-or-operator-works-in-JavaScript" class="headerlink" title="How logical or || operator works in JavaScript"></a>How logical or <code>||</code> operator works in JavaScript</h2><p>Consider the following expression, what’s the evaluated result?</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">`expr1 || expr2`</span></span><br></pre></td></tr></table></figure>
-
-<p>If <code>expr1</code> can be converted to <code>true</code>, return <code>expr1</code>. Otherwise, return <code>expr2</code>.<br>So we have the following truth:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> || <span class="literal">true</span>; <span class="comment">// t || t returns true</span></span><br><span class="line"><span class="literal">false</span> || <span class="literal">true</span>; <span class="comment">// f || t returns true</span></span><br><span class="line"><span class="literal">true</span> || <span class="literal">false</span>; <span class="comment">// t || f returns true</span></span><br><span class="line"><span class="literal">false</span> || <span class="number">3</span> === <span class="number">4</span>; <span class="comment">// f || f returns false</span></span><br><span class="line"><span class="string">&quot;Cat&quot;</span> || <span class="string">&quot;Dog&quot;</span>; <span class="comment">// t || t returns &quot;Cat&quot;</span></span><br><span class="line"><span class="literal">false</span> || <span class="string">&quot;Cat&quot;</span>; <span class="comment">// f || t returns &quot;Cat&quot;</span></span><br><span class="line"><span class="string">&quot;Cat&quot;</span> || <span class="literal">false</span>; <span class="comment">// t || f returns &quot;Cat&quot;</span></span><br><span class="line"><span class="string">&quot;&quot;</span> || <span class="literal">false</span>; <span class="comment">// f || f returns false</span></span><br><span class="line"><span class="literal">false</span> || <span class="string">&quot;&quot;</span>; <span class="comment">// f || f returns &quot;&quot;</span></span><br><span class="line"><span class="literal">false</span> || varObject; <span class="comment">// f || object returns varObject</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="in-javascript-not-always-return-boolean-true-or-false"><a href="#in-javascript-not-always-return-boolean-true-or-false" class="headerlink" title="|| in javascript not always return boolean(true or false)"></a><code>||</code> in javascript not always return boolean(<code>true</code> or <code>false</code>)</h2><p>Note that <code>||</code> in javascript is quit difference from <code>||</code> in other languages. For example, in Java, <code>||</code> returns Boolean(<code>true</code> or <code>false</code>), but in JavaScript, it returns the value of one of the operands.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;</span> || <span class="number">1</span>; <span class="comment">// returns 1</span></span><br><span class="line"><span class="literal">false</span> || <span class="string">&quot;&quot;</span>; <span class="comment">// returns &quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>If you want to convert the value to boolean, you can use double <code>!!</code> or <code>Boolean()</code></p>
-<ul>
-<li>!!expr - convert to boolean</li>
-<li>Boolean(expr) - convert to boolean</li>
-</ul>
-<h2 id="Short-circuit"><a href="#Short-circuit" class="headerlink" title="Short circuit"></a>Short circuit</h2><p><code>||</code> is a short-circuit operator, which means if the first operand is <code>true</code>, it will not evaluate the second operand.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> || <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Hello&quot;</span>); <span class="comment">// nothing output</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="vs"><a href="#vs" class="headerlink" title="|| vs ??"></a><code>||</code> vs <code>??</code></h2><p><code>||</code> and <code>??</code> are both used to provide a default value, but they have different behaviors, if you only care about <code>null</code> or <code>undefined</code>, and treat other <code>Falsy</code> value as valid(for example <code>0</code> or empty string <code>&quot;&quot;</code>) use <code>??</code>, otherwise, use <code>||</code>.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">const</span> y = x || <span class="number">10</span>; <span class="comment">// y = 10</span></span><br><span class="line"><span class="keyword">const</span> z = x ?? <span class="number">10</span>; <span class="comment">// z = 0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = <span class="string">&quot;&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> b = a || <span class="string">&quot;default&quot;</span>; <span class="comment">// b = &quot;default&quot;</span></span><br><span class="line"><span class="keyword">const</span> c = a ?? <span class="string">&quot;default&quot;</span>; <span class="comment">// c = &quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR</a></li>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_assignment</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/17/javascript-nullish-coalescing-operator/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/17/javascript-nullish-coalescing-operator/" class="post-title-link" itemprop="url">javascript-nullish-coalescing-operator</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-17 19:47:18" itemprop="dateCreated datePublished" datetime="2024-07-17T19:47:18+08:00">2024-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-06 17:09:31" itemprop="dateModified" datetime="2025-02-06T17:09:31+08:00">2025-02-06</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>In JavaScript, the nullish operator <code>??</code> is used to return the right-hand side value if the left-hand side value is <code>null</code> or <code>undefined</code>. Otherwise, it returns the left-hand side value.</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">x ?? y <span class="comment">// return x if x is not null or undefined, otherwise return y</span></span><br><span class="line"></span><br><span class="line"><span class="number">0</span> ?? <span class="number">100</span> <span class="comment">// 0</span></span><br><span class="line"><span class="string">&quot;&quot;</span> ?? <span class="string">&quot;default&quot;</span> <span class="comment">// &quot;&quot;</span></span><br><span class="line"><span class="literal">null</span> ?? <span class="string">&quot;default&quot;</span> <span class="comment">// &quot;default&quot;</span></span><br><span class="line"><span class="literal">undefined</span> ?? <span class="string">&quot;default&quot;</span> <span class="comment">// &quot;default&quot;</span></span><br><span class="line"><span class="literal">null</span> ?? <span class="literal">undefined</span> <span class="comment">// undefined</span></span><br><span class="line"><span class="literal">undefined</span> ?? <span class="literal">null</span> <span class="comment">// null</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Difference-between-and"><a href="#Difference-between-and" class="headerlink" title="Difference between || and ??"></a>Difference between <code>||</code> and <code>??</code></h2><ol>
-<li><code>||</code> returns the first truthy value among its operands, if all operands are falsy, it returns the last operand.</li>
-<li><code>??</code> returns the first non-null and non-undefined value among its operands, if all operands are null or undefined, it returns the last operand.</li>
-</ol>
-<h2 id="Short-circuiting-evaluation"><a href="#Short-circuiting-evaluation" class="headerlink" title="Short-circuiting evaluation."></a>Short-circuiting evaluation.</h2><p>Same as <code>||</code>, <code>??</code> also supports short-circuiting evaluation. If the left-hand side value is not <code>null</code> or <code>undefined</code>, the right-hand side value will not be evaluated.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1061,14 +1130,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">283</span>
+          <span class="site-state-item-count">287</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">406</span>
+        <span class="site-state-item-count">409</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

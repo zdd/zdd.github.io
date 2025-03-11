@@ -181,6 +181,552 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/18/angular-pipe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/18/angular-pipe/" class="post-title-link" itemprop="url">angular-pipe</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-18 21:45:34" itemprop="dateCreated datePublished" datetime="2024-05-18T21:45:34+08:00">2024-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-03 21:21:45" itemprop="dateModified" datetime="2024-06-03T21:21:45+08:00">2024-06-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="What-is-a-pipe"><a href="#What-is-a-pipe" class="headerlink" title="What is a pipe"></a>What is a pipe</h2><p>Angular中的pipe就是一个简单的函数，该函数接收一个输入值，然后返回一个转换后的值。pipe只需在一处定义，然后任意模板都可使用。</p>
+<h2 id="Generate-pipe"><a href="#Generate-pipe" class="headerlink" title="Generate pipe"></a>Generate pipe</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate pipe full-name</span><br></pre></td></tr></table></figure>
+
+<p>This will create a new file <code>full-name.pipe.ts</code> in the <code>src/app</code> folder.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Pipe</span>, <span class="title class_">PipeTransform</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">  <span class="attr">firstName</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">lastName</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Pipe</span>(&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;fullName&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">FullNamePipe</span> <span class="keyword">implements</span> <span class="title class_">PipeTransform</span> &#123;</span><br><span class="line">  <span class="title function_">transform</span>(<span class="attr">value</span>: <span class="title class_">Person</span>, ...<span class="attr">args</span>: <span class="built_in">unknown</span>[]): <span class="built_in">unknown</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> value.<span class="property">lastName</span> + <span class="string">&#x27;, &#x27;</span> + value.<span class="property">firstName</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用@Pipe装饰器来定义pipe，<code>name</code>属性是pipe的名字，<code>standalone</code>属性是可选的，如果设置为<code>true</code>，则表示该pipe是一个独立的pipe，不依赖于任何Module。<code>pure</code>参数是可选的，默认为true。pure pipe只有当输入变化时才重新计算。</p>
+<p>每个Pipe都实现了<code>PipeTransform</code>接口，该接口只有一个方法<code>transform</code>，该方法接收一个输入值和一些可选参数，然后返回一个转换后的值。在这里，我们根据输入的Person变量，返回对应的全名。</p>
+<h2 id="How-to-use-pipe"><a href="#How-to-use-pipe" class="headerlink" title="How to use pipe"></a>How to use pipe</h2><p>在component中引入pipe，然后在模板中使用。上面的FullNamePipe可以这样使用：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">FullNamePipe</span>&#125; <span class="keyword">from</span> <span class="string">&quot;../full-name.pipe&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">FullNamePipe</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">person = &#123;</span><br><span class="line">  <span class="attr">firstName</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">lastName</span>: <span class="string">&#x27;Zhang&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- component.html --&gt;</span></span><br><span class="line">&#123;&#123; person | fullName &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接在代码中使用pipe：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">FullNamePipe</span> &#125; <span class="keyword">from</span> <span class="string">&quot;../full-name.pipe&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">FullNamePipe</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">YourComponent</span> &#123;</span><br><span class="line">  person = &#123;</span><br><span class="line">    <span class="attr">firstName</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">    <span class="attr">lastName</span>: <span class="string">&#x27;Zhang&#x27;</span>,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> fullNamePipe: FullNamePipe</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> fullName = <span class="variable language_">this</span>.<span class="property">fullNamePipe</span>.<span class="title function_">transform</span>(<span class="variable language_">this</span>.<span class="property">person</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(fullName); <span class="comment">// logs &quot;Zhang, Philip&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Naming-convention"><a href="#Naming-convention" class="headerlink" title="Naming convention"></a>Naming convention</h2><ol>
+<li><code>pipe</code> name should be in <code>camelCase</code>. - <code>fullName</code></li>
+<li><code>pipe</code> class should be in <code>PascalCase</code> and end with <code>Pipe</code>. - <code>FullNamePipe</code></li>
+</ol>
+<h2 id="Pass-parameter-to-pipe"><a href="#Pass-parameter-to-pipe" class="headerlink" title="Pass parameter to pipe"></a>Pass parameter to pipe</h2><p>pipe可以接收多个参数，参数之间使用<code>:</code>分隔。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value | pipe:param1:param2... &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Pipe-chaining"><a href="#Pipe-chaining" class="headerlink" title="Pipe chaining"></a>Pipe chaining</h2><p>多个pipe可以使用<code>|</code>符号连接在一起，前一个pipe的输出会作为后一个pipe的输入。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value | pipe1 | pipe2 | pipe3 &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Pipe-precedence"><a href="#Pipe-precedence" class="headerlink" title="Pipe precedence"></a>Pipe precedence</h2><p>pipe的执行顺序是从左到右，并且pipe的优先级高于 :?操作符.</p>
+<p>Bad</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value &gt; 0 ? expression1 : expression2 | pipe &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>is equal to</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; value &gt; 0 ? expression1 : (expression2 | pipe) &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Good</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; (value &gt; 0 ? expression1 : expression2) | pipe &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://angular.io/guide/pipes-custom-data-trans">https://angular.io/guide/pipes-custom-data-trans</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/14/useful-commands/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/14/useful-commands/" class="post-title-link" itemprop="url">useful-commands-all-in-one</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-14 21:34:28" itemprop="dateCreated datePublished" datetime="2024-05-14T21:34:28+08:00">2024-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-01-20 20:43:47" itemprop="dateModified" datetime="2025-01-20T20:43:47+08:00">2025-01-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="VSCode"><a href="#VSCode" class="headerlink" title="VSCode"></a>VSCode</h1><ol>
+<li><code>Ctrl + P</code> - Search by file name</li>
+<li><code>Ctrl + Shift + P</code> - Open command palette</li>
+<li><code>Alt + Left Arrow</code> - Go back</li>
+<li><code>Ctrl + K, Ctrl + 0</code> - Fold all</li>
+<li><code>Ctrl + K, Ctrl + J</code> - Unfold all</li>
+</ol>
+<h1 id="Angular"><a href="#Angular" class="headerlink" title="Angular"></a>Angular</h1><h2 id="Create-project-with-specific-version"><a href="#Create-project-with-specific-version" class="headerlink" title="Create project with specific version"></a>Create project with specific version</h2><p>The following command create angular app with angular 15</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@15 new my-app</span><br></pre></td></tr></table></figure>
+
+<h1 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h1><h2 id="Branch"><a href="#Branch" class="headerlink" title="Branch"></a>Branch</h2><h3 id="1-merge-main-branch-to-current-branch"><a href="#1-merge-main-branch-to-current-branch" class="headerlink" title="1. merge main branch to current branch"></a>1. merge main branch to current branch</h3><p>This is very useful when you work on a branch for a long time, and every day before you start coding, you sync your branch with <code>main</code> branch.<br>Suppose you are on the <code>feature-branch</code> branch, and you want to merge the <code>main</code> branch to the <code>feature-branch</code> branch, just use the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull origin main</span><br></pre></td></tr></table></figure>
+
+<h3 id="Move-changes-from-one-branch-to-another"><a href="#Move-changes-from-one-branch-to-another" class="headerlink" title="Move changes from one branch to another"></a>Move changes from one branch to another</h3><p>Suppose you made some modifications on branch <code>A</code>, and you want to move these changes to branch <code>B</code>, you can use the following command.<br>If branch <code>B</code> is existing and has the latest code, you can use the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git switch B <span class="comment"># the modification code will automatically bring to branch B</span></span><br></pre></td></tr></table></figure>
+
+<p>If branch <code>B</code> is not existing, you can use the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git stash <span class="comment"># save the changes</span></span><br><span class="line">git checkout main <span class="comment"># switch to main branch</span></span><br><span class="line">git pull <span class="comment"># pull the latest code</span></span><br><span class="line">git checkout -b B <span class="comment"># create a new branch B</span></span><br><span class="line">git stash pop <span class="comment"># apply the changes to branch B</span></span><br></pre></td></tr></table></figure>
+
+<p><code>git checkout</code> vs <code>git switch</code>?</p>
+<h3 id="Checkout-a-remote-branch"><a href="#Checkout-a-remote-branch" class="headerlink" title="Checkout a remote branch"></a>Checkout a remote branch</h3><p>For <code>single</code> remote, use the following command.</p>
+<ol>
+<li><code>git fetch</code> – fetch the remote branch</li>
+<li><code>git checkout -b local-branch-name origin/remote-branch-name</code> – checkout the remote branch</li>
+<li><code>git switch -t remote-branch-name</code> – switch to the remote branch, use s<code>git branch -v -a</code> to make sure your branch is ready.</li>
+<li>checkout from tag: <code>git checkout tags/v1.0.0 -b branch-name</code></li>
+</ol>
+<h3 id="Delete-branch"><a href="#Delete-branch" class="headerlink" title="Delete branch"></a>Delete branch</h3><ol>
+<li><code>git branch -d branch-name</code> – delete a local branch</li>
+<li><code>git branch -D branch-name</code> – force delete a local branch</li>
+<li><code>git push origin --delete branch-name</code> – delete a remote branch</li>
+</ol>
+<h2 id="Diff"><a href="#Diff" class="headerlink" title="Diff"></a>Diff</h2><h3 id="Diff-staged-x2F-indexed-changes"><a href="#Diff-staged-x2F-indexed-changes" class="headerlink" title="Diff staged&#x2F;indexed changes"></a>Diff staged&#x2F;indexed changes</h3><ol>
+<li><code>git diff --cached</code> </li>
+<li><code>git status -v</code> – show the changes in the index(staged changes)</li>
+</ol>
+<h3 id="2-checkout-remote-branch"><a href="#2-checkout-remote-branch" class="headerlink" title="2. checkout remote branch"></a>2. checkout remote branch</h3><p>Before checking out a remote branch, you need to fetch the remote branch first.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git fetch</span><br><span class="line">git checkout -b local-branch-name origin/remote-branch-name</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Checkout-a-specific-commit"><a href="#3-Checkout-a-specific-commit" class="headerlink" title="3. Checkout a specific commit."></a>3. Checkout a specific commit.</h3><p>The following command will create a new branch from the specific commit, you can find the commit id by <code>git log</code> command or from the git history.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b new_branch commit-hash</span><br></pre></td></tr></table></figure>
+
+<h2 id="Undo"><a href="#Undo" class="headerlink" title="Undo"></a>Undo</h2><h3 id="1-Undo-last-commit"><a href="#1-Undo-last-commit" class="headerlink" title="1. Undo last commit"></a>1. Undo last commit</h3><ol>
+<li><code>git reset --soft HEAD~1</code> &#x2F;&#x2F; undo the last commit and keep the changes in working directory.</li>
+<li><code>git reset --hard HEAD~1</code> &#x2F;&#x2F; undo the last commit and remove all changes.</li>
+</ol>
+<h3 id="2-Undo-staged-changes-not-committed-yet"><a href="#2-Undo-staged-changes-not-committed-yet" class="headerlink" title="2. Undo staged changes(not committed yet)"></a>2. Undo staged changes(not committed yet)</h3><ol>
+<li><code>git reset HEAD file-name</code> &#x2F;&#x2F; unstage a file</li>
+<li><code>git reset HEAD .</code> &#x2F;&#x2F; unstage all files</li>
+</ol>
+<h3 id="3-Undo-unstaged-changes-changes-are-not-added-or-committed"><a href="#3-Undo-unstaged-changes-changes-are-not-added-or-committed" class="headerlink" title="3. Undo unstaged changes(changes are not added or committed)"></a>3. Undo unstaged changes(changes are not added or committed)</h3><ol>
+<li><code>git checkout -- .</code> &#x2F;&#x2F; undo all changes in the working directory, same as <code>git checkout .</code>?</li>
+<li><code>git checkout -- file-name</code> &#x2F;&#x2F; undo changes in a specific file</li>
+<li><code>git checkout -- &#39;*.js&#39;</code> &#x2F;&#x2F; undo changes in all js files</li>
+</ol>
+<h3 id="4-Undo-untracked-files"><a href="#4-Undo-untracked-files" class="headerlink" title="4. Undo untracked files"></a>4. Undo untracked files</h3><ol>
+<li><code>git clean -f</code> &#x2F;&#x2F; remove untracked files</li>
+<li><code>git clean -f -d</code> &#x2F;&#x2F; remove untracked files and directories</li>
+</ol>
+<p><code>git restore</code>和<code>git reset</code>的区别是什么？</p>
+<h2 id="Stash"><a href="#Stash" class="headerlink" title="Stash"></a>Stash</h2><p><code>git stash</code> – save the changes<br><code>git stash list</code> – list all stashes<br><code>git stash apply &quot;stash@&#123;n&#125;&quot;</code> – apply the nth stash<br><code>git stash apply n</code> – apply the nth stash<br><code>git stash pop</code> – apply the latest stash and remove it from the stash list</p>
+<h1 id="NPM"><a href="#NPM" class="headerlink" title="NPM"></a>NPM</h1><ol>
+<li><code>npm list -g</code> – list all global packages</li>
+<li><code>npm list -g --depth 0</code> – list all global packages without dependencies</li>
+</ol>
+<h2 id="1-npm-install-error"><a href="#1-npm-install-error" class="headerlink" title="1. npm install error"></a>1. npm install error</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">code ERESOLVE</span><br><span class="line">npm ERR! ERESOLVE could not resolve</span><br><span class="line">npm ERR! </span><br><span class="line">npm ERR! While resolving: karma-jasmine-html-reporter@1.6.0</span><br><span class="line">npm ERR! Found: jasmine-core@3.6.0</span><br></pre></td></tr></table></figure>
+<p>This is caused by dependency conflict, you can try to install the package with <code>--force</code> or <code>--legacy-peer-deps</code> flag. see <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/64573177/unable-to-resolve-dependency-tree-error-when-installing-npm-packages">here</a> for more details.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --force</span><br></pre></td></tr></table></figure>
+<p>or</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --legacy-peer-deps</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-List-global-packages"><a href="#2-List-global-packages" class="headerlink" title="2. List global packages"></a>2. List global packages</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm list -g</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Find-where-nodejs-was-installed-Windows-OS"><a href="#3-Find-where-nodejs-was-installed-Windows-OS" class="headerlink" title="3. Find where nodejs was installed(Windows OS)"></a>3. Find where nodejs was installed(Windows OS)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">where</span> node</span><br></pre></td></tr></table></figure>
+
+<h1 id="Chrome"><a href="#Chrome" class="headerlink" title="Chrome"></a>Chrome</h1><ol>
+<li><code>F12</code> - Open developer tools</li>
+<li><code>Ctrl + Shift + P</code> - Open command palette(only works after you open developer tools)</li>
+<li><code>Ctrl + P</code> - Open file(after you open developer tools), this is pretty useful when you want to find a file in the source tab.</li>
+<li><code>Ctrl</code> + <code>Mouse Left Click</code> - Open a link in a new tab. (also can use <code>Mouse Wheel</code> click)</li>
+</ol>
+<h1 id="Yarn"><a href="#Yarn" class="headerlink" title="Yarn"></a>Yarn</h1><ol start="5">
+<li>Input <code>chrome://settings</code> in the address bar to open the settings page.</li>
+</ol>
+<h1 id="Jest"><a href="#Jest" class="headerlink" title="Jest"></a>Jest</h1><ol>
+<li><code>jest</code> - Run all test</li>
+<li><code>jest --coverage</code> - Run test with coverage report</li>
+<li><code>jest --watch</code> - Run test in watch mode</li>
+<li><code>jest test.spec.ts</code> - Run a specific test file</li>
+<li><code>jest test.spec.ts --coverage</code> - Run a specific test file with coverage report</li>
+</ol>
+<h1 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h1><p><code>Win + Shift + S</code> - Take a screenshot</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://jestjs.io/docs/cli">https://jestjs.io/docs/cli</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/11/angular-auxiliary-secondary-router/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/11/angular-auxiliary-secondary-router/" class="post-title-link" itemprop="url">angular-auxiliary-secondary-router</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-11 12:37:35" itemprop="dateCreated datePublished" datetime="2024-05-11T12:37:35+08:00">2024-05-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-05-20 19:46:05" itemprop="dateModified" datetime="2024-05-20T19:46:05+08:00">2024-05-20</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Angular对路由的支持非常强大，可以实现多种路由模式，本文主要介绍辅助路由。</p>
+<h2 id="辅助路由"><a href="#辅助路由" class="headerlink" title="辅助路由"></a>辅助路由</h2><p>辅助路由（auxiliary route）是一种特殊的路由，它的主要应用场景是为当前页面添加弹窗，主路由和辅助路由对应的组件同时显示，当关闭辅助路由组件（弹窗）时，主路由仍然保持显示。</p>
+<h2 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a>实现步骤</h2><h3 id="创建Project"><a href="#创建Project" class="headerlink" title="创建Project"></a>创建Project</h3><p>首先参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这篇</a>创建一个Angular项目。注意从<code>Angular 17</code>开始，默认就使用<code>Standalone Component</code>来创建组件了，不在使用<code>NgModule</code>了。</p>
+<h3 id="添加路由配置"><a href="#添加路由配置" class="headerlink" title="添加路由配置"></a>添加路由配置</h3><p>打开<code>app.routes.ts</code>文件，添加路由配置：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;book&#x27;</span>, <span class="attr">component</span>: <span class="title class_">BookComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;book-detail&#x27;</span>, <span class="attr">outlet</span>: <span class="string">&#x27;detail&#x27;</span>, <span class="attr">component</span>: <span class="title class_">BookDetailComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加router-outlet"><a href="#添加router-outlet" class="headerlink" title="添加router-outlet"></a>添加<code>router-outlet</code></h3><p>在<code>app.component.html</code>文件中添加<code>router-outlet</code>：从Angular17开始，可以使用自关闭组件了，也就是说<code>&lt;router-outlet&gt;&lt;/router-outlet&gt;</code>可以简化为<code>&lt;router-outlet /&gt;</code>，注意第二个<code>outlet</code>添加了<code>name</code>属性，用来给<code>outlet</code>命名。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> <span class="attr">name</span>=<span class="string">&quot;detail&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加book组件"><a href="#添加book组件" class="headerlink" title="添加book组件"></a>添加<code>book</code>组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component book</span><br></pre></td></tr></table></figure>
+
+<p>在<code>book</code>组件的模板文件中添加一个按钮，点击按钮时显示<code>book-detail</code>组件：</p>
+<p>打开<code>book.component.html</code>，添加如下代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>book works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;openBookDetail()&quot;</span>&gt;</span>Book Detail<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book.component.ts</code>，添加按钮点击事件处理函数，这里调用<code>navigate</code>方法来实现路由跳转。注意该方法的第一个参数是数组，如果要跳转到命名的<code>outlet</code>, 则格式为：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#123;<span class="attr">outlets</span>: &#123;outlet-<span class="attr">name</span>: <span class="string">&#x27;path-name&#x27;</span>&#125;&#125;]</span><br></pre></td></tr></table></figure>
+<p>以下代码中： <code>detail</code>为命名的<code>outlet</code>，<code>book-detail</code>为<code>path-name</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">BookComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">openBookDetail</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加book-detail组件"><a href="#添加book-detail组件" class="headerlink" title="添加book-detail组件"></a>添加<code>book-detail</code>组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component book-detail</span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book-detail.component.html</code>，添加如下代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;book-detail&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">&quot;book-detail-title&quot;</span>&gt;</span>Book Detail<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;book-detail-body&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Book name: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Author: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Price: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Category: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Published date: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Quantity: XXX<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;close-button&quot;</span> (<span class="attr">click</span>)=<span class="string">&quot;closeBookDetail()&quot;</span>&gt;</span>X<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book-detail.component.ts</code>，添加按钮点击事件处理函数：这里将<code>path</code>设置为<code>null</code>，表示关闭对应的组件。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">BookDetailComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">closeBookDetail</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">detail</span>: <span class="literal">null</span>&#125;&#125;]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng serve</span><br></pre></td></tr></table></figure>
+
+<p>打开浏览器，访问<code>http://localhost:4200/book</code></p>
+<p><img src="/../images/angular-auxiliary-router-book.png" alt="alt text"></p>
+<p>点击<code>Book Detail</code>按钮，弹出<code>book-detail</code>组件，此时路由变华为<code>https://localhost:4200/book(detail:book-detail)</code>。</p>
+<ul>
+<li>detail: 表示辅助路由的名称，定义在<code>outlet</code>属性中。</li>
+<li>book-detail: 表示辅助路由的路径。定义在<code>router</code>文件中。</li>
+</ul>
+<p><img src="/../images/angular-auxiliary-router-book-detail.png" alt="alt text"></p>
+<p>点击弹窗上的关闭按钮，关闭<code>book-detail</code>组件，路由恢复为<code>http://localhost:4200/book</code>。</p>
+<h2 id="同时显示多个辅助路由。"><a href="#同时显示多个辅助路由。" class="headerlink" title="同时显示多个辅助路由。"></a>同时显示多个辅助路由。</h2><p>添加一个<code>book-list</code>组件，点击<code>Book List</code>按钮时显示<code>book-list</code>弹窗。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component book-list</span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book-list.component.html</code>文件，添加如下代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;book-list&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">&quot;book-list-title&quot;</span>&gt;</span>Book List<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;book-list-body&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Book 1<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Book 2<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Book 3<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>Book 4<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;close-button&quot;</span> (<span class="attr">click</span>)=<span class="string">&quot;closeBookList()&quot;</span>&gt;</span>X<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book-list.component.ts</code>文件，添加如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">BookListComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> router: Router</span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">closeBookList</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="literal">null</span>&#125;&#125;]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book-list.component.css</code>  添加样式</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.book-list</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">30%</span>;</span><br><span class="line">  <span class="attribute">left</span>: <span class="number">30%</span>;</span><br><span class="line">  <span class="attribute">transform</span>: <span class="built_in">translate</span>(-<span class="number">30%</span>, -<span class="number">30%</span>);</span><br><span class="line">  <span class="attribute">z-index</span>: <span class="number">9</span>;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">  <span class="attribute">flex-direction</span>: column;</span><br><span class="line">  <span class="attribute">align-items</span>: center;</span><br><span class="line"></span><br><span class="line">  <span class="attribute">width</span>: <span class="number">400px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">400px</span>;</span><br><span class="line"></span><br><span class="line">  <span class="attribute">background-color</span>: white;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid gray;</span><br><span class="line">  <span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">0</span> <span class="number">20px</span> <span class="built_in">rgba</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.6</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.close-button</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">16px</span>;</span><br><span class="line">  <span class="attribute">right</span>: <span class="number">16px</span>;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">40px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book.component.html</code>文件，添加<code>Book List</code>按钮：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>book works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;openBookList()&quot;</span>&gt;</span>Book List<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> (<span class="attr">click</span>)=<span class="string">&quot;openBookDetail()&quot;</span>&gt;</span>Book Detail<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>打开<code>book.component.ts</code>文件，添加按钮点击事件处理函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">openBookList</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="string">&#x27;book-list&#x27;</span>&#125;&#125;]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>app.routes.ts</code>文件中添加路由配置：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;book&#x27;</span>, <span class="attr">component</span>: <span class="title class_">BookComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;book-list&#x27;</span>, <span class="attr">outlet</span>: <span class="string">&#x27;list&#x27;</span>, <span class="attr">component</span>: <span class="title class_">BookListComponent</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">path</span>: <span class="string">&#x27;book-detail&#x27;</span>, <span class="attr">outlet</span>: <span class="string">&#x27;detail&#x27;</span>, <span class="attr">component</span>: <span class="title class_">BookDetailComponent</span>&#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>打开<code>app.component.html</code>文件，添加<code>Book List</code>对应的<code>outlet</code>：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> <span class="attr">name</span>=<span class="string">&quot;detail&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> <span class="attr">name</span>=<span class="string">&quot;list&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在次运行项目，依次点击<code>Book List</code>和<code>Book Detail</code>按钮，可以同时显示两个弹窗。观察此时路由的变化，注意有多个辅助路由时，按照路由outlet名字的字符串顺序显示，因为detail排在list前面，所以先显示detail，再显示list。无论先点击哪个按钮，路由顺序皆如此。</p>
+<p><img src="/../images/angular-auxiliary-router-multiple-routers.png" alt="alt text"></p>
+<p><code>http://localhost:4200/book(detail:book-detail//list:book-list)</code></p>
+<ul>
+<li><code>detail</code>: 表示辅助路由的名称，定义在<code>outlet</code>属性中。</li>
+<li><code>book-detail</code>: 表示辅助路由的路径。定义在<code>router</code>文件中。</li>
+<li><code>list</code>: 表示辅助路由的名称，定义在<code>outlet</code>属性中。</li>
+<li><code>book-list</code>: 表示辅助路由的路径。定义在<code>router</code>文件中。</li>
+<li><code>//</code>: 用来分隔多个辅助路由。</li>
+</ul>
+<h2 id="不更改URL显示辅助路由"><a href="#不更改URL显示辅助路由" class="headerlink" title="不更改URL显示辅助路由"></a>不更改URL显示辅助路由</h2><p>默认情况下，点击按钮后，路由会发生变化，URL会显示辅助路由的路径。如果不想更改URL，可以使用<code>skipLocationChange</code>选项。<br>在<code>book.component.ts</code>文件中，添加按钮点击事件处理函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">openBookList</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="string">&#x27;book-list&#x27;</span>&#125;&#125;], &#123;<span class="attr">skipLocationChange</span>: <span class="literal">true</span>&#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">openBookDetail</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;], &#123;<span class="attr">skipLocationChange</span>: <span class="literal">true</span>&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意，如果有多个辅助路由，也要在关闭按钮点击事件处理函数中添加<code>skipLocationChange</code>选项，否则关闭一个弹窗时，另一个弹窗的URL会显示在地址栏中。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">closeBookList</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="literal">null</span>&#125;&#125;], &#123;<span class="attr">skipLocationChange</span>: <span class="literal">true</span>&#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">closeBookDetail</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">detail</span>: <span class="literal">null</span>&#125;&#125;], &#123;<span class="attr">skipLocationChange</span>: <span class="literal">true</span>&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次点击<code>Book List</code>和<code>Book Detail</code>按钮，可以看到URL没有发生变化。依次关闭两个弹窗，URL仍然保持不变。</p>
+<p><img src="/../images/angular-auxiliary-router-no-url-change.png" alt="alt text"></p>
+<h2 id="使用routerLink显示辅助路由"><a href="#使用routerLink显示辅助路由" class="headerlink" title="使用routerLink显示辅助路由"></a>使用<code>routerLink</code>显示辅助路由</h2><p>上面的例子中，我们通过点击按钮，并且在按钮事件处理函数中调用<code>navigate</code>方法来显示辅助路由。也可以使用<code>routerLink</code>来显示辅助路由。<br>在<code>app.component.html</code>文件中，使用<code>routerLink</code>显示辅助路由：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#123;outlets: &#123;list: &#x27;book-list&#x27;&#125;&#125;]&quot;</span>&gt;</span>Book List<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#123;outlets: &#123;detail: &#x27;book-detail&#x27;&#125;&#125;]&quot;</span>&gt;</span>Book Detail<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="主路由和辅助路由各自独立"><a href="#主路由和辅助路由各自独立" class="headerlink" title="主路由和辅助路由各自独立"></a>主路由和辅助路由各自独立</h2><p>前面提起过，主路由和辅助路由是平级关系，二者可自由变化，互补影响，比如我们可以在<code>book</code>组件下添加一个子路由<code>book1</code>，然后在<code>book1</code>下再添加子路由<code>book2</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.routers.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;book&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">BookComponent</span>,</span><br><span class="line">    <span class="attr">children</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;book1&#x27;</span>,</span><br><span class="line">        <span class="attr">component</span>: <span class="title class_">Book1Component</span>,</span><br><span class="line">        <span class="attr">children</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">path</span>: <span class="string">&#x27;book2&#x27;</span>,</span><br><span class="line">            <span class="attr">component</span>: <span class="title class_">Book2Component</span>,</span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;,</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- book.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>book works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- book1.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>book1 works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- book2.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>book2 works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时点击<code>book-detail</code>按钮，观察路由变化，辅助路由自动append到主路由后面，无论主路由的层级有多深。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">http</span>:<span class="comment">//localhost:4200/book/book1/book2(detail:book-detail)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="同时显示主路由和辅助路由"><a href="#同时显示主路由和辅助路由" class="headerlink" title="同时显示主路由和辅助路由"></a>同时显示主路由和辅助路由</h2><p>主路由的<code>outlet name</code>是<code>primary</code>，我们只需在routerLink或者navigate函数中指定<code>primary</code>即可。</p>
+<p>通过<code>routerLink</code>属性触发(浏览器url：<code>http://localhost:4200/book(detail:book-detail)</code>)</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#123;outlets: &#123;primary: &#x27;book&#x27;, detail: &#x27;book-detail&#x27;&#125;&#125;]&quot;</span>&gt;</span>Book and detail<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过<code>router.navigate</code>方法触发(浏览器url：<code>http://localhost:4200/book(detail:book-detail)</code>)</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">primary</span>: <span class="string">&#x27;book&#x27;</span>, <span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;]);</span><br></pre></td></tr></table></figure>
+
+<p>如果主路由对应多级<code>path</code>，直接指定即可，如下：(浏览器url：<code>http://localhost:4200/book/book1/book2(detail:book-detail)</code>)</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">primary</span>: <span class="string">&#x27;book/book1/book2&#x27;</span>, <span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;]);</span><br></pre></td></tr></table></figure>
+
+<h2 id="一次触发多个辅助路由"><a href="#一次触发多个辅助路由" class="headerlink" title="一次触发多个辅助路由"></a>一次触发多个辅助路由</h2><p>上面的例子中我们是依次点击按钮来显示辅助路由的，Angular也支持一次触发多个辅助路由，</p>
+<h3 id="使用routerLink"><a href="#使用routerLink" class="headerlink" title="使用routerLink"></a>使用<code>routerLink</code></h3><p>可以在<code>routerLink</code>中同时定义多个辅助路由，在<code>app.component.html</code>文件中，添加如下代码，当我们点击<code>Book List and Details</code>按钮时，将同时显示<code>book-list</code>和<code>book-detail</code>组件。Url也将变为<code>http://localhost:4200/book(detail:book-detail//list:book-list)</code>。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> [<span class="attr">routerLink</span>]=<span class="string">&quot;[&#123;outlets: &#123;list: &#x27;book-list&#x27;, detail: &#x27;book-detail&#x27;&#125;&#125;]&quot;</span>&gt;</span>Book List and Details<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用navigate方法"><a href="#使用navigate方法" class="headerlink" title="使用navigate方法"></a>使用<code>navigate</code>方法</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">openBookListAndDetail</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">router</span>.<span class="title function_">navigate</span>([&#123;<span class="attr">outlets</span>: &#123;<span class="attr">list</span>: <span class="string">&#x27;book-list&#x27;</span>, <span class="attr">detail</span>: <span class="string">&#x27;book-detail&#x27;</span>&#125;&#125;]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>辅助路由的格式：(outletname: path)，比如(list:book-list), <code>list</code>对应<code>outlet name</code>, <code>book-list</code>对应<code>path</code>。</li>
+<li>主路由和辅助路由是平级关系，他们的<code>outlet</code>要定义在一个文件中。比如上面例子中book和book-list，book-detail三者都是平级关系，所以他们的<code>outlet</code>都定义在<code>app.component.html</code>文件中。</li>
+<li><code>outlet</code>属性中<code>name</code>用来表示辅助路由的名称，不能包含<code>-</code>，不能是字符串<code>primary</code>，否则无法显示。</li>
+<li>html文件中如果使用了<code>routerLink</code>，那么同时也要定义<code>outlet</code>，否则无法显示。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/07/angular-component/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/07/angular-component/" class="post-title-link" itemprop="url">angular-component</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-07 22:15:13" itemprop="dateCreated datePublished" datetime="2024-05-07T22:15:13+08:00">2024-05-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-31 16:34:29" itemprop="dateModified" datetime="2024-12-31T16:34:29+08:00">2024-12-31</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Component（组件）是Angular中的最小单元，通常来说，一个Component包含以下几个部分：</p>
+<ol>
+<li>选择器</li>
+<li>模板</li>
+<li>样式</li>
+</ol>
+<p>这三者中，哪个都不是必须的，但是至少要有模板。<br>我们可以使用Angular CLI来生成一个Component，比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component product</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng g c product</span><br></pre></td></tr></table></figure>
+
+<p>生成后的组件如下</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;product&#x27;</span>, <span class="comment">// 选择器</span></span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>, <span class="comment">// 模板</span></span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.less&#x27;</span>] <span class="comment">// 样式</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="选择器"><a href="#选择器" class="headerlink" title="选择器"></a>选择器</h2><p>选择器是用来引用当前<code>Component</code>的，比如其他组件若想使用<code>Product</code>组件的话，那么可以在其他组件的模板中使用<code>&lt;product&gt;&lt;/product&gt;</code>来引用<code>Product</code>组件。选择器是给别人用的，组件本身并不使用自己的选择器。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- other.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">product</span>&gt;</span><span class="tag">&lt;/<span class="name">product</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Angular中的选择器是CSS选择器，可以是标签选择器、类选择器、属性选择器等等, 一般来说, 组件通常使用标签选择器,指令通常使用属性选择器, 其他类型的选择器使用较少, 但是也是可以的。比如使用类选择器来实现<code>Product</code>组件：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// product.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;.product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- other.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;product&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>运行效果是一样的, 选择器本质是<code>Directive</code>上的属性,而<code>Component</code>是<code>Directive</code>的一个特例, 所以<code>Component</code>也可以使用选择器。关于选择器的详情,请看<a target="_blank" rel="noopener" href="https://angular.io/api/core/Directive#selector">这里</a></p>
+<p><strong>注意：</strong> 选择器不是必须的，一个组件可以没有选择器，这样的组件只能通过路由来访问，或者动态加载。</p>
+<h2 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h2><p>模板是Component的视图，可以是HTML文件模板（比如上面的<code>Product</code>组件），也可以是内联模板。比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;div&gt;Product works&lt;/div&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这样的话，就不需要<code>product.component.html</code>文件了。通常来说，如果模板的内容较多，还是存放到文件中比较好，这样方便维护。</p>
+<h2 id="样式"><a href="#样式" class="headerlink" title="样式"></a>样式</h2><p>样式是Component的样式，Angular支持多文件样式，单文件样式以及内联样式：</p>
+<h3 id="多文件样式"><a href="#多文件样式" class="headerlink" title="多文件样式"></a>多文件样式</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.less&#x27;</span>, <span class="string">&#x27;./product.item.css&#x27;</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="单文件样式"><a href="#单文件样式" class="headerlink" title="单文件样式"></a>单文件样式</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product.component.less&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="内联样式"><a href="#内联样式" class="headerlink" title="内联样式"></a>内联样式</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styles</span>: [<span class="string">&#x27;div &#123; color: red; &#125;&#x27;</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这样的话，就不需要<code>product.component.less</code>文件了。通常来说，如果样式较多，还是存放到文件中比较好, 样式是依附于模板的，如果一个组件没有模板，那么也就没有样式。</p>
+<p>对于一个Component来说：</p>
+<ol>
+<li>只有<code>component.ts</code>文件是必须的。</li>
+<li><code>component.html</code>和<code>component.less</code>是可选的, 可以使用内联模板和内联样式代替，也可以干脆没有。</li>
+<li>可以没有<code>selector</code>(选择器)，但是这样的Component只能通过路由来访问，或者动态加载。</li>
+</ol>
+<p>一个极简组件：这个组件什么也不显示，没有样式，也没有选择器。只能在路由中使用。可以在ngOnInit中添加一些逻辑，比如用来弹出popup等。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="component-vs-module"><a href="#component-vs-module" class="headerlink" title="component vs module"></a>component vs module</h2><p>在Angular中，非Standalone组件必须隶属于一个NgModule，也就是必须在一个module的<code>declarations</code>中声明，否则无法使用该组件。<br>非Standalone组件至多能在一个module中声明，如果其他module也要使用这个组件，那么需要将这个组件声明在其module的<code>exports</code>中，然后在其他module中引入这个module。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/05/06/react-analyze-bundle-size/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -714,395 +1260,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/markdown/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/28/markdown/" class="post-title-link" itemprop="url">markdown</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-28 21:02:17" itemprop="dateCreated datePublished" datetime="2024-04-28T21:02:17+08:00">2024-04-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-04 12:48:26" itemprop="dateModified" datetime="2024-05-04T12:48:26+08:00">2024-05-04</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Anchor"><a href="#Anchor" class="headerlink" title="Anchor"></a>Anchor</h2><p>Anchor is a way to jump to a specific location in a page.</p>
-<ol>
-<li><p>create anchor</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">name</span>=<span class="string">&quot;anchor_name&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>jump to anchor</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">Link Text</span>](<span class="link">#anchor_name</span>)</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Colored-text"><a href="#Colored-text" class="headerlink" title="Colored text"></a>Colored text</h2><p>Markdown itself support a limited features of HTML, so you can use HTML to color text.</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:red&quot;</span>&gt;</span></span>red<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:blue&quot;</span>&gt;</span></span>blue<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:green&quot;</span>&gt;</span></span>green<span class="language-xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/28/angular-change-detection/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/28/angular-change-detection/" class="post-title-link" itemprop="url">angular-change-detection</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-28 20:47:10" itemprop="dateCreated datePublished" datetime="2024-04-28T20:47:10+08:00">2024-04-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-10 21:12:04" itemprop="dateModified" datetime="2025-02-10T21:12:04+08:00">2025-02-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>前端框架的主要任务就是根据数据的变化来更新UI，Angular也不例外，而变更检测(Change Detection)就是完成这一任务的核心机制。</p>
-<p><img src="/../images/angular-cd-flow.png" alt="change-detection-flow"></p>
-<p>与React和Vue不同，Angular中的变更检测是自动触发的，是由异步事件触发的。Angular使用Zone.js来检测应用程序中的变化。</p>
-<p>React中使用setState来触发变更检测。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123; <span class="attr">count</span>: <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">count</span> + <span class="number">1</span> &#125;);</span><br></pre></td></tr></table></figure>
-<p>Vue中使用<code>$set</code>来触发变更检测。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.$set(<span class="variable language_">this</span>.<span class="property">data</span>, <span class="string">&#x27;count&#x27;</span>, <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">count</span> + <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-
-<p>Angular不需要开发者手动触发变更检测，它会自动检测到变化并更新视图。那么这种自动检测机制是如何实现的呢？这就要从Zone.js说起。</p>
-<p>在Angular程序启动时，会创建一个Zone，这个Zone会监控所有的异步操作，当异步操作执行时，Angular会运行变更检测。Zone.js会对浏览器中的所有异步操作进行<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monkey_patch">monkey patch</a>，这样Angular就能知道何时运行变更检测。</p>
-<p>这些被<code>monkey patch</code>的异步操作包括</p>
-<ul>
-<li><code>setTimeout</code>, <code>setInterval</code>,</li>
-<li><code>addEventListener</code>, </li>
-<li><code>XMLHttpRequest</code>,</li>
-<li><code>fetch</code>, </li>
-<li><code>Promise</code>, </li>
-<li><code>MutationObserver</code></li>
-<li><code>requestAnimationFrame</code></li>
-<li><code>async/await</code> - 这个会降级到Promise，因为Zone.js无法直接监控async&#x2F;await，所以会降级到Promise。</li>
-</ul>
-<p>Take the DOM event as an example, when user click a button on page, Angular will run change detection to update the view. Angular will run change detection after the event handler is executed.</p>
-<p>Here is the pseudo code, you can find the real code in <code>packages/zone.js/lib/browser/event-target.ts</code> in angular source code.(Note, initially, <code>zone.js</code> is a independent library, but it is moved to angular’s mono-repo.)</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Store a reference to the original addEventListener</span></span><br><span class="line"><span class="keyword">const</span> nativeAddEventListener = <span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Replace the original addEventListener with a patched version</span></span><br><span class="line"><span class="variable language_">window</span>.<span class="property">EventTarget</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">addEventListener</span> = <span class="keyword">function</span>(<span class="params">eventName, handler, options</span>) &#123;</span><br><span class="line">  <span class="comment">// Call the native addEventListener with the provided arguments</span></span><br><span class="line">  nativeAddEventListener.<span class="title function_">call</span>(<span class="variable language_">this</span>, eventName, handler, options);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Additional functionality to track the state of asynchronous operations</span></span><br><span class="line">  <span class="comment">// This could involve interacting with Zone.js&#x27;s internal data structures</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Change-Detection-steps"><a href="#Change-Detection-steps" class="headerlink" title="Change Detection steps"></a>Change Detection steps</h2><ol>
-<li>An event occurs (user action, timer, AJAX response, etc.).</li>
-<li>Angular’s zone (NgZone) notifies Angular that an async operation has completed.</li>
-<li>Angular triggers change detection starting from the root component.</li>
-<li>For each component, it checks the template bindings against the current component state.</li>
-<li>If a binding has changed, Angular updates the DOM accordingly.</li>
-<li>Components using OnPush strategy only check if their inputs have changed or if marked explicitly.</li>
-<li>The process continues down the component tree until all components are checked.</li>
-</ol>
-<h2 id="What-does-change-detection-do-in-Angular"><a href="#What-does-change-detection-do-in-Angular" class="headerlink" title="What does change detection do in Angular?"></a>What does change detection do in Angular?</h2><ol>
-<li>Update all bindings in templates.</li>
-<li>Update the view.</li>
-</ol>
-<p>Angular中，每个Component都会关联一个Change Detector, 这个Change Detector是在Angular App启动时创建的（是所有Component共用一个Change Detector还是每个Component有自己的Change Detector?）。</p>
-<p>这个Change Detector的工作就是检查每个Component的Template中的Expression是否发生了变化，如果发生了变化，就会更新View。</p>
-<h2 id="NgZone"><a href="#NgZone" class="headerlink" title="NgZone"></a>NgZone</h2><p>Angular uses <code>NgZone</code> to detect changes in the application. <code>NgZone</code> is a class that provides a way to run code in the Angular zone. It is used to detect changes in the application.</p>
-<p>You can easily see NgZone by logging it to the console.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">zone: NgZone</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_inner</span>.<span class="property">name</span>); <span class="comment">// angular</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>((zone <span class="keyword">as</span> <span class="built_in">any</span>).<span class="property">_outer</span>.<span class="property">name</span>); <span class="comment">// root</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>NgZone</code> is instantiated during the bootstrap phase.</p>
-<h2 id="How-to-determine-when-change-detection-is-triggered-in-a-component"><a href="#How-to-determine-when-change-detection-is-triggered-in-a-component" class="headerlink" title="How to determine when change detection is triggered in a component?"></a>How to determine when change detection is triggered in a component?</h2><p>注意：下面这个结论是错误的，留在这里时刻提醒自己，不要再犯这种错误。详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/12/05/angular-lifecyle-ondocheck/">这里</a>  </p>
-<p>You can use the <code>ngDoCheck</code> lifecycle hook to determine when change detection is triggered in a component. <code>ngDoCheck</code> is called every time change detection is triggered in a component.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  <span class="title function_">ngDoCheck</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Change detection triggered&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="ngOnChanges"><a href="#ngOnChanges" class="headerlink" title="ngOnChanges"></a>ngOnChanges</h2><p><code>ngOnChanges</code> is a lifecycle hook that is called when a component’s input properties change. It is used to detect changes in the component’s input properties.</p>
-<p>What’s the scenarios to use <code>ngOnChanges</code>?</p>
-<ol>
-<li>When you want to detect changes in the component’s input properties.</li>
-<li>When you want to avoid function call in template. see <a target="_blank" rel="noopener" href="https://medium.com/showpad-engineering/why-you-should-never-use-function-calls-in-angular-template-expressions-e1a50f9c0496">here</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/27/nginx-beginner-guide-for-windows/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/27/nginx-beginner-guide-for-windows/" class="post-title-link" itemprop="url">nginx-beginner-guide-for-windows</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-04-27 22:06:12 / Modified: 22:13:54" itemprop="dateCreated datePublished" datetime="2024-04-27T22:06:12+08:00">2024-04-27</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Install-Nginx-on-Windows"><a href="#Install-Nginx-on-Windows" class="headerlink" title="Install Nginx on Windows"></a>Install Nginx on Windows</h1><ol>
-<li>Download Nginx from <a target="_blank" rel="noopener" href="https://nginx.org/en/download.html">Nginx official website</a>.</li>
-<li>Extract the downloaded file to a folder, for example, <code>C:\nginx</code>.</li>
-</ol>
-<h2 id="Build-your-app"><a href="#Build-your-app" class="headerlink" title="Build your app"></a>Build your app</h2><ol>
-<li>Build your Angular app using the following command: This will generate the <code>dist</code> folder under your project root. for example, <code>D:\codes\angular\angular-router</code>.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng build --prod</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Setup-Nginx"><a href="#Setup-Nginx" class="headerlink" title="Setup Nginx"></a>Setup Nginx</h2><ol>
-<li>Open a command prompt as an administrator.</li>
-<li>Navigate to the Nginx directory.</li>
-<li>Open the <code>conf/nginx.conf</code> file in a text editor.</li>
-<li>Find the <code>http</code> | <code>server</code> block and add the following line:<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> localhost;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">root</span> D:/codes/angular/angular-router/dist;</span><br><span class="line">        <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Start-Nginx"><a href="#Start-Nginx" class="headerlink" title="Start Nginx"></a>Start Nginx</h2><ol>
-<li>Open a command prompt as an administrator.</li>
-<li>Navigate to the Nginx directory.</li>
-<li>Start Nginx using the following command:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start nginx</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Restart-Nginx"><a href="#Restart-Nginx" class="headerlink" title="Restart Nginx"></a>Restart Nginx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
-
-<h2 id="Stop-Nginx"><a href="#Stop-Nginx" class="headerlink" title="Stop Nginx"></a>Stop Nginx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s stop</span><br></pre></td></tr></table></figure>
-
-<h2 id="Check-Nginx-configuration"><a href="#Check-Nginx-configuration" class="headerlink" title="Check Nginx configuration"></a>Check Nginx configuration</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t</span><br></pre></td></tr></table></figure>
-<p>If the configuration is valid, you will see a message like this:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nginx: the configuration file C:/nginx/conf/nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file C:/nginx/conf/nginx.conf <span class="built_in">test</span> is successful</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/04/22/ng0100-expression-has-changed-after-it-was-checked/" class="post-title-link" itemprop="url">NG0100: Expression has changed after it was checked</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-04-22 20:25:54" itemprop="dateCreated datePublished" datetime="2024-04-22T20:25:54+08:00">2024-04-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-03 11:37:34" itemprop="dateModified" datetime="2024-09-03T11:37:34+08:00">2024-09-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>不知各位冰雪聪明的朋友们是否遇到过如下错误？</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NG0100: Expression has changed after it was checked</span><br></pre></td></tr></table></figure>
-
-<p>大家在第一次遇到这个错误的时候是什么反应呢？反正我是一头雾水，今天我就带大家揭开这个错误的神秘面纱，我现在很困。。。非常不想写，但是我还是要写，因为我是一个有责任心的人。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">为什么我的眼里常含泪水？因为我太困了。。。</span><br></pre></td></tr></table></figure>
-<p>言归正传！其实从这个错误的描述来看，聪明的你已经发现了，那就是在Angular刚刚进行完一次变更检测，你又更新了某个值。那么，有哪些场景会导致这个错误呢？我们依次来看。</p>
-<p>先来看一个最简单的例子：</p>
-<h2 id="Update-value-in-ngAfterViewInit"><a href="#Update-value-in-ngAfterViewInit" class="headerlink" title="Update value in ngAfterViewInit"></a>Update value in <code>ngAfterViewInit</code></h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; count &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个例子中，我们在<code>ngAfterViewInit</code>生命周期钩子中更新了<code>count</code>的值，在<code>ngAfterViewInit</code>之前，Angular刚刚进行完一次变更检测，我们在<code>ngAfterViewInit</code>中更新了<code>count</code>的值，此时下一次变更检测还未开始，所以就产生了这个错误。</p>
-<p><img src="/../images/update-value-in-ngafterviewinit.png" alt="error"></p>
-<p>他来了，他来了，他迈着箭步走来了！<br>我们可以点击红框中的文件链接，查看到底哪个变量出了问题。</p>
-<p><img src="/../images/ng0100.png" alt="ng0100"></p>
-<p>既然错误已经发生了，那么该如何解决它呢？</p>
-<ol>
-<li>不要在<code>ngAfterViewInit</code>中更新值。你可以在其他地方更新，比如用户点击了某个按钮，或者做了其他操作时。</li>
-<li>使用<code>ChangeDetectorRef</code>手动触发变更检测。既然Angular不让我们在变更检测之后更新值，那么我们就在更新值以后手动触发一次变更检测，如下：<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> cdr: ChangeDetectorRef</span>) &#123;&#125;</span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">cdr</span>.<span class="title function_">detectChanges</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>使用异步更新，比如用<code>setTimeout</code>，<code>Promise</code>等包裹一下更新值的操作。因为Angular内部使用<code>zone.js</code>对这些异步操作进行了hook，并自动加入了更新检测，所以这样做是安全的。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">ngAfterViewInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">count</span> = <span class="number">2</span>;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="Use-random-values-in-template-bindings"><a href="#Use-random-values-in-template-bindings" class="headerlink" title="Use random values in template bindings"></a>Use random values in template bindings</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- app.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123; randomValue &#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="keyword">get</span> <span class="title function_">randomValue</span>() &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="title function_">random</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个例子中，我们在模板中使用了一个随机值，每次变更检测都会重新计算这个值，所以就会产生这个错误。</p>
-<h2 id="Update-parent-component-property-from-child-component"><a href="#Update-parent-component-property-from-child-component" class="headerlink" title="Update parent component property from child component"></a>Update parent component property from child component</h2><p>We declare a name property in parent component and show it on html template.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.component.ts</span></span><br><span class="line"><span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line"><span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;Tom&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- parent.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>I&#x27;m Father, my name is: &#123;&#123; name &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-child</span> (<span class="attr">onChangeName</span>)=<span class="string">&quot;changeName($event)&quot;</span> [<span class="attr">age</span>]=<span class="string">30</span> [<span class="attr">name</span>]=<span class="string">&quot;&#x27;Philip&#x27;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">app-child</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>Then we update the name property in child component.</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- child.<span class="property">component</span>.<span class="property">html</span> --&gt;</span><br><span class="line"><span class="meta">@Output</span>() onChangeName = <span class="keyword">new</span> <span class="title class_">EventEmitter</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"><span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">onChangeName</span>.<span class="title function_">emit</span>(<span class="string">&#x27;Jerry&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Run the application, you will see the error in the console.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:9171 ERROR Error: NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked. Previous value: <span class="string">&#x27;Tom&#x27;</span>. Current value: <span class="string">&#x27;Jerry&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><h3 id="There-are-several-scenarios-that-produce-this-error"><a href="#There-are-several-scenarios-that-produce-this-error" class="headerlink" title="There are several scenarios that produce this error."></a>There are several scenarios that produce this error.</h3><ol>
-<li>value in <code>ngAfterViewInit</code>.</li>
-<li>Use random values in template bindings</li>
-<li>Update parent component property from child component.</li>
-</ol>
-<h3 id="How-to-solve-this-problem"><a href="#How-to-solve-this-problem" class="headerlink" title="How to solve this problem"></a>How to solve this problem</h3><ol>
-<li>Refactor <code>ngAfterViewInit</code> lifecycle hook.</li>
-<li>Use <code>ChangeDetectorRef</code> to manually trigger change detection.</li>
-<li>Make getters idempotent.</li>
-<li>Make the update async(last resort)</li>
-</ol>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://angular.io/errors/NG0100">https://angular.io/errors/NG0100</a></p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>话说我现在实在太困了，睁不开眼睛，写这破玩意能涨工资吗？大概率不能！但是老话儿说的好，凡事求个明白！不扯了，睡觉去了。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1172,14 +1329,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">283</span>
+          <span class="site-state-item-count">287</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">406</span>
+        <span class="site-state-item-count">409</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
