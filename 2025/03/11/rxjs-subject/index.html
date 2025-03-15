@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="今天来学习一下RxJS中的Subject，有人说它既是Observable，又是Observer，那么它到底是什么呢？先来看一下官方的定义： 1Subject is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.  翻译一下：Subject">
+  <meta name="description" content="概述今天来学习一下RxJS中的Subject，有人说它既是Observable，又是Observer，那么它到底是什么呢？先来看一下官方的定义： 1Subject is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.  翻译一下：Subje">
 <meta property="og:type" content="article">
 <meta property="og:title" content="rxjs-subject">
 <meta property="og:url" content="http://example.com/2025/03/11/rxjs-subject/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="今天来学习一下RxJS中的Subject，有人说它既是Observable，又是Observer，那么它到底是什么呢？先来看一下官方的定义： 1Subject is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.  翻译一下：Subject">
+<meta property="og:description" content="概述今天来学习一下RxJS中的Subject，有人说它既是Observable，又是Observer，那么它到底是什么呢？先来看一下官方的定义： 1Subject is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.  翻译一下：Subje">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-11T01:30:18.000Z">
-<meta property="article:modified_time" content="2025-03-11T01:34:57.602Z">
+<meta property="article:modified_time" content="2025-03-11T03:31:09.486Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="rxjs">
 <meta property="article:tag" content="subject">
@@ -210,7 +210,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-03-11 09:30:18 / Modified: 09:34:57" itemprop="dateCreated datePublished" datetime="2025-03-11T09:30:18+08:00">2025-03-11</time>
+              <time title="Created: 2025-03-11 09:30:18 / Modified: 11:31:09" itemprop="dateCreated datePublished" datetime="2025-03-11T09:30:18+08:00">2025-03-11</time>
             </span>
 
           
@@ -224,10 +224,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>今天来学习一下RxJS中的<code>Subject</code>，有人说它既是<code>Observable</code>，又是<code>Observer</code>，那么它到底是什么呢？先来看一下官方的定义：</p>
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>今天来学习一下RxJS中的<code>Subject</code>，有人说它既是<code>Observable</code>，又是<code>Observer</code>，那么它到底是什么呢？先来看一下官方的定义：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Subject is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.</span><br></pre></td></tr></table></figure>
 
 <p>翻译一下：Subject等价于EventEmitter，是唯一一种将值或事件多播给多个观察者的方法。</p>
+<h1 id="Subject的特点"><a href="#Subject的特点" class="headerlink" title="Subject的特点"></a>Subject的特点</h1><h2 id="多播"><a href="#多播" class="headerlink" title="多播"></a>多播</h2><p>下面的代码中，有两个订阅者，但是他们共享数据流，所以他们会输出相同的随机数。这就是Subject的多播特性。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> subject = <span class="keyword">new</span> <span class="title class_">Subject</span>();</span><br><span class="line">subject.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">v</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;observerA: &#x27;</span> + v));</span><br><span class="line">subject.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">v</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;observerB: &#x27;</span> + v));</span><br><span class="line">subject.<span class="title function_">next</span>(<span class="title class_">Math</span>.<span class="title function_">random</span>());</span><br></pre></td></tr></table></figure>
+
+<p>但是如果改用observable, 那么每个订阅者都会收到一份数据，以下代码打印出不同的随机数。也就是说：对于普通的observable，每次订阅都会发起新的请求。一次订阅只能有一个观察者。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Observable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> observable = <span class="keyword">new</span> <span class="title class_">Observable</span>(<span class="function">(<span class="params">subscriber</span>) =&gt;</span> &#123;</span><br><span class="line">  subscriber.<span class="title function_">next</span>(<span class="title class_">Math</span>.<span class="title function_">random</span>());</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">observable.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">v</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(v));</span><br><span class="line">observable.<span class="title function_">subscribe</span>(<span class="function">(<span class="params">v</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(v));</span><br></pre></td></tr></table></figure>
+
+
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
 <thead>
 <tr>
@@ -242,19 +249,24 @@
 <td>多播</td>
 </tr>
 <tr>
-<td>订阅</td>
-<td>subscribe</td>
-<td>subscribe</td>
+<td>数据产生时机</td>
+<td>订阅时产生</td>
+<td>由Subject.next()产生</td>
 </tr>
 <tr>
-<td>多播</td>
-<td>不支持</td>
-<td>支持</td>
+<td>冷热</td>
+<td>冷</td>
+<td>热</td>
 </tr>
 <tr>
 <td>是否是Observer</td>
 <td>否</td>
 <td>是</td>
+</tr>
+<tr>
+<td>订阅时机的影响</td>
+<td>每次订阅后产生新的数据</td>
+<td>共享数据流，订阅后接收续生成的数据</td>
 </tr>
 </tbody></table>
 
@@ -341,7 +353,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Subject%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">Subject的特点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E6%92%AD"><span class="nav-number">2.1.</span> <span class="nav-text">多播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -355,7 +367,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">287</span>
+          <span class="site-state-item-count">288</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

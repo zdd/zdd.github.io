@@ -501,7 +501,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-31 20:25:16" itemprop="dateModified" datetime="2024-12-31T20:25:16+08:00">2024-12-31</time>
+                <time title="Modified: 2025-03-12 15:59:05" itemprop="dateModified" datetime="2025-03-12T15:59:05+08:00">2025-03-12</time>
               </span>
 
           
@@ -534,6 +534,11 @@
 <h1 id="Angular-Dependency-Injection"><a href="#Angular-Dependency-Injection" class="headerlink" title="Angular Dependency Injection"></a>Angular Dependency Injection</h1><p>Angular通过一个叫做<code>Injector</code>（注入器）的服务来实现DI。注入器相当于依赖的生产者和依赖的消费者之间的桥梁。Angular会在启动时创建一个应用级别的注入器（也叫root injector），当然也会创建其他的injector（如果需要的话）。</p>
 <p>当需要一个依赖时，Angular首先会检查其注册中心是否有这个依赖，如果有则直接返回，如果没有则会根据依赖的类型创建一个实例并返回。同时将其加入到注册中心中，以便下次使用。</p>
 <p>在依赖注入中有两个主要的角色，一个是依赖的生产者，比如用来获取后台数据的<code>Service</code>，一个是依赖的消费者，比如使用这个<code>Service</code>的<code>Component</code>。而<code>Injector</code>就是这两者之间的桥梁。有了<code>Injector</code>，依赖生产者和依赖消费者之间便实现了解耦。</p>
+<h1 id="Inversion-of-control"><a href="#Inversion-of-control" class="headerlink" title="Inversion of control"></a>Inversion of control</h1><p>控制反转 - 到底怎么个反转呢？<br>在没有依赖注入之前，对象自己管理自己的依赖。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Car</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="attr">engine</span>: <span class="title class_">Engine</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">engine</span> = <span class="keyword">new</span> <span class="title class_">Engine</span>(); <span class="comment">// 直接创建依赖</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了依赖注入之后，对象不在负责依赖的管理，而是交给Angular框架来管理，把管理依赖的职责由对象转移到外层框架，依赖的查找、注入都由框架负责，这就是控制反转。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-car&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;...&#x27;</span>,</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">Engine</span>] <span class="comment">// 依赖配置在外部, 如果依赖有&#123;provideIn: &#x27;root&#x27;&#125;，则不需要配置这里</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CarComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> engine: Engine</span>) &#123;&#125; <span class="comment">// 依赖由 Angular 注入</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h1 id="Provide-a-dependency"><a href="#Provide-a-dependency" class="headerlink" title="Provide a dependency"></a>Provide a dependency</h1><p>在Angular中，有三种方式提供一个依赖。</p>
 <h2 id="provideIn"><a href="#provideIn" class="headerlink" title="provideIn"></a>provideIn</h2><p>创建依赖</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
@@ -572,12 +577,6 @@
 <p>使用依赖</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">appConfig</span>: <span class="title class_">ApplicationConfig</span> = &#123;</span><br><span class="line">    <span class="attr">providers</span>: [</span><br><span class="line">      &#123; <span class="attr">provide</span>: <span class="title class_">HeroService</span> &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;;</span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br></pre></td></tr></table></figure>
 
-<h2 id="NgModule-based-configuration"><a href="#NgModule-based-configuration" class="headerlink" title="NgModule based configuration"></a>NgModule based configuration</h2><p>创建依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// &lt;--- 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用依赖</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>A service provided in a module is available to all declarations of the module, or to any other modules which share the same ModuleInjector. To understand all edge-cases, see <a target="_blank" rel="noopener" href="https://angular.dev/guide/di/hierarchical-dependency-injection">Hierarchical injectors</a>.</p>
 <p>使用<code>ApplicationConfig</code>方式提供的依赖有如下特点：</p>
 <ol>
 <li>该依赖是全局共享的的，只有一个实例。</li>
@@ -585,6 +584,12 @@
 <li>不支持tree shaking, 无论是否使用，都会被打包到最终的bundle中。</li>
 </ol>
 <p>此方式与<code>providedIn: &#39;root&#39;</code>颇为相似，不同的是这种方式不支持tree shaking。</p>
+<h2 id="NgModule-based-configuration"><a href="#NgModule-based-configuration" class="headerlink" title="NgModule based configuration"></a>NgModule based configuration</h2><p>创建依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Injectable</span>() <span class="comment">// &lt;--- 注意这里没有provideIn</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HeroService</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用依赖</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">HeroService</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppModule</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>A service provided in a module is available to all declarations of the module, or to any other modules which share the same ModuleInjector. To understand all edge-cases, see <a target="_blank" rel="noopener" href="https://angular.dev/guide/di/hierarchical-dependency-injection">Hierarchical injectors</a>.</p>
 <h1 id="Pros-of-DI"><a href="#Pros-of-DI" class="headerlink" title="Pros of DI:"></a>Pros of DI:</h1><ul>
 <li>Loose coupling</li>
 <li>Easy to test</li>
@@ -1355,7 +1360,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">287</span>
+          <span class="site-state-item-count">288</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

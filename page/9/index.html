@@ -181,6 +181,162 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-prototype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/javascript-prototype/" class="post-title-link" itemprop="url">javascript-prototype</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-16 19:57:27" itemprop="dateCreated datePublished" datetime="2024-11-16T19:57:27+08:00">2024-11-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-05 16:46:56" itemprop="dateModified" datetime="2025-03-05T16:46:56+08:00">2025-03-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>本来用英语写了一篇，结果看起来乱糟糟的，还是用中文写一下吧。</p>
+<p>原型是JavaScript中非常重要的概念，面试中也常常会问到这个问题。那么，原型到底是什么？<br>原型的英文是<code>prototype</code>，他是函数的一个属性，是一个对象。</p>
+<p>下面来看一张图，这个图乍一看非常复杂，但是理解之后，就会发现原型其实非常简单。<br><img src="/../images/js-prototype.png" alt="js-prototype"></p>
+<p>在理解这张图之前，我们先明确几个概念：</p>
+<ol>
+<li>对象具有<code>__proto__</code>和<code>constructor</code>属性。</li>
+<li>函数具有<code>prototype</code>属性。</li>
+<li>因为JS中函数也是对象，所以函数也有<code>__proto__</code>和<code>constructor</code>属性。</li>
+</ol>
+<p>所以，我们可以得出以下结论：</p>
+<ol>
+<li>对象具有<code>__proto__</code>和<code>constructor</code>属性。</li>
+<li>函数具有<code>prototype</code>, <code>__proto__</code>和<code>constructor</code>属性。</li>
+</ol>
+<p>这两条结论反映在上面的图中就是：</p>
+<ol>
+<li>所有蓝色节点都向外发出两条线，分别对应<code>__proto__</code>和<code>constructor</code>属性。</li>
+<li>所有绿色节点都向外发出三条线，分别对应<code>prototype</code>, <code>__proto__</code>和<code>constructor</code>属性。</li>
+</ol>
+<p>我们以一个简单的Person函数阐述上面这张图。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">printName</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p);</span><br></pre></td></tr></table></figure>
+<h2 id="proto-属性"><a href="#proto-属性" class="headerlink" title="__proto__属性"></a>__proto__属性</h2><p>在这个例子中，<code>Person</code>函数是一个构造函数，<code>p</code>是<code>Person</code>的一个实例。为了方便，我们将上图简化一下，只保留<code>__proto__</code>属性。<br><img src="/../images/js-prototype-proto.png" alt="js-prototype-proto"></p>
+<p>先看左边纵向的这条线。</p>
+<ol>
+<li>因为对象<code>p</code>是<code>Person</code>函数的一个实例，所以<code>p</code>的<code>__proto__</code>属性指向<code>Person</code>的<code>prototype</code>属性。</li>
+<li>而<code>Person</code>继承自<code>Object</code>，所以<code>Person</code>的<code>__proto__</code>属性指向<code>Object</code>的<code>prototype</code>属性。</li>
+<li><code>Object</code>的<code>__proto__</code>属性指向<code>null</code>。</li>
+</ol>
+<p><code>p</code>, <code>Person</code>, <code>Object</code>, <code>null</code>之间通过<code>__proto__</code>属性形成了一条链，这就是所谓的原型链。当我们在某个对象上查找一个属性时，如果该对象没有这个属性，那么JS会通过原型链向上查找，直到找到这个属性或者到达<code>null</code>。举几个例子：</p>
+<ul>
+<li><code>p.printName()</code> - <code>p</code>对象上没有<code>printName</code>属性，所以JS会通过原型链向上查找，找到<code>Person</code>的<code>prototype</code>属性，从而找到<code>printName</code>方法。</li>
+<li><code>p.hasOwnProperty(&#39;name&#39;)</code> - <code>p</code>对象上没有<code>hasOwnProperty</code>属性，向上查找到<code>Person</code>，<code>Person</code>的原型对象上也没有<code>hasOwnProperty</code>属性，继续向上查找到<code>Object</code>，<code>Object</code>原型上有<code>hasOwnProperty</code>属性，于是调用之，所以返回<code>true</code>。</li>
+<li><code>p.foo()</code> - <code>p</code>对象上没有<code>foo</code>属性，向上查找到<code>Person</code>，<code>Person</code>的原型对象上也没有<code>foo</code>属性，继续向上查找到<code>Object</code>，<code>Object</code>的原型上还是没有<code>foo</code>属性，继续向上查找到<code>null</code>，而null上也没有<code>foo</code>属性，所以会报错。— <code>TypeError: p.foo is not a function</code></li>
+</ul>
+<p>再看右侧部分，<code>Person</code>, <code>Function</code>, <code>Object</code>这三者皆是函数，而JS中函数也是对象，故而这三者亦有<code>__proto__</code>属性，而且都指向<code>Function</code>的<code>prototype</code>属性。而<code>Function</code>的<code>__proto__</code>属性指向<code>Object</code>的<code>prototype</code>属性。</p>
+<p>由此我们可以得出结论：</p>
+<ol>
+<li>所有对象的<code>__proto__</code>属性指向其构造函数的<code>prototype</code>属性。</li>
+<li>所有函数的<code>__proto__</code>属性指向<code>Function</code>的<code>prototype</code>属性。</li>
+<li><code>Function</code>的<code>__proto__</code>属性指向<code>Object</code>的<code>prototype</code>属性。</li>
+<li><code>Object</code>的<code>__proto__</code>属性指向<code>null</code>。</li>
+</ol>
+<p>所有<code>__prototype__</code>的终点都是<code>null</code>.</p>
+<h2 id="prototype属性"><a href="#prototype属性" class="headerlink" title="prototype属性"></a>prototype属性</h2><p>照例现简化一下上图，只保留<code>prototype</code>属性。<br><img src="/../images/js-prototype-prototype.png" alt="js-prototype-prototype"></p>
+<p>因为<code>prototype</code>是函数的一个属性（对象没有<code>prototype</code>），所以图中只有绿色节点有<code>prototype</code>属性。对于一个函数<code>Foo</code>来说，他的<code>prototype</code>属性是一个对象，指向<code>Foo.prototype</code></p>
+<h2 id="constructor-NaN"><a href="#constructor-NaN" class="headerlink" title="constructor"></a>constructor</h2><p>最后来看<code>constructor</code>属性。<br><img src="/../images/js-prototype-constructor.png" alt="js-prototype-constructor"></p>
+<p><code>constructor</code>就是某个对象的构造函数，因为JS中函数也是对象，所以函数也有<code>constructor</code>属性。</p>
+<ol>
+<li>对于普通对象，其<code>constructor</code>属性指向其构造函数。</li>
+<li>对于函数，其<code>constructor</code>属性指向<code>Function</code>。</li>
+<li><code>Function</code>的<code>constructor</code>属性指向其自身。</li>
+</ol>
+<p>根据以上结论，不难得出如下结论：</p>
+<ol>
+<li>对象<code>p</code>的<code>constructor</code>属性指向<code>Person</code>函数, 因为<code>p</code>是<code>Person</code>的一个实例。</li>
+<li><code>Person.prototype</code>的<code>constructor</code>指向<code>Person</code>函数，这个是为啥？- 硬性规定</li>
+<li><code>Person</code>和<code>Object</code>的<code>constructor</code>都指向<code>Function</code>，因为<code>Person</code>和<code>Object</code>都是函数。</li>
+<li><code>Function</code>的<code>constructor</code>属性指向<code>Function</code>。</li>
+</ol>
+<p>由以上结论可以推导出：<code>Function</code>是所有<code>constructor</code>的终点。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们把上面的结论公式化一下，对于如下代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br></pre></td></tr></table></figure>
+<p>我们有如下结论成立：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p.<span class="property">__proto__</span> === <span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p.<span class="property">constructor</span> === <span class="title class_">Person</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">__proto__</span> === <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">constructor</span> === <span class="title class_">Person</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">__proto__</span> === <span class="literal">null</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property">__proto__</span> === <span class="title class_">Function</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property">constructor</span> === <span class="title class_">Function</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Function</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">__proto__</span> === <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Function</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">constructor</span> === <span class="title class_">Function</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="property">__proto__</span> === <span class="title class_">Function</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="property">constructor</span> === <span class="title class_">Function</span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Function</span>.<span class="property">constructor</span> === <span class="title class_">Function</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="其他杂项"><a href="#其他杂项" class="headerlink" title="其他杂项"></a>其他杂项</h2><ol>
+<li>箭头函数没有<code>prototype</code>属性，因为箭头函数不可以做构造函数。</li>
+<li>Bound函数（使用<code>bind</code>创建的函数）也没有<code>prototype</code>属性。why？</li>
+</ol>
+<h1 id="Introduction-1"><a href="#Introduction-1" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>prototype</code> is an very important concept in JavaScript. It’s used to implement inheritance in JavaScript.</p>
+<p><code>prototype</code> is a property of a function, it’s an object. When you create a function, JavaScript engine will automatically create a <code>prototype</code> object for you. This object has a property called <code>constructor</code>, which points back to the function.</p>
+<p>The prototype data property of a Function instance is used when the function is used as a constructor with the <code>new</code> operator. It will become the new object’s prototype.</p>
+<p>Take the following code as an example, its prototype is an empty object <code>&#123;&#125;</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">constructor</span> === <span class="title class_">Person</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Let’s create a functions on its prototype, and it’s prototype now has a property(function) called <code>printName</code>.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">printName</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// &#123; printName: [Function (anonymous)] &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Create-an-instance-of-Person"><a href="#Create-an-instance-of-Person" class="headerlink" title="Create an instance of Person"></a>Create an instance of <code>Person</code></h2><p>When you create an instance of <code>Person</code>, the instance will have a property called <code>__proto__</code>, which points to the <code>prototype</code> of the constructor function(the <code>Person</code> function).</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">printName</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> person = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="property">__proto__</span> === <span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="title function_">printName</span>()); <span class="comment">// Philip</span></span><br></pre></td></tr></table></figure>
+
+<p>Functions defined on the <code>prototype</code> are shared by all instances of the constructor function.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">printName</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p1.<span class="property">printName</span> === p2.<span class="property">printName</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>But, functions defined in the constructor function are not shared by all instances.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">printName</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;zdd&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&#x27;Philip&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p1.<span class="property">printName</span> === p2.<span class="property">printName</span>); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html">https://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.vjeux.com/2011/javascript/how-prototypal-inheritance-really-works.html">https://blog.vjeux.com/2011/javascript/how-prototypal-inheritance-really-works.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65858062">https://zhuanlan.zhihu.com/p/65858062</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-interview-questions-10/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -910,261 +1066,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/16/javascript-interview-questions-01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/16/javascript-interview-questions-01/" class="post-title-link" itemprop="url">javascript-interview-questions-01</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-16 18:28:11" itemprop="dateCreated datePublished" datetime="2024-11-16T18:28:11+08:00">2024-11-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-22 09:39:36" itemprop="dateModified" datetime="2025-02-22T09:39:36+08:00">2025-02-22</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="JS中的箭头函数有哪些特点？"><a href="#JS中的箭头函数有哪些特点？" class="headerlink" title="JS中的箭头函数有哪些特点？"></a>JS中的箭头函数有哪些特点？</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>优点</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>语法简洁</strong></td>
-<td>箭头函数语法更短、更简洁，适合简单的回调函数或匿名函数。</td>
-<td>复杂逻辑中使用隐式返回或多层嵌套时，可能降低代码可读性和可维护性。</td>
-</tr>
-<tr>
-<td><strong>词法作用域绑定 <code>this</code></strong></td>
-<td>箭头函数继承定义时的 <code>this</code>，避免了传统函数中 <code>this</code> 动态绑定的问题。</td>
-<td>无法动态绑定 <code>this</code>，在需要动态绑定 <code>this</code> 的场景（如对象方法）中不适合使用。</td>
-</tr>
-<tr>
-<td><strong>没有 <code>arguments</code> 对象</strong></td>
-<td>避免与普通函数中的 <code>arguments</code> 冲突，可以使用剩余参数（<code>...args</code>）代替。</td>
-<td>缺乏 <code>arguments</code> 对象，在需要访问动态参数列表的场景下可能带来不便。</td>
-</tr>
-<tr>
-<td><strong>不能用作构造函数</strong></td>
-<td>避免误用为构造函数的风险（箭头函数不能通过 <code>new</code> 调用）。</td>
-<td>在需要定义构造函数的场景中无法使用箭头函数。</td>
-</tr>
-<tr>
-<td><strong>隐式返回</strong></td>
-<td>单行箭头函数支持隐式返回，无需使用 <code>return</code> 关键字。</td>
-<td>隐式返回在复杂逻辑中可能导致代码难以理解。</td>
-</tr>
-<tr>
-<td><strong>调试困难</strong></td>
-<td>-</td>
-<td>箭头函数的简洁性可能导致代码可读性下降，调试和维护可能会变得困难。</td>
-</tr>
-<tr>
-<td><strong>不能用作生成器函数</strong></td>
-<td>-</td>
-<td>箭头函数不能用作生成器函数（无法与 <code>function*</code> 结合使用）。</td>
-</tr>
-<tr>
-<td><strong>适用场景</strong></td>
-<td>回调函数、不需要动态绑定 <code>this</code> 的场景、简短的函数逻辑。</td>
-<td>需要动态绑定 <code>this</code> 的场景、需要访问 <code>arguments</code> 对象的场景、复杂的逻辑、生成器函数场景。</td>
-</tr>
-</tbody></table>
-<h2 id="JS中apply-call-bind的作用和区别是什么？"><a href="#JS中apply-call-bind的作用和区别是什么？" class="headerlink" title="JS中apply, call, bind的作用和区别是什么？"></a>JS中<code>apply</code>, <code>call</code>, <code>bind</code>的作用和区别是什么？</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th><code>apply</code></th>
-<th><code>call</code></th>
-<th><code>bind</code></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>调用方式</strong></td>
-<td>立即调用函数</td>
-<td>立即调用函数</td>
-<td>返回一个新函数</td>
-</tr>
-<tr>
-<td><strong>参数传递</strong></td>
-<td>参数以数组或类数组形式传递</td>
-<td>参数逐个传递</td>
-<td>参数逐个传递，可预填部分参数</td>
-</tr>
-<tr>
-<td><strong>适用场景</strong></td>
-<td>参数数量不确定时（如动态参数）</td>
-<td>参数数量固定时</td>
-<td>需要延迟调用或复用绑定函数时</td>
-</tr>
-<tr>
-<td><strong>是否修改原函数</strong></td>
-<td>否</td>
-<td>否</td>
-<td>否（返回新函数，不修改原函数）</td>
-</tr>
-</tbody></table>
-<h2 id="JS中map和weakMap的区别是什么？"><a href="#JS中map和weakMap的区别是什么？" class="headerlink" title="JS中map和weakMap的区别是什么？"></a>JS中<code>map</code>和<code>weakMap</code>的区别是什么？</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th><code>Map</code></th>
-<th><code>WeakMap</code></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>键的类型</strong></td>
-<td>可以是任何类型（包括对象、原始值）</td>
-<td>只能是对象或者<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol#shared_symbols_in_the_global_symbol_registry">non-registered symbols</a></td>
-</tr>
-<tr>
-<td><strong>值的类型</strong></td>
-<td>可以是任何类型</td>
-<td>可以是任何类型</td>
-</tr>
-<tr>
-<td><strong>键的引用方式</strong></td>
-<td>强引用</td>
-<td>弱引用</td>
-</tr>
-<tr>
-<td><strong>垃圾回收</strong></td>
-<td>键对象不会被垃圾回收</td>
-<td>如果键对象没有其他引用，则会被回收</td>
-</tr>
-<tr>
-<td><strong>可迭代性</strong></td>
-<td>支持（可通过 <code>keys()</code>、<code>values()</code> 等方法遍历）</td>
-<td>不支持（无法直接遍历或获取大小）</td>
-</tr>
-<tr>
-<td><strong>获取大小</strong></td>
-<td>支持（通过 <code>size</code> 属性）</td>
-<td>不支持</td>
-</tr>
-<tr>
-<td><strong>典型应用场景</strong></td>
-<td>通用键值对存储</td>
-<td>私有数据存储、避免内存泄漏</td>
-</tr>
-</tbody></table>
-<h2 id="简单描述一下JS中的事件循环机制？"><a href="#简单描述一下JS中的事件循环机制？" class="headerlink" title="简单描述一下JS中的事件循环机制？"></a>简单描述一下JS中的事件循环机制？</h2><h2 id="简单描述一下JS中的Promise"><a href="#简单描述一下JS中的Promise" class="headerlink" title="简单描述一下JS中的Promise"></a>简单描述一下JS中的<code>Promise</code></h2><h2 id="以下代码输出什么？"><a href="#以下代码输出什么？" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="title function_">map</span>(<span class="built_in">parseInt</span>);</span><br></pre></td></tr></table></figure>
-<p>答案：<code>[1, NaN, NaN]</code></p>
-<p>解析：先看一下<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN</a>上关于<code>Array.prototype.map</code>的定义，这里我们没有传递第二个参数，所以使用的是下面第一种调用方式。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">map(callbackFn)</span><br><span class="line">map(callbackFn, thisArg)</span><br></pre></td></tr></table></figure>
-<p>而<code>callbackFn</code>接受三个参数</p>
-<ul>
-<li>element：当前正在处理的元素</li>
-<li>index：当前正在处理的元素的索引</li>
-<li>array：调用<code>map</code>方法的数组</li>
-</ul>
-<p>而<code>parseInt</code>函数有如下两种形式，由于map传递过来的参数有三个，所以这里会调用第二种形式。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">parseInt(string)</span><br><span class="line">parseInt(string, radix)</span><br></pre></td></tr></table></figure>
-<p>所以上面的代码就变成了如下形式</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].<span class="title function_">map</span>(<span class="function">(<span class="params">element, index, array</span>) =&gt;</span> <span class="built_in">parseInt</span>(element, index));</span><br></pre></td></tr></table></figure>
-<p>展开之后相当于三次<code>parseInt</code>调用</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">parseInt</span>(<span class="number">1</span>, <span class="number">0</span>); <span class="comment">// 1</span></span><br><span class="line"><span class="built_in">parseInt</span>(<span class="number">2</span>, <span class="number">1</span>); <span class="comment">// NaN</span></span><br><span class="line"><span class="built_in">parseInt</span>(<span class="number">3</span>, <span class="number">2</span>); <span class="comment">// NaN</span></span><br></pre></td></tr></table></figure>
-<p>注意：<code>parseInt</code>函数的第二个参数是进制，这个参数有如下限制</p>
-<ul>
-<li>如果传递的进制不在2-36之间，那么<code>parseInt</code>返回<code>NaN</code>。</li>
-<li>如果不传递该参数，或者传递0，那么<code>parseInt</code>会根据第一个参数推断：<ul>
-<li>如果第一个参数以<code>0x</code>或者<code>0X</code>开头，那么会被解析为十六进制。</li>
-<li>否则会被解析为十进制。</li>
-</ul>
-</li>
-</ul>
-<p>所以:  </p>
-<ul>
-<li><code>parseInt(1, 0);</code> radix为0，根据第一个参数判断，而第一个参数1并非以<code>0x</code>或<code>0X</code>开头，所以会被解析为十进制，返回1。 </li>
-<li><code>parseInt(2, 1);</code> radix为1，不在2-36之间，返回<code>NaN</code>。</li>
-<li><code>parseInt(3, 2);</code> radix为2，但是3不是二进制数，返回<code>NaN</code>。</li>
-</ul>
-<p>需要注意的是：<code>parseInt</code>会将第一个参数转换为字符串，然后再解析。所以<code>parseInt(3, 2);</code>等价于<code>parseInt(&#39;3&#39;, 2);</code>。可是二进制数中不可能有3这个数字，所以返回<code>NaN</code>。一个合法的例子是<code>parseInt(&#39;11&#39;, 2);</code>，这个会返回3。</p>
-<h2 id="大数相加"><a href="#大数相加" class="headerlink" title="大数相加"></a>大数相加</h2><p>实现一个函数，输入两个字符串，返回它们的和。这两个字符串表示的数字不会以0开头，且不会以空格开头。返回的结果也不会以0开头。<br>这个题考察的点有以下几个</p>
-<ol>
-<li>字符串如何转换为整数？</li>
-<li>进位处理</li>
-<li>字符串对齐处理，如何填充前导0？</li>
-<li>如何取整。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">bigNumberAdd</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> maxLength = <span class="title class_">Math</span>.<span class="title function_">max</span>(a.<span class="property">length</span>, b.<span class="property">length</span>);</span><br><span class="line">  a = a.<span class="title function_">padStart</span>(maxLength, <span class="string">&#x27;0&#x27;</span>);</span><br><span class="line">  b = b.<span class="title function_">padStart</span>(maxLength, <span class="string">&#x27;0&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> result = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="keyword">let</span> carry = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = maxLength - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">    <span class="keyword">const</span> sum = <span class="title class_">Number</span>(a[i]) + <span class="title class_">Number</span>(b[i]) + carry;</span><br><span class="line">    <span class="comment">// This is string concatenation, not numeric addition.</span></span><br><span class="line">    result = (sum % <span class="number">10</span>) + result; <span class="comment">// if sum &gt; 10, we only need the last digit.</span></span><br><span class="line">    carry = <span class="title class_">Math</span>.<span class="title function_">floor</span>(sum / <span class="number">10</span>); <span class="comment">// the carry is the first digit when sum &gt; 10.</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Don&#x27;t forget the last carry.</span></span><br><span class="line">  <span class="keyword">if</span> (carry &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    result = carry + result;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">bigNumberAdd</span>(<span class="string">&#x27;999&#x27;</span>, <span class="string">&#x27;999&#x27;</span>)); <span class="comment">// 1998</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="JS中如何判断Primitive类型？"><a href="#JS中如何判断Primitive类型？" class="headerlink" title="JS中如何判断Primitive类型？"></a>JS中如何判断Primitive类型？</h2><p>可以使用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/Object"><code>Object()</code></a>函数。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isPrimitive</span>(<span class="params">value</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> value !== <span class="title class_">Object</span>(value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isPrimitive</span>(<span class="params">value</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> value === <span class="literal">null</span> || (<span class="keyword">typeof</span> value !== <span class="string">&#x27;object&#x27;</span> &amp;&amp; <span class="keyword">typeof</span> value !== <span class="string">&#x27;function&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="JS中有哪些方法可以判断数组类型？"><a href="#JS中有哪些方法可以判断数组类型？" class="headerlink" title="JS中有哪些方法可以判断数组类型？"></a>JS中有哪些方法可以判断数组类型？</h2><ol>
-<li><code>Array.isArray([])</code></li>
-<li><code>[] instanceof Array</code></li>
-<li><code>Object.prototype.toString.call([]) === &#39;[object Array]&#39;</code></li>
-<li><code>Array.prototype.isPrototypeOf([])</code></li>
-<li><code>[].__proto__ === Array.prototype</code></li>
-<li><code>[].constructor === Array</code></li>
-</ol>
-<h2 id="深拷贝要注意哪些问题？"><a href="#深拷贝要注意哪些问题？" class="headerlink" title="深拷贝要注意哪些问题？"></a>深拷贝要注意哪些问题？</h2><ol>
-<li>循环引用</li>
-<li>特殊对象，比如<code>Date</code>, <code>RegExp</code>, <code>Map</code>, <code>Set</code>, <code>Function</code>等。</li>
-</ol>
-<p>以下是一个简单的实现。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">deepCopy</span>(<span class="params">obj, hash = <span class="keyword">new</span> <span class="built_in">WeakMap</span>()</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="title class_">RegExp</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RegExp</span>(obj);</span><br><span class="line">  <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="title class_">Date</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Date</span>(obj);</span><br><span class="line">  <span class="keyword">if</span> (obj === <span class="literal">null</span> || <span class="keyword">typeof</span> obj !== <span class="string">&#x27;object&#x27;</span>) <span class="keyword">return</span> obj; <span class="comment">// primitives or function</span></span><br><span class="line">  <span class="keyword">if</span> (hash.<span class="title function_">has</span>(obj)) <span class="keyword">return</span> hash.<span class="title function_">get</span>(obj); <span class="comment">// circular reference</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> newObj = <span class="title class_">Array</span>.<span class="title function_">isArray</span>(obj) ? [] : &#123;&#125;;</span><br><span class="line">  hash.<span class="title function_">set</span>(obj, newObj);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">    <span class="keyword">if</span> (obj.<span class="title function_">hasOwnProperty</span>(key)) &#123;</span><br><span class="line">      newObj[key] = <span class="title function_">deepCopy</span>(obj[key], hash);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newObj;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例对象</span></span><br><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">a</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">b</span>: [<span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">  <span class="attr">c</span>: &#123; <span class="attr">d</span>: <span class="number">4</span> &#125;,</span><br><span class="line">  <span class="attr">e</span>: <span class="keyword">new</span> <span class="title class_">Date</span>(),</span><br><span class="line">  <span class="attr">f</span>: <span class="regexp">/abc/</span>,</span><br><span class="line">  <span class="title function_">g</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;g&#x27;</span>);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 深拷贝</span></span><br><span class="line"><span class="keyword">const</span> copy = <span class="title function_">deepCopy</span>(obj);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(copy);</span><br><span class="line">copy.<span class="title function_">g</span>(); <span class="comment">// g</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="类型转换，以下代码输出什么？"><a href="#类型转换，以下代码输出什么？" class="headerlink" title="类型转换，以下代码输出什么？"></a>类型转换，以下代码输出什么？</h2><p>详情请参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Addition"><code>+</code></a>的运算规则：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] + []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] + &#123;&#125;);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; + []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; + &#123;&#125;);</span><br></pre></td></tr></table></figure>
-
-<h2 id="输出结果是什么？"><a href="#输出结果是什么？" class="headerlink" title="输出结果是什么？"></a>输出结果是什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">numbers[<span class="number">4</span>] = <span class="number">4</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// 1, 2, 3, &lt;1 empty item&gt;, 4</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers[<span class="number">3</span>]); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="以下代码输出什么？-1"><a href="#以下代码输出什么？-1" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = &#123;&#125;;</span><br><span class="line"><span class="keyword">const</span> b = &#123; <span class="attr">key</span>: <span class="string">&#x27;b&#x27;</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> c = &#123; <span class="attr">key</span>: <span class="string">&#x27;c&#x27;</span> &#125;;</span><br><span class="line">a[b] = <span class="number">123</span>;</span><br><span class="line">a[c] = <span class="number">456</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a[b]);</span><br></pre></td></tr></table></figure>
-<p>答案：<code>456</code><br>本题考察的点是：<code>对象的键名只能是字符串或者Symbol类型</code>，如果不是，会被转换为字符串。所以<code>a[b]</code>和<code>a[c]</code>都会把键名转换为<code>[object Object]</code>，所以<code>a[b]</code>和<code>a[c]</code>实际上是同一个键，最后赋值会覆盖前面的值。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1234,7 +1135,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">287</span>
+          <span class="site-state-item-count">288</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
