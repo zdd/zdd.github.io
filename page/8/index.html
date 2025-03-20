@@ -181,6 +181,359 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/30/angular-view-encapsulation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/angular-view-encapsulation/" class="post-title-link" itemprop="url">angular-view-encapsulation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 16:28:34" itemprop="dateCreated datePublished" datetime="2024-11-30T16:28:34+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-06 19:58:47" itemprop="dateModified" datetime="2025-03-06T19:58:47+08:00">2025-03-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular中有三种样式封装方式，分别是：<code>Emulated</code>, <code>ShadowDom</code>, and <code>None</code>。</p>
+<ul>
+<li>ViewEncapsulation.Emulated (Default value)</li>
+<li>ViewEncapsulation.ShadowDom</li>
+<li>ViewEncapsulation.None</li>
+</ul>
+<p>可以用过Component中的<code>encapsulation</code>属性来指定封装方式，如果不指定的话，默认是<code>Emulated</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.scss&#x27;</span>],</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>, <span class="comment">// &lt;--- here</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面我们分别讲解三种封装方式。</p>
+<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在<code>@Component</code>中显式指定<code>encapsulation</code>的话，那么使用的就是该方式。在该方式下，Angular会生成一个随机字符串做为组件的属性，然后将样式应用到这个属性上。<br>这种封装方式是模拟<code>Shadow DOM</code>的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>以下面的Product组件为例，<code>product-home.component.scss</code>这个样式文件里面的样式只会影响<code>ProductHomeComponent</code>这个组件对应的视图.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行app后，我们可以在浏览器中inspect生成后的页面，可以看到<code>app-product-home</code>元素有一个唯一的属性<code>_nghost-ng-c3352351300</code>:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span> <span class="attr">_nghost-ng-c3352351300</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>再看一下实际的例子，假如我们有如下html template, ProductHomeComponent中引入了ProductDetailComponent</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product-home.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>product-home works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>那么生成的HTML如下：<br><img src="/../images/angular-view-encapsulation-emulated.png" alt="emulated"></p>
+<p>可以看到，Angular为生成的Dom节点都添加了额外的属性，这些属性大概分为两类：</p>
+<ul>
+<li><code>_nghost-xxxx</code> - 用来标记组件的host element，比如上图中第一个红框内</li>
+<li><code>_ngcontent-xxxx</code> - 用来标记组件的子元素，比如上图中<code>app-product-home</code>内的<code>p</code>元素，它就是一个纯内容，所以标记是<code>_ngcontent-xxxx</code>。</li>
+<li>有些元素既是host, 又是content，比如上图的第二个红框。因为<code>ProductDetailComponent</code>既是<code>ProductHomeComponent</code>的子元素，而它本身又是一个组件。所以它同时拥有<code>_nghost-xxxx</code>和<code>_ngcontent-xxxx</code>两个属性。</li>
+</ul>
+<p>如果我们给上面的<code>p</code>标签添加一个背景色的话，那么观察生成后的css样式，你会发现，样式文件里面也添加了额外的属性，这样就确保了样式的唯一性。</p>
+<p>观察下图中左侧<code>p</code>标签的属性，和右侧css文件中<code>product-container</code>的属性，可以看到他们是一一对应的。<br><img src="/../images/angular-view-encapsulation-emulated-css.png" alt="emulated-css"></p>
+<p><code>Emulated</code>模式生成的样式最终会插入到html文件的<code>head</code>标签中。（可以运行Angular app，然后鼠标右键-inspect查看对应的html文件代码）</p>
+<h2 id="ShadowDom"><a href="#ShadowDom" class="headerlink" title="ShadowDom"></a>ShadowDom</h2><p>这种方式使用浏览器内置的Shadow DOM API来封装组件的样式，该模式下，组件被放到一个ShadowRoot之下，这个Shadow Root相当于组件的host element, 这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>该模式生成的样式会直接放到<code>shadow-root</code>中。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意观察生成的html文件，<code>app-product-home</code>元素会有一个<code>shadow-root</code>:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  #shadow-root (open)</span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="None"><a href="#None" class="headerlink" title="None"></a>None</h2><p>这种模式不进行任何封装，相当于裸奔，其效果等于直接在html中引入样式文件。这种模式谨慎使用，因为会有样式污染。</p>
+<p>该模式生成的样式会直接放到html文件的<code>head</code>中。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">None</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The generated HTML will not have any unique attributes or shadow root:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：<code>ViewEncapsulation.None</code> <code>ViewEncapsulation.Emulated</code>中的样式同时会插入到<code>ViewEncapsulation.ShadowDom</code>的组件中。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/view-encapsulation">https://v17.angular.io/guide/view-encapsulation</a> - 这里面的例子要仔细研究一下，有很多细节。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/30/angular-ngswitch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/angular-ngswitch/" class="post-title-link" itemprop="url">angular-ngswitch</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 14:38:06" itemprop="dateCreated datePublished" datetime="2024-11-30T14:38:06+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-01-03 21:33:43" itemprop="dateModified" datetime="2025-01-03T21:33:43+08:00">2025-01-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngSwitch</code> is a structural directive in Angular, it is used to conditionally render a template based on the value of an expression.</p>
+<h2 id="Use-ngSwitch-with-enum"><a href="#Use-ngSwitch-with-enum" class="headerlink" title="Use ngSwitch with enum."></a>Use <code>ngSwitch</code> with enum.</h2><p>注意：我发现下面每个<code>*ngSwitchCase</code>分支都只包含一个<code>&lt;p&gt;</code>元素，所以我们可以将<code>ng-container</code>拿掉，直接把<code>*ngSwitchCase</code>放在<code>&lt;p&gt;</code>标签上。<br>但是如果case分支中有多个元素，那么就需要用ng-container包裹起来。</p>
+<p>default分支用<code>*ngSwitchDefault</code>来标记。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--app.component.html--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;account-feature-container&quot;</span> &gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> [<span class="attr">ngSwitch</span>]=<span class="string">&quot;accountStatus&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.CLOSED&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a closed account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.AUTHORIZED&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an authorized account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.NORMAL&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an normal account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> *<span class="attr">ngSwitchDefault</span>&gt;</span>This is the default branch<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在Component中定义一个枚举类型，注意<code>AccountStatus = AccountStatus;</code>这一行是必须的，否则编译报错。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-ng-switch&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./ng-switch.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./ng-switch.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">NgSwitchComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title class_">AccountStatus</span> = <span class="title class_">AccountStatus</span>; <span class="comment">// Make enum visible in component.ts file.</span></span><br><span class="line">  <span class="keyword">public</span> <span class="attr">accountStatus</span>: <span class="title class_">AccountStatus</span> = <span class="title class_">AccountStatus</span>.<span class="property">AUTHORIZED</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-built-in-structural-directive-switch"><a href="#Use-built-in-structural-directive-switch" class="headerlink" title="Use built-in structural directive @switch."></a>Use built-in structural directive <code>@switch</code>.</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;use_built-in_control_flow&quot;</span>&gt;</span></span><br><span class="line">  @switch (accountStatus) &#123; </span><br><span class="line">      @case (AccountStatus.CLOSED) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a closed account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @case (AccountStatus.AUTHORIZED) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an authorized account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @case (AccountStatus.NORMAL) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an normal account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @default &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is the default branch<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Tips:</p>
+<ol>
+<li>Remember to add the <code>@default</code> branch at the end, if no case matched, and no <code>@default</code> is provided, nothing will be rendered.</li>
+<li>There is no <code>fallthrough</code> in the <code>@switch</code> directive, so you don’t need to add <code>break</code> or <code>return</code> in each <code>@case</code> branch.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/30/angular-ngif/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/angular-ngif/" class="post-title-link" itemprop="url">angular-ngIf</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 14:32:43" itemprop="dateCreated datePublished" datetime="2024-11-30T14:32:43+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-31 12:10:49" itemprop="dateModified" datetime="2024-12-31T12:10:49+08:00">2024-12-31</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngIf</code> is a structural directive in Angular, it is used to conditionally render content in a template. Remember to import <code>CommonModule</code> in the module where you want to use <code>ngIf</code>.</p>
+<h2 id="Full-syntax-with-ng-template"><a href="#Full-syntax-with-ng-template" class="headerlink" title="Full syntax with ng-template"></a>Full syntax with <code>ng-template</code></h2><p><code>Structural directives</code> are used in <code>ng-template</code>, here is an example:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;hero&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Shorthand-syntax"><a href="#Shorthand-syntax" class="headerlink" title="Shorthand syntax"></a>Shorthand syntax</h2><p>But, in practice, we often use <code>ngIf</code> in a more concise way by prefix a <code>*</code> before it, this is called the shorthand syntax:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;hero&quot;</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Note, even we write it in the shorthand syntax, Angular will still convert it to the <code>ng-template</code> syntax after compiling.</p>
+<p>The above template will create a <code>div</code> element in the template, What if you don’t want to create a <code>div</code> element? You can use <code>ng-container</code> instead of <code>div</code>:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition&quot;</span>&gt;</span></span><br><span class="line">  Content to render when condition is true</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>In this way, Angular will render the text directly without creating a <code>div</code> element.</p>
+<h2 id="New-syntax-with-if"><a href="#New-syntax-with-if" class="headerlink" title="New syntax with @if"></a>New syntax with <code>@if</code></h2><p>With the new built-in structural @if directive, you can use the following syntax:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@if (condition) &#123;</span><br><span class="line">  Content to render when condition is true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="If-else-then-with-ngIf"><a href="#If-else-then-with-ngIf" class="headerlink" title="If else then with *ngIf"></a>If else then with *ngIf</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="If-else-then-with-if"><a href="#If-else-then-with-if" class="headerlink" title="If else then with @if"></a>If else then with @if</h2><p>With <code>@if</code> directive, you can use the following syntax, it’s more simple and readable:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  @if (condition) &#123;</span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>既然Angular已经有<code>ngIf</code>, <code>ngFor</code>, ngSwitch等内置的结构性指令，为什么还要引入新的<code>@if</code>，<code>@for</code>, <code>@switch</code>呢？主要有以下原因</p>
+<ol>
+<li>更简洁的语法，比如要实现if - else if - … - else的逻辑，使用<code>ngIf</code>就会显得很臃肿。而使用<code>@if</code>就可以很好的解决这个问题。</li>
+<li>更好的类型检查机制，这个不知道是怎么实现的。</li>
+<li>更好的运行时性能，Angular编译器会将<code>@if</code>，<code>@for</code>，<code>@switch</code>编译成更高效的代码，这样可以减少运行时的开销。</li>
+<li>更小的包体积，最多可以减少30kb的包体积。</li>
+<li>不需要额外导入<code>CommonModule</code>模块，直接使用即可，<code>ngIf</code>等指令则需要导入<code>CommonModule</code>模块。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/29/rxjs-use-case/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/29/rxjs-use-case/" class="post-title-link" itemprop="url">rxjs-use-case</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-29 22:21:02" itemprop="dateCreated datePublished" datetime="2024-11-29T22:21:02+08:00">2024-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-06 19:48:56" itemprop="dateModified" datetime="2025-02-06T19:48:56+08:00">2025-02-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="RxJS-Use-Case"><a href="#RxJS-Use-Case" class="headerlink" title="RxJS Use Case"></a>RxJS Use Case</h1><h2 id="统计页面点击次数"><a href="#统计页面点击次数" class="headerlink" title="统计页面点击次数"></a>统计页面点击次数</h2><p>注意，RxJS中的<code>scan</code>相当于JavaScript中的<code>Array.prototype.reduce</code>，下面的例子展示了如何统计页面点击次数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
+
+<h2 id="节流"><a href="#节流" class="headerlink" title="节流"></a>节流</h2><h3 id="Resize窗口"><a href="#Resize窗口" class="headerlink" title="Resize窗口"></a>Resize窗口</h3><p>resize时间触发非常频繁，我们可以使用<code>throttleTime</code>来节流，下面的例子展示了如何节流resize事件。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">window</span>, <span class="string">&quot;resize&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(<span class="title function_">throttleTime</span>(<span class="number">500</span>))</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window width: <span class="subst">$&#123;<span class="variable language_">window</span>.innerWidth&#125;</span>`</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`window height: <span class="subst">$&#123;<span class="variable language_">window</span>.innerHeight&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="统计点击次数"><a href="#统计点击次数" class="headerlink" title="统计点击次数"></a>统计点击次数</h3><p><code>throttleTime</code>可以用来实现节流，下面的例子展示了如何实现节流，无论用户点击的有多快，我们都是每隔1秒统计一次点击次数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; fromEvent, throttleTime, scan &#125; = rxjs;</span><br><span class="line"><span class="title function_">fromEvent</span>(<span class="variable language_">document</span>, <span class="string">&quot;click&quot;</span>)</span><br><span class="line">  .<span class="title function_">pipe</span>(</span><br><span class="line">    <span class="title function_">throttleTime</span>(<span class="number">1000</span>),</span><br><span class="line">    <span class="title function_">scan</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> count + <span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line">  )</span><br><span class="line">  .<span class="title function_">subscribe</span>(<span class="function">(<span class="params">count</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count));</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置最大并发请求数"><a href="#设置最大并发请求数" class="headerlink" title="设置最大并发请求数"></a>设置最大并发请求数</h2><p><code>mergeMap</code> with <code>concurrency</code>参数可以设置最大并发请求数，下面的例子展示了如何设置最大并发请求数。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, mergeMap, <span class="keyword">of</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> source = <span class="title function_">interval</span>(<span class="number">1000</span>);</span><br><span class="line">source.<span class="title function_">pipe</span>(<span class="title function_">mergeMap</span>(<span class="function">() =&gt;</span> <span class="title function_">of</span>(<span class="string">&#x27;request&#x27;</span>), <span class="number">2</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="避免重复请求"><a href="#避免重复请求" class="headerlink" title="避免重复请求"></a>避免重复请求</h2><p>使用<code>switchMap</code>可以避免重复请求，下面的例子展示了如何避免重复请求。</p>
+<h2 id="忽略某个值"><a href="#忽略某个值" class="headerlink" title="忽略某个值"></a>忽略某个值</h2><p>使用<code>skip</code>， 以下代码忽略了<code>interval</code>的前两个值，然后取3个值。所以忽略0和1，取2, 3, 4。关于interval的详细信息，请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/28/rxjs-create/#interval">这里</a></p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; interval, skip, take &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">interval</span>(<span class="number">1000</span>).<span class="title function_">pipe</span>(<span class="title function_">skip</span>(<span class="number">2</span>), <span class="title function_">take</span>(<span class="number">3</span>)).<span class="title function_">subscribe</span>(<span class="variable language_">console</span>.<span class="property">log</span>); <span class="comment">// 2, 3, 4</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/28/rxjs-create/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -397,7 +750,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-03 10:45:21" itemprop="dateModified" datetime="2024-12-03T10:45:21+08:00">2024-12-03</time>
+                <time title="Modified: 2025-03-17 10:58:21" itemprop="dateModified" datetime="2025-03-17T10:58:21+08:00">2025-03-17</time>
               </span>
 
           
@@ -412,6 +765,11 @@
 
       
           <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Zoneless change detection是Angular 18引入的一个新特性，该特性能让Angular在不依赖<code>zone.js</code>的情况下进行更新检测。下面我们来看一下如何使用这个新特性。</p>
+<h1 id="Why-remove-Zone-js"><a href="#Why-remove-Zone-js" class="headerlink" title="Why remove Zone.js?"></a>Why remove Zone.js?</h1><ol>
+<li>Reducing initial bundle size, Zone.js is about 30KB raw and around 10KB gzipped. Remove it can significantly save the initial load time.</li>
+<li>Avoid unnecessary change detection cycles: Zone.js notify Angular to run change detection on every async operation, but it doesn’t actually know whether these operations change any data.</li>
+<li>Improve debugging experience, Zone.js can make stack traces harder to read.</li>
+</ol>
 <h1 id="Integration-steps"><a href="#Integration-steps" class="headerlink" title="Integration steps"></a>Integration steps</h1><h2 id="Create-an-Angular-18-project"><a href="#Create-an-Angular-18-project" class="headerlink" title="Create an Angular 18 project"></a>Create an Angular 18 project</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@18 new my-zoneless-app</span><br></pre></td></tr></table></figure>
 
 <h2 id="Enable-zoneless-change-detection-in-standalone-bootstrap-app"><a href="#Enable-zoneless-change-detection-in-standalone-bootstrap-app" class="headerlink" title="Enable zoneless change detection in standalone bootstrap app."></a>Enable zoneless change detection in standalone bootstrap app.</h2><ol>
@@ -458,6 +816,7 @@
 
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
 <li><a target="_blank" rel="noopener" href="https://angular.dev/guide/experimental/zoneless">https://angular.dev/guide/experimental/zoneless</a></li>
+<li><a target="_blank" rel="noopener" href="https://angular.love/the-latest-in-angular-change-detection-zoneless-signals">https://angular.love/the-latest-in-angular-change-detection-zoneless-signals</a></li>
 </ol>
 
       
@@ -689,401 +1048,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/19/typescript-interface-vs-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/typescript-interface-vs-type/" class="post-title-link" itemprop="url">typescript-interface-vs-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-19 17:19:56 / Modified: 17:20:38" itemprop="dateCreated datePublished" datetime="2024-11-19T17:19:56+08:00">2024-11-19</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What’s-the-differences-between-interface-and-type-in-typescript"><a href="#What’s-the-differences-between-interface-and-type-in-typescript" class="headerlink" title="What’s the differences between interface and type in typescript."></a>What’s the differences between interface and type in typescript.</h2><ol>
-<li><p>types can create primitive type alias, while interface cannot.</p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">Name</span> = <span class="built_in">string</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="attr">name</span>: <span class="title class_">Name</span> = <span class="string">&#x27;zdd&#x27;</span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>interface can do declaration merging together</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">interface <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">person</span>: <span class="title class_">Person</span> = &#123; </span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, </span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person);</span><br></pre></td></tr></table></figure>
-<p> while type can not do declaration merging</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Person</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = &#123; <span class="comment">// Error, Duplicate identifier &#x27;Person&#x27;</span></span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">person</span>: <span class="title class_">Person</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Extends and implements</p>
-<ul>
-<li>interface can extends another interface or class</li>
-<li>class can implement interface</li>
-</ul>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="title function_">sayHi</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hi&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">IPerson</span> <span class="keyword">extends</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span> implements <span class="title class_">IPerson</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">name: string</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">sayHi</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hi, I am a student&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p> <strong>Interface extends interface</strong></p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">interface <span class="title class_">PartialPointX</span> &#123; <span class="attr">x</span>: number; &#125;</span><br><span class="line">interface <span class="title class_">Point</span> <span class="keyword">extends</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">y</span>: number; &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p> <strong>Type alias extends type alias</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">PartialPointX</span> = &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;;</span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Point</span> = <span class="title class_">PartialPointX</span> &amp; &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;;</span><br></pre></td></tr></table></figure>
-<p> <strong>Interface extends type alias</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">PartialPointX</span> = &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;;</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Point</span> <span class="keyword">extends</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;</span><br></pre></td></tr></table></figure>
-<p> <strong>Type alias extends interface</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;</span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Point</span> = <span class="title class_">PartialPointX</span> &amp; &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can create <code>interaction</code> types, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Name</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Age</span> = &#123;</span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span>; <span class="comment">// OK</span></span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Name</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Age</span> &#123;</span><br><span class="line">    <span class="attr">age</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span>; <span class="comment">// OK</span></span><br><span class="line">interface <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span> <span class="comment">// Error.</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can create <code>union</code> types, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Man</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Women</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Man</span> | <span class="title class_">Women</span>; <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Man</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Woman</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Man</span> &amp; <span class="title class_">Woman</span>; <span class="comment">// ok</span></span><br><span class="line">interface <span class="title class_">Person</span> = <span class="title class_">Man</span> &amp; <span class="title class_">Woman</span>; <span class="comment">// Error.</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can define <code>tuple</code>, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Response</span> = [string, number]; <span class="comment">// ok</span></span><br><span class="line">interface <span class="title class_">Response</span> = [string, number]; <span class="comment">// not work</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>总结一下，主要的区别就是：</p>
-<ul>
-<li><code>interface</code>可以做declaration合并，但是type不能。</li>
-<li><code>interface</code> can be extend by <code>class</code>, while type can not be extend.</li>
-<li><code>type</code> 可以定义<code>union</code> <code>interaction</code>类型，但是<code>interface</code>不能。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/19/javascript-strict-equal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/javascript-strict-equal/" class="post-title-link" itemprop="url">javascript-strict-equality</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-19 16:58:28" itemprop="dateCreated datePublished" datetime="2024-11-19T16:58:28+08:00">2024-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-12-14 10:04:47" itemprop="dateModified" datetime="2024-12-14T10:04:47+08:00">2024-12-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-x3D-x3D-x3D-works-？"><a href="#How-x3D-x3D-x3D-works-？" class="headerlink" title="How &#x3D;&#x3D;&#x3D; works ？"></a>How &#x3D;&#x3D;&#x3D; works ？</h1><p>Suppose the following expression</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A === B</span><br></pre></td></tr></table></figure>
-
-<p>How strict equality works in JavaScript? Here are the steps:</p>
-<ol>
-<li>If the operands are of different types, return <code>false</code></li>
-<li><strong>If both operands are objects, return true only if they refer to the same object.</strong></li>
-<li>If both operands are null or both operands are undefined. return true.</li>
-<li>If either operand is <code>NaN</code>, return false</li>
-<li>Otherwise, compare the two operand’s value as below<ol>
-<li>Numbers must have the same numeric values.</li>
-<li>Strings must have the same characters in the same order.</li>
-<li>Booleans must be both true or both false.</li>
-</ol>
-</li>
-</ol>
-<h3 id="Code-Example"><a href="#Code-Example" class="headerlink" title="Code Example"></a>Code Example</h3><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span> === <span class="string">&#x27;1&#x27;</span>); <span class="comment">// false, different type.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span> &#125; === &#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span> &#125;); <span class="comment">// false, different object with same value.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] === []); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; === &#123;&#125;); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="literal">null</span> === <span class="literal">undefined</span>); <span class="comment">// false, different type.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Pay more attention to the following examples</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">NaN</span> === <span class="title class_">NaN</span>); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(+<span class="number">0</span> === -<span class="number">0</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/19/html-lazy-load-image/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/html-lazy-load-image/" class="post-title-link" itemprop="url">html-lazy-load-image</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2024-11-19 16:28:19 / Modified: 16:33:52" itemprop="dateCreated datePublished" datetime="2024-11-19T16:28:19+08:00">2024-11-19</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>How to implement lazy load images in html page?</p>
-<h2 id="Use-loading-lazy-attribute-of-img-tag"><a href="#Use-loading-lazy-attribute-of-img-tag" class="headerlink" title="Use loading=lazy attribute of img tag"></a>Use <code>loading=lazy</code> attribute of <code>img</code> tag</h2><p>With html5, you can use <code>loading=&quot;lazy&quot;</code> attribute to lazy load images. This attribute tells the browser to defer loading of the image until it is needed. The browser will load the image when it is about to come into view.</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=<span class="string">&quot;image.jpg&quot;</span> loading=<span class="string">&quot;lazy&quot;</span> alt=<span class="string">&quot;描述性文字&quot;</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>For old browsers which do not support <code>loading</code> attribute, you can use JavaScript to implement lazy load images.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- HTML --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">data-src</span>=<span class="string">&quot;image.jpg&quot;</span> <span class="attr">class</span>=<span class="string">&quot;lazyload&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;描述性文字&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line"><span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;DOMContentLoaded&quot;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> lazyImages = [].<span class="property">slice</span>.<span class="title function_">call</span>(<span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&quot;img.lazyload&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="string">&quot;IntersectionObserver&quot;</span> <span class="keyword">in</span> <span class="variable language_">window</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> lazyImageObserver = <span class="keyword">new</span> <span class="title class_">IntersectionObserver</span>(<span class="keyword">function</span>(<span class="params">entries, observer</span>) &#123;</span><br><span class="line">            entries.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">entry</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (entry.<span class="property">isIntersecting</span>) &#123;</span><br><span class="line">                    <span class="keyword">let</span> lazyImage = entry.<span class="property">target</span>;</span><br><span class="line">                    lazyImage.<span class="property">src</span> = lazyImage.<span class="property">dataset</span>.<span class="property">src</span>;</span><br><span class="line">                    lazyImage.<span class="property">classList</span>.<span class="title function_">remove</span>(<span class="string">&quot;lazyload&quot;</span>);</span><br><span class="line">                    lazyImageObserver.<span class="title function_">unobserve</span>(lazyImage);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        lazyImages.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">lazyImage</span>) &#123;</span><br><span class="line">            lazyImageObserver.<span class="title function_">observe</span>(lazyImage);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Fallback for browsers that do not support Intersection Observer</span></span><br><span class="line">        <span class="keyword">let</span> oldLoad = <span class="keyword">function</span>(<span class="params">imgs</span>) &#123;</span><br><span class="line">            imgs.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">img</span>) &#123;</span><br><span class="line">                img.<span class="property">src</span> = img.<span class="property">dataset</span>.<span class="property">src</span>;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="title function_">oldLoad</span>(lazyImages);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-
-<p>Please note that, <code>window.load</code> event won’t wait for lazy loaded resources.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading#images_and_iframes">https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading#images_and_iframes</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/18/javascript-operator-equal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/18/javascript-operator-equal/" class="post-title-link" itemprop="url">javascript-operator-equality</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-18 20:10:30" itemprop="dateCreated datePublished" datetime="2024-11-18T20:10:30+08:00">2024-11-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-14 10:31:10" itemprop="dateModified" datetime="2025-03-14T10:31:10+08:00">2025-03-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>这篇文章主要介绍一下JavaScript中的比较运算符<code>==</code>。先看几道题，如果你都能答上来，那么可以不用看此文了。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;abc&#x27;</span> == <span class="title class_">String</span>(<span class="string">&#x27;abc&#x27;</span>));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;abc&#x27;</span> === <span class="title class_">String</span>(<span class="string">&#x27;abc&#x27;</span>));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;abc&#x27;</span> == <span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&#x27;abc&#x27;</span>));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;abc&#x27;</span> === <span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&#x27;abc&#x27;</span>));</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] == []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; == &#123;&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">NaN</span> == <span class="title class_">NaN</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Difference-between-String-39-abc-39-and-new-String-39-abc-39"><a href="#Difference-between-String-39-abc-39-and-new-String-39-abc-39" class="headerlink" title="Difference between String(&#39;abc&#39;) and new String(&#39;abc&#39;)"></a>Difference between <code>String(&#39;abc&#39;)</code> and <code>new String(&#39;abc&#39;)</code></h2><ul>
-<li><code>String(xxx)</code>是将<code>xxx</code>转换为字符串，所以它返回的是字符串，而<code>&#39;abc&#39;</code>原本就是字符串，这里相当于直接返回<code>&#39;abc&#39;</code>。typeof String(‘abc’)返回的是<code>string</code>。</li>
-<li><code>new String(xxx)</code>是创建一个字符串对象，其内容是<code>xxx</code>，所以它返回的是一个对象类型，不是字符串类型。typeof new String(‘abc’)返回的是<code>object</code>。</li>
-</ul>
-<h2 id="How-works"><a href="#How-works" class="headerlink" title="How == works?"></a>How <code>==</code> works?</h2><p><code>==</code>采用<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness#loose_equality_using">Loose equality</a>算法，其过程如下：</p>
-<ol>
-<li>如果两个操作数类型相同，则按如下规则比较：<ol>
-<li>Object类型：当两个操作数指向同一个对象时返回<code>true</code>，否则返回<code>false</code>。</li>
-<li>String类型：当两个操作数的字符序列相同，返回<code>true</code>。</li>
-<li>Number类型：当两个操作数的数值相同，返回<code>true</code>。注意：<code>+0</code>和<code>-0</code>被认为是相等的，NaN和任何值都不相等，包括其自身。</li>
-<li>Boolean类型：当两个操作数都是<code>true</code>或者都是<code>false</code>时返回<code>true</code>。</li>
-<li>BigInt类型：当两个操作数的数值相同，返回<code>true</code>。</li>
-<li>Symbol类型：当两个操作数都是相同的Symbol值时返回<code>true</code>。</li>
-</ol>
-</li>
-<li>如果两个操作数类型不同，则按如下规则比较：<ol>
-<li>如果一个操作数是<code>null</code>，另一个操作数是<code>undefined</code>，返回<code>true</code>。</li>
-<li>如果一个操作数是<code>primitive</code>类型，另一个操作数是<code>Object</code>类型，将<code>Object</code>类型转换为<code>primitive</code>类型（转换规则<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_coercion">在此</a>），再按如下规则比较。</li>
-<li>到这一步时，两个操作数都是<code>primitive</code>类型了，按如下规则继续比较。<ol>
-<li>如果两个操作数类型相同，按照第1条规则比较。</li>
-<li>如果一个操作数是<code>Symbol</code>类型，但另一个不是，返回<code>false</code>。</li>
-<li>如果一个操作数是<code>Boolean</code>类型，将其转换为<code>Number</code>类型(<code>true</code> -&gt; 1, <code>false</code> -&gt; 0)，继续往下比较。</li>
-<li><code>Number</code>类型与<code>String</code>类型比较，将<code>String</code>类型转换为<code>Number</code>类型进行比较。转换规则<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#number_coercion">在此</a>。</li>
-<li><code>Number</code>类型与<code>BigInt</code>类型比较，比较他们的值，如果有一个操作数是<code>+Infinity/-Infinity/NaN</code>，返回<code>false</code>。</li>
-<li><code>String</code>类型与<code>BigInt</code>类型比较，将<code>String</code>类型转换为<code>BigInt</code>类型（用<code>BigInt()</code>转换），若转换失败则返回<code>false</code>。</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<p>类型相同时，比较好理解，我们重点梳理一下类型不同时的比较。</p>
-<ol>
-<li>两个对象类型之间的比较是比较引用地址，也比较简单，无需赘述。</li>
-<li>一个对象和一个基本类型的比较，会将对象转换为基本类型，然后再比较。</li>
-<li>两个基本类型之间的比较，其实，最终都会归类到此类比较。</li>
-</ol>
-<p>所以，我们重点讨论一下基本类型之间的比较。JS中有7种基本类型，分别是<code>String</code>, <code>Number</code>, <code>BigInt</code>, <code>Boolean</code>, <code>Symbol</code>, <code>null</code>, <code>undefined</code>。</p>
-<ol>
-<li><code>null</code>和<code>undefined</code>之间的比较，返回<code>true</code>。</li>
-<li><code>Symbol</code>和其他类型之间的比较，都返回<code>false</code>。<br>至此，还剩下<code>String</code>, <code>Number</code>, <code>BigInt</code>, <code>Boolean</code>之间的比较。剩下的这几个类型比较，基本围绕<code>Number</code>进行。</li>
-<li><code>Boolean</code>和<code>Number</code>之间的比较，将<code>Boolean</code>转换为<code>Number</code>，然后再比较。</li>
-<li><code>String</code>和<code>Number</code>之间的比较，将<code>String</code>转换为<code>Number</code>，然后再比较。</li>
-<li><code>Boolean</code>和<code>String</code>之间的比较，将他们都转换为<code>Number</code>然后再比较。</li>
-<li><code>String</code>和<code>BigInt</code>之间的比较，将<code>String</code>转换为<code>BigInt</code>，然后再比较。</li>
-<li><code>Number</code>和<code>BigInt</code>之间的比较，比较他们的值，如果有一个操作数是<code>+Infinity/-Infinity/NaN</code>，返回<code>false</code>。</li>
-</ol>
-<p>注意：</p>
-<ol>
-<li><code>Loose Equality</code>算法满足交换律，即<code>A == B</code>等价于<code>B == A</code>。</li>
-<li><code>document.all</code>被视为<code>undefined</code>.</li>
-</ol>
-<h2 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h2><p>以下给出一些采用<code>==</code>进行比较的例子，我们会给出每个例子的比较规则对应的序号（参考<code>How == works一节</code>）。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;1&quot;</span> == <span class="number">1</span>; <span class="comment">// true, 2.3.4</span></span><br><span class="line"><span class="literal">true</span> == <span class="string">&quot;1&quot;</span> <span class="comment">// true, 2.3.3 and 2.3.4</span></span><br><span class="line">[] == <span class="string">&quot;&quot;</span>; <span class="comment">// true, 2.2, 2.3.1</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">false</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">null</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="number">0</span> == <span class="literal">undefined</span>; <span class="comment">// false, 2.1</span></span><br><span class="line"><span class="literal">null</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="number">0</span> == !!<span class="literal">undefined</span>; <span class="comment">// true, 2.3.3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里有一个窍门，只要两个操作数都是对象字面量，那么一定不相等。无论==还是===都不相等。</span></span><br><span class="line">[] == []; <span class="comment">// false, 1.1</span></span><br><span class="line">&#123;&#125; == &#123;&#125;; <span class="comment">// false, 1.1</span></span><br><span class="line">&#123; <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125; == &#123; <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;; <span class="comment">// false, 1.1</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">NaN</span> == <span class="title class_">NaN</span>; <span class="comment">// false, 1.3, not NaN === NaN is also false.</span></span><br><span class="line">+<span class="number">0</span> == -<span class="number">0</span>; <span class="comment">// true, 1.3</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">undefined</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"><span class="variable language_">document</span>.<span class="property">all</span> == <span class="literal">null</span>; <span class="comment">// true, 2.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> number1 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"><span class="keyword">const</span> number2 = <span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">number1 == <span class="number">3</span>; <span class="comment">// true, 2.3.1</span></span><br><span class="line">number1 == number2; <span class="comment">// false, 1.1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object1 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> object2 = &#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="string">&quot;value&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object2); <span class="comment">// false, 1.1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object1 == object1); <span class="comment">// true, 1.1</span></span><br></pre></td></tr></table></figure>
-
-<p>下面这个例子要注意：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> b = <span class="string">&quot;1,2,3&quot;</span>;</span><br><span class="line">a == b; <span class="comment">// true, 2.3.1</span></span><br></pre></td></tr></table></figure>
-<p><code>Array.prototype.toString()</code>方法重写了<code>Object.prototype.toString()</code>方法，数组转化为字符串时，会执行以下步骤：</p>
-<ol>
-<li>对数组内每个元素调用<code>toString()</code>方法，将其转化为字符串。</li>
-<li>将这些字符串用逗号连接起来。</li>
-<li>返回这个字符串。</li>
-</ol>
-<p>所以上面的例子就是<code>[1, 2, 3].toString() == &quot;1,2,3&quot;</code>，所以返回<code>true</code>。<br>所以空数组和空字符串之间的比较也是<code>true</code>。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[] == <span class="string">&quot;&quot;</span>; <span class="comment">// true, 2.3.4</span></span><br></pre></td></tr></table></figure>
-<p>数组转字符串还有很多细节，详情请看这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toString">Array.prototype.toString()</a>。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><code>==</code>比较时，不要老想着转换为Boolean，其实大多数时候是转换为Number</li>
-<li>对象字面量使用<code>==</code>比较时，一定是<code>false</code></li>
-<li><code>new String(...)</code>和<code>String(...)</code>完全不同，前者是创建String对象，后者是将<code>...</code>转换为字符串。</li>
-</ol>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Equality">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Equality</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/29/">29</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/30/">30</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1149,14 +1117,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">288</span>
+          <span class="site-state-item-count">292</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">409</span>
+        <span class="site-state-item-count">411</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
