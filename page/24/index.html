@@ -181,6 +181,274 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/28/http-content-type/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/28/http-content-type/" class="post-title-link" itemprop="url">http_content-type</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-28 21:29:40" itemprop="dateCreated datePublished" datetime="2024-02-28T21:29:40+08:00">2024-02-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-06-16 12:37:41" itemprop="dateModified" datetime="2024-06-16T12:37:41+08:00">2024-06-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="HTTP-Content-Type"><a href="#HTTP-Content-Type" class="headerlink" title="HTTP Content-Type"></a>HTTP Content-Type</h1><h2 id="x-www-form-urlencoded"><a href="#x-www-form-urlencoded" class="headerlink" title="x-www-form-urlencoded"></a>x-www-form-urlencoded</h2><p>先看一个例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span></span></span><br><span class="line"><span class="tag">  <span class="attr">action</span>=<span class="string">&quot;/urlencoded?firstname=philip&amp;lastname=zhang&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span></span></span><br><span class="line"><span class="tag">&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;user1&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;pwd1&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里的 <code>enctype</code> 属性指定了表单数据的编码类型，<code>application/x-www-form-urlencoded</code> 是默认的编码类型，也是最常用的编码类型。当表单数据被编码为 <code>application/x-www-form-urlencoded</code> 时：</p>
+<ul>
+<li>表单数据会被编码为键值对，键值对之间用 <code>&amp;</code> 连接。</li>
+<li>键和值之间用 <code>=</code> 连接。</li>
+</ul>
+<p>上面的例子中，表单数据被编码为 <code>username=user1&amp;password=pwd1</code>。（实际上和url中的参数格式一样，所以才叫<code>urlencoded</code>）</p>
+<p>用浏览器打开这个页面，然后点击 <code>Submit</code> 按钮，按F12打开开发者工具，切换到 <code>Network</code> 选项卡，在<code>Headers</code>Tab可以看到请求的 <code>Content-Type</code> 是 <code>application/x-www-form-urlencoded</code>。<br><img src="/../images/content-type.png" alt="alt text"></p>
+<p>在<code>Payload</code>Tab可以看到请求的详细信息：</p>
+<ul>
+<li><code>Query String</code>： <code>firstname=philip&amp;lastname=zhang</code> - 对应form <code>action</code>中的url参数</li>
+<li><code>Form Data</code>：<code>username=user1&amp;password=pwd1</code>- 对应form体中的两个<code>input</code>。</li>
+</ul>
+<p><img src="/../images/x-www-form-url-encoded.png" alt="alt text"></p>
+<p>但是，上面这个例子并没有展示出url-encoded的精髓，这里的encoded到底encoded了什么呢？我们来看一个更加直观的例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span></span></span><br><span class="line"><span class="tag">  <span class="attr">action</span>=<span class="string">&quot;/urlencoded?firstname=philip&amp;lastname=zhang&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span></span></span><br><span class="line"><span class="tag">&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;foo&amp;bar&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&quot;1=2?&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里的 <code>username</code> 和 <code>password</code> 的值中包含了 <code>&amp;</code> 和 <code>=</code>，这些字符在url中有特殊含义，如果直接放在url中，会导致url解析错误。但是，当表单数据被编码为 <code>application/x-www-form-urlencoded</code> 时，这些特殊字符会被转义，所以编码后的表单数据如下图所示。</p>
+<ul>
+<li>username: foo%26bar, 其中 <code>%26</code> 是 <code>&amp;</code> 的转义</li>
+<li>password: 1%3D2%3F, 其中 <code>%3D</code> 是 <code>=</code> 的转义，<code>%3F</code> 是 <code>?</code> 的转义<br>如果不转义的话那么最终的结果就是<code>username=foo&amp;bar&amp;password=1=2?</code>，此时浏览器就懵逼了。导致数据解析出错。<br><img src="/../images/x-www-form-url-encoded2.png" alt="alt text"></li>
+</ul>
+<p>那么到底哪些字符需要编码呢？参考这里：<a target="_blank" rel="noopener" href="http://www.blooberry.com/indexdot/html/topics/urlencoding.htm">http://www.blooberry.com/indexdot/html/topics/urlencoding.htm</a></p>
+<h2 id="multipart-x2F-form-data"><a href="#multipart-x2F-form-data" class="headerlink" title="multipart&#x2F;form-data"></a>multipart&#x2F;form-data</h2><h2 id="application-x2F-json"><a href="#application-x2F-json" class="headerlink" title="application&#x2F;json"></a>application&#x2F;json</h2><h2 id="text-x2F-plain"><a href="#text-x2F-plain" class="headerlink" title="text&#x2F;plain"></a>text&#x2F;plain</h2><h2 id="references"><a href="#references" class="headerlink" title="references"></a>references</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">MDN - HTTP Headers</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">MDN - Content-Type</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/28/web-api/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/28/web-api/" class="post-title-link" itemprop="url">web-api</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-02-28 10:22:51 / Modified: 11:34:04" itemprop="dateCreated datePublished" datetime="2024-02-28T10:22:51+08:00">2024-02-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Web-API"><a href="#Web-API" class="headerlink" title="Web API"></a>Web API</h1><ul>
+<li>REST - Representational State Transfer</li>
+<li>SOAP - Simple Object Access Protocol</li>
+<li>GraphQL - A query language for your API</li>
+</ul>
+<h2 id="difference-between-REST-and-SOAP"><a href="#difference-between-REST-and-SOAP" class="headerlink" title="difference between REST and SOAP"></a>difference between REST and SOAP</h2><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>REST</th>
+<th>SOAP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Protocol</td>
+<td>Can use any protocol but typically uses HTTP&#x2F;HTTPS</td>
+<td>Uses HTTP, SMTP, TCP, and more</td>
+</tr>
+<tr>
+<td>Standards</td>
+<td>No official standard, uses HTTP methods (GET, POST, PUT, DELETE)</td>
+<td>Official standard by W3C</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Lightweight, less data overhead</td>
+<td>Heavyweight, more data overhead due to XML usage</td>
+</tr>
+<tr>
+<td>Message format</td>
+<td>Can use multiple formats (JSON, XML, etc.)</td>
+<td>Uses XML</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Uses web security standards</td>
+<td>Uses WS-Security which is more robust</td>
+</tr>
+<tr>
+<td>Transaction support</td>
+<td>No official support</td>
+<td>Official support</td>
+</tr>
+<tr>
+<td>State management</td>
+<td>Stateless</td>
+<td>Stateful</td>
+</tr>
+</tbody></table>
+<p>说明：</p>
+<ol>
+<li>SOAP by itself is a protocol, but it can use any protocol to transport its messages, REST is not a protocol, it typically uses HTTP&#x2F;HTTPS.</li>
+<li>REST is stateless which means <code>each request from client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server. Session state is therefore kept entirely on the client.</code></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/27/javascript-file-collecting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/27/javascript-file-collecting/" class="post-title-link" itemprop="url">javascript-file-collecting</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-02-27 20:53:19 / Modified: 21:00:09" itemprop="dateCreated datePublished" datetime="2024-02-27T20:53:19+08:00">2024-02-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-File-Collecting"><a href="#JavaScript-File-Collecting" class="headerlink" title="JavaScript File Collecting"></a>JavaScript File Collecting</h1><p>今天收到老婆的一个需求，她有一个文件夹，里面包含若干文件和子文件夹，子文件夹又包含文件及子文件夹，她需要将这些文件全部收集到一个文件夹中。收集后的文件要从1开始命名，依次递增。我想到了 Node.js，可以使用 Node.js 来实现这个需求。</p>
+<h2 id="代码实现-百度文心一言版"><a href="#代码实现-百度文心一言版" class="headerlink" title="代码实现 - 百度文心一言版"></a>代码实现 - 百度文心一言版</h2><p>这个版本一开始错误百出，经过我修改后才能使用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>).<span class="property">promises</span>;</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> fileIndex = <span class="number">3001</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">copyAndRenameFiles</span>(<span class="params">srcDir, destDir</span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 确保目标目录存在</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">access</span>(destDir);</span><br><span class="line">  &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">    <span class="comment">// 如果不存在，则创建目标目录</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">mkdir</span>(destDir, &#123; <span class="attr">recursive</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 读取srcDir中的所有文件和文件夹</span></span><br><span class="line">  <span class="keyword">const</span> entries = <span class="keyword">await</span> fs.<span class="title function_">readdir</span>(srcDir, &#123; <span class="attr">withFileTypes</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> entry <span class="keyword">of</span> entries) &#123;</span><br><span class="line">    <span class="keyword">const</span> srcPath = path.<span class="title function_">join</span>(srcDir, entry.<span class="property">name</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(srcPath);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (entry.<span class="title function_">isDirectory</span>()) &#123;</span><br><span class="line">      <span class="comment">// 如果是文件夹，则递归调用</span></span><br><span class="line">      <span class="keyword">await</span> <span class="title function_">copyAndRenameFiles</span>(srcPath, destDir);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (entry.<span class="title function_">isFile</span>()) &#123;</span><br><span class="line">      <span class="keyword">const</span> destBaseName = <span class="string">`<span class="subst">$&#123;fileIndex&#125;</span>`</span>; <span class="comment">// 新文件的基本名称</span></span><br><span class="line">      <span class="keyword">const</span> destExtname = path.<span class="title function_">extname</span>(entry.<span class="property">name</span>); <span class="comment">// 获取原文件的扩展名</span></span><br><span class="line">      <span class="keyword">const</span> destPath = path.<span class="title function_">join</span>(destDir, <span class="string">`<span class="subst">$&#123;destBaseName&#125;</span><span class="subst">$&#123;destExtname&#125;</span>`</span>); <span class="comment">// 目标文件完整路径</span></span><br><span class="line">      <span class="comment">// 如果是文件，则复制到目标文件夹并重命名</span></span><br><span class="line">      <span class="keyword">await</span> fs.<span class="title function_">copyFile</span>(srcPath, destPath);</span><br><span class="line">      fileIndex++; <span class="comment">// 更新文件索引</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> fileIndex; <span class="comment">// 返回下一个可用的文件索引</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="keyword">const</span> sourceFolder = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// 顶层文件夹路径</span></span><br><span class="line"><span class="keyword">const</span> destinationFolder = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// 目标文件夹路径</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 从1开始编号</span></span><br><span class="line"><span class="title function_">copyAndRenameFiles</span>(sourceFolder, destinationFolder)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">finalFileIndex</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">      <span class="string">`所有文件已成功复制到目标文件夹，并从1开始重新编号到<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="subst"><span class="string">        finalFileIndex - <span class="number">1</span></span></span></span><br><span class="line"><span class="subst"><span class="string">      &#125;</span>。`</span></span><br><span class="line">    );</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;在复制过程中发生错误:&#x27;</span>, error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码实现-ChatGPT4"><a href="#代码实现-ChatGPT4" class="headerlink" title="代码实现-ChatGPT4"></a>代码实现-ChatGPT4</h2><p>这个版本一次通过，一行未改。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>).<span class="property">promises</span>;</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里使用参数arrayOfFiles递归收集所有文件，思路很巧妙。</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">getAllFiles</span>(<span class="params">dirPath, arrayOfFiles</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> files = <span class="keyword">await</span> fs.<span class="title function_">readdir</span>(dirPath);</span><br><span class="line"></span><br><span class="line">  arrayOfFiles = arrayOfFiles || [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> file <span class="keyword">of</span> files) &#123;</span><br><span class="line">    <span class="keyword">const</span> filepath = path.<span class="title function_">join</span>(dirPath, file);</span><br><span class="line">    <span class="keyword">const</span> stat = <span class="keyword">await</span> fs.<span class="title function_">stat</span>(filepath);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (stat.<span class="title function_">isDirectory</span>()) &#123;</span><br><span class="line">      arrayOfFiles = <span class="keyword">await</span> <span class="title function_">getAllFiles</span>(filepath, arrayOfFiles);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      arrayOfFiles.<span class="title function_">push</span>(filepath);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> arrayOfFiles;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">copyFilesWithNumberedNames</span>(<span class="params">sourceDir, targetDir</span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// Create target directory if it does not exist</span></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">mkdir</span>(targetDir, &#123; <span class="attr">recursive</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get all files from the source directory</span></span><br><span class="line">    <span class="keyword">const</span> filesToCopy = <span class="keyword">await</span> <span class="title function_">getAllFiles</span>(sourceDir);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Copy each file with a new numbered name</span></span><br><span class="line">    <span class="keyword">let</span> fileNumber = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> file <span class="keyword">of</span> filesToCopy) &#123;</span><br><span class="line">      <span class="keyword">const</span> newFilename = <span class="string">`<span class="subst">$&#123;fileNumber&#125;</span><span class="subst">$&#123;path.extname(file)&#125;</span>`</span>;</span><br><span class="line">      <span class="keyword">const</span> targetPath = path.<span class="title function_">join</span>(targetDir, newFilename);</span><br><span class="line">      <span class="keyword">await</span> fs.<span class="title function_">copyFile</span>(file, targetPath);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Copied <span class="subst">$&#123;file&#125;</span> to <span class="subst">$&#123;targetPath&#125;</span>`</span>);</span><br><span class="line">      fileNumber++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;All files have been copied successfully.&#x27;</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;An error occurred:&#x27;</span>, err);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sourceDirectory = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// Replace with your source directory path</span></span><br><span class="line"><span class="keyword">const</span> targetDirectory = <span class="string">&#x27;xxx&#x27;</span>; <span class="comment">// Replace with your target directory path</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">copyFilesWithNumberedNames</span>(sourceDirectory, targetDirectory);</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/26/javascript-return/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -883,362 +1151,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/19/tcp-open-and-close/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/19/tcp-open-and-close/" class="post-title-link" itemprop="url">tcp-open-and-close</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-19 21:04:26" itemprop="dateCreated datePublished" datetime="2024-02-19T21:04:26+08:00">2024-02-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-26 16:40:47" itemprop="dateModified" datetime="2025-02-26T16:40:47+08:00">2025-02-26</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TCP-Open-and-Close"><a href="#TCP-Open-and-Close" class="headerlink" title="TCP Open and Close"></a>TCP Open and Close</h1><h2 id="TPC连接需要三次握手"><a href="#TPC连接需要三次握手" class="headerlink" title="TPC连接需要三次握手"></a>TPC连接需要三次握手</h2><p>第一次握手（客户端发送 SYN 报文给服务器，服务器接收该报文）：客户端什么都不能确认；服务器确认了对方发送正常，自己接收正常。</p>
-<p>第二次握手（服务器响应 SYN 报文给客户端，客户端接收该报文）：客户端确认了：自己发送、接收正常，对方发送、接收正常；服务器确认了：对方发送正常，自己接收正常。</p>
-<p>第三次握手（客户端发送 ACK 报文给服务器）：客户端确认了：自己发送、接收正常，对方发送、接收正常； 服务器确认了：自己发送、接收正常，对方发送、接收正常</p>
-<p><img src="/../images/tcp-open.png" alt="tcp-open"></p>
-<h2 id="TCP断开需要四次挥手"><a href="#TCP断开需要四次挥手" class="headerlink" title="TCP断开需要四次挥手"></a>TCP断开需要四次挥手</h2><p>四次挥手过程如下图所示，流程如下：</p>
-<ol>
-<li><p>客户端数据数据发送完毕，想关闭连接，发送FIN给服务器端。此时客户端进入FIN-WAIT-1状态</p>
-</li>
-<li><p>服务器端收到客户端的FIN，并返回ACK给客户端，确认已经收到客户端的关闭通知。</p>
-<p> 当客户端收到服务器端的ACK通知后，不能立即关闭连接，因为服务器端可能还要继续发送数据。所以此时客户端进入FIN-WAIT-2状态。</p>
-<p> 也就是在这个时间点上，客户端只是不再发送数据了，但是可能还要接收数据。</p>
-</li>
-<li><p>待服务器端数据发送完毕，发送FIN给客户端，告知客户端，我也发完了，准备关闭。此时服务器端进入CLOSE-WAIT状态。</p>
-</li>
-<li><p>客户端收到来自服务端的FIN后，返回ACK给服务端，表示我收到你的关闭通知了，你可以关闭了，服务端收到客户端的ACK后，立即关闭，状态变为CLOSE。客户端发送完ACK后，进入TIME-WAIT状态，且等待2ms后自动关闭，状态变为CLOSE。</p>
-</li>
-</ol>
-<p>所以，为啥要等2ms才能关闭？</p>
-<p><img src="/../images/tcp-close.png" alt="tcp-close"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/19/javascript-event-loop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/19/javascript-event-loop/" class="post-title-link" itemprop="url">javascript-event-loop</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-19 20:51:48" itemprop="dateCreated datePublished" datetime="2024-02-19T20:51:48+08:00">2024-02-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-16 11:36:23" itemprop="dateModified" datetime="2025-03-16T11:36:23+08:00">2025-03-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="JavaScript-Event-Loop"><a href="#JavaScript-Event-Loop" class="headerlink" title="JavaScript Event Loop"></a>JavaScript Event Loop</h1><p>Event loop是JavaScript中一个非常重要的知识点，也是面试中常考的内容，今天我们来详细了解一下。其实Event loop的过程非常简单，它是一个无限循环，Javascript引擎等待任务，执行任务，sleep，等待下一个任务，继续执行任务，如此循环往复。虽说简单，但是也有如下特点：</p>
-<ol>
-<li>浏览器渲染只有在JS执行完才进行，这二者是互斥的。</li>
-<li>所以如果一个任务执行时间过长，会导致页面卡顿，也会导致用户交互不流畅，比如点击按钮没反应。</li>
-</ol>
-<p>比如下面这段代码：运行时你会发现，浏览器一直在执行<code>count</code>函数，而这函数需要运行很久，在它执行完之前，浏览器不会渲染页面，用户也无法进行交互。也就是你看不到progress进度，也看不到按钮，更别说点击这个按钮了。这就印证了上面第一点，执行JS和渲染页面是互斥的。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;progress&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&#x27;alert(&quot;Hello, world!&quot;)&#x27;</span>&gt;</span>show alert<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">function</span> <span class="title function_">count</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1e7</span>; i++) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        i++;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        progress.<span class="property">innerHTML</span> = i;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="title function_">count</span>();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
-<p>那么问题来了，如何修复上面这个问题呢？答案是将1e7这么多的数字分批处理，比如每次处理1000个数字，然后让浏览器渲染一次，这样就可以看到进度条了，也可以点击按钮了。</p>
-<p>那么如何分批呢？其实分批不是目的，目的是给浏览器一个渲染的机会，这时我们就可以使用setTimeout来实现，因为setTimeout中的回调函数是异步执行的，在执行完同步代码后，浏览器会渲染一次，然后再执行setTimeout中的回调函数。如此往复。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;progress&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&#x27;alert(&quot;Hello, world!&quot;)&#x27;</span>&gt;</span>show alert<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">let</span> i = <span class="number">0</span>;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">function</span> <span class="title function_">count</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="comment">// do a piece of the heavy job (*)</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">do</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        i++;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        progress.<span class="property">innerHTML</span> = i;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125; <span class="keyword">while</span> (i % <span class="number">1e3</span> != <span class="number">0</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">if</span> (i &lt; <span class="number">1e7</span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        <span class="built_in">setTimeout</span>(count);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="title function_">count</span>();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
-<p>上面代码的执行顺序是这样的：</p>
-<ol>
-<li>执行同步代码，先处理1000个数字。</li>
-<li>i &lt; 1e7, 表示还有数字需要处理，所以调用setTimeout，将count函数放到宏任务队列中。</li>
-<li>同步代码执行完毕，浏览器渲染一次，用户可以看到进度条。</li>
-<li>从宏任务队列中取出count函数，继续处理1000个数字。</li>
-<li>重复2-4步骤，直到i &gt;&#x3D; 1e7。</li>
-</ol>
-<p>如此这般，既不影响浏览器更新dom，也不影响渲染，也不耽误用户交互。岂不美哉？</p>
-<h2 id="浏览器如何执行一段JavaScript代码？"><a href="#浏览器如何执行一段JavaScript代码？" class="headerlink" title="浏览器如何执行一段JavaScript代码？"></a>浏览器如何执行一段JavaScript代码？</h2><p>当浏览器加载一个页面时，它会创建一个主线程来执行JavaScript代码。主线程是单线程的，意味着它一次只能执行一个任务。当主线程执行JavaScript代码时，它会遵循以下步骤：</p>
-<ol>
-<li>先执行同步代码。</li>
-<li>遇到异步代码时，做如下处理<ol>
-<li>如果是宏任务代码，将其回调函数放到宏任务队列中。</li>
-<li>如果是微任务代码，将其回调函数放到微任务队列中。</li>
-</ol>
-</li>
-<li>同步代码执行完毕后，开始依次执行微任务队列中的微任务（即回调函数）。</li>
-<li><code>浏览器渲染</code></li>
-<li>微任务队列清空后，从宏任务队列取出一个任务（即回调函数）执行，然后回到步骤1</li>
-</ol>
-<p>注意：步骤3，5的执行也遵循第1， 2两点规则。这么做是为了处理微任务和宏任务的嵌套关系。微任务队列执行每次都会清空微任务队列，而宏任务队列每次只执行一个任务。</p>
-<h3 id="什么异步代码？"><a href="#什么异步代码？" class="headerlink" title="什么异步代码？"></a>什么异步代码？</h3><p>异步代码是指不会立即执行的代码，而是在将来某个时间点执行的代码。常见的异步代码有：</p>
-<ol>
-<li><code>setTimeout</code> 和 <code>setInterval</code>。</li>
-<li><code>Promise</code>，<code>async/await</code>。</li>
-<li><code>MutationObserver</code>等等。</li>
-</ol>
-<p>除了异步代码，剩下的就是同步代码。</p>
-<h3 id="宏任务"><a href="#宏任务" class="headerlink" title="宏任务"></a>宏任务</h3><ul>
-<li><code>setTimeout</code></li>
-<li><code>setInterval</code></li>
-</ul>
-<h3 id="微任务"><a href="#微任务" class="headerlink" title="微任务"></a>微任务</h3><ul>
-<li><code>Promise</code>，<code>async/await</code></li>
-<li><code>queueMicrotask</code></li>
-<li><code>MutationObserver</code></li>
-<li><code>process.nextTick</code>（Node.js）</li>
-</ul>
-<p>对于Promise需要特别注意：Promise本身是同步代码，但是其<code>.then</code>, <code>.catch</code>, <code>.finally</code>对应的回调函数是异步代码。对于<code>queueMicrotask</code>，它是一个新的API，用于将一个微任务添加到微任务队列中。(If we’d like to execute a function asynchronously (after the current code), but before changes are rendered or new events handled, we can schedule it with queueMicrotask.)</p>
-<h2 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h2><h3 id="1-以下代码输出什么？"><a href="#1-以下代码输出什么？" class="headerlink" title="1. 以下代码输出什么？"></a>1. 以下代码输出什么？</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;resolve&#x27;</span>);</span><br><span class="line">  <span class="title function_">resolve</span>(<span class="number">1</span>);</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(res);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>输出结果是：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Start</span><br><span class="line">resolve</span><br><span class="line">End</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
-<p>这个题考察的点就是Promise的构造函数体是同步代码，所以输出<code>Start</code>后紧接着会先输出<code>resolve</code>，然后是<code>End</code>。而<code>.then</code>方法中的回调函数是异步代码，所以会在同步代码执行完毕后执行，所以最后输出1.</p>
-<h3 id="1-以下代码输出什么？-1"><a href="#1-以下代码输出什么？-1" class="headerlink" title="1. 以下代码输出什么？"></a>1. 以下代码输出什么？</h3>  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:blue&#x27;</span>;</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:black&#x27;</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>答：用户会直接看到一个黑色的页面，蓝色页面根本不会出现，连闪现的过程也没有。根据Event Loop模型，代码执行过程如下：</p>
-<ol>
-<li>执行同步代码，<code>document.body.style = &#39;background:blue&#39;;</code>，将页面背景色设置为蓝色。</li>
-<li>遇到微任务<code>Promise.resolve().then()</code>，将其回调函数放到微任务队列中。</li>
-<li>同步代码执行完毕，开始执行微任务队列中的微任务，即将页面背景色设置为黑色。</li>
-<li>浏览器开始渲染页面，用户看到的是黑色的页面。</li>
-</ol>
-<p>也就是说，在页面渲染之前，<code>document.body.style</code>早已经在 Promise 的回调函数中被赋值为<code>black</code> 了。<br>注意，浏览器会在每次微任务队列清空时渲染一次，如下图所示。<br><img src="/../images/event-loop-render.png" alt="event-loop"></p>
-<h3 id="以下代码输出什么？"><a href="#以下代码输出什么？" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">3</span>));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">4</span>)));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">5</span>));</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">6</span>));</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">7</span>);</span><br></pre></td></tr></table></figure>
-<p>答案：1 7 3 5 2 6 4.<br>首先执行同步代码，输出如下：</p>
-<ul>
-<li>控制台：1 7</li>
-<li>微任务队列：<code>[() =&gt; console.log(3), () =&gt; setTimeout(() =&gt; console.log(4)), () =&gt; console.log(5)]</code></li>
-<li>宏任务队列：<code>[()=&gt;console.log(2)</code>, <code>()=&gt;console.log(6)]</code></li>
-</ul>
-<p>然后执行微任务队列中的微任务，输出如下：</p>
-<ul>
-<li>控制台：1 7 3 5</li>
-<li>微任务队列：[]  &#x2F;&#x2F; 微任务队列清空</li>
-<li>宏任务队列：<code>[()=&gt;console.log(2), ()=&gt;console.log(6), () =&gt; console.log(4)]</code></li>
-</ul>
-<p>最后执行宏任务队列中的宏任务，输出如下：</p>
-<ul>
-<li>控制台：1 7 3 5 2 6 4</li>
-<li>微任务队列：[]  &#x2F;&#x2F; 微任务队列清空</li>
-<li>宏任务队列：[]  &#x2F;&#x2F; 宏任务队列清空</li>
-</ul>
-<h3 id="2-以下代码输出什么？"><a href="#2-以下代码输出什么？" class="headerlink" title="2. 以下代码输出什么？"></a>2. 以下代码输出什么？</h3><p>注意以下代码需要在Node.js环境下运行。因为<code>process.nextTick</code>是Node.js的API。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Timeout&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Promise then&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">asyncFunction</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>();</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Async/Await&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">asyncFunction</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Node.js</span></span><br><span class="line">process.<span class="title function_">nextTick</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Next tick&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>答案：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Start</span><br><span class="line">End</span><br><span class="line">Promise <span class="keyword">then</span></span><br><span class="line">Async/Await</span><br><span class="line">Next tick</span><br><span class="line">Timeout</span><br></pre></td></tr></table></figure>
-<p>还是按照以下执行顺序来分析：</p>
-<ol>
-<li><p>先执行同步代码，输出<code>Start</code>和<code>End</code>。</p>
-</li>
-<li><p>在执行微任务队列代码，输出<code>Promise then</code>和<code>Async/Await</code>和<code>Next tick</code>。</p>
-</li>
-<li><p>最后执行宏任务队列代码，输出<code>Timeout</code>。注意每次只执行一个宏任务，然后再执行微任务队列中的微任务，如此往复。</p>
-</li>
-<li><p>微任务队列每次执行都清空。</p>
-</li>
-<li><p>宏任务队列每次只取一个任务执行。</p>
-</li>
-</ol>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference:"></a>Reference:</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://javascript.info/event-loop">https://javascript.info/event-loop</a></li>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop">MDN: Event Loop</a></li>
-<li><a target="_blank" rel="noopener" href="https://youtu.be/8aGhZQkoFbQ">https://youtu.be/8aGhZQkoFbQ</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=SrNQS8J67zc">https://www.youtube.com/watch?v=SrNQS8J67zc</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=u1kqx6AenYw">https://www.youtube.com/watch?v=u1kqx6AenYw</a></li>
-<li><a target="_blank" rel="noopener" href="https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events">https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events</a>.</li>
-<li><a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/19/useful-online-tools/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/19/useful-online-tools/" class="post-title-link" itemprop="url">useful-online-tools</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-19 18:39:55" itemprop="dateCreated datePublished" datetime="2024-02-19T18:39:55+08:00">2024-02-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-19 15:14:06" itemprop="dateModified" datetime="2025-03-19T15:14:06+08:00">2025-03-19</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Useful-Online-Tools"><a href="#Useful-Online-Tools" class="headerlink" title="Useful Online Tools"></a>Useful Online Tools</h1><h2 id="Web性能测试"><a href="#Web性能测试" class="headerlink" title="Web性能测试"></a>Web性能测试</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://www.webpagetest.org/">https://www.webpagetest.org/</a></li>
-<li><a target="_blank" rel="noopener" href="https://pagespeed.web.dev/">https://pagespeed.web.dev/</a></li>
-</ol>
-<h2 id="Online-books"><a href="#Online-books" class="headerlink" title="Online books"></a>Online books</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://github.com/getify/You-Dont-Know-JS/tree/2nd-ed">You don’t know JS</a></li>
-<li><a href="https://link.zhihu.com/?target=https://github.com/ruanyf/es6tutorial">ES6 入门</a></li>
-<li><a href="https://link.zhihu.com/?target=https://github.com/mjavascript/practical-modern-javascript">深入理解JS特性</a></li>
-<li><a target="_blank" rel="noopener" href="https://dr-axel.de/">Exploring JS</a></li>
-<li>Modern JavaScript: <a target="_blank" rel="noopener" href="https://zh.javascript.info/">中文版</a>, <a target="_blank" rel="noopener" href="https://javascript.info/">英文版</a></li>
-</ol>
-<h2 id="ASCII-tree-generator"><a href="#ASCII-tree-generator" class="headerlink" title="ASCII tree generator"></a>ASCII tree generator</h2><p><a target="_blank" rel="noopener" href="https://ascii-tree-generator.com/">https://ascii-tree-generator.com/</a></p>
-<h2 id="Regex"><a href="#Regex" class="headerlink" title="Regex"></a>Regex</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://regex101.com/">Regex 101</a> - Online regex tester and debugger, 最好用的正则表达式工具，没有之一。</li>
-</ul>
-<h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://jsonplaceholder.typicode.com/">Free Json Server</a> - 一个免费的 JSON Server，可以用来测试前端请求。</li>
-<li><a target="_blank" rel="noopener" href="https://jsonformatter.curiousconcept.com/">Json Formatter</a> - JSON 格式化工具，可以将 JSON 格式化成易读的格式。</li>
-<li><a target="_blank" rel="noopener" href="https://www.jsonschema.net/">Json schema generator</a> - JSON Schema 生成工具，可以根据 JSON 生成 JSON Schema。</li>
-</ul>
-<h2 id="TypeScript"><a href="#TypeScript" class="headerlink" title="TypeScript"></a>TypeScript</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://www.typescriptlang.org/play">TypeScript Playground</a> - TypeScript 在线编译器，可以在线编译 TypeScript 代码。</li>
-</ul>
-<h2 id="JavaScript"><a href="#JavaScript" class="headerlink" title="JavaScript"></a>JavaScript</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://astexplorer.net/">AST</a> - Abstract Syntax Tree，可以将 JavaScript 代码转换成 AST 树，方便理解代码的结构。</li>
-</ul>
-<h2 id="UI-Framework"><a href="#UI-Framework" class="headerlink" title="UI Framework"></a>UI Framework</h2><ul>
-<li>A Pure Javascript UI Framework: <a target="_blank" rel="noopener" href="https://github.com/layui/layui">https://github.com/layui/layui</a></li>
-</ul>
-<h2 id="Standard"><a href="#Standard" class="headerlink" title="Standard:"></a>Standard:</h2><p><code>RFC</code> - <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Request_for_Comments">Request for Comments</a></p>
-<ul>
-<li>Http Semantics : <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a></li>
-<li>Http: 1.0: <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/inline-errata/rfc1945.html">https://www.rfc-editor.org/rfc/inline-errata/rfc1945.html</a></li>
-<li>Http 1.1: <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc2616">https://datatracker.ietf.org/doc/html/rfc2616</a></li>
-<li>Http 2.0 : <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc9113.html">https://www.rfc-editor.org/rfc/rfc9113.html</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1308,14 +1220,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">293</span>
+          <span class="site-state-item-count">296</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">413</span>
+        <span class="site-state-item-count">417</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

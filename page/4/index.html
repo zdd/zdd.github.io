@@ -181,6 +181,253 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/16/angular-ngdeep/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/16/angular-ngdeep/" class="post-title-link" itemprop="url">angular-ngdeep</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-16 10:48:10" itemprop="dateCreated datePublished" datetime="2025-02-16T10:48:10+08:00">2025-02-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-06 20:08:39" itemprop="dateModified" datetime="2025-03-06T20:08:39+08:00">2025-03-06</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这篇探讨一下Angular中::ng-deep伪类的用法。</p>
+<h2 id="ng-deep是什么？"><a href="#ng-deep是什么？" class="headerlink" title="::ng-deep是什么？"></a><code>::ng-deep</code>是什么？</h2><p>以下是<code>::ng-deep</code>的官方描述：</p>
+<p>(deprecated) &#x2F;deep&#x2F;, &gt;&gt;&gt;, and ::ng-deep<br>Component styles normally apply only to the HTML in the component’s own template.</p>
+<p>Applying the ::ng-deep pseudo-class to any CSS rule completely disables view-encapsulation for that rule. Any style with ::ng-deep applied becomes a global style. In order to scope the specified style to the current component and all its descendants, be sure to include the :host selector before ::ng-deep. If the ::ng-deep combinator is used without the :host pseudo-class selector, the style can bleed into other components.</p>
+<h2 id="为什么需要-ng-deep"><a href="#为什么需要-ng-deep" class="headerlink" title="为什么需要::ng-deep?"></a>为什么需要<code>::ng-deep</code>?</h2><p>根据我的经验，使用<code>::ng-deep</code>的场景有：</p>
+<ol>
+<li>第三方库的样式覆盖，因为第三方库的样式有时候是无法直接通过选择器来修改的，这时候就需要使用<code>::ng-deep</code>。</li>
+</ol>
+<h2 id="为什么要配合-host一起使用"><a href="#为什么要配合-host一起使用" class="headerlink" title="为什么要配合:host一起使用?"></a>为什么要配合<code>:host</code>一起使用?</h2><p>在我们日常的项目中，<code>::ng-deep</code>很少单独使用，由上面对ng<code>::deep</code>的描述可知，它相当于将样式变成了全局样式，如果不加<code>:host</code>，那么这个样式会影响到所有的组件，加了<code>:host</code>,则只会影响到当前组件及其后代组件。</p>
+<p>注意：</p>
+<ol>
+<li>使用了<code>::ng-deep</code>的组件，只有显示在页面上时（该组建对应的前端路由生效时），才会影响其他组件的样式。如果该组件没有显示在页面上，那么它的样式是不会影响其他组件的。</li>
+<li>如果当前页面只显示了使用了<code>::ng-deep</code>的组件，而没有显示其他组件，那么<code>ng::deep</code>的样式也不会影响到其他组件。</li>
+</ol>
+<p>也就是说使用了<code>::ng-deep</code>的组件，只有和其他组件一起显示在页面上，才会影响其他组件的样式。</p>
+<p>实际的例子，假设有组件A在其样式文件中使用了<code>ng::deep</code>，对于三级标题，将其文本设置为红色。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line">::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>组件B也有一个三级标题，但是没有设置样式。</p>
+<p>如果组件A和组件B同时显示在页面上，那么组件A的样式会覆盖组件B的样式，此时页面上的所有h3标题都会显示为红色。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component-a</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-component-b</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-b</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们在浏览器中inspect，可以看到组件A设置的三级标题样式放到了整个html的head部分。</p>
+<p>如果组件A中在<code>::ng-deep</code>前加上<code>:host</code>，则只有组件A中的h3标题显示为红色，组件B中的h3标题不会受到影响。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line"><span class="selector-pseudo">:host</span> ::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为啥加上<code>:host</code>后，就不影响别的组件了呢，因为:host表示这个样式只针对当前组件和其子组件生效，由生成后的css文件也可看出这点，请看下图。</p>
+<p>在<code>h3</code>之前多了一个限定字符串<code>_nghost-ng-c2124967347</code>,这个字符串正好是组件A的选择器，这样就保证了这个样式只会影响到组件A。而组件B有一个不同的选择器<code>_nghost-ng-c2124967348</code>，所以组件B的h3标题不会受到影响。</p>
+<p>如果我们不加<code>:host</code>，那么生成的css文件中就没有这个限定字符串，这样就会影响到所有的组件。</p>
+<p><img src="/../images/angular-style-ngdeep.png" alt="angular-style-ngdeep"></p>
+<h2 id="ng-deep只对ViewEncapsulation-Emulated有效"><a href="#ng-deep只对ViewEncapsulation-Emulated有效" class="headerlink" title="::ng-deep只对ViewEncapsulation.Emulated有效"></a><code>::ng-deep</code>只对<code>ViewEncapsulation.Emulated</code>有效</h2><p><code>::ng-deep</code>只对<code>encapsulation: ViewEncapsulation.Emulated</code>有效，对于<code>encapsulation: ViewEncapsulation.ShadowDom</code>和<code>encapsulation: ViewEncapsulation.None</code>无效。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/13/javascript-string-operation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/13/javascript-string-operation/" class="post-title-link" itemprop="url">javascript-string-operation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-02-13 08:19:04 / Modified: 08:30:07" itemprop="dateCreated datePublished" datetime="2025-02-13T08:19:04+08:00">2025-02-13</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>字符串在任何编程语言中都是非常重要的数据类型，对字符串的操作是程序员必备的技能，这篇文章探讨一下Javascript中常见的字符串操作，没有什么高深的内容，算是一篇笔记吧。</p>
+<h2 id="字符串反转"><a href="#字符串反转" class="headerlink" title="字符串反转"></a>字符串反转</h2><p>JS中String对象上没有reverse方法，但是Array对象上有reverse方法，所以我们可以先把字符串转成数组，然后再调用reverse方法，最后再把数组转回字符串。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> str.<span class="title function_">split</span>(<span class="string">&#x27;&#x27;</span>).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了用<code>split(&#39;&#39;)</code>方法，我们还可以用<code>Array.from</code>方法，这个方法可以把类数组对象或者可迭代对象转成数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(str).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以使用<code>...</code>扩展运算符，这个运算符可以把可迭代对象转成数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> [...str].<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/12/angular-run-outside-angular/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/angular-run-outside-angular/" class="post-title-link" itemprop="url">angular-run-outside-angular</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 12:46:31" itemprop="dateCreated datePublished" datetime="2025-02-12T12:46:31+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-02-13 20:33:00" itemprop="dateModified" datetime="2025-02-13T20:33:00+08:00">2025-02-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>runOutsideAngular</code>是<code>NgZone</code>的一个方法，它接受一个函数作为参数，该函数会在Angular的<code>NgZone</code>之外执行。这个方法的作用是什么呢？</p>
+<p>在<code>runOutsideAngular</code>函数中运行的代码不会触发Angular变更检测。这里的outside并不是真的在Angular之外运行，而是在Angular的Zone之外运行。</p>
+<ol>
+<li><p>在执行一些性能敏感的操作时，比如处理大量DOM事件或者动画，避免频繁的变更检测导致性能问题。比如，如果有一个画布应用，用户拖动元素的时候，每次<code>mousemove</code>事件都触发变更检测可能不太高效，这时候用runOutsideAngular可以让这些事件处理在Angular Zone外运行，减少不必要的检测。</p>
+</li>
+<li><p>第三方库的集成,比如使用D3.js或者Three.js这些库，它们可能有自己的渲染循环，这时候用runOutsideAngular可以避免Angular的变更检测干扰这些库的性能。</p>
+</li>
+<li><p>另外，长时间运行的计算任务，比如Web Worker中的处理，可能也需要用这个方法，确保这些任务不会触发变更检测，直到真正需要更新UI的时候再手动触发。</p>
+</li>
+</ol>
+<p>所有上面这些情况都需要用到<code>runOutsideAngular</code>方法，它可以让我们更好地控制变更检测的时机，避免不必要的性能损耗。</p>
+<p>频繁的DOM操作</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">NgZone</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;...&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanvasComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> ngZone: NgZone</span>) &#123;</span><br><span class="line">    ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      canvasElement.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 处理鼠标移动，不触发变更检测</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">updateCanvasPosition</span>(event);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集成第三方库</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> chart = d3.<span class="title function_">select</span>(<span class="string">&#x27;#chart&#x27;</span>);</span><br><span class="line">  chart.<span class="title function_">on</span>(<span class="string">&#x27;zoom&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// D3 的缩放操作，避免 Angular 频繁检查</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">handleZoom</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Web workers或耗时计算</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> worker = <span class="keyword">new</span> <span class="title class_">Worker</span>(<span class="string">&#x27;data-processor.worker.ts&#x27;</span>);</span><br><span class="line">  worker.<span class="property">onmessage</span> = <span class="function">(<span class="params">result</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="回到Angular-Zone"><a href="#回到Angular-Zone" class="headerlink" title="回到Angular Zone"></a>回到Angular Zone</h2><p>如果在<code>runOutsideAngular</code>中执行的代码需要更新Angular的UI，可以在需要的时候手动调用<code>ngZone.run</code>方法，把这些代码放回Angular的Zone中，这样就可以触发变更检测了。</p>
+<p>这个过程相当于先跳出Angular的Zone，做一些不需要变更检测的操作，然后再手动回到Angular的Zone，触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 长时间运行的计算任务</span></span><br><span class="line">  <span class="keyword">const</span> result = <span class="title function_">longRunningTask</span>();</span><br><span class="line">  <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/11/css-display-inline-inlineblock-block/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -913,215 +1160,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/02/05/javascript-method-in-object/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/05/javascript-method-in-object/" class="post-title-link" itemprop="url">javascript-method-in-object</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-05 11:53:49" itemprop="dateCreated datePublished" datetime="2025-02-05T11:53:49+08:00">2025-02-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-03-14 08:49:49" itemprop="dateModified" datetime="2025-03-14T08:49:49+08:00">2025-03-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天在浏览<a target="_blank" rel="noopener" href="https://vuejs.org/guide/introduction.html">Vue官网</a>时，看到了如下代码。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; createApp, ref &#125; <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">createApp</span>(&#123;</span><br><span class="line">  <span class="title function_">setup</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">count</span>: <span class="title function_">ref</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).<span class="title function_">mount</span>(<span class="string">&#x27;#app&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p>生性多疑的我不禁产生了怀疑，这是什么语法？<code>createApp</code>方法接受一个JS对象，可是JS对象不都是冒号分隔的键值对吗？为什么这个<code>setup()</code>方法没有冒号？难道这是<code>Vue</code>的特殊语法？</p>
-<p>于是问了一下AI，原来这是<code>ES6</code>的新增语法（基础知识还是不牢呀，《深入理解ES6》还要再读几遍才行），如果一个JS对象中有函数，那么ES5中必须像下面这样写才行：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">setup</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;foo&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而<code>ES6</code>新增了一个语法功能，对象中的函数可以省略冒号和<code>function</code>关键字，直接写函数体，如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="title function_">setup</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;foo&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>于是开头那段代码换成ES5的写法就是：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">setup</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">count</span>: <span class="title function_">ref</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">createApp</span>(obj).<span class="title function_">mount</span>(<span class="string">&#x27;#app&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p>这样是不是就好理解多了呢？话不多说，该做饭了。昨天刚从成都旅游回来，今天家里也没有什么菜，姑且做一个圆葱炒蛋吧。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/01/20/nx-config/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/20/nx-config/" class="post-title-link" itemprop="url">nx-config</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-01-20 20:54:22 / Modified: 20:59:21" itemprop="dateCreated datePublished" datetime="2025-01-20T20:54:22+08:00">2025-01-20</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Generate-project-with-default-styling-file-extension"><a href="#Generate-project-with-default-styling-file-extension" class="headerlink" title="Generate project with default styling file extension"></a>Generate project with default styling file extension</h1><p>Nx based monorepo can use file <code>nx.json</code> to config project generate options for specific frameworks.<br>Take the following config as an example, when creating angular applications, nx will use <code>scss</code> as file extension for style files by default. If you want the terminal prompt you during the generation, remove the <code>style</code> option from the config.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;generators&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@nx/react&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;bundler&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vite&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;babel&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;component&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;library&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;scss&quot;</span><span class="punctuation">,</span> <span class="comment">// &lt;--- use scss as default style file</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;e2eTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cypress&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:library&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:component&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;scss&quot;</span> <span class="comment">// &lt;--- use scss as default style file</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/web:application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;css&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;e2eTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;none&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/01/06/angular-pipe-json/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/06/angular-pipe-json/" class="post-title-link" itemprop="url">angular-pipe-json</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-06 22:27:00" itemprop="dateCreated datePublished" datetime="2025-01-06T22:27:00+08:00">2025-01-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-02-07 11:08:06" itemprop="dateModified" datetime="2025-02-07T11:08:06+08:00">2025-02-07</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>The built-in pipe <code>json</code> is used to convert a JavaScript object into a JSON string. It is useful for debugging purposes or when you need to display the raw JSON data in your Angular application.</p>
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><p>Assume you have a data object in your components which is an javascript object:</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;userId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="string">&quot;id&quot;</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="string">&quot;title&quot;</span>: <span class="string">&quot;ullam nobis libero sapiente ad optio sint&quot;</span>,</span><br><span class="line">  <span class="string">&quot;completed&quot;</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>In your template file, you can use the <code>json</code> pipe to convert the object into a JSON string:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span>&#123;&#123; data | json &#125;&#125;<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>You will get the following output on the rendered page:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; &quot;userId&quot;: 1, &quot;id&quot;: 20, &quot;title&quot;: &quot;ullam nobis libero sapiente ad optio sint&quot;, &quot;completed&quot;: true &#125;</span><br></pre></td></tr></table></figure>
-
-<p>Without the <code>json</code> pipe, you will get <code>[object Object]</code> in the output.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1191,14 +1229,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">293</span>
+          <span class="site-state-item-count">296</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">413</span>
+        <span class="site-state-item-count">417</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
