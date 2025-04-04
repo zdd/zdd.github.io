@@ -182,6 +182,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/03/15/angular-loop-specific-times-in-template/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/15/angular-loop-specific-times-in-template/" class="post-title-link" itemprop="url">angular-loop-specific-times-in-template</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-03-15 19:55:47" itemprop="dateCreated datePublished" datetime="2025-03-15T19:55:47+08:00">2025-03-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-03-16 09:00:58" itemprop="dateModified" datetime="2025-03-16T09:00:58+08:00">2025-03-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天在HackerRank上做Angular题目，偶然遇到一个循环固定次数的问题，这里记录一下。</p>
+<p>假设需要在template里面循环<code>count</code>次，每次生成一个div，而<code>count</code>是后台api返回的一个变量，该如何实现呢？</p>
+<h2 id="方法一，使用数组"><a href="#方法一，使用数组" class="headerlink" title="方法一，使用数组"></a>方法一，使用数组</h2><p>我能想到的最简单的方法，就是定义一个含有<code>count</code>个元素的数组，然后使用<code>ngFor</code>遍历这个数组。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">nums</span>: <span class="built_in">number</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">fetchData</span>().<span class="title function_">then</span>(<span class="function"><span class="params">count</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// 创建含有count个元素的数组，数组元素的值无所谓，我们只用到元素个数。</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">nums</span> = <span class="title class_">Array</span>(count).<span class="title function_">fill</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 模拟后台api返回的count</span></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Random int between 0 - 10</span></span><br><span class="line">    <span class="keyword">const</span> randomInt = <span class="title class_">Math</span>.<span class="title function_">floor</span>((<span class="title class_">Math</span>.<span class="title function_">random</span>() * <span class="number">10</span>))</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(randomInt);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>ngFor</code>遍历这个数组。这样会循环生成<code>count</code>个div元素。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let n of nums; let i = index&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;&#123;i&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="方法二，在模板中构造数组"><a href="#方法二，在模板中构造数组" class="headerlink" title="方法二，在模板中构造数组"></a>方法二，在模板中构造数组</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let i of [].constructor(count).keys()&quot;</span>&gt;</span></span><br><span class="line">  第 &#123;&#123;i + 1&#125;&#125; 次循环 <span class="comment">&lt;!-- 显示从1开始的序号 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意：该方法会导致一个错误：需要研究一下，为什么？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">core.mjs:6662 ERROR RuntimeError: NG0100: ExpressionChangedAfterItHasBeenCheckedError: Expression has changed after it was checked. Previous value: <span class="string">&#x27;[object Array Iterator]&#x27;</span>. Current value: <span class="string">&#x27;[object Array Iterator]&#x27;</span>. Expression location: _AppComponent component. Find more at</span><br></pre></td></tr></table></figure>
+
+<h2 id="方法三，使用自定义指令"><a href="#方法三，使用自定义指令" class="headerlink" title="方法三，使用自定义指令"></a>方法三，使用自定义指令</h2><p>使用时，需要在模块或者独立组件的<code>imports</code>中引入<code>RepeatDirective</code>，否则会报错。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自定义指令代码</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">Input</span>, <span class="title class_">TemplateRef</span>, <span class="title class_">ViewContainerRef</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[appRepeat]&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">RepeatDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> templateRef: TemplateRef&lt;<span class="built_in">any</span>&gt;,</span></span><br><span class="line"><span class="params">    <span class="keyword">private</span> viewContainer: ViewContainerRef,</span></span><br><span class="line"><span class="params">  </span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Input</span>(<span class="string">&#x27;appRepeat&#x27;</span>) <span class="keyword">set</span> <span class="title function_">count</span>(<span class="params">value: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">viewContainer</span>.<span class="title function_">clear</span>(); <span class="comment">// 清空容器</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; value; i++) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">viewContainer</span>.<span class="title function_">createEmbeddedView</span>(<span class="variable language_">this</span>.<span class="property">templateRef</span>, &#123;</span><br><span class="line">        <span class="attr">$implicit</span>: i + <span class="number">1</span>, <span class="comment">// 传递索引值</span></span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用自定义指令</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">appRepeat</span>=<span class="string">&quot;count; let i&quot;</span>&gt;</span></span><br><span class="line">  这是第 &#123;&#123; i &#125;&#125; 次循环</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="方法四：自定义管道"><a href="#方法四：自定义管道" class="headerlink" title="方法四：自定义管道"></a>方法四：自定义管道</h2><p>使用时，需要在模块或者独立组件的<code>imports</code>中引入<code>RangePipe</code>，否则会报错。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Pipe</span>, <span class="title class_">PipeTransform</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Pipe</span>(&#123;</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;range&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">RangePipe</span> <span class="keyword">implements</span> <span class="title class_">PipeTransform</span> &#123;</span><br><span class="line">  <span class="title function_">transform</span>(<span class="attr">value</span>: <span class="built_in">number</span>): <span class="built_in">number</span>[] &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: value &#125;, <span class="function">(<span class="params">_, i</span>) =&gt;</span> i);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用自定义管道</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngFor</span>=<span class="string">&quot;let i of count | range&quot;</span>&gt;</span></span><br><span class="line">  第 &#123;&#123;i + 1&#125;&#125; 次循环 <span class="comment">&lt;!-- 显示从1开始的序号 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/03/11/rxjs-pull-push/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -933,96 +1018,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/03/04/css-basic-box-model/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/03/04/css-basic-box-model/" class="post-title-link" itemprop="url">css-basic-box-model</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-03-04 10:10:54" itemprop="dateCreated datePublished" datetime="2025-03-04T10:10:54+08:00">2025-03-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-03 22:46:30" itemprop="dateModified" datetime="2025-04-03T22:46:30+08:00">2025-04-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="什么是盒模型？"><a href="#什么是盒模型？" class="headerlink" title="什么是盒模型？"></a>什么是盒模型？</h1><p>当浏览器对一个页面进行布局的时候，浏览器的渲染引擎会把每个元素看视为一个盒子（box），这个盒子就是盒模型。盒模型是CSS布局的基础，理解盒模型对于理解CSS布局非常重要。</p>
-<p><img src="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model/boxmodel.png" alt="box-model"></p>
-<h2 id="盒模型的四个组成部分"><a href="#盒模型的四个组成部分" class="headerlink" title="盒模型的四个组成部分"></a>盒模型的四个组成部分</h2><h3 id="内容区域（content）"><a href="#内容区域（content）" class="headerlink" title="内容区域（content）"></a>内容区域（content）</h3><p>以上图为例，中间的黑色矩形就是内容区域，内容区域是盒模型的核心部分，包含了元素的实际内容，比如文本、图片等。</p>
-<h3 id="内边距（padding）"><a href="#内边距（padding）" class="headerlink" title="内边距（padding）"></a>内边距（padding）</h3><p>上图中黑色矩形和蓝色矩形框之间的白色部分就是padding，内边距是内容区域和边框之间的空间。内边距可以用来增加内容区域和边框之间的距离。</p>
-<h3 id="边框（border）"><a href="#边框（border）" class="headerlink" title="边框（border）"></a>边框（border）</h3><p>上图中蓝色矩形框就是边框，边框是元素的边界，边框也是有宽度和颜色的。</p>
-<h3 id="外边距（margin）"><a href="#外边距（margin）" class="headerlink" title="外边距（margin）"></a>外边距（margin）</h3><p>上图中蓝色矩形框和最外层的黑色矩形框之间的透明色部分就是外边距，外边距是元素和其他元素之间的空间。外边距可以用来增加元素之间的距离。</p>
-<h1 id="box-sizing对于盒模型的影响"><a href="#box-sizing对于盒模型的影响" class="headerlink" title="box-sizing对于盒模型的影响"></a>box-sizing对于盒模型的影响</h1><p>CSS中的<code>box-sizing</code>属性决定了如何计算一个元素的宽度和高度，它有两个取值：<code>content-box</code>和<code>border-box</code>。</p>
-<h2 id="content-box"><a href="#content-box" class="headerlink" title="content-box"></a>content-box</h2><p><code>content-box</code>是默认值，表示元素的宽度和高度只包括内容区域，不包括内边距（padding）和边框（border）。也就是说，如果你设置了一个元素的宽度为100px，高度为100px，那么它的实际宽度和高度就是100px，不包括内边距和边框。</p>
-<p>计算公式如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">元素的实际宽度 = CSS中的width</span><br><span class="line">元素的实际高度 = CSS中的height</span><br></pre></td></tr></table></figure>
-<p>看一段CSS代码，因为没有指定<code>box-sizing</code>属性，所以默认是<code>content-box</code>，所以box元素的宽度是100px，高度是100px。</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">5px</span> solid black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="border-box"><a href="#border-box" class="headerlink" title="border-box"></a>border-box</h2><p><code>border-box</code>表示元素的宽度和高度包括内容区域、内边距和边框。也就是说，如果你设置了一个元素的宽度为100px，高度为100px，那么它的实际宽度和高度就是100px - padding - border。计算公式如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">元素的实际宽度 = CSS中的width - padding-left - padding-right - border-left - border-right</span><br><span class="line">元素的实际高度 = CSS中的height - padding-top - padding-bottom - border-top - border-bottom</span><br></pre></td></tr></table></figure>
-<p>看一段CSS代码，你知道如何计算元素的实际宽高吗？</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">5px</span> solid black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>根据border-box的计算公式：</p>
-<ul>
-<li>box元素的实际宽度 &#x3D; 100px - 10px * 2 - 5px * 2 &#x3D; 70px</li>
-<li>box元素的实际高度 &#x3D; 100px - 10px * 2 - 5px * 2 &#x3D; 70px</li>
-</ul>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model">https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model</a></li>
-<li></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1092,7 +1087,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">297</span>
+          <span class="site-state-item-count">298</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
