@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 6.3.0">
+<meta name="generator" content="Hexo 7.3.0">
 <meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -238,7 +238,7 @@
 <li><code>ng build</code>命令是如何处理<code>TypeScript</code>文件的？</li>
 <li><code>ng build</code>命令是如何处理<code>HTML</code>文件的？</li>
 </ul>
-<h2 id="ts-x2F-js编译"><a href="#ts-x2F-js编译" class="headerlink" title="ts&#x2F;js编译"></a>ts&#x2F;js编译</h2><p>Webpack的配置文件在这里：<code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code></p>
+<h2 id="ts-js编译"><a href="#ts-js编译" class="headerlink" title="ts&#x2F;js编译"></a>ts&#x2F;js编译</h2><p>Webpack的配置文件在这里：<code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code></p>
 <p>这个文件里我们可以看到如下<code>rule</code>配置：</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">test</span>: <span class="regexp">/\.[cm]?[tj]sx?$/</span>,</span><br><span class="line">  <span class="comment">// The below is needed due to a bug in `@babel/runtime`. See: https://github.com/babel/babel/issues/12824</span></span><br><span class="line">  <span class="attr">resolve</span>: &#123; <span class="attr">fullySpecified</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">  <span class="attr">exclude</span>: [</span><br><span class="line">    <span class="regexp">/[\\/]node_modules[/\\](?:core-js|@babel|tslib|web-animations-js|web-streams-polyfill|whatwg-url)[/\\]/</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">use</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">loader</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;../../babel/webpack-loader&#x27;</span>),</span><br><span class="line">      <span class="attr">options</span>: &#123;</span><br><span class="line">        <span class="attr">cacheDirectory</span>: (cache.<span class="property">enabled</span> &amp;&amp; path.<span class="title function_">join</span>(cache.<span class="property">path</span>, <span class="string">&#x27;babel-webpack&#x27;</span>)) || <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">aot</span>: buildOptions.<span class="property">aot</span>,</span><br><span class="line">        <span class="attr">optimize</span>: buildOptions.<span class="property">buildOptimizer</span>,</span><br><span class="line">        <span class="attr">supportedBrowsers</span>: buildOptions.<span class="property">supportedBrowsers</span>,</span><br><span class="line">        <span class="attr">instrumentCode</span>: codeCoverage</span><br><span class="line">          ? &#123;</span><br><span class="line">              <span class="attr">includedBasePath</span>: sourceRoot ?? projectRoot,</span><br><span class="line">              <span class="attr">excludedPaths</span>: <span class="title function_">getInstrumentationExcludedPaths</span>(root, codeCoverageExclude),</span><br><span class="line">            &#125;</span><br><span class="line">          : <span class="literal">undefined</span>,</span><br><span class="line">      &#125; <span class="keyword">as</span> <span class="title class_">AngularBabelLoaderOptions</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
 <p>可以看到这个正则表达式匹配的是：</p>
@@ -250,7 +250,7 @@
 <p>这些文件都会被<code>require.resolve(&#39;../../babel/webpack-loader&#39;)</code>这个loader处理。而这个loader的代码在这里：<code>packages/angular_devkit/build_angular/src/tools/babel/webpack-loader.ts</code></p>
 <p>这个文件里面又调用了babelLoader。所以可知，<code>ng build</code>命令底层是用<code>Babel</code>来处理<code>TypeScript</code>文件的。</p>
 <p>这里可以画一个流程图：ng build -&gt; Webpack -&gt; Babel -&gt; TypeScript</p>
-<h2 id="scss-x2F-sass-x2F-less-x2F-css编译"><a href="#scss-x2F-sass-x2F-less-x2F-css编译" class="headerlink" title="scss&#x2F;sass&#x2F;less&#x2F;css编译"></a>scss&#x2F;sass&#x2F;less&#x2F;css编译</h2><p>Webpack通过各种loader来处理不同类型的文件，比如<code>css-loader</code>、<code>sass-loader</code>、<code>less-loader</code>等。那么什么是loader呢？loader是一个转换器，负责把一种文件格式转换为另一种文件格式。</p>
+<h2 id="scss-sass-less-css编译"><a href="#scss-sass-less-css编译" class="headerlink" title="scss&#x2F;sass&#x2F;less&#x2F;css编译"></a>scss&#x2F;sass&#x2F;less&#x2F;css编译</h2><p>Webpack通过各种loader来处理不同类型的文件，比如<code>css-loader</code>、<code>sass-loader</code>、<code>less-loader</code>等。那么什么是loader呢？loader是一个转换器，负责把一种文件格式转换为另一种文件格式。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">output_format = loader(input_format)</span><br></pre></td></tr></table></figure>
 
 <p>loader是可以链式调用的，上一个loader的输出可以作为下一个loader的输入，比如<code>scss</code>文件可以先经过<code>sass-loader</code>处理，然后再经过<code>css-loader</code>处理，最后再经过<code>style-loader</code>处理。</p>
@@ -344,7 +344,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ts-x2F-js%E7%BC%96%E8%AF%91"><span class="nav-number">1.</span> <span class="nav-text">ts&#x2F;js编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scss-x2F-sass-x2F-less-x2F-css%E7%BC%96%E8%AF%91"><span class="nav-number">2.</span> <span class="nav-text">scss&#x2F;sass&#x2F;less&#x2F;css编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#html%E7%BC%96%E8%AF%91"><span class="nav-number">3.</span> <span class="nav-text">html编译</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ts-js%E7%BC%96%E8%AF%91"><span class="nav-number">1.</span> <span class="nav-text">ts&#x2F;js编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scss-sass-less-css%E7%BC%96%E8%AF%91"><span class="nav-number">2.</span> <span class="nav-text">scss&#x2F;sass&#x2F;less&#x2F;css编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#html%E7%BC%96%E8%AF%91"><span class="nav-number">3.</span> <span class="nav-text">html编译</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -358,14 +358,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">298</span>
+          <span class="site-state-item-count">301</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">420</span>
+        <span class="site-state-item-count">437</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

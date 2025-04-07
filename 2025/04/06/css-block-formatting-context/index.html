@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+<meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zdd.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CSS Block Formatting Context (BFC)CSS中的Block Formatting Context(简称BFC - 块级格式化上下文)是一个非常重要的概念，也是前端面试中常考的题目之一，今天我们来彻底学习一下BFC。 什么是BFC?简单来说BFC是一个独立自治的渲染区域，BFC内的样式和BFC外的样式之间互相不影响。 哪些元素会生成BFC？以下情况下都会产生BFC：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="css-block-formatting-context">
+<meta property="og:url" content="https://zdd.github.io/2025/04/06/css-block-formatting-context/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="CSS Block Formatting Context (BFC)CSS中的Block Formatting Context(简称BFC - 块级格式化上下文)是一个非常重要的概念，也是前端面试中常考的题目之一，今天我们来彻底学习一下BFC。 什么是BFC?简单来说BFC是一个独立自治的渲染区域，BFC内的样式和BFC外的样式之间互相不影响。 哪些元素会生成BFC？以下情况下都会产生BFC：">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-04-06T02:12:27.000Z">
+<meta property="article:modified_time" content="2025-04-06T11:50:08.395Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="css">
+<meta property="article:tag" content="bfc">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://zdd.github.io/2025/04/06/css-block-formatting-context/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>css-block-formatting-context | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/04/06/css-block-formatting-context/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          css-block-formatting-context
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-04-06 10:12:27 / Modified: 19:50:08" itemprop="dateCreated datePublished" datetime="2025-04-06T10:12:27+08:00">2025-04-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CSS-Block-Formatting-Context-BFC"><a href="#CSS-Block-Formatting-Context-BFC" class="headerlink" title="CSS Block Formatting Context (BFC)"></a>CSS Block Formatting Context (BFC)</h1><p>CSS中的Block Formatting Context(简称BFC - 块级格式化上下文)是一个非常重要的概念，也是前端面试中常考的题目之一，今天我们来彻底学习一下BFC。</p>
+<h1 id="什么是BFC"><a href="#什么是BFC" class="headerlink" title="什么是BFC?"></a>什么是BFC?</h1><p>简单来说BFC是一个独立自治的渲染区域，BFC内的样式和BFC外的样式之间互相不影响。</p>
+<h1 id="哪些元素会生成BFC？"><a href="#哪些元素会生成BFC？" class="headerlink" title="哪些元素会生成BFC？"></a>哪些元素会生成BFC？</h1><p>以下情况下都会产生BFC：</p>
+<ol>
+<li>文档跟元素<code>&lt;html&gt;</code>结点</li>
+<li>浮动定位元素 - CSS中指定了<code>float</code>值不是<code>none</code></li>
+<li>绝对定位元素 - CSS中指定了<code>position</code>值为<code>absolute</code>或<code>fixed</code></li>
+<li><code>overflow</code>属性值不是<code>visible</code>或<code>clip</code>的元素<ol>
+<li><code>overflow: hidden</code></li>
+<li><code>overflow: auto</code></li>
+<li><code>overflow: scroll</code></li>
+<li><code>overflow: overlay</code></li>
+</ol>
+</li>
+<li><code>contain</code>属性值为如下取值的元素<ol>
+<li><code>contain: layout</code></li>
+<li><code>contain: strict</code></li>
+<li><code>contain: content</code></li>
+</ol>
+</li>
+<li>CSS中<code>display</code>属性值为以下取值的情况：<ol>
+<li><code>display: flow-root</code></li>
+<li><code>display: table-cell</code></li>
+<li><code>display: table-caption</code></li>
+<li><code>display: flow-root</code></li>
+<li><code>display: flex</code></li>
+<li><code>display: inline-flex</code></li>
+<li><code>display: grid</code></li>
+<li><code>display: inline-grid</code></li>
+</ol>
+</li>
+</ol>
+<p>可见这个规则十分的复杂，我们不一定要死记硬背这个规则。</p>
+<h1 id="BFC元素的特性："><a href="#BFC元素的特性：" class="headerlink" title="BFC元素的特性："></a>BFC元素的特性：</h1><h2 id="独立的渲染区域"><a href="#独立的渲染区域" class="headerlink" title="独立的渲染区域"></a>独立的渲染区域</h2><p>这个很好理解，也是BFC最重要的特点，BFC内的元素样式不会影响BFC外的元素样式，反之亦然。</p>
+<h2 id="包含浮动元素"><a href="#包含浮动元素" class="headerlink" title="包含浮动元素"></a>包含浮动元素</h2><p>计算BFC的高度时，浮动元素也参与计算</p>
+<h2 id="阻止外边距折叠"><a href="#阻止外边距折叠" class="headerlink" title="阻止外边距折叠"></a>阻止外边距折叠</h2><p>BFC内的元素不会和BFC外的元素发生外边距折叠现象。这个特性其实是特性一的延伸。</p>
+<h2 id="阻止元素被浮动元素覆盖"><a href="#阻止元素被浮动元素覆盖" class="headerlink" title="阻止元素被浮动元素覆盖"></a>阻止元素被浮动元素覆盖</h2><p>BFC区域不会与浮动元素重叠。</p>
+<h1 id="BFC的应用场景"><a href="#BFC的应用场景" class="headerlink" title="BFC的应用场景"></a>BFC的应用场景</h1><h2 id="清除浮动"><a href="#清除浮动" class="headerlink" title="清除浮动"></a>清除浮动</h2><p>请看以下代码，父元素背景为红色，子元素背景绿色，但是渲染后父元素背景色没有出来，这是为什么呢？</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.parent</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: red;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.child</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">float</span>: left;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: green;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;parent&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;child&quot;</span>&gt;</span>我是浮动元素<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这是因为父元素内只有一个子元素，而且这个子元素是浮动的，浮动元素会脱离文档流，导致没有元素来撑起父元素，所以父元素的高度为0，这就是所谓的高度塌陷，这是浮动布局中常见的一个问题。解决办法是给父元素添加<code>overflow: hidden</code>，这样就会生成一个BFC，父元素的高度就会被撑开。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.parent</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: red;</span><br><span class="line">  <span class="attribute">overflow</span>: hidden; <span class="comment">/* 生成BFC */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还有一种办法是使用伪元素：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.parent</span><span class="selector-pseudo">::after</span> &#123;</span><br><span class="line">  <span class="attribute">content</span>: <span class="string">&quot;&quot;</span>;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">  <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="阻止外边距折叠-1"><a href="#阻止外边距折叠-1" class="headerlink" title="阻止外边距折叠"></a>阻止外边距折叠</h2><p>请参考<a target="_blank" rel="noopener" href="http://localhost:4000/2025/04/04/css-margin-collapse/">CSS外边距折叠</a></p>
+<h2 id="一个问题"><a href="#一个问题" class="headerlink" title="一个问题"></a>一个问题</h2><p>float元素和绝对定于元素都会脱离文档流，那么他们会脱离所在的BFC吗？这个问题是我突然想到的，总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>浮动(float)</th>
+<th>绝对定位(absolute&#x2F;fixed)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>脱离常规文档流</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>脱离所在BFC</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>影响BFC内部布局</td>
+<td>是（文字环绕）</td>
+<td>否</td>
+</tr>
+<tr>
+<td>参与BFC高度计算</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>定位参照物</td>
+<td>BFC内</td>
+<td>最近的定位祖先</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>文字环绕&#x2F;传统布局</td>
+<td>精确控制位置&#x2F;叠加元素</td>
+</tr>
+</tbody></table>
+<p>由这个表格可知，float元素还是受BFC控制的，而绝对定位元素则不受BFC控制，绝对定位元素会脱离所在的BFC，直接定位到最近的定位祖先元素上。绝对定位元素可真是CSS中的异类呀。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/css/" rel="tag"># css</a>
+              <a href="/tags/bfc/" rel="tag"># bfc</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/04/04/css-margin-collapse/" rel="prev" title="css-margin-collapse">
+      <i class="fa fa-chevron-left"></i> css-margin-collapse
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/04/06/node-npm-command/" rel="next" title="node-npm-command">
+      node-npm-command <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CSS-Block-Formatting-Context-BFC"><span class="nav-number">1.</span> <span class="nav-text">CSS Block Formatting Context (BFC)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFBFC"><span class="nav-number">2.</span> <span class="nav-text">什么是BFC?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%93%AA%E4%BA%9B%E5%85%83%E7%B4%A0%E4%BC%9A%E7%94%9F%E6%88%90BFC%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">哪些元素会生成BFC？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BFC%E5%85%83%E7%B4%A0%E7%9A%84%E7%89%B9%E6%80%A7%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">BFC元素的特性：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8B%AC%E7%AB%8B%E7%9A%84%E6%B8%B2%E6%9F%93%E5%8C%BA%E5%9F%9F"><span class="nav-number">4.1.</span> <span class="nav-text">独立的渲染区域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E5%90%AB%E6%B5%AE%E5%8A%A8%E5%85%83%E7%B4%A0"><span class="nav-number">4.2.</span> <span class="nav-text">包含浮动元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BB%E6%AD%A2%E5%A4%96%E8%BE%B9%E8%B7%9D%E6%8A%98%E5%8F%A0"><span class="nav-number">4.3.</span> <span class="nav-text">阻止外边距折叠</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BB%E6%AD%A2%E5%85%83%E7%B4%A0%E8%A2%AB%E6%B5%AE%E5%8A%A8%E5%85%83%E7%B4%A0%E8%A6%86%E7%9B%96"><span class="nav-number">4.4.</span> <span class="nav-text">阻止元素被浮动元素覆盖</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BFC%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">BFC的应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%85%E9%99%A4%E6%B5%AE%E5%8A%A8"><span class="nav-number">5.1.</span> <span class="nav-text">清除浮动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BB%E6%AD%A2%E5%A4%96%E8%BE%B9%E8%B7%9D%E6%8A%98%E5%8F%A0-1"><span class="nav-number">5.2.</span> <span class="nav-text">阻止外边距折叠</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.</span> <span class="nav-text">一个问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">301</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">437</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MRKXK1S1GG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MRKXK1S1GG');
+</script>
+</body>
+</html>

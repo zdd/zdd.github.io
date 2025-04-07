@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 6.3.0">
+<meta name="generator" content="Hexo 7.3.0">
 <meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -33,7 +33,7 @@
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="lifecycle">
-<meta property="article:tag" content="ngonchanges">
+<meta property="article:tag" content="ngOnChanges">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://zdd.github.io/2024/12/05/angular-lifecyle-ngonchanges/">
@@ -240,7 +240,7 @@
 <li>当我们需要在组件的输入属性发生变化时执行一些自定义逻辑时，我们就需要重写<code>ngOnChanges</code>函数。</li>
 </ol>
 <h2 id="配合OnPush"><a href="#配合OnPush" class="headerlink" title="配合OnPush"></a>配合OnPush</h2><p>假设有一个父组件：ParentComponent，一个子组件ChildComponent，父组件中调用一个API，返回值作为Input传递给子组件，子组件要根据这个Input继续调用另外一个API，这时候就需要在子组件中重写<code>ngOnChanges</code>函数。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;Child Component&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params">changes: SimpleChanges</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">fetchData</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Call API</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;Child Component&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params"><span class="attr">changes</span>: <span class="title class_">SimpleChanges</span></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">fetchData</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Call API</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="自定义逻辑"><a href="#自定义逻辑" class="headerlink" title="自定义逻辑"></a>自定义逻辑</h2>
     </div>
@@ -253,7 +253,7 @@
           <div class="post-tags">
               <a href="/tags/angular/" rel="tag"># angular</a>
               <a href="/tags/lifecycle/" rel="tag"># lifecycle</a>
-              <a href="/tags/ngonchanges/" rel="tag"># ngonchanges</a>
+              <a href="/tags/ngonchanges/" rel="tag"># ngOnChanges</a>
           </div>
 
         
@@ -341,14 +341,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">298</span>
+          <span class="site-state-item-count">301</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">420</span>
+        <span class="site-state-item-count">437</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 6.3.0">
+<meta name="generator" content="Hexo 7.3.0">
 <meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -33,7 +33,7 @@
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="angular">
 <meta property="article:tag" content="change detection">
-<meta property="article:tag" content="runoutsideangular">
+<meta property="article:tag" content="runOutsideAngular">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://zdd.github.io/2025/02/12/angular-run-outside-angular/">
@@ -244,7 +244,7 @@
 </ol>
 <p>所有上面这些情况都需要用到<code>runOutsideAngular</code>方法，它可以让我们更好地控制变更检测的时机，避免不必要的性能损耗。</p>
 <p>频繁的DOM操作</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">NgZone</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;...&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanvasComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> ngZone: NgZone</span>) &#123;</span><br><span class="line">    ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      canvasElement.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 处理鼠标移动，不触发变更检测</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">updateCanvasPosition</span>(event);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">NgZone</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;...&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanvasComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">ngZone</span>: <span class="title class_">NgZone</span></span>) &#123;</span><br><span class="line">    ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      canvasElement.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 处理鼠标移动，不触发变更检测</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">updateCanvasPosition</span>(event);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>集成第三方库</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> chart = d3.<span class="title function_">select</span>(<span class="string">&#x27;#chart&#x27;</span>);</span><br><span class="line">  chart.<span class="title function_">on</span>(<span class="string">&#x27;zoom&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// D3 的缩放操作，避免 Angular 频繁检查</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">handleZoom</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
@@ -265,7 +265,7 @@
           <div class="post-tags">
               <a href="/tags/angular/" rel="tag"># angular</a>
               <a href="/tags/change-detection/" rel="tag"># change detection</a>
-              <a href="/tags/runoutsideangular/" rel="tag"># runoutsideangular</a>
+              <a href="/tags/runoutsideangular/" rel="tag"># runOutsideAngular</a>
           </div>
 
         
@@ -353,14 +353,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">298</span>
+          <span class="site-state-item-count">301</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">420</span>
+        <span class="site-state-item-count">437</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
