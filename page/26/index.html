@@ -187,6 +187,738 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/19/javascript-event-loop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/19/javascript-event-loop/" class="post-title-link" itemprop="url">javascript-event-loop</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-19 20:51:48" itemprop="dateCreated datePublished" datetime="2024-02-19T20:51:48+08:00">2024-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:21:59" itemprop="dateModified" datetime="2025-04-07T21:21:59+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="JavaScript-Event-Loop"><a href="#JavaScript-Event-Loop" class="headerlink" title="JavaScript Event Loop"></a>JavaScript Event Loop</h1><p>Event loop是JavaScript中一个非常重要的知识点，也是面试中常考的内容，今天我们来详细了解一下。其实Event loop的过程非常简单，它是一个无限循环，Javascript引擎等待任务，执行任务，sleep，等待下一个任务，继续执行任务，如此循环往复。虽说简单，但是也有如下特点：</p>
+<ol>
+<li>浏览器渲染只有在JS执行完才进行，这二者是互斥的。</li>
+<li>所以如果一个任务执行时间过长，会导致页面卡顿，也会导致用户交互不流畅，比如点击按钮没反应。</li>
+</ol>
+<p>比如下面这段代码：运行时你会发现，浏览器一直在执行<code>count</code>函数，而这函数需要运行很久，在它执行完之前，浏览器不会渲染页面，用户也无法进行交互。也就是你看不到progress进度，也看不到按钮，更别说点击这个按钮了。这就印证了上面第一点，执行JS和渲染页面是互斥的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;progress&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&#x27;alert(&quot;Hello, world!&quot;)&#x27;</span>&gt;</span>show alert<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">function</span> <span class="title function_">count</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1e7</span>; i++) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        i++;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        progress.<span class="property">innerHTML</span> = i;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="title function_">count</span>();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
+<p>那么问题来了，如何修复上面这个问题呢？答案是将1e7这么多的数字分批处理，比如每次处理1000个数字，然后让浏览器渲染一次，这样就可以看到进度条了，也可以点击按钮了。</p>
+<p>那么如何分批呢？其实分批不是目的，目的是给浏览器一个渲染的机会，这时我们就可以使用setTimeout来实现，因为setTimeout中的回调函数是异步执行的，在执行完同步代码后，浏览器会渲染一次，然后再执行setTimeout中的回调函数。如此往复。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;progress&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">&#x27;alert(&quot;Hello, world!&quot;)&#x27;</span>&gt;</span>show alert<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">let</span> i = <span class="number">0</span>;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">function</span> <span class="title function_">count</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="comment">// do a piece of the heavy job (*)</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">do</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        i++;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        progress.<span class="property">innerHTML</span> = i;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125; <span class="keyword">while</span> (i % <span class="number">1e3</span> != <span class="number">0</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="keyword">if</span> (i &lt; <span class="number">1e7</span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        <span class="built_in">setTimeout</span>(count);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="title function_">count</span>();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>上面代码的执行顺序是这样的：</p>
+<ol>
+<li>执行同步代码，先处理1000个数字。</li>
+<li>i &lt; 1e7, 表示还有数字需要处理，所以调用setTimeout，将count函数放到宏任务队列中。</li>
+<li>同步代码执行完毕，浏览器渲染一次，用户可以看到进度条。</li>
+<li>从宏任务队列中取出count函数，继续处理1000个数字。</li>
+<li>重复2-4步骤，直到i &gt;&#x3D; 1e7。</li>
+</ol>
+<p>如此这般，既不影响浏览器更新dom，也不影响渲染，也不耽误用户交互。岂不美哉？</p>
+<h2 id="浏览器如何执行一段JavaScript代码？"><a href="#浏览器如何执行一段JavaScript代码？" class="headerlink" title="浏览器如何执行一段JavaScript代码？"></a>浏览器如何执行一段JavaScript代码？</h2><p>当浏览器加载一个页面时，它会创建一个主线程来执行JavaScript代码。主线程是单线程的，意味着它一次只能执行一个任务。当主线程执行JavaScript代码时，它会遵循以下步骤：</p>
+<ol>
+<li>先执行同步代码。</li>
+<li>遇到异步代码时，做如下处理<ol>
+<li>如果是宏任务代码，将其回调函数放到宏任务队列中。</li>
+<li>如果是微任务代码，将其回调函数放到微任务队列中。</li>
+</ol>
+</li>
+<li>同步代码执行完毕后，开始依次执行微任务队列中的微任务（即回调函数）。</li>
+<li><code>浏览器渲染</code></li>
+<li>微任务队列清空后，从宏任务队列取出一个任务（即回调函数）执行，然后回到步骤1</li>
+</ol>
+<p>注意：步骤3，5的执行也遵循第1， 2两点规则。这么做是为了处理微任务和宏任务的嵌套关系。微任务队列执行每次都会清空微任务队列，而宏任务队列每次只执行一个任务。</p>
+<h3 id="什么异步代码？"><a href="#什么异步代码？" class="headerlink" title="什么异步代码？"></a>什么异步代码？</h3><p>异步代码是指不会立即执行的代码，而是在将来某个时间点执行的代码。常见的异步代码有：</p>
+<ol>
+<li><code>setTimeout</code> 和 <code>setInterval</code>。</li>
+<li><code>Promise</code>，<code>async/await</code>。</li>
+<li><code>MutationObserver</code>等等。</li>
+</ol>
+<p>除了异步代码，剩下的就是同步代码。</p>
+<h3 id="宏任务"><a href="#宏任务" class="headerlink" title="宏任务"></a>宏任务</h3><ul>
+<li><code>setTimeout</code></li>
+<li><code>setInterval</code></li>
+</ul>
+<h3 id="微任务"><a href="#微任务" class="headerlink" title="微任务"></a>微任务</h3><ul>
+<li><code>Promise</code>，<code>async/await</code></li>
+<li><code>queueMicrotask</code></li>
+<li><code>MutationObserver</code></li>
+<li><code>process.nextTick</code>（Node.js）</li>
+</ul>
+<p>对于Promise需要特别注意：Promise本身是同步代码，但是其<code>.then</code>, <code>.catch</code>, <code>.finally</code>对应的回调函数是异步代码。对于<code>queueMicrotask</code>，它是一个新的API，用于将一个微任务添加到微任务队列中。(If we’d like to execute a function asynchronously (after the current code), but before changes are rendered or new events handled, we can schedule it with queueMicrotask.)</p>
+<h2 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h2><h3 id="1-以下代码输出什么？"><a href="#1-以下代码输出什么？" class="headerlink" title="1. 以下代码输出什么？"></a>1. 以下代码输出什么？</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;resolve&#x27;</span>);</span><br><span class="line">  <span class="title function_">resolve</span>(<span class="number">1</span>);</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(res);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>输出结果是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Start</span><br><span class="line">resolve</span><br><span class="line">End</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+<p>这个题考察的点就是Promise的构造函数体是同步代码，所以输出<code>Start</code>后紧接着会先输出<code>resolve</code>，然后是<code>End</code>。而<code>.then</code>方法中的回调函数是异步代码，所以会在同步代码执行完毕后执行，所以最后输出1.</p>
+<h3 id="1-以下代码输出什么？-1"><a href="#1-以下代码输出什么？-1" class="headerlink" title="1. 以下代码输出什么？"></a>1. 以下代码输出什么？</h3>  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:blue&#x27;</span>;</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="property">style</span> = <span class="string">&#x27;background:black&#x27;</span>;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>答：用户会直接看到一个黑色的页面，蓝色页面根本不会出现，连闪现的过程也没有。根据Event Loop模型，代码执行过程如下：</p>
+<ol>
+<li>执行同步代码，<code>document.body.style = &#39;background:blue&#39;;</code>，将页面背景色设置为蓝色。</li>
+<li>遇到微任务<code>Promise.resolve().then()</code>，将其回调函数放到微任务队列中。</li>
+<li>同步代码执行完毕，开始执行微任务队列中的微任务，即将页面背景色设置为黑色。</li>
+<li>浏览器开始渲染页面，用户看到的是黑色的页面。</li>
+</ol>
+<p>也就是说，在页面渲染之前，<code>document.body.style</code>早已经在 Promise 的回调函数中被赋值为<code>black</code> 了。<br>注意，浏览器会在每次微任务队列清空时渲染一次，如下图所示。<br><img src="/../images/event-loop-render.png" alt="event-loop"></p>
+<h3 id="以下代码输出什么？"><a href="#以下代码输出什么？" class="headerlink" title="以下代码输出什么？"></a>以下代码输出什么？</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">3</span>));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">4</span>)));</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">5</span>));</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">6</span>));</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">7</span>);</span><br></pre></td></tr></table></figure>
+<p>答案：1 7 3 5 2 6 4.<br>首先执行同步代码，输出如下：</p>
+<ul>
+<li>控制台：1 7</li>
+<li>微任务队列：<code>[() =&gt; console.log(3), () =&gt; setTimeout(() =&gt; console.log(4)), () =&gt; console.log(5)]</code></li>
+<li>宏任务队列：<code>[()=&gt;console.log(2)</code>, <code>()=&gt;console.log(6)]</code></li>
+</ul>
+<p>然后执行微任务队列中的微任务，输出如下：</p>
+<ul>
+<li>控制台：1 7 3 5</li>
+<li>微任务队列：[]  &#x2F;&#x2F; 微任务队列清空</li>
+<li>宏任务队列：<code>[()=&gt;console.log(2), ()=&gt;console.log(6), () =&gt; console.log(4)]</code></li>
+</ul>
+<p>最后执行宏任务队列中的宏任务，输出如下：</p>
+<ul>
+<li>控制台：1 7 3 5 2 6 4</li>
+<li>微任务队列：[]  &#x2F;&#x2F; 微任务队列清空</li>
+<li>宏任务队列：[]  &#x2F;&#x2F; 宏任务队列清空</li>
+</ul>
+<h3 id="2-以下代码输出什么？"><a href="#2-以下代码输出什么？" class="headerlink" title="2. 以下代码输出什么？"></a>2. 以下代码输出什么？</h3><p>注意以下代码需要在Node.js环境下运行。因为<code>process.nextTick</code>是Node.js的API。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Timeout&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Promise then&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">asyncFunction</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>();</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Async/Await&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">asyncFunction</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Node.js</span></span><br><span class="line">process.<span class="title function_">nextTick</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Next tick&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>答案：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Start</span><br><span class="line">End</span><br><span class="line">Promise <span class="keyword">then</span></span><br><span class="line">Async/Await</span><br><span class="line">Next tick</span><br><span class="line">Timeout</span><br></pre></td></tr></table></figure>
+<p>还是按照以下执行顺序来分析：</p>
+<ol>
+<li><p>先执行同步代码，输出<code>Start</code>和<code>End</code>。</p>
+</li>
+<li><p>在执行微任务队列代码，输出<code>Promise then</code>和<code>Async/Await</code>和<code>Next tick</code>。</p>
+</li>
+<li><p>最后执行宏任务队列代码，输出<code>Timeout</code>。注意每次只执行一个宏任务，然后再执行微任务队列中的微任务，如此往复。</p>
+</li>
+<li><p>微任务队列每次执行都清空。</p>
+</li>
+<li><p>宏任务队列每次只取一个任务执行。</p>
+</li>
+</ol>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference:"></a>Reference:</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://javascript.info/event-loop">https://javascript.info/event-loop</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop">MDN: Event Loop</a></li>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/8aGhZQkoFbQ">https://youtu.be/8aGhZQkoFbQ</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=SrNQS8J67zc">https://www.youtube.com/watch?v=SrNQS8J67zc</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=u1kqx6AenYw">https://www.youtube.com/watch?v=u1kqx6AenYw</a></li>
+<li><a target="_blank" rel="noopener" href="https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events">https://javascript.info/event-loop#:~:text=Rendering%20never%20happens%20while%20the,such%20as%20processing%20user%20events</a>.</li>
+<li><a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/19/useful-online-tools/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/19/useful-online-tools/" class="post-title-link" itemprop="url">useful-online-tools</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-19 18:39:55" itemprop="dateCreated datePublished" datetime="2024-02-19T18:39:55+08:00">2024-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:35:36" itemprop="dateModified" datetime="2025-04-07T21:35:36+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/misc/" itemprop="url" rel="index"><span itemprop="name">misc</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>226</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Useful-Online-Tools"><a href="#Useful-Online-Tools" class="headerlink" title="Useful Online Tools"></a>Useful Online Tools</h1><h2 id="Web性能测试"><a href="#Web性能测试" class="headerlink" title="Web性能测试"></a>Web性能测试</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.webpagetest.org/">https://www.webpagetest.org/</a></li>
+<li><a target="_blank" rel="noopener" href="https://pagespeed.web.dev/">https://pagespeed.web.dev/</a></li>
+</ol>
+<h2 id="Online-books"><a href="#Online-books" class="headerlink" title="Online books"></a>Online books</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/getify/You-Dont-Know-JS/tree/2nd-ed">You don’t know JS</a></li>
+<li><a href="https://link.zhihu.com/?target=https://github.com/ruanyf/es6tutorial">ES6 入门</a></li>
+<li><a href="https://link.zhihu.com/?target=https://github.com/mjavascript/practical-modern-javascript">深入理解JS特性</a></li>
+<li><a target="_blank" rel="noopener" href="https://dr-axel.de/">Exploring JS</a></li>
+<li>Modern JavaScript: <a target="_blank" rel="noopener" href="https://zh.javascript.info/">中文版</a>, <a target="_blank" rel="noopener" href="https://javascript.info/">英文版</a></li>
+</ol>
+<h2 id="ASCII-tree-generator"><a href="#ASCII-tree-generator" class="headerlink" title="ASCII tree generator"></a>ASCII tree generator</h2><p><a target="_blank" rel="noopener" href="https://ascii-tree-generator.com/">https://ascii-tree-generator.com/</a></p>
+<h2 id="Regex"><a href="#Regex" class="headerlink" title="Regex"></a>Regex</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://regex101.com/">Regex 101</a> - Online regex tester and debugger, 最好用的正则表达式工具，没有之一。</li>
+</ul>
+<h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://jsonplaceholder.typicode.com/">Free Json Server</a> - 一个免费的 JSON Server，可以用来测试前端请求。</li>
+<li><a target="_blank" rel="noopener" href="https://jsonformatter.curiousconcept.com/">Json Formatter</a> - JSON 格式化工具，可以将 JSON 格式化成易读的格式。</li>
+<li><a target="_blank" rel="noopener" href="https://www.jsonschema.net/">Json schema generator</a> - JSON Schema 生成工具，可以根据 JSON 生成 JSON Schema。</li>
+</ul>
+<h2 id="TypeScript"><a href="#TypeScript" class="headerlink" title="TypeScript"></a>TypeScript</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.typescriptlang.org/play">TypeScript Playground</a> - TypeScript 在线编译器，可以在线编译 TypeScript 代码。</li>
+</ul>
+<h2 id="JavaScript"><a href="#JavaScript" class="headerlink" title="JavaScript"></a>JavaScript</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://astexplorer.net/">AST</a> - Abstract Syntax Tree，可以将 JavaScript 代码转换成 AST 树，方便理解代码的结构。</li>
+</ul>
+<h2 id="UI-Framework"><a href="#UI-Framework" class="headerlink" title="UI Framework"></a>UI Framework</h2><ul>
+<li>A Pure Javascript UI Framework: <a target="_blank" rel="noopener" href="https://github.com/layui/layui">https://github.com/layui/layui</a></li>
+</ul>
+<h2 id="Standard"><a href="#Standard" class="headerlink" title="Standard:"></a>Standard:</h2><p><code>RFC</code> - <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Request_for_Comments">Request for Comments</a></p>
+<ul>
+<li>Http Semantics : <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a></li>
+<li>Http: 1.0: <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/inline-errata/rfc1945.html">https://www.rfc-editor.org/rfc/inline-errata/rfc1945.html</a></li>
+<li>Http 1.1: <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc2616">https://datatracker.ietf.org/doc/html/rfc2616</a></li>
+<li>Http 2.0 : <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc9113.html">https://www.rfc-editor.org/rfc/rfc9113.html</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/19/javascript-promise1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/19/javascript-promise1/" class="post-title-link" itemprop="url">promise</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-19 18:35:05" itemprop="dateCreated datePublished" datetime="2024-02-19T18:35:05+08:00">2024-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:30:14" itemprop="dateModified" datetime="2025-04-07T21:30:14+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Promise就像它的名字一样，是指在未来某个时间将会发生的事情。这个事情会生成一个结果，我们叫做Result。</p>
+<p>Promise有三种状态：</p>
+<ul>
+<li>Pending: 初始状态，既不是成功状态，也不是失败状态。</li>
+<li>Fulfilled: 意味着操作成功完成。</li>
+<li>Rejected: 意味着操作失败。</li>
+</ul>
+<p>这里，<code>Fullfilled</code>和<code>Rejected</code>又统称为<code>Settled</code>。也就是说，一个Promise只要执行完毕有就算是<code>Settled</code>了, 无论是成功还是失败。</p>
+<h1 id="Promise-API"><a href="#Promise-API" class="headerlink" title="Promise API"></a>Promise API</h1><h2 id="Promise-all"><a href="#Promise-all" class="headerlink" title="Promise.all"></a>Promise.all</h2><p><code>Promise.all</code>接收一个promise数组，返回一个新的promise。这个新的promise会在所有promise都resolve之后resolve，或者在任何一个promise reject之后reject。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 2 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2]).<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="string">``</span></span><br><span class="line"><span class="attr">output</span>:</span><br><span class="line"><span class="string">``</span><span class="string">`javascript</span></span><br><span class="line"><span class="string">[&#x27;Promise 1 resolved&#x27;, &#x27;Promise 2 resolved&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>假设Promise 2 reject了，那么<code>Promise.all</code>会reject，并且返回的promise的值是Promise 2 reject的值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">reject</span>(<span class="title class_">Error</span>(<span class="string">&#x27;Promise 2 rejected&#x27;</span>));</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Error</span>: <span class="title class_">Promise</span> <span class="number">2</span> rejected</span><br></pre></td></tr></table></figure>
+
+<p>注意，Promise.all大部分情况下是异步返回的，只有一种情况例外，那就是传递一个空数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([]); <span class="comment">// 立即同步返回 Promise &#123; [] &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用<code>console.log</code>来验证上述代码是同步返回的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> p = <span class="title class_">Promise</span>.<span class="title function_">all</span>([]);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>输出结果如下，可见<code>Promise.all([])</code>是同步返回的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">start</span><br><span class="line">Promise &#123; [] &#125;</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>除了传递空数组外，其他所有情况都是异步返回，比如直接传递非promise数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p = <span class="title class_">Promise</span>.<span class="title function_">all</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]); <span class="comment">// 异步返回。</span></span><br></pre></td></tr></table></figure>
+
+<p>思考题：<br>以下代码输会输出<code>promise one running...</code>吗？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise one running...&#x27;</span>);</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">reject</span>(<span class="string">&#x27;rejected&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([p1, p2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<p>解析：会输出’promise one running…’, 虽然<code>Promise.all</code>会在任何一个promise reject之后立即reject，但是剩下的promise还是会继续执行，直到resolve或者reject。注意这就是promise的不可取消性，如何要取消，请使用RxJS中的observable。</p>
+<p>到这里我们需要总结一下<code>Promise.all</code>的返回值，一共有以下几种情况：</p>
+<ol>
+<li>所有promise都resolve，返回一个数组，数组中包含了所有promise的resolve值。</li>
+<li>任何一个promise reject，返回的promise会reject，其值是第一个reject的promise的值。</li>
+<li>传递一个空数组，返回的promise会立即resolve，值是一个空数组。</li>
+</ol>
+<h2 id="Promise-allSettled"><a href="#Promise-allSettled" class="headerlink" title="Promise.allSettled"></a>Promise.allSettled</h2><p>这个方法与<code>Promise.all</code>类似，不同的是，<code>Promise.allSettled</code>会等待所有promise都settled之后返回。settled的意思是promise已经resolve或者reject了。</p>
+<p><code>Promise.allSettled</code>的返回值是一个数组，数组中的每个元素都是一个对象，包含了promise的状态和值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">reject</span>(<span class="string">&#x27;rejected&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Using .catch:</span></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>([p1, p2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<p>以上代码输出如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123; status: <span class="string">&#x27;fulfilled&#x27;</span>, value: <span class="string">&#x27;one&#x27;</span> &#125;,</span><br><span class="line">  &#123; status: <span class="string">&#x27;rejected&#x27;</span>, reason: <span class="string">&#x27;rejected&#x27;</span> &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h2 id="Promise-any"><a href="#Promise-any" class="headerlink" title="Promise.any"></a>Promise.any</h2><p>输入的Promise数组中，任意一个promise resolve，返回的promise就resolve。如果所有的promise都reject，返回的promise就reject。</p>
+<p>以下代码输出quick，因为<code>p2</code>最快resolve。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">100</span>, <span class="string">&#x27;quick&#x27;</span>));</span><br><span class="line"><span class="keyword">const</span> p3 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>, <span class="string">&#x27;slow&#x27;</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promises = [p1, p2, p3];</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>(promises).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
+
+<p>当所有promise都reject时，<code>Promise.any</code>会返回&#96;&#96;AggregateError&#96;，这个错误包含了所有的reject值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">const</span> promises = [p1, p2];</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>(promises).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
+
+<p>如果给<code>Promise.any</code>传递一个空数组，返回的promise会reject，错误信息是<code>[AggregateError: All promises were rejected] &#123; [errors]: [] &#125;</code>.</p>
+<h2 id="Promise-race"><a href="#Promise-race" class="headerlink" title="Promise.race"></a>Promise.race</h2><p>这个API最简单了，看名字就知道了，谁先返回就是谁，不论是resolve还是reject。<br><code>Promise.race</code>接收一个promise数组，返回一个新的promise。这个新的promise会在任意一个promise resolve或者reject之后resolve或者reject。</p>
+<p>下面代码输出two，因为<code>p2</code>最快resolve。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>, <span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(resolve, <span class="number">100</span>, <span class="string">&#x27;two&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">race</span>([p1, p2]).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果给<code>Promise.race</code>传递一个空数组，返回的promise会一直pending，因为没有promise可以resolve或者reject。这就好比一个没有人参加的百米赛跑，永远不会有人冲过终点。</p>
+<h2 id="Promise-in-setTimeout"><a href="#Promise-in-setTimeout" class="headerlink" title="Promise in setTimeout"></a>Promise in setTimeout</h2><p><code>setTimeout</code> is macro-task, and promise is micro-task. So the promise will be executed before the setTimeout.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;Promise 2 resolved&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise = <span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2]);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(promise);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Using setTimeout, we can execute code after the queue is empty</span></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(promise);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span> &#123; &lt;pending&gt; &#125;</span><br><span class="line"><span class="title class_">Promise</span> &#123; [ <span class="string">&#x27;Promise 1 resolved&#x27;</span>, <span class="string">&#x27;Promise 2 resolved&#x27;</span> ] &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Why the output?</p>
+<ol>
+<li><code>Promise.all</code> is a micro-task, so it will be executed before the <code>setTimeout</code> macro-task.</li>
+<li>The <code>promise</code> is pending when we log it for the first time.</li>
+<li>After the <code>Promise.all</code> is executed, the <code>promise</code> is resolved</li>
+<li>The <code>setTimeout</code> is a macro-task, so it will be executed after the queue is empty(no micro-task in the queue).</li>
+<li>The <code>promise</code> is resolved when we log it for the second time</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/19/javascript-promise/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/19/javascript-promise/" class="post-title-link" itemprop="url">javascript-promise</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-19 18:35:05" itemprop="dateCreated datePublished" datetime="2024-02-19T18:35:05+08:00">2024-02-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:25:28" itemprop="dateModified" datetime="2025-04-07T21:25:28+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Promise就像它的名字一样，是指在未来某个时间将会发生的事情。这个事情会生成一个结果，我们叫做Result。</p>
+<p>Promise有三种状态：</p>
+<ul>
+<li>Pending: 初始状态，既不是成功状态，也不是失败状态。</li>
+<li>Fulfilled: 意味着操作成功完成。</li>
+<li>Rejected: 意味着操作失败。</li>
+</ul>
+<p>这里，<code>Fullfilled</code>和<code>Rejected</code>又统称为<code>Settled</code>。也就是说，一个Promise只要执行完毕有就算是<code>Settled</code>了, 无论是成功还是失败。</p>
+<h1 id="Promise-API"><a href="#Promise-API" class="headerlink" title="Promise API"></a>Promise API</h1><h2 id="Promise-all"><a href="#Promise-all" class="headerlink" title="Promise.all"></a>Promise.all</h2><p><code>Promise.all</code>接收一个promise数组，返回一个新的promise。这个新的promise会在所有promise都resolve之后resolve，或者在任何一个promise reject之后reject。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 2 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2]).<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">&#x27;Promise 1 resolved&#x27;</span>, <span class="string">&#x27;Promise 2 resolved&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>假设Promise 2 reject了，那么<code>Promise.all</code>会reject，并且返回的promise的值是Promise 2 reject的值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">reject</span>(<span class="title class_">Error</span>(<span class="string">&#x27;Promise 2 rejected&#x27;</span>));</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Error</span>: <span class="title class_">Promise</span> <span class="number">2</span> rejected</span><br></pre></td></tr></table></figure>
+
+<p>注意，Promise.all大部分情况下是异步返回的，只有一种情况例外，那就是传递一个空数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([]); <span class="comment">// 立即同步返回 Promise &#123; [] &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用<code>console.log</code>来验证上述代码是同步返回的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> p = <span class="title class_">Promise</span>.<span class="title function_">all</span>([]);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(p);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>输出结果如下，可见<code>Promise.all([])</code>是同步返回的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">start</span><br><span class="line">Promise &#123; [] &#125;</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>除了传递空数组外，其他所有情况都是异步返回，比如直接传递非promise数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p = <span class="title class_">Promise</span>.<span class="title function_">all</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]); <span class="comment">// 异步返回。</span></span><br></pre></td></tr></table></figure>
+
+<p>思考题：<br>以下代码输会输出<code>promise one running...</code>吗？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise one running...&#x27;</span>);</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">reject</span>(<span class="string">&#x27;rejected&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([p1, p2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<p>解析：会输出’promise one running…’, 虽然<code>Promise.all</code>会在任何一个promise reject之后立即reject，但是剩下的promise还是会继续执行，直到resolve或者reject。注意这就是promise的不可取消性，如何要取消，请使用RxJS中的observable。</p>
+<p>到这里我们需要总结一下<code>Promise.all</code>的返回值，一共有以下几种情况：</p>
+<ol>
+<li>所有promise都resolve，返回一个数组，数组中包含了所有promise的resolve值。</li>
+<li>任何一个promise reject，返回的promise会reject，其值是第一个reject的promise的值。</li>
+<li>传递一个空数组，返回的promise会立即resolve，值是一个空数组。</li>
+</ol>
+<h2 id="Promise-allSettled"><a href="#Promise-allSettled" class="headerlink" title="Promise.allSettled"></a>Promise.allSettled</h2><p>这个方法与<code>Promise.all</code>类似，不同的是，<code>Promise.allSettled</code>会等待所有promise都settled之后返回。settled的意思是promise已经resolve或者reject了。</p>
+<p><code>Promise.allSettled</code>的返回值是一个数组，数组中的每个元素都是一个对象，包含了promise的状态和值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">resolve</span>(<span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">reject</span>(<span class="string">&#x27;rejected&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Using .catch:</span></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>([p1, p2])</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">(<span class="params">values</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(values);</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(error);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<p>以上代码输出如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123; status: <span class="string">&#x27;fulfilled&#x27;</span>, value: <span class="string">&#x27;one&#x27;</span> &#125;,</span><br><span class="line">  &#123; status: <span class="string">&#x27;rejected&#x27;</span>, reason: <span class="string">&#x27;rejected&#x27;</span> &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h2 id="Promise-any"><a href="#Promise-any" class="headerlink" title="Promise.any"></a>Promise.any</h2><p>输入的Promise数组中，任意一个promise resolve，返回的promise就resolve。如果所有的promise都reject，返回的promise就reject。</p>
+<p>以下代码输出quick，因为<code>p2</code>最快resolve。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">100</span>, <span class="string">&#x27;quick&#x27;</span>));</span><br><span class="line"><span class="keyword">const</span> p3 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>, <span class="string">&#x27;slow&#x27;</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promises = [p1, p2, p3];</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>(promises).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
+
+<p>当所有promise都reject时，<code>Promise.any</code>会返回&#96;&#96;AggregateError&#96;，这个错误包含了所有的reject值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">const</span> promises = [p1, p2];</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">any</span>(promises).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(value));</span><br></pre></td></tr></table></figure>
+
+<p>如果给<code>Promise.any</code>传递一个空数组，返回的promise会reject，错误信息是<code>[AggregateError: All promises were rejected] &#123; [errors]: [] &#125;</code>.</p>
+<h2 id="Promise-race"><a href="#Promise-race" class="headerlink" title="Promise.race"></a>Promise.race</h2><p>这个API最简单了，看名字就知道了，谁先返回就是谁，不论是resolve还是reject。<br><code>Promise.race</code>接收一个promise数组，返回一个新的promise。这个新的promise会在任意一个promise resolve或者reject之后resolve或者reject。</p>
+<p>下面代码输出two，因为<code>p2</code>最快resolve。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(resolve, <span class="number">500</span>, <span class="string">&#x27;one&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> p2 = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(resolve, <span class="number">100</span>, <span class="string">&#x27;two&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">race</span>([p1, p2]).<span class="title function_">then</span>(<span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果给<code>Promise.race</code>传递一个空数组，返回的promise会一直pending，因为没有promise可以resolve或者reject。这就好比一个没有人参加的百米赛跑，永远不会有人冲过终点。</p>
+<h2 id="Promise-in-setTimeout"><a href="#Promise-in-setTimeout" class="headerlink" title="Promise in setTimeout"></a>Promise in setTimeout</h2><p><code>setTimeout</code> is macro-task, and promise is micro-task. So the promise will be executed before the setTimeout.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> promise1 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;Promise 1 resolved&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> promise2 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;Promise 2 resolved&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promise = <span class="title class_">Promise</span>.<span class="title function_">all</span>([promise1, promise2]);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(promise);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Using setTimeout, we can execute code after the queue is empty</span></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(promise);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span> &#123; &lt;pending&gt; &#125;</span><br><span class="line"><span class="title class_">Promise</span> &#123; [ <span class="string">&#x27;Promise 1 resolved&#x27;</span>, <span class="string">&#x27;Promise 2 resolved&#x27;</span> ] &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Why the output?</p>
+<ol>
+<li><code>Promise.all</code> is a micro-task, so it will be executed before the <code>setTimeout</code> macro-task.</li>
+<li>The <code>promise</code> is pending when we log it for the first time.</li>
+<li>After the <code>Promise.all</code> is executed, the <code>promise</code> is resolved</li>
+<li>The <code>setTimeout</code> is a macro-task, so it will be executed after the queue is empty(no micro-task in the queue).</li>
+<li>The <code>promise</code> is resolved when we log it for the second time</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/18/javascript-debugging/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/02/18/javascript-debugging/" class="post-title-link" itemprop="url">javascript-debugging</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-18 20:52:05" itemprop="dateCreated datePublished" datetime="2024-02-18T20:52:05+08:00">2024-02-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:21:31" itemprop="dateModified" datetime="2025-04-07T21:21:31+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>276</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Debug-JavaScript-Applications"><a href="#Debug-JavaScript-Applications" class="headerlink" title="Debug JavaScript Applications"></a>Debug JavaScript Applications</h1><p>我平时调试的时候，基本都是以打log的方式实现的，也就是用<code>console.log</code>一顿输出，这种方式简单粗暴，但是确实比较费时，还是要掌握正统的调试方法。现在步骤记录如下。</p>
+<ol>
+<li>启动项目</li>
+<li>来到项目所在的网页，按下F12打开开发者工具。</li>
+<li>找到<code>source</code> tab, 然后找到以<code>webpack://</code>开头的源码。</li>
+<li>依次展开目录，找到自己的代码，单击代码行左边的行号，就可以添加断点，然后按下F5，刷新页面，这时如果触发到断点，就会停下来。</li>
+</ol>
+<p><img src="/../images/js-debug.png" alt="js-debug"></p>
+<p>如果你的项目比较新，使用的是ESBuild + Vite来构建的，那么源文件如下图所示：<br><img src="/../images/js-debug-esbuild+vite.png" alt="js-debug-esbuild"></p>
+<h1 id="Set-breakpoint-in-code"><a href="#Set-breakpoint-in-code" class="headerlink" title="Set breakpoint in code"></a>Set breakpoint in code</h1><p>如果觉得以上办法设置断点太麻烦，也可以在代码里面设置，找到对应的代码行数，在前面加一行叫做 <code>debugger</code>,待项目热更新完毕，页面就会停在断点处。十分的方便。</p>
+<p><img src="/../images/set-breakpoint.png" alt="set breakpoint"></p>
+<p>是不是很方便呢？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/18/javascript-data-types/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -230,7 +962,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>466</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -337,7 +1083,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>315</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -436,7 +1196,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>392</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -529,7 +1303,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>668</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -672,7 +1460,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>363</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -721,541 +1523,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/10/cors-import-js-from-html-locally/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/10/cors-import-js-from-html-locally/" class="post-title-link" itemprop="url">cors-import-js-from-html-locally</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-10 18:54:38" itemprop="dateCreated datePublished" datetime="2024-02-10T18:54:38+08:00">2024-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:12:01" itemprop="dateModified" datetime="2025-04-07T21:12:01+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="跨域问题一则"><a href="#跨域问题一则" class="headerlink" title="跨域问题一则"></a>跨域问题一则</h1><h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>今天在编写一个简单的html时，遇到了如下问题，html中引入了一个js文件，且html和js位于同一个目录下。</p>
-<p>index.html</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">      <span class="keyword">import</span> add <span class="keyword">from</span> <span class="string">&quot;./index.js&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>));</span></span><br><span class="line"><span class="language-javascript">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>index.js</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当我使用浏览器打开html文件时，Chrome浏览器控制台报错：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to script at <span class="string">&#x27;file:///Users/philip/Projects/test.js&#x27;</span> from origin <span class="string">&#x27;null&#x27;</span> has been blocked by CORS policy: Cross origin requests are only supported <span class="keyword">for</span> protocol schemes: http, data, chrome, chrome-extension, https.</span><br></pre></td></tr></table></figure>
-
-<p>查看network tab，发现如下信息，在status一栏，发现跨域错误：<code>CORS error</code></p>
-<p><img src="/../images/cors-shema-not-match.png" alt="Alt text"></p>
-<p>首先复习一下什么是同源策略<br>同源策略是浏览器的一个安全功能，它要求一个网页只能与其本身的服务器进行交互，而不能与其他域的服务器进行交互。这样可以防止恶意的网站窃取数据。</p>
-<p>从具体的实现来分析，协议，域名，端口号都相同的两个url就是同源的。以<code>https://www.example.com:8080</code>为例，它的组成部分如下：</p>
-<ul>
-<li>https: - 协议</li>
-<li><a target="_blank" rel="noopener" href="http://www.example.com/">www.example.com</a> - 域名</li>
-<li>8080 - 端口号</li>
-</ul>
-<p>如果省略端口，那么http默认是80，https默认是443。</p>
-<p>那么问题来了，为什么我引入的js文件会报错呢？因为浏览器认为这是一个跨域请求，而不是同源请求。这是因为我们的html文件是通过<code>http://</code>协议打开的（双击html文件时，会使用系统默认的浏览器打开，这时观察浏览器中的地址，可知是http协议。），而html中引用的js文件是通过<code>file://</code>协议引入的，协议不同，所以浏览器认为这是一个跨域请求。</p>
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><ol>
-<li>WebStorm - WebStorm打开网页时没有这个问题，因为WebStorm内置了一个服务器，所以它的协议是<code>http://</code>，所以不会报错。</li>
-<li>VSCode - 安装插件<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/live-server">Live Server</a>，使用<code>Live Server</code>打开网页，也不会报错。<ol>
-<li><code>npm install -g live-server</code></li>
-<li>Open terminal, cd 到html文件所在目录</li>
-<li>run <code>live-server .</code></li>
-</ol>
-</li>
-</ol>
-<p>当然也可以使用<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/http-server">http-server</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/02/10/typescript-array-literal-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/02/10/typescript-array-literal-type/" class="post-title-link" itemprop="url">typescript-array-literal-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-02-10 17:14:08" itemprop="dateCreated datePublished" datetime="2024-02-10T17:14:08+08:00">2024-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:34:38" itemprop="dateModified" datetime="2025-04-07T21:34:38+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="TypeScript-Array-Literal-Type"><a href="#TypeScript-Array-Literal-Type" class="headerlink" title="TypeScript Array Literal Type"></a>TypeScript Array Literal Type</h1><h2 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h2><p>考虑下面的类型定义：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">      <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意这里的<code>students</code>是一个数组字面量，而不是普通的数组，数组中的元素是一个对象，对象中有<code>name</code>和<code>age</code>两个属性。我们在使用这个类型的时候，可能会遇到这样的情况：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Tom&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">20</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这样的情况下，<code>data</code>是一个符合<code>response</code>类型的对象，但是<code>students</code>数组中的元素个数是不对的，因为<code>students</code>的类型定义是一个元素的数组字面量。所以我们不能传入两个元素（这相当于把students当作数组类型来使用，而不是当作数组字面量来使用）。所以TS会给出如下提示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">is not assignable to <span class="built_in">type</span> [&#123; name: string; age: number; &#125;]</span><br><span class="line">Source has 2 element(s) but target allows only 1</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>这时候我们可以使用<code>Array</code>类型来定义<code>students</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: <span class="title class_">Array</span>&lt;&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">  &#125;&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样的定义，<code>students</code>是一个数组，数组中的元素是一个对象，对象中有<code>name</code>和<code>age</code>两个属性。这样的定义，<code>students</code>数组中的元素个数是不确定的，可以是0个或者多个。</p>
-<p>也可以使用<code>[]</code>来定义<code>students</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> response &#123;</span><br><span class="line">  <span class="attr">students</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">age</span>: <span class="built_in">number</span>;</span><br><span class="line">  &#125;[];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样的定义和上面的是等价的。这时，我们再使用上面的<code>data</code>：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Tom&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">20</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>就不会报错了。</p>
-<p>但是有一种特殊情况，就是类型定义有时是无法修改的，比如定义在第三方库中，这时候我们可以使用push完成同样的效果。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">data</span>: response = &#123;</span><br><span class="line">  <span class="attr">students</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">      <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">data.<span class="property">students</span>.<span class="title function_">push</span>(&#123; <span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span> &#125;)</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/01/29/github-port-22-not-working/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/01/29/github-port-22-not-working/" class="post-title-link" itemprop="url">github port 22 not working</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-01-29 22:16:24" itemprop="dateCreated datePublished" datetime="2024-01-29T22:16:24+08:00">2024-01-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:16:00" itemprop="dateModified" datetime="2025-04-07T21:16:00+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/github/" itemprop="url" rel="index"><span itemprop="name">github</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="github-port-22-not-working"><a href="#github-port-22-not-working" class="headerlink" title="github port 22 not working"></a>github port 22 not working</h1><p>今天在使用github的时候，发现git push的时候报错：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ssh: connect to host github.com port 22: Connection timed out</span><br><span class="line">fatal: Could not <span class="built_in">read</span> from remote repository.</span><br><span class="line"></span><br><span class="line">Please make sure you have the correct access rights</span><br><span class="line">and the repository exists.</span><br></pre></td></tr></table></figure>
-
-<p>解决办法，使用443端口，首先测试是否可用。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T -p 443 git@ssh.github.com</span><br></pre></td></tr></table></figure>
-<p>如果可以正常连接，那么就可以修改~&#x2F;.ssh&#x2F;config文件，添加如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Host github.com</span><br><span class="line">Hostname ssh.github.com</span><br><span class="line">Port 443</span><br></pre></td></tr></table></figure>
-<p>然后再次测试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
-<p>输出如下信息：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hi Philip! You<span class="string">&#x27;ve successfully authenticated, but GitHub does not provide shell access.</span></span><br></pre></td></tr></table></figure>
-<p>接下来就可以愉快的使用git了。</p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
-<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/authentication/troubleshooting-ssh/using-ssh-over-the-https-port">Using SSH over the HTTPS port</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/01/29/groovy-json/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/01/29/groovy-json/" class="post-title-link" itemprop="url">groovy-json</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-01-29 22:01:36" itemprop="dateCreated datePublished" datetime="2024-01-29T22:01:36+08:00">2024-01-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:16:18" itemprop="dateModified" datetime="2025-04-07T21:16:18+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/groovy/" itemprop="url" rel="index"><span itemprop="name">groovy</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Groovy-JSON-operation"><a href="#Groovy-JSON-operation" class="headerlink" title="Groovy JSON operation"></a>Groovy JSON operation</h1><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> groovy.json.JsonOutput</span><br><span class="line"><span class="keyword">import</span> groovy.json.JsonSlurper</span><br><span class="line"></span><br><span class="line"><span class="comment">// Convert a groovy map to json object</span></span><br><span class="line">Map user = [<span class="attr">name:</span> <span class="string">&#x27;zdd&#x27;</span>, <span class="attr">age:</span> <span class="number">18</span>, <span class="attr">info:</span> [<span class="attr">address:</span> <span class="string">&#x27;beijing&#x27;</span>, <span class="attr">phone:</span> <span class="string">&#x27;123456789&#x27;</span>]];</span><br><span class="line">println JsonOutput.toJson(user)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Convert a json object to groovy map</span></span><br><span class="line"><span class="keyword">def</span> jsonString = <span class="string">&#x27;&#123;&quot;name&quot;: &quot;John&quot;, &quot;age&quot;: 30, &quot;city&quot;: &quot;New York&quot;&#125;&#x27;</span></span><br><span class="line"><span class="keyword">def</span> jsonSlurper = <span class="keyword">new</span> JsonSlurper()</span><br><span class="line"><span class="keyword">def</span> jsonObject = jsonSlurper.parseText(JsonOutput.toJson(user))</span><br><span class="line">println jsonObject</span><br><span class="line"></span><br><span class="line"><span class="comment">// Given a string &quot;feat(configuration): id-xxxx add configuration for user page&quot;, please extract the jira id: id-xxx</span></span><br><span class="line"><span class="comment">// can you do it with regex? the target string start with &quot;: &quot; and end with &quot; &quot;, return null if not found</span></span><br><span class="line"><span class="keyword">def</span> str = <span class="string">&quot;feat(configuration): id-xxxx add configuration for user page&quot;</span></span><br><span class="line"><span class="keyword">def</span> jiraId2 = str =~ <span class="regexp">/: (.*?) /</span></span><br><span class="line">println jiraId2[<span class="number">0</span>][<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/01/09/javascript-async-vs-defer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/01/09/javascript-async-vs-defer/" class="post-title-link" itemprop="url">async vs defer</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-01-09 09:54:31" itemprop="dateCreated datePublished" datetime="2024-01-09T09:54:31+08:00">2024-01-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:25:28" itemprop="dateModified" datetime="2025-04-07T17:25:28+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="async-defer-what’s-the-differences"><a href="#async-defer-what’s-the-differences" class="headerlink" title="async &amp; defer, what’s the differences?"></a>async &amp; defer, what’s the differences?</h1><h3 id="Html引入外部脚本"><a href="#Html引入外部脚本" class="headerlink" title="Html引入外部脚本"></a>Html引入外部脚本</h3><p>Html中引入外部脚本的方式有很多种，最常见的就是使用<code>&lt;script&gt;</code>标签，我们可以在<code>&lt;head&gt;</code>或者<code>&lt;body&gt;</code>中引入外部脚本。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;head&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./my_script.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">async</span> <span class="attr">src</span>=<span class="string">&quot;./my_script1.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">defer</span> <span class="attr">src</span>=<span class="string">&quot;./my_script2.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;/head&gt;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;./my_script.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">async</span> <span class="attr">src</span>=<span class="string">&quot;./my_script1.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">defer</span> <span class="attr">src</span>=<span class="string">&quot;./my_script2.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
-
-<p>那么从<code>&lt;head&gt;</code>和<code>&lt;body&gt;</code>中引入外部脚本有什么区别呢？</p>
-<ul>
-<li>在<code>&lt;head&gt;</code>中引入外部脚本，会阻塞Dom的解析，直到脚本下载完毕并执行完毕。</li>
-<li>在<code>&lt;body&gt;</code>末尾中引入外部脚本，不会阻塞Dom的解析，脚本下载和Dom解析并行进行。</li>
-</ul>
-<p>你一定听说过上面的说法，但是上面的说法有个前提，那就是同步引入脚本，也就是不加<code>async</code>或者<code>defer</code>.</p>
-<p>如果使用<code>async</code>或者<code>defer</code>关键字，那么在<code>&lt;head&gt;</code>中引入外部脚本和在<code>&lt;body&gt;</code>末尾引入外部没有太大区别。(只是<code>&lt;head&gt;</code>中的脚本会先于<code>&lt;body&gt;</code>中的脚本下载)</p>
-<h3 id="async-defer"><a href="#async-defer" class="headerlink" title="async &amp; defer"></a>async &amp; defer</h3><p>在Html引入外部脚本时，可以使用<code>async</code>或者<code>defer</code>，那么两者有和区别呢？我们通过一个表格来分析一下：</p>
-<table>
-<thead>
-<tr>
-<th>关键字</th>
-<th>下载时机</th>
-<th>执行时机</th>
-<th>是否阻断Dom解析</th>
-<th>多个脚本的执行顺序</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>无</td>
-<td>遇到对应的<code>&lt;script&gt;</code>标签，立即下载</td>
-<td>下载后立即执行</td>
-<td>是，下载阶段和执行阶段都阻断DOM解析。</td>
-<td>按顺序执行</td>
-</tr>
-<tr>
-<td>async</td>
-<td>遇到对应的<code>&lt;script&gt;</code>标签，立即下载</td>
-<td>下载后立即执行，只能保证在window.load事件之前执行，但是可能在window.DomContentLoade之前或之后。</td>
-<td>否</td>
-<td>没有固定顺序，取决于哪个脚本先下载完成。</td>
-</tr>
-<tr>
-<td>defer</td>
-<td>遇到对应的<code>&lt;script&gt;</code>标签，立即下载</td>
-<td>在页面解析完之后，且在DomContentLoaded事件触发之前执行。</td>
-<td>否</td>
-<td>按<code>&lt;script&gt;</code>标签出现的顺序执行</td>
-</tr>
-</tbody></table>
-<p>注意事项：</p>
-<ol>
-<li>async脚本的执行无固定顺序，谁先下载完，谁先执行。</li>
-<li>defer脚本按出现的先后顺序执行。</li>
-</ol>
-<p>以下代码中，我们使用defer加载两个脚本，其中short.js非常小，很快就下载完了，而long.js非常大，下载时间很长。因为defer脚本是按照书写顺序进行执行的，所以即使short.js先下载完了，也要等到long.js下载完毕才能开始执行。</p>
-   <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;script defer src=<span class="string">&#x27;https://xxx/yyy/long.js&#x27;</span>&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">defer</span> <span class="attr">src</span>=<span class="string">&#x27;https://xxx/yyy/short.js&#x27;</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
-
-<p>用一张图来总结一下，图里中颜色含义如下：<br><span style="color: green">绿色线条</span> - 表示dom解析<br><span style="color: blue">蓝色线条</span> - 表示脚本的下载<br><span style="color: red">红色线条</span> - 表示脚本的执行。<br>script分为普通脚本和模块化脚本。</p>
-<p><img src="https://html.spec.whatwg.org/images/asyncdefer.svg" alt="https:&#x2F;&#x2F;html.spec.whatwg.org&#x2F;images&#x2F;asyncdefer.svg"></p>
-<p>解释一下上面这张图：</p>
-<ol>
-<li>第一行，普通脚本，没有指定async或者defer，下载和执行阶段会阻断dom解析。</li>
-<li>第二行，普通脚本，有defer关键字，下载和执行阶段都不阻断dom解析。(下载和dom解析并行进行，执行在dom解析完成后开始）</li>
-<li>第三行，普通脚本，有async关键字，下载阶段不阻断dom解析，但执行阶段有可能阻断dom解析（如果脚本已经下载完毕，但是dom解析尚未完成的情况下）</li>
-<li>第四行，模块化脚本，默认包含defer属性，该脚本及其依赖的其他脚本的下载与dom解析平行进行，待dom解析完毕开始执行脚本。</li>
-<li>第五行，模块化脚本，有async关键字，该脚本及其依赖的其他脚本的下载与dom解析平行进行，下载完毕后立即执行脚本。</li>
-</ol>
-<h3 id="async-defer-1"><a href="#async-defer-1" class="headerlink" title="async &amp; defer"></a>async &amp; defer</h3><ul>
-<li>标记为async或defer的script，下载阶段都不会阻断Dom的解析，但是async是下载后立即执行，而defer是下载后且等待dom解析完毕才执行，所以两者唯一的区别就是：async脚本执行阶段可能会阻断dom解析（前提是脚本已经下载完毕，但dom解析尚未完成）。</li>
-<li>module script默认包含defer属性</li>
-<li>多个标记为async的脚本，无法保证执行顺序。</li>
-<li>多个defer脚本按照script标签出现的顺序执行。</li>
-<li>没有标记async或defer的脚本会阻断Dom的解析。</li>
-</ul>
-<h3 id="window-load和window-DomContentLoaded"><a href="#window-load和window-DomContentLoaded" class="headerlink" title="window.load和window.DomContentLoaded"></a>window.load和window.DomContentLoaded</h3><p>这是两个重要的事件，与async及defer的执行时机息息相关。</p>
-<ul>
-<li><code>window.load</code> - 标志整个页面全部加载完成，包括images，styles和JavaScript等所有外部资源。</li>
-<li><code>window.DomContentLoaded</code> - Html文件解析和加载完成(parsed and loaded)，且所有标记为defer的js脚本全部下载并执行完成后触发，注意，该事件不会等待其他资源，比如images，subframes，或者标记为async的script下载完成。另外，该事件不会等待stylesheet完成，但是：因为defer脚本会等待stylesheet加载完才执行，而该事件又在defer脚本执行完才触发，所以如果有defer脚本存在的话，那么该事件一定会等待stylesheet加载完才触发。</li>
-</ul>
-<h3 id="问题来了"><a href="#问题来了" class="headerlink" title="问题来了"></a>问题来了</h3><p>看起来async和defer没有太大的区别，那么两者分别在什么场合使用呢？</p>
-<ul>
-<li>async一般用在与当前页面无关联的外部脚本，比如Google统计，计数脚本等。</li>
-<li>defer一般用于需要操作当前页面的脚本，所以它需要等Dom解析完之后才执行。</li>
-</ul>
-<h3 id="一道小题"><a href="#一道小题" class="headerlink" title="一道小题"></a>一道小题</h3><p>下面代码的输出结果是什么？</p>
-<p>index.html</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;DOMContentLoaded&quot;</span>, <span class="function">() =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;DOMContentLoaded event triggered&quot;</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&quot;load&quot;</span>, <span class="function">() =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;load event triggered&quot;</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">async</span> <span class="attr">src</span>=<span class="string">&quot;./async_script.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">defer</span> <span class="attr">src</span>=<span class="string">&quot;./defer_script.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
-
-<p>async_script.js</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;async script loaded&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>defer_script.js</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;defer script loaded&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>答案：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> script loaded</span><br><span class="line">defer script loaded</span><br><span class="line"><span class="title class_">DOMContentLoaded</span> event triggered</span><br><span class="line">load event triggered</span><br></pre></td></tr></table></figure>
-
-<p>多执行几次，你会发现，有时候输出还会是下面这样的。这充分印证了上面的结论，defer script一定在DOMContentLoaded之前执行，但是async script可能在DOMContentLoaded之前，也可能在其之后。</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">defer script loaded</span><br><span class="line"><span class="title class_">DOMContentLoaded</span> event triggered</span><br><span class="line"><span class="keyword">async</span> script loaded</span><br><span class="line">load event triggered</span><br></pre></td></tr></table></figure>
-
-<h3 id="References："><a href="#References：" class="headerlink" title="References："></a>References：</h3><p><a target="_blank" rel="noopener" href="https://javascript.info/script-async-defer">https://javascript.info/script-async-defer</a></p>
-<p><a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/scripting.html#attr-script-defer">https://html.spec.whatwg.org/multipage/scripting.html#attr-script-defer</a> V8引擎</p>
-<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script">https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event">https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event">https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event</a></p>
-<p><a target="_blank" rel="noopener" href="https://javascript.info/onload-ondomcontentloaded">https://javascript.info/onload-ondomcontentloaded</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/25/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><span class="page-number current">26</span><a class="page-number" href="/page/27/">27</a><span class="space">&hellip;</span><a class="page-number" href="/page/30/">30</a><a class="extend next" rel="next" href="/page/27/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/25/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><span class="page-number current">26</span><a class="page-number" href="/page/27/">27</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/27/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1321,7 +1592,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">300</span>
+          <span class="site-state-item-count">305</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1334,7 +1605,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">423</span>
+        <span class="site-state-item-count">427</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1366,6 +1637,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">197k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">11:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

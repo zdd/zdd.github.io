@@ -187,6 +187,578 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/12/01/angular-di-hierarchical-injectors/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/01/angular-di-hierarchical-injectors/" class="post-title-link" itemprop="url">angular-di-hierarchical-injectors</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-01 14:01:35" itemprop="dateCreated datePublished" datetime="2024-12-01T14:01:35+08:00">2024-12-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:24:36" itemprop="dateModified" datetime="2025-04-07T17:24:36+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>764</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular里面的Injector是分层级的，主要有以下两个层级：</p>
+<ul>
+<li>EnvironmentInjector</li>
+<li>ElementInjector</li>
+</ul>
+<h2 id="EnvironmentInjector"><a href="#EnvironmentInjector" class="headerlink" title="EnvironmentInjector"></a>EnvironmentInjector</h2><p>EnvironmentInjector层级是通过以下两种方式创建的：</p>
+<ol>
+<li><code>@Injectable(&#123; providedIn: &#39;xxx&#39; &#125;)</code> - xxx 可以是 <code>root</code>, <code>platform</code>.</li>
+<li><code>providers</code> array in <code>ApplicationConfig</code></li>
+</ol>
+<h2 id="ElementInjector"><a href="#ElementInjector" class="headerlink" title="ElementInjector"></a>ElementInjector</h2><p>ElementInjector是创建在每个Dom元素上的，初始时是空的，当我们在<code>@Directive</code>或者<code>@Component</code>中声明了一个provider时，Angular会在ElementInjector中创建一个实例。</p>
+<h2 id="ModuleInjector"><a href="#ModuleInjector" class="headerlink" title="ModuleInjector"></a>ModuleInjector</h2><p>在基于模块的应用中，每个模块都有一个ModuleInjector，ModuleInjector可以通过如下方式配置：</p>
+<ol>
+<li><code>Injectable(&#123; providedIn: &#39;xxx&#39; &#125;)</code> - xxx 可以是 <code>platform</code>, <code>root</code>.</li>
+<li><code>providers</code> array in <code>@NgModule</code></li>
+</ol>
+<h2 id="PlatformInjector"><a href="#PlatformInjector" class="headerlink" title="PlatformInjector"></a>PlatformInjector</h2><p>在<code>root</code>Injector之上，还有两个Injector，分别是：</p>
+<ol>
+<li>一个额外的EnvironmentInjector - 即<code>PlatformInjector</code>.</li>
+<li>NullInjector.</li>
+</ol>
+<p>注意：<code>PlatformInjector</code> 是为了多个Angular app服务的，对于基于Nx的超大型Angular项目，一个项目中可能包含多个app（比如使用了Module Federation）而root injector是针对app的，如果要跨app共享服务，那么就要使用<code>PlatformInjector</code>了。</p>
+<p>看一下Angular的启动代码(位于<code>src/main.ts</code>文件中)：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig);</span><br></pre></td></tr></table></figure>
+<p>当执行上述代码时，Angular首先创建一个Platform Injector(也是Environment Injector)，然后创建一个Platform Injector的child Injector，也就是root Environment Injector。而在Platform Injector之上，还有一个额外的NullInjector。</p>
+<p>所以<code>NullInjector</code>是整个Injector链条的顶端，我们在查找一个依赖时，会顺着这个链条向上查找，如果到了<code>NullInjector</code>还没找到，则会抛出异常。相信很多同学都遇到过下面的错误吧，仔细看报错信息第一行，就是<code>NullInjector</code>!<br><img src="/../images/angular-injector-null_injector.png" alt="NullInjector"></p>
+<h2 id="ElementInjector-1"><a href="#ElementInjector-1" class="headerlink" title="ElementInjector"></a>ElementInjector</h2><p>Angular会为每个Dom元素隐式创建一个ElementInjector，当我们在<code>@Directive</code>或者<code>@Component</code>中声明了一个<code>provider</code>或者<code>viewProvider</code>时，Angular会在ElementInjector中创建一个实例。</p>
+<h2 id="依赖解决规则（查找规则）"><a href="#依赖解决规则（查找规则）" class="headerlink" title="依赖解决规则（查找规则）"></a>依赖解决规则（查找规则）</h2><p>当Angular为一个Component或者Directive查找依赖时，遵循如下规则：</p>
+<ol>
+<li>先查找Component或者Directive自身的ElementInjector，如果找到则返回。否则进入下一步。</li>
+<li>查找Component或者Directive的Parents的ElementInjector，再查找Parents的Parents的ElementInjector，一直如此直到找到，否则进入下一步。</li>
+<li>查找Component或Directive的EnvironmentInjector层级，此过程同ElementInjector，一直向上查找，如果找到则返回，否则报错。</li>
+</ol>
+<p>此处应该加入一张图。</p>
+<h2 id="依赖解决修饰符"><a href="#依赖解决修饰符" class="headerlink" title="依赖解决修饰符"></a>依赖解决修饰符</h2><p>上面介绍的依赖解决规则，可以用以下修饰符来改变，你可以从<code>@angular/core</code>中引入这些修饰符：</p>
+<ol>
+<li><code>@Optional</code> - 如果找不到依赖，不会报错，而是返回<code>null</code>。</li>
+<li><code>@SkipSelf</code> - 跳过当前ElementInjector，向上查找。</li>
+<li><code>@Self</code> - 只在当前ElementInjector中查找依赖，不会向上查找。</li>
+<li><code>@Host</code> - 只在当前Component及其Host Element的Injector中查找依赖。</li>
+</ol>
+<p>这些修饰符可以分为三类：</p>
+<ol>
+<li>What to do if Angular doesn’t find what you’re looking for, this is <code>@Optional()</code></li>
+<li>Where to start looking, that is <code>@SkipSelf</code>.</li>
+<li>Where to stop looking, <code>@Host</code> and <code>@Self</code>.</li>
+</ol>
+<h2 id="使用修饰符"><a href="#使用修饰符" class="headerlink" title="使用修饰符"></a>使用修饰符</h2><p>这些修饰符都是在<code>constructor</code>中注入依赖时使用的，比如：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">constructor</span>(<span class="params"><span class="meta">@Optional</span>() <span class="keyword">private</span> <span class="attr">myService</span>: <span class="title class_">MyService</span></span>) &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>关于这些修饰符的详细使用规则，请看<a href="https://zdd.github.io/2024/12/02/angular-di-resolution-modifier/">这篇</a>。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/30/rxjs-observable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/rxjs-observable/" class="post-title-link" itemprop="url">RxJS-observable</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 19:44:03" itemprop="dateCreated datePublished" datetime="2024-11-30T19:44:03+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:31:56" itemprop="dateModified" datetime="2025-04-07T21:31:56+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rxjs/" itemprop="url" rel="index"><span itemprop="name">rxjs</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>241</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是Observable"><a href="#什么是Observable" class="headerlink" title="什么是Observable"></a>什么是Observable</h1><p><code>Observable</code>是RxJS中的一个类，它是一个可观察对象，用于表示一个异步数据流。<code>Observable</code>可以发出三种类型的值：<code>next</code>、<code>error</code>和<code>complete</code>。<code>next</code>表示发出一个值，<code>error</code>表示发出一个错误，<code>complete</code>表示数据流结束。</p>
+<h2 id="Cold-Observable"><a href="#Cold-Observable" class="headerlink" title="Cold Observable"></a>Cold Observable</h2><p>Cold Observable有以下特点：</p>
+<ul>
+<li>一般来说是单播的(Unicast)，每个订阅者都会有自己的数据流。</li>
+<li>一般是惰性的，创建时并不发出数据，只有有订阅时才会开始发出数据。</li>
+</ul>
+<p>Angular中的Http请求就是一个Cold Observable，每次订阅都会发起一个新的请求。</p>
+<h2 id="Hot-Observable"><a href="#Hot-Observable" class="headerlink" title="Hot Observable"></a>Hot Observable</h2><p>Host Observable一般用Subject来实现，Subject是一种特殊的Observable，它既是Observable也是Observer。</p>
+<p>Hot Observable有以下特点：</p>
+<ul>
+<li>一般来说是多播的(Multicast)，所有订阅者共享同一个数据流。</li>
+<li>一般是热的，创建后就开始发出数据，即使没有订阅者也发出数据。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/30/rxjs-backpressure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/rxjs-backpressure/" class="post-title-link" itemprop="url">RxJS-backpressure</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 19:23:30" itemprop="dateCreated datePublished" datetime="2024-11-30T19:23:30+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:31:20" itemprop="dateModified" datetime="2025-04-07T21:31:20+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rxjs/" itemprop="url" rel="index"><span itemprop="name">rxjs</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>303</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是背压"><a href="#什么是背压" class="headerlink" title="什么是背压"></a>什么是背压</h1><p><code>Back pressure</code> 翻译成中文叫做<code>背压</code>，也有叫<code>回压</code>的，那么到底啥是背压呢？望文思义一下，背压就是来自背后的压力，那么背后是指哪里呢？在RxJS中，背后就是指产生数据的Observable，我们姑且称之为生产者，而订阅这个Observable的Observer就是消费者。背压就是生产者生产数据的速度大于消费者消费的速度，导致大量的数据积压。</p>
+<p>现实生活中的例子，你老婆一分钟能烙五个饼，而你每分钟只能吃一个，那么烙好的饼就会越积越多，你就吃不消了。</p>
+<h1 id="解决背压"><a href="#解决背压" class="headerlink" title="解决背压"></a>解决背压</h1><p>解决背压基本就两种方法：缓冲和丢弃，我们在时髦一下，在泛化一下，就是无损处理和有损处理。</p>
+<ul>
+<li>Lossy Operation</li>
+<li>Lossless Operation</li>
+</ul>
+<h2 id="有损方式"><a href="#有损方式" class="headerlink" title="有损方式"></a>有损方式</h2><ul>
+<li>debounce</li>
+<li>throttle</li>
+</ul>
+<h2 id="无损方式"><a href="#无损方式" class="headerlink" title="无损方式"></a>无损方式</h2><ul>
+<li>bufferCount - 按数量缓冲，攒够Count个数据再发出</li>
+<li>bufferTime - 按时间缓冲，攒够Time时间内的数据再发出</li>
+<li>buffer - 按条件缓冲，满足条件时发出缓冲的数据, buffer(xxx), xxx是一个Observable，当xxx发出数据时，发出缓冲的数据。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/30/angular-view-encapsulation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/angular-view-encapsulation/" class="post-title-link" itemprop="url">angular-view-encapsulation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 16:28:34" itemprop="dateCreated datePublished" datetime="2024-11-30T16:28:34+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:27" itemprop="dateModified" datetime="2025-04-07T17:25:27+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>952</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular中有三种样式封装方式，分别是：<code>Emulated</code>, <code>ShadowDom</code>, and <code>None</code>。</p>
+<ul>
+<li>ViewEncapsulation.Emulated (Default value)</li>
+<li>ViewEncapsulation.ShadowDom</li>
+<li>ViewEncapsulation.None</li>
+</ul>
+<p>可以用过Component中的<code>encapsulation</code>属性来指定封装方式，如果不指定的话，默认是<code>Emulated</code>。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./product.component.scss&#x27;</span>],</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>, <span class="comment">// &lt;--- here</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductComponent</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面我们分别讲解三种封装方式。</p>
+<h2 id="Emulated"><a href="#Emulated" class="headerlink" title="Emulated"></a>Emulated</h2><p>这是默认的封装方式，如果你没有在<code>@Component</code>中显式指定<code>encapsulation</code>的话，那么使用的就是该方式。在该方式下，Angular会生成一个随机字符串做为组件的属性，然后将样式应用到这个属性上。<br>这种封装方式是模拟<code>Shadow DOM</code>的方式，Angular会更改组件的CSS选择器，以便样式只应用于组件的视图。这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>以下面的Product组件为例，<code>product-home.component.scss</code>这个样式文件里面的样式只会影响<code>ProductHomeComponent</code>这个组件对应的视图.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行app后，我们可以在浏览器中inspect生成后的页面，可以看到<code>app-product-home</code>元素有一个唯一的属性<code>_nghost-ng-c3352351300</code>:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span> <span class="attr">_nghost-ng-c3352351300</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>再看一下实际的例子，假如我们有如下html template, ProductHomeComponent中引入了ProductDetailComponent</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- product-home.component.html --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>product-home works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>那么生成的HTML如下：<br><img src="/../images/angular-view-encapsulation-emulated.png" alt="emulated"></p>
+<p>可以看到，Angular为生成的Dom节点都添加了额外的属性，这些属性大概分为两类：</p>
+<ul>
+<li><code>_nghost-xxxx</code> - 用来标记组件的host element，比如上图中第一个红框内</li>
+<li><code>_ngcontent-xxxx</code> - 用来标记组件的子元素，比如上图中<code>app-product-home</code>内的<code>p</code>元素，它就是一个纯内容，所以标记是<code>_ngcontent-xxxx</code>。</li>
+<li>有些元素既是host, 又是content，比如上图的第二个红框。因为<code>ProductDetailComponent</code>既是<code>ProductHomeComponent</code>的子元素，而它本身又是一个组件。所以它同时拥有<code>_nghost-xxxx</code>和<code>_ngcontent-xxxx</code>两个属性。</li>
+</ul>
+<p>如果我们给上面的<code>p</code>标签添加一个背景色的话，那么观察生成后的css样式，你会发现，样式文件里面也添加了额外的属性，这样就确保了样式的唯一性。</p>
+<p>观察下图中左侧<code>p</code>标签的属性，和右侧css文件中<code>product-container</code>的属性，可以看到他们是一一对应的。<br><img src="/../images/angular-view-encapsulation-emulated-css.png" alt="emulated-css"></p>
+<p><code>Emulated</code>模式生成的样式最终会插入到html文件的<code>head</code>标签中。（可以运行Angular app，然后鼠标右键-inspect查看对应的html文件代码）</p>
+<h2 id="ShadowDom"><a href="#ShadowDom" class="headerlink" title="ShadowDom"></a>ShadowDom</h2><p>这种方式使用浏览器内置的Shadow DOM API来封装组件的样式，该模式下，组件被放到一个ShadowRoot之下，这个Shadow Root相当于组件的host element, 这意味着组件的样式不会影响应用程序的其他部分。</p>
+<p>该模式生成的样式会直接放到<code>shadow-root</code>中。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">ShadowDom</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意观察生成的html文件，<code>app-product-home</code>元素会有一个<code>shadow-root</code>:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  #shadow-root (open)</span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="None"><a href="#None" class="headerlink" title="None"></a>None</h2><p>这种模式不进行任何封装，相当于裸奔，其效果等于直接在html中引入样式文件。这种模式谨慎使用，因为会有样式污染。</p>
+<p>该模式生成的样式会直接放到html文件的<code>head</code>中。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-product-home&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./product-home.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./product-home.component.less&#x27;</span>,</span><br><span class="line">  <span class="attr">encapsulation</span>: <span class="title class_">ViewEncapsulation</span>.<span class="property">None</span>,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ProductHomeComponent</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">readonly</span> name = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The generated HTML will not have any unique attributes or shadow root:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-product-home</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">app-product-home</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：<code>ViewEncapsulation.None</code> <code>ViewEncapsulation.Emulated</code>中的样式同时会插入到<code>ViewEncapsulation.ShadowDom</code>的组件中。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://v17.angular.io/guide/view-encapsulation">https://v17.angular.io/guide/view-encapsulation</a> - 这里面的例子要仔细研究一下，有很多细节。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/30/angular-ngswitch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/30/angular-ngswitch/" class="post-title-link" itemprop="url">angular-ngswitch</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-30 14:38:06" itemprop="dateCreated datePublished" datetime="2024-11-30T14:38:06+08:00">2024-11-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:11" itemprop="dateModified" datetime="2025-04-07T17:25:11+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>319</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngSwitch</code> is a structural directive in Angular, it is used to conditionally render a template based on the value of an expression.</p>
+<h2 id="Use-ngSwitch-with-enum"><a href="#Use-ngSwitch-with-enum" class="headerlink" title="Use ngSwitch with enum."></a>Use <code>ngSwitch</code> with enum.</h2><p>注意：我发现下面每个<code>*ngSwitchCase</code>分支都只包含一个<code>&lt;p&gt;</code>元素，所以我们可以将<code>ng-container</code>拿掉，直接把<code>*ngSwitchCase</code>放在<code>&lt;p&gt;</code>标签上。<br>但是如果case分支中有多个元素，那么就需要用ng-container包裹起来。</p>
+<p>default分支用<code>*ngSwitchDefault</code>来标记。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--app.component.html--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;account-feature-container&quot;</span> &gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> [<span class="attr">ngSwitch</span>]=<span class="string">&quot;accountStatus&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.CLOSED&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a closed account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.AUTHORIZED&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an authorized account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngSwitchCase</span>=<span class="string">&quot;AccountStatus.NORMAL&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an normal account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> *<span class="attr">ngSwitchDefault</span>&gt;</span>This is the default branch<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在Component中定义一个枚举类型，注意<code>AccountStatus = AccountStatus;</code>这一行是必须的，否则编译报错。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.component.ts</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-ng-switch&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./ng-switch.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./ng-switch.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">NgSwitchComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="title class_">AccountStatus</span> = <span class="title class_">AccountStatus</span>; <span class="comment">// Make enum visible in component.ts file.</span></span><br><span class="line">  <span class="keyword">public</span> <span class="attr">accountStatus</span>: <span class="title class_">AccountStatus</span> = <span class="title class_">AccountStatus</span>.<span class="property">AUTHORIZED</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;&#125;</span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Use-built-in-structural-directive-switch"><a href="#Use-built-in-structural-directive-switch" class="headerlink" title="Use built-in structural directive @switch."></a>Use built-in structural directive <code>@switch</code>.</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;use_built-in_control_flow&quot;</span>&gt;</span></span><br><span class="line">  @switch (accountStatus) &#123; </span><br><span class="line">      @case (AccountStatus.CLOSED) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a closed account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @case (AccountStatus.AUTHORIZED) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an authorized account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @case (AccountStatus.NORMAL) &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is an normal account<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125; @default &#123;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is the default branch<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Tips:</p>
+<ol>
+<li>Remember to add the <code>@default</code> branch at the end, if no case matched, and no <code>@default</code> is provided, nothing will be rendered.</li>
+<li>There is no <code>fallthrough</code> in the <code>@switch</code> directive, so you don’t need to add <code>break</code> or <code>return</code> in each <code>@case</code> branch.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/30/angular-ngif/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -230,7 +802,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>476</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -329,7 +915,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>359</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -415,7 +1015,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -548,7 +1162,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>18</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -624,7 +1252,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>583</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -704,474 +1346,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/21/javascript-currying/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/21/javascript-currying/" class="post-title-link" itemprop="url">javascript-currying</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-21 16:37:59" itemprop="dateCreated datePublished" datetime="2024-11-21T16:37:59+08:00">2024-11-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:21:24" itemprop="dateModified" datetime="2025-04-07T21:21:24+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>柯里化（Currying）是一种函数式编程的技术，它是将一个接受多个参数的函数转换为一系列只接受一个参数的函数的过程。这些只接受一个参数的函数被称为柯里化函数。</p>
-<p>下面是一个Currying实现的例子，需要好生领悟。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用rest parameters</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">curry</span>(<span class="params">func</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> <span class="title function_">curried</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (args.<span class="property">length</span> &gt;= func.<span class="property">length</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> func.<span class="title function_">apply</span>(<span class="variable language_">this</span>, args);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params">...args2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> curried.<span class="title function_">apply</span>(<span class="variable language_">this</span>, [...args, ...args2]);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用arguments，此方案仅供参考，优先使用上面的rest parameters方案。</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">curry1</span>(<span class="params">func</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">function</span> <span class="title function_">curried</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">arguments</span>.<span class="property">length</span> &gt;= func.<span class="property">length</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> func.<span class="title function_">apply</span>(<span class="variable language_">this</span>, <span class="variable language_">arguments</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> oldArguments = <span class="variable language_">arguments</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> curried.<span class="title function_">apply</span>(<span class="variable language_">this</span>, [...oldArguments, ...<span class="variable language_">arguments</span>]);</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">a, b, c</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> currySum = <span class="title function_">curry</span>(sum);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>)(<span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">currySum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/20/javascript-lazy-load-script/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/20/javascript-lazy-load-script/" class="post-title-link" itemprop="url">javascript-lazy-load-script</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-20 18:02:48" itemprop="dateCreated datePublished" datetime="2024-11-20T18:02:48+08:00">2024-11-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:24:31" itemprop="dateModified" datetime="2025-04-07T21:24:31+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-to-lazy-load-a-script-in-JavaScript"><a href="#How-to-lazy-load-a-script-in-JavaScript" class="headerlink" title="How to lazy load a script in JavaScript?"></a>How to lazy load a script in JavaScript?</h1><ul>
-<li>use <code>defer</code> attribute in script tag.<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;path/to/script.js&quot;</span> <span class="attr">defer</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-<li>use <code>async</code> attribute in script tag.<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;path/to/script.js&quot;</span> <span class="attr">async</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-<li>use <code>window.load</code> event to load script.<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;load&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">    script.<span class="property">src</span> = <span class="string">&#x27;path/to/script.js&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(script);</span></span><br><span class="line"><span class="language-javascript">&#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-<li>use <code>document.DomContentLoaded</code> event to load script.<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;DOMContentLoaded&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> script = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">    script.<span class="property">src</span> = <span class="string">&#x27;path/to/script.js&#x27;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(script);</span></span><br><span class="line"><span class="language-javascript">&#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/19/browser-console/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/browser-console/" class="post-title-link" itemprop="url">browser-console</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-19 20:39:17" itemprop="dateCreated datePublished" datetime="2024-11-19T20:39:17+08:00">2024-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:40:30" itemprop="dateModified" datetime="2025-04-07T21:40:30+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/web/" itemprop="url" rel="index"><span itemprop="name">web</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Console妙用知多少？"><a href="#Console妙用知多少？" class="headerlink" title="Console妙用知多少？"></a>Console妙用知多少？</h1><p>平时我们使用console的时候，基本都是<code>console.log(xxx)</code>, 其实console的用途不只是打log，今天我们来看看console的其他用法。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(xxx); <span class="comment">// print log</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">warn</span>(xxx); <span class="comment">// print warning</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">error</span>(xxx); <span class="comment">// print error</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="1-console-time"><a href="#1-console-time" class="headerlink" title="1. console.time"></a>1. console.time</h2><p><code>console.time</code> 和 <code>console.timeEnd</code> 可以用来计算代码执行时间，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">time</span>(<span class="string">&#x27;my-timer&#x27;</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++) &#123;</span><br><span class="line">    <span class="comment">// do something</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">timeEnd</span>(<span class="string">&#x27;my-timer&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>如果在代码执行中打印阶段性时间，可以使用<code>console.timeLog</code>：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">time</span>(<span class="string">&#x27;my-timer&#x27;</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i % <span class="number">100000</span> === <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">timeLog</span>(<span class="string">&#x27;my-timer&#x27;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">timeEnd</span>(<span class="string">&#x27;my-timer&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-console-table"><a href="#2-console-table" class="headerlink" title="2. console.table"></a>2. console.table</h2><p><code>console.table</code> 可以将数组或对象以表格形式打印出来，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> data = [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;Bob&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&#x27;Cathy&#x27;</span>, <span class="attr">age</span>: <span class="number">22</span> &#125;,</span><br><span class="line">];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">table</span>(data);</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-console-assert"><a href="#3-console-assert" class="headerlink" title="3. console.assert"></a>3. console.assert</h2><p><code>console.assert</code> 可以用来断言某个条件是否为真，如果为假，则输出错误信息，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">assert</span>(<span class="number">1</span> === <span class="number">2</span>, <span class="string">&#x27;1 is not equal to 2&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>输出结果如下：</p>
-<p style="color:black;background-color: #FCEBEB">VM479:1 Assertion failed: 1 is not equal to 2</p>
-
-<h2 id="4-console-count"><a href="#4-console-count" class="headerlink" title="4. console.count"></a>4. console.count</h2><p><code>console.count</code> 可以用来统计某个函数被调用的次数，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">greet</span>(<span class="params">user</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">count</span>();</span><br><span class="line">  <span class="keyword">return</span> <span class="string">`hi <span class="subst">$&#123;user&#125;</span>`</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">greet</span>(<span class="string">&quot;bob&quot;</span>);</span><br><span class="line"><span class="title function_">greet</span>(<span class="string">&quot;alice&quot;</span>);</span><br><span class="line"><span class="title function_">greet</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">count</span>();</span><br></pre></td></tr></table></figure>
-<p>输出结果如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">default: 1</span><br><span class="line">default: 2</span><br><span class="line">default: 3</span><br><span class="line">default: 4</span><br></pre></td></tr></table></figure>
-
-<h2 id="5-console-group"><a href="#5-console-group" class="headerlink" title="5. console.group"></a>5. console.group</h2><p><code>console.group</code> 和 <code>console.groupEnd</code> 可以用来将输出的内容分组，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">group</span>(<span class="string">&#x27;group1&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hello&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;world&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">groupEnd</span>();</span><br></pre></td></tr></table></figure>
-
-<h2 id="6-console-dir"><a href="#6-console-dir" class="headerlink" title="6. console.dir"></a>6. console.dir</h2><p><code>console.dir</code> 可以用来打印对象的属性，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123; <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">dir</span>(obj);</span><br></pre></td></tr></table></figure>
-
-<h2 id="7-console-clear"><a href="#7-console-clear" class="headerlink" title="7. console.clear"></a>7. console.clear</h2><p><code>console.clear</code> 可以用来清空控制台，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">clear</span>();</span><br></pre></td></tr></table></figure>
-
-<h2 id="8-console-trace"><a href="#8-console-trace" class="headerlink" title="8. console.trace"></a>8. console.trace</h2><p><code>console.trace</code> 可以用来打印当前调用栈，用法如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">trace</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/19/typescript-interface-vs-type/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/typescript-interface-vs-type/" class="post-title-link" itemprop="url">typescript-interface-vs-type</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-19 17:19:56" itemprop="dateCreated datePublished" datetime="2024-11-19T17:19:56+08:00">2024-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:34:49" itemprop="dateModified" datetime="2025-04-07T21:34:49+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="What’s-the-differences-between-interface-and-type-in-typescript"><a href="#What’s-the-differences-between-interface-and-type-in-typescript" class="headerlink" title="What’s the differences between interface and type in typescript."></a>What’s the differences between interface and type in typescript.</h2><ol>
-<li><p>types can create primitive type alias, while interface cannot.</p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">Name</span> = <span class="built_in">string</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="attr">name</span>: <span class="title class_">Name</span> = <span class="string">&#x27;zdd&#x27;</span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>interface can do declaration merging together</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">interface <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">person</span>: <span class="title class_">Person</span> = &#123; </span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, </span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person);</span><br></pre></td></tr></table></figure>
-<p> while type can not do declaration merging</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Person</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = &#123; <span class="comment">// Error, Duplicate identifier &#x27;Person&#x27;</span></span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">person</span>: <span class="title class_">Person</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Extends and implements</p>
-<ul>
-<li>interface can extends another interface or class</li>
-<li>class can implement interface</li>
-</ul>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="title function_">sayHi</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hi&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">IPerson</span> <span class="keyword">extends</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Student</span> implements <span class="title class_">IPerson</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">name: string</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">sayHi</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hi, I am a student&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p> <strong>Interface extends interface</strong></p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">interface <span class="title class_">PartialPointX</span> &#123; <span class="attr">x</span>: number; &#125;</span><br><span class="line">interface <span class="title class_">Point</span> <span class="keyword">extends</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">y</span>: number; &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p> <strong>Type alias extends type alias</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">PartialPointX</span> = &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;;</span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Point</span> = <span class="title class_">PartialPointX</span> &amp; &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;;</span><br></pre></td></tr></table></figure>
-<p> <strong>Interface extends type alias</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">PartialPointX</span> = &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;;</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Point</span> <span class="keyword">extends</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;</span><br></pre></td></tr></table></figure>
-<p> <strong>Type alias extends interface</strong></p>
- <figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">PartialPointX</span> &#123; <span class="attr">x</span>: <span class="built_in">number</span>; &#125;</span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Point</span> = <span class="title class_">PartialPointX</span> &amp; &#123; <span class="attr">y</span>: <span class="built_in">number</span>; &#125;;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can create <code>interaction</code> types, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Name</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Age</span> = &#123;</span><br><span class="line">    <span class="attr">age</span>: number;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span>; <span class="comment">// OK</span></span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Name</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Age</span> &#123;</span><br><span class="line">    <span class="attr">age</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span>; <span class="comment">// OK</span></span><br><span class="line">interface <span class="title class_">Person</span> = <span class="title class_">Name</span> &amp; <span class="title class_">Age</span> <span class="comment">// Error.</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can create <code>union</code> types, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Man</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Women</span> = &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Man</span> | <span class="title class_">Women</span>; <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Man</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Woman</span> &#123;</span><br><span class="line">    <span class="attr">name</span>: string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type <span class="title class_">Person</span> = <span class="title class_">Man</span> &amp; <span class="title class_">Woman</span>; <span class="comment">// ok</span></span><br><span class="line">interface <span class="title class_">Person</span> = <span class="title class_">Man</span> &amp; <span class="title class_">Woman</span>; <span class="comment">// Error.</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>types can define <code>tuple</code>, but interface not.</p>
- <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">type <span class="title class_">Response</span> = [string, number]; <span class="comment">// ok</span></span><br><span class="line">interface <span class="title class_">Response</span> = [string, number]; <span class="comment">// not work</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>总结一下，主要的区别就是：</p>
-<ul>
-<li><code>interface</code>可以做declaration合并，但是type不能。</li>
-<li><code>interface</code> can be extend by <code>class</code>, while type can not be extend.</li>
-<li><code>type</code> 可以定义<code>union</code> <code>interaction</code>类型，但是<code>interface</code>不能。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2024/11/19/javascript-strict-equal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/19/javascript-strict-equal/" class="post-title-link" itemprop="url">javascript-strict-equality</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-19 16:58:28" itemprop="dateCreated datePublished" datetime="2024-11-19T16:58:28+08:00">2024-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:26:08" itemprop="dateModified" datetime="2025-04-07T21:26:08+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-works-？"><a href="#How-works-？" class="headerlink" title="How &#x3D;&#x3D;&#x3D; works ？"></a>How &#x3D;&#x3D;&#x3D; works ？</h1><p>Suppose the following expression</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A === B</span><br></pre></td></tr></table></figure>
-
-<p>How strict equality works in JavaScript? Here are the steps:</p>
-<ol>
-<li>If the operands are of different types, return <code>false</code></li>
-<li><strong>If both operands are objects, return true only if they refer to the same object.</strong></li>
-<li>If both operands are null or both operands are undefined. return true.</li>
-<li>If either operand is <code>NaN</code>, return false</li>
-<li>Otherwise, compare the two operand’s value as below<ol>
-<li>Numbers must have the same numeric values.</li>
-<li>Strings must have the same characters in the same order.</li>
-<li>Booleans must be both true or both false.</li>
-</ol>
-</li>
-</ol>
-<h3 id="Code-Example"><a href="#Code-Example" class="headerlink" title="Code Example"></a>Code Example</h3><figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span> === <span class="string">&#x27;1&#x27;</span>); <span class="comment">// false, different type.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span> &#125; === &#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span> &#125;); <span class="comment">// false, different object with same value.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] === []); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(&#123;&#125; === &#123;&#125;); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="literal">null</span> === <span class="literal">undefined</span>); <span class="comment">// false, different type.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Pay more attention to the following examples</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">NaN</span> === <span class="title class_">NaN</span>); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(+<span class="number">0</span> === -<span class="number">0</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/30/">30</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1237,7 +1415,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">300</span>
+          <span class="site-state-item-count">305</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1250,7 +1428,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">423</span>
+        <span class="site-state-item-count">427</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1282,6 +1460,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">197k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">11:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

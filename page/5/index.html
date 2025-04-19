@@ -187,6 +187,605 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/16/angular-ngdeep/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/16/angular-ngdeep/" class="post-title-link" itemprop="url">angular-ngdeep</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-16 10:48:10" itemprop="dateCreated datePublished" datetime="2025-02-16T10:48:10+08:00">2025-02-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:11" itemprop="dateModified" datetime="2025-04-07T17:25:11+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>857</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这篇探讨一下Angular中::ng-deep伪类的用法。</p>
+<h2 id="ng-deep是什么？"><a href="#ng-deep是什么？" class="headerlink" title="::ng-deep是什么？"></a><code>::ng-deep</code>是什么？</h2><p>以下是<code>::ng-deep</code>的官方描述：</p>
+<p>(deprecated) &#x2F;deep&#x2F;, &gt;&gt;&gt;, and ::ng-deep<br>Component styles normally apply only to the HTML in the component’s own template.</p>
+<p>Applying the ::ng-deep pseudo-class to any CSS rule completely disables view-encapsulation for that rule. Any style with ::ng-deep applied becomes a global style. In order to scope the specified style to the current component and all its descendants, be sure to include the :host selector before ::ng-deep. If the ::ng-deep combinator is used without the :host pseudo-class selector, the style can bleed into other components.</p>
+<h2 id="为什么需要-ng-deep"><a href="#为什么需要-ng-deep" class="headerlink" title="为什么需要::ng-deep?"></a>为什么需要<code>::ng-deep</code>?</h2><p>根据我的经验，使用<code>::ng-deep</code>的场景有：</p>
+<ol>
+<li>第三方库的样式覆盖，因为第三方库的样式有时候是无法直接通过选择器来修改的，这时候就需要使用<code>::ng-deep</code>。</li>
+</ol>
+<h2 id="为什么要配合-host一起使用"><a href="#为什么要配合-host一起使用" class="headerlink" title="为什么要配合:host一起使用?"></a>为什么要配合<code>:host</code>一起使用?</h2><p>在我们日常的项目中，<code>::ng-deep</code>很少单独使用，由上面对ng<code>::deep</code>的描述可知，它相当于将样式变成了全局样式，如果不加<code>:host</code>，那么这个样式会影响到所有的组件，加了<code>:host</code>,则只会影响到当前组件及其后代组件。</p>
+<p>注意：</p>
+<ol>
+<li>使用了<code>::ng-deep</code>的组件，只有显示在页面上时（该组建对应的前端路由生效时），才会影响其他组件的样式。如果该组件没有显示在页面上，那么它的样式是不会影响其他组件的。</li>
+<li>如果当前页面只显示了使用了<code>::ng-deep</code>的组件，而没有显示其他组件，那么<code>ng::deep</code>的样式也不会影响到其他组件。</li>
+</ol>
+<p>也就是说使用了<code>::ng-deep</code>的组件，只有和其他组件一起显示在页面上，才会影响其他组件的样式。</p>
+<p>实际的例子，假设有组件A在其样式文件中使用了<code>ng::deep</code>，对于三级标题，将其文本设置为红色。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line">::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>组件B也有一个三级标题，但是没有设置样式。</p>
+<p>如果组件A和组件B同时显示在页面上，那么组件A的样式会覆盖组件B的样式，此时页面上的所有h3标题都会显示为红色。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component-a</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-component-b</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-b</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们在浏览器中inspect，可以看到组件A设置的三级标题样式放到了整个html的head部分。</p>
+<p>如果组件A中在<code>::ng-deep</code>前加上<code>:host</code>，则只有组件A中的h3标题显示为红色，组件B中的h3标题不会受到影响。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line"><span class="selector-pseudo">:host</span> ::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为啥加上<code>:host</code>后，就不影响别的组件了呢，因为:host表示这个样式只针对当前组件和其子组件生效，由生成后的css文件也可看出这点，请看下图。</p>
+<p>在<code>h3</code>之前多了一个限定字符串<code>_nghost-ng-c2124967347</code>,这个字符串正好是组件A的选择器，这样就保证了这个样式只会影响到组件A。而组件B有一个不同的选择器<code>_nghost-ng-c2124967348</code>，所以组件B的h3标题不会受到影响。</p>
+<p>如果我们不加<code>:host</code>，那么生成的css文件中就没有这个限定字符串，这样就会影响到所有的组件。</p>
+<p><img src="/../images/angular-style-ngdeep.png" alt="angular-style-ngdeep"></p>
+<h2 id="ng-deep只对ViewEncapsulation-Emulated有效"><a href="#ng-deep只对ViewEncapsulation-Emulated有效" class="headerlink" title="::ng-deep只对ViewEncapsulation.Emulated有效"></a><code>::ng-deep</code>只对<code>ViewEncapsulation.Emulated</code>有效</h2><p><code>::ng-deep</code>只对<code>encapsulation: ViewEncapsulation.Emulated</code>有效，对于<code>encapsulation: ViewEncapsulation.ShadowDom</code>和<code>encapsulation: ViewEncapsulation.None</code>无效。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/13/javascript-string-operation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/13/javascript-string-operation/" class="post-title-link" itemprop="url">javascript-string-operation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-13 08:19:04" itemprop="dateCreated datePublished" datetime="2025-02-13T08:19:04+08:00">2025-02-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:26:11" itemprop="dateModified" datetime="2025-04-07T21:26:11+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>224</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>字符串在任何编程语言中都是非常重要的数据类型，对字符串的操作是程序员必备的技能，这篇文章探讨一下Javascript中常见的字符串操作，没有什么高深的内容，算是一篇笔记吧。</p>
+<h2 id="字符串反转"><a href="#字符串反转" class="headerlink" title="字符串反转"></a>字符串反转</h2><p>JS中String对象上没有reverse方法，但是Array对象上有reverse方法，所以我们可以先把字符串转成数组，然后再调用reverse方法，最后再把数组转回字符串。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> str.<span class="title function_">split</span>(<span class="string">&#x27;&#x27;</span>).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了用<code>split(&#39;&#39;)</code>方法，我们还可以用<code>Array.from</code>方法，这个方法可以把类数组对象或者可迭代对象转成数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(str).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然也可以使用<code>...</code>扩展运算符，这个运算符可以把可迭代对象转成数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> [...str].<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/12/angular-run-outside-angular/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/angular-run-outside-angular/" class="post-title-link" itemprop="url">angular-run-outside-angular</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 12:46:31" itemprop="dateCreated datePublished" datetime="2025-02-12T12:46:31+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:18" itemprop="dateModified" datetime="2025-04-07T17:25:18+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>587</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>runOutsideAngular</code>是<code>NgZone</code>的一个方法，它接受一个函数作为参数，该函数会在Angular的<code>NgZone</code>之外执行。这个方法的作用是什么呢？</p>
+<p>在<code>runOutsideAngular</code>函数中运行的代码不会触发Angular变更检测。这里的outside并不是真的在Angular之外运行，而是在Angular的Zone之外运行。</p>
+<ol>
+<li><p>在执行一些性能敏感的操作时，比如处理大量DOM事件或者动画，避免频繁的变更检测导致性能问题。比如，如果有一个画布应用，用户拖动元素的时候，每次<code>mousemove</code>事件都触发变更检测可能不太高效，这时候用runOutsideAngular可以让这些事件处理在Angular Zone外运行，减少不必要的检测。</p>
+</li>
+<li><p>第三方库的集成,比如使用D3.js或者Three.js这些库，它们可能有自己的渲染循环，这时候用runOutsideAngular可以避免Angular的变更检测干扰这些库的性能。</p>
+</li>
+<li><p>另外，长时间运行的计算任务，比如Web Worker中的处理，可能也需要用这个方法，确保这些任务不会触发变更检测，直到真正需要更新UI的时候再手动触发。</p>
+</li>
+</ol>
+<p>所有上面这些情况都需要用到<code>runOutsideAngular</code>方法，它可以让我们更好地控制变更检测的时机，避免不必要的性能损耗。</p>
+<p>频繁的DOM操作</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">NgZone</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;...&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanvasComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">ngZone</span>: <span class="title class_">NgZone</span></span>) &#123;</span><br><span class="line">    ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      canvasElement.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 处理鼠标移动，不触发变更检测</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">updateCanvasPosition</span>(event);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集成第三方库</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> chart = d3.<span class="title function_">select</span>(<span class="string">&#x27;#chart&#x27;</span>);</span><br><span class="line">  chart.<span class="title function_">on</span>(<span class="string">&#x27;zoom&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// D3 的缩放操作，避免 Angular 频繁检查</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">handleZoom</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Web workers或耗时计算</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> worker = <span class="keyword">new</span> <span class="title class_">Worker</span>(<span class="string">&#x27;data-processor.worker.ts&#x27;</span>);</span><br><span class="line">  worker.<span class="property">onmessage</span> = <span class="function">(<span class="params">result</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="回到Angular-Zone"><a href="#回到Angular-Zone" class="headerlink" title="回到Angular Zone"></a>回到Angular Zone</h2><p>如果在<code>runOutsideAngular</code>中执行的代码需要更新Angular的UI，可以在需要的时候手动调用<code>ngZone.run</code>方法，把这些代码放回Angular的Zone中，这样就可以触发变更检测了。</p>
+<p>这个过程相当于先跳出Angular的Zone，做一些不需要变更检测的操作，然后再手动回到Angular的Zone，触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 长时间运行的计算任务</span></span><br><span class="line">  <span class="keyword">const</span> result = <span class="title function_">longRunningTask</span>();</span><br><span class="line">  <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/11/css-display-inline-inlineblock-block/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/11/css-display-inline-inlineblock-block/" class="post-title-link" itemprop="url">css-display-inline-inlineblock-block</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-11 20:20:55" itemprop="dateCreated datePublished" datetime="2025-02-11T20:20:55+08:00">2025-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:12:23" itemprop="dateModified" datetime="2025-04-07T21:12:23+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>373</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ol>
+<li><strong>display: inline</strong> 的局限性</li>
+</ol>
+<ul>
+<li>不能设置宽高 ：因为 <code>inline</code> 元素的尺寸完全由内容决定，无法通过 CSS 手动调整。</li>
+<li>垂直方向的 <code>margin</code> 和 <code>padding</code> 无效 ：虽然可以设置这些属性，但它们不会影响其他元素的布局。</li>
+<li>适合文本内容 ：通常用于 <code>&lt;span&gt;</code>、<code>&lt;a&gt;</code> 等需要与文本混合排版的元素。</li>
+</ul>
+<ol start="2">
+<li><strong>display: inline-block</strong> 的优势,结合了 <code>inline</code> 和 <code>block</code> 的优点 ：</li>
+</ol>
+<ul>
+<li>像 <code>inline</code> 一样可以同行排列。</li>
+<li>像 <code>block</code> 一样可以设置宽高和垂直方向的 <code>padding/margin</code>。</li>
+<li>适合需要精确控制尺寸的行内元素 ：例如导航栏中的按钮、图片画廊等。</li>
+</ul>
+<ol start="3">
+<li><strong>display: block</strong> 的典型用途</li>
+</ol>
+<ul>
+<li>结构化布局 ：用于页面的主要结构划分，例如标题、段落、表格等。</li>
+<li>独占一行 ：确保元素不会与其他元素共享同一行。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>display:block</th>
+<th>display:inline-block</th>
+<th>display:inline</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否独占一行</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>是否可以设置宽高</td>
+<td>可以</td>
+<td>可以</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td>是否受空白符影响</td>
+<td>不受影响</td>
+<td>受影响（元素之间可能有间隙）</td>
+<td>不受影响</td>
+</tr>
+<tr>
+<td>默认宽度</td>
+<td>填满父容器</td>
+<td>仅包裹内容</td>
+<td>仅包裹内容</td>
+</tr>
+<tr>
+<td>是否可以设置垂直 padding&#x2F;margin</td>
+<td>可以</td>
+<td>可以</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>需要独占一行的布局（如标题、段落）</td>
+<td>需要同行排列且能设置宽高的布局（如按钮）</td>
+<td>需要同行排列且无需设置宽高的布局（如文本）</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/11/css-style-types/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/11/css-style-types/" class="post-title-link" itemprop="url">css-style-types</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-11 19:12:58" itemprop="dateCreated datePublished" datetime="2025-02-11T19:12:58+08:00">2025-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:13:24" itemprop="dateModified" datetime="2025-04-07T21:13:24+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>697</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="内联样式"><a href="#内联样式" class="headerlink" title="内联样式"></a>内联样式</h3><p>CSS中一共有三种样式，分别是，内联样式，内部样式，外部样式。</p>
+<h3 id="内联样式-1"><a href="#内联样式-1" class="headerlink" title="内联样式"></a>内联样式</h3><p>所谓内联样式，是指直接写在html元素上的样式，通过给html指定style属性，比如下面的代码给<code>h1</code>设置文本居中。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">style</span>=<span class="string">&quot;text-align: center&quot;</span>&gt;</span>Inline style<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="内部样式"><a href="#内部样式" class="headerlink" title="内部样式"></a>内部样式</h3><p>所谓内部样式，是指直接写在<code>&lt;style&gt;</code>块上的样式，<code>&lt;style&gt;</code>块一般位于html中的head区块中。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width,initial-scale=1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;content-type&quot;</span> <span class="attr">content</span>=<span class="string">&quot;text/html&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.parent</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>: flex;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">justify-content</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">align-items</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">800px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">600px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span> auto;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: <span class="number">#DDDDDD</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;parent&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="外部样式"><a href="#外部样式" class="headerlink" title="外部样式"></a>外部样式</h3><p>所谓外部样式，是指写在独立的css文件中的样式，然后引入到html文件中供使用。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span> <span class="attr">href</span>=<span class="string">&quot;mystyle.css&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>This is a heading<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>This is a paragraph.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这三种样式的优先级如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">内联样式 &gt; 内部样式 &gt; 外部样式</span><br></pre></td></tr></table></figure>
+
+<p>看一个列子，下面这个html包含了以上三种样式</p>
+<ul>
+<li>div元素中的内联样式 - 设置文本为蓝色</li>
+<li>head&#x2F;style标签中的内部样式 - 设置文本为绿色</li>
+<li>head&#x2F;link标签中的外部样式 - 设置文本为红色</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width,initial-scale=1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;content-type&quot;</span> <span class="attr">content</span>=<span class="string">&quot;text/html&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">type</span>=<span class="string">&quot;text/css&quot;</span> <span class="attr">href</span>=<span class="string">&quot;mystyles.css&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-class">.parent</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">display</span>: flex;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">justify-content</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">align-items</span>: center;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">font-size</span>: <span class="number">30px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">800px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">max-width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">height</span>: <span class="number">600px</span>;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">margin</span>: <span class="number">0</span> auto;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">color</span>: green;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">background-color</span>: <span class="number">#DDDDDD</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&quot;color: blue&quot;</span> <span class="attr">class</span>=<span class="string">&quot;parent&quot;</span>&gt;</span>This is a div<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个页面会显示蓝色字符串：<code>This is a div</code>.</p>
+<p>用Chrome浏览器打开这个html，按键盘上的F12键进入开发者工具，并点击右侧的 <code>Elements</code>tab，然后点击 <code>Styles</code>tab，可以看到三种样式。</p>
+<p><img src="/../images/css-style-types.png" alt="css-style-type"></p>
+<p><code>Styles</code>标签下依次列出了四种样式，优先级从高到低</p>
+<ul>
+<li>element.style - 内联样式，颜色是蓝色，有最高优先级。</li>
+<li>.parent - 内部样式，优先级次之</li>
+<li>.parent (mystyles.css:1) - 外部样式，优先级再次之</li>
+<li>div (user agent stylesheet) - 浏览器默认样式，优先级最低</li>
+</ul>
+<p>带删除线的样式（内部样式中的color: green, 和外部样式中的color: red）表示这个样式被覆盖了，有更高优先级的样式抢先了。我们可以将高优先级的样式勾掉（单击样式左侧的checkbox），这样浏览器就会自动应用低优先级的样式。 </p>
+<p>下图就是把内联样式和内部样式中的color全部勾掉，浏览器就是用了外部样式中的color，文本也就变成了红色。</p>
+<p><img src="/../images/css-chrome-tool.png" alt="css-chrome-tool"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/11/algorithm-backtracking-array-sum/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -230,7 +829,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>470</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -330,7 +943,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -458,7 +1085,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>578</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -570,7 +1211,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>235</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -704,7 +1359,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>372</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
 
         </div>
       </header>
@@ -757,491 +1426,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/02/05/javascript-method-in-object/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/05/javascript-method-in-object/" class="post-title-link" itemprop="url">javascript-method-in-object</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-05 11:53:49" itemprop="dateCreated datePublished" datetime="2025-02-05T11:53:49+08:00">2025-02-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:24:48" itemprop="dateModified" datetime="2025-04-07T21:24:48+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天在浏览<a target="_blank" rel="noopener" href="https://vuejs.org/guide/introduction.html">Vue官网</a>时，看到了如下代码。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; createApp, ref &#125; <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="title function_">createApp</span>(&#123;</span><br><span class="line">  <span class="title function_">setup</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">count</span>: <span class="title function_">ref</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).<span class="title function_">mount</span>(<span class="string">&#x27;#app&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p>生性多疑的我不禁产生了怀疑，这是什么语法？<code>createApp</code>方法接受一个JS对象，可是JS对象不都是冒号分隔的键值对吗？为什么这个<code>setup()</code>方法没有冒号？难道这是<code>Vue</code>的特殊语法？</p>
-<p>于是问了一下AI，原来这是<code>ES6</code>的新增语法（基础知识还是不牢呀，《深入理解ES6》还要再读几遍才行），如果一个JS对象中有函数，那么ES5中必须像下面这样写才行：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">setup</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;foo&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而<code>ES6</code>新增了一个语法功能，对象中的函数可以省略冒号和<code>function</code>关键字，直接写函数体，如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="title function_">setup</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;foo&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>于是开头那段代码换成ES5的写法就是：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  <span class="attr">setup</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">count</span>: <span class="title function_">ref</span>(<span class="number">0</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">createApp</span>(obj).<span class="title function_">mount</span>(<span class="string">&#x27;#app&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<p>这样是不是就好理解多了呢？话不多说，该做饭了。昨天刚从成都旅游回来，今天家里也没有什么菜，姑且做一个圆葱炒蛋吧。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/01/20/nx-config/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/20/nx-config/" class="post-title-link" itemprop="url">nx-config</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-20 20:54:22" itemprop="dateCreated datePublished" datetime="2025-01-20T20:54:22+08:00">2025-01-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:29:40" itemprop="dateModified" datetime="2025-04-07T21:29:40+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/nx/" itemprop="url" rel="index"><span itemprop="name">nx</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Generate-project-with-default-styling-file-extension"><a href="#Generate-project-with-default-styling-file-extension" class="headerlink" title="Generate project with default styling file extension"></a>Generate project with default styling file extension</h1><p>Nx based monorepo can use file <code>nx.json</code> to config project generate options for specific frameworks.<br>Take the following config as an example, when creating angular applications, nx will use <code>scss</code> as file extension for style files by default. If you want the terminal prompt you during the generation, remove the <code>style</code> option from the config.</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;generators&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@nx/react&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;bundler&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vite&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;babel&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;component&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;library&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;less&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;scss&quot;</span><span class="punctuation">,</span> <span class="comment">// &lt;--- use scss as default style file</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;e2eTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;cypress&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:library&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/angular:component&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;scss&quot;</span> <span class="comment">// &lt;--- use scss as default style file</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@nx/web:application&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;css&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;linter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eslint&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;unitTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;e2eTestRunner&quot;</span><span class="punctuation">:</span> <span class="string">&quot;none&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/01/06/angular-pipe-json/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/06/angular-pipe-json/" class="post-title-link" itemprop="url">angular-pipe-json</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-06 22:27:00" itemprop="dateCreated datePublished" datetime="2025-01-06T22:27:00+08:00">2025-01-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:25:12" itemprop="dateModified" datetime="2025-04-07T17:25:12+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>The built-in pipe <code>json</code> is used to convert a JavaScript object into a JSON string. It is useful for debugging purposes or when you need to display the raw JSON data in your Angular application.</p>
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><p>Assume you have a data object in your components which is an javascript object:</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;userId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="string">&quot;id&quot;</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="string">&quot;title&quot;</span>: <span class="string">&quot;ullam nobis libero sapiente ad optio sint&quot;</span>,</span><br><span class="line">  <span class="string">&quot;completed&quot;</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>In your template file, you can use the <code>json</code> pipe to convert the object into a JSON string:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span>&#123;&#123; data | json &#125;&#125;<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>You will get the following output on the rendered page:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; &quot;userId&quot;: 1, &quot;id&quot;: 20, &quot;title&quot;: &quot;ullam nobis libero sapiente ad optio sint&quot;, &quot;completed&quot;: true &#125;</span><br></pre></td></tr></table></figure>
-
-<p>Without the <code>json</code> pipe, you will get <code>[object Object]</code> in the output.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/01/04/angular-deferrable-views/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/04/angular-deferrable-views/" class="post-title-link" itemprop="url">angular-deferrable-views</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-04 15:11:30" itemprop="dateCreated datePublished" datetime="2025-01-04T15:11:30+08:00">2025-01-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:35" itemprop="dateModified" datetime="2025-04-07T17:24:35+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Deferrable views is a new feature in Angular 18 that allows you to defer the loading of a component until it is needed. This can help improve the performance of your application by reducing the initial bundle size.</p>
-<h1 id="How-to-use-deferrable-views"><a href="#How-to-use-deferrable-views" class="headerlink" title="How to use deferrable views"></a>How to use deferrable views</h1><h2 id="Load-when-browser-is-idle"><a href="#Load-when-browser-is-idle" class="headerlink" title="Load when browser is idle"></a>Load when browser is idle</h2><p>Wrap your component with <code>@defer &#123;&#125;</code> to make it deferrable. In the following example, the <code>app-product-detail</code> component will be loaded only when the Browser is idle.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Load-when-component-enter-the-viewport"><a href="#Load-when-component-enter-the-viewport" class="headerlink" title="Load when component enter the viewport"></a>Load when component enter the viewport</h2><p>You can also specify a condition for when the component should be loaded. In the following example, the <code>app-product-detail</code> component will be loaded when it enters the viewport.</p>
-<h3 id="Placeholder"><a href="#Placeholder" class="headerlink" title="Placeholder"></a>Placeholder</h3><p>Note that, defer on viewport must be used in conjunction with @placeholder directive. When component is out of viewport, the placeholder will be rendered.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span>(on viewport) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>To test this, you can add a long <code>div</code> element before the <code>app-product-detail</code> component to make it out of the viewport.</p>
-<h3 id="Loading-section"><a href="#Loading-section" class="headerlink" title="Loading section."></a>Loading section.</h3><p>You’d better add a section to show the loading state of the component.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span>(on viewport) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@loading</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Loading...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>To test the loading view, you can set the slow 3G network in the browser dev tools&#x2F;network tab.</p>
-<h3 id="Error-section"><a href="#Error-section" class="headerlink" title="Error section"></a>Error section</h3><p>You can also specify an error section to show when the component fails to load.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span>(on viewport) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@loading</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Loading...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@error</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Error loading component<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>This is not easy to test, not found a method yet.</p>
-<h3 id="Minium-render-time-for-placeholder-and-loading-section"><a href="#Minium-render-time-for-placeholder-and-loading-section" class="headerlink" title="Minium render time for placeholder and loading section."></a>Minium render time for placeholder and loading section.</h3><p>To avoid flickering, you can specify a minimum render time for the placeholder and loading section. In the following example, the placeholder will be rendered for at least 200ms before the component is loaded, and the loading section will be rendered for at least 500ms.</p>
-<p>Note that <code>at least</code> doesn’t mean <code>exactly</code>, for example, if the component didn’t load in 500ms, the loading section will keep showing until the component is loaded.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span>(on viewport) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span>( minimum 200ms) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default content<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@loading</span>(minimum 500ms) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Loading...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Trigger-conditions"><a href="#Trigger-conditions" class="headerlink" title="Trigger conditions"></a>Trigger conditions</h2><p>Angular provides several trigger conditions for deferrable views. You can use the following conditions to specify when the component should be loaded.</p>
-<table>
-<thead>
-<tr>
-<th>Trigger</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>idle</td>
-<td>Triggers when the browser is idle.</td>
-</tr>
-<tr>
-<td>viewport</td>
-<td>Triggers when specified content enters the viewport</td>
-</tr>
-<tr>
-<td>interaction</td>
-<td>Triggers when the user interacts with specified element</td>
-</tr>
-<tr>
-<td>hover</td>
-<td>Triggers when the mouse hovers over specified area</td>
-</tr>
-<tr>
-<td>immediate</td>
-<td>Triggers immediately after non-deferred content has finished rendering</td>
-</tr>
-<tr>
-<td>timer</td>
-<td>Triggers after a specific duration</td>
-</tr>
-</tbody></table>
-<h3 id="idle"><a href="#idle" class="headerlink" title="idle"></a>idle</h3><p>This is the default option, the component will be loaded when the browser is idle.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span>() &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="viewport"><a href="#viewport" class="headerlink" title="viewport"></a>viewport</h3><p>The component will be loaded when the specified content enters the viewport. If you didn’t specify the content, the component will be loaded when itself enters the viewport.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> (on viewport) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default view<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>You can also load the component when a specific element enters the viewport. In the following example, the <code>app-product-detail</code> component will be loaded when the <code>greeting</code> element enters the viewport.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div #greeting&gt;<span class="title class_">Hello</span>!&lt;/div&gt;</span><br><span class="line"><span class="meta">@defer</span> (on <span class="title function_">viewport</span>(greeting)) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="interaction"><a href="#interaction" class="headerlink" title="interaction"></a>interaction</h3><p>The <code>interaction</code> trigger loads the deferred content when user interacts withe the specific element through <code>click</code> or <code>keydown</code> event.</p>
-<p>By default, the placeholder acts as the interaction element. Placeholders used this way must have a single root element.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> (on interaction) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default view<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>You can also specify a different element for the interaction trigger. In the following example, the <code>app-product-detail</code> component will be loaded when the <code>greeting</code> element is clicked.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div #greeting&gt;<span class="title class_">Hello</span>!&lt;/div&gt;</span><br><span class="line"><span class="meta">@defer</span> (on <span class="title function_">interaction</span>(greeting)) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="hover"><a href="#hover" class="headerlink" title="hover"></a>hover</h3><p>Same as <code>interaction</code>, you can just replace <code>interaction</code> with <code>hover</code> in the above examples.</p>
-<h3 id="immediate"><a href="#immediate" class="headerlink" title="immediate"></a>immediate</h3><p>This is different than <code>idle</code>, the component will be loaded immediately after the non-deferred content has finished rendering.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> (on immediate) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default view<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h3><p>The <code>timer</code> trigger loads the deferred content after a specific duration. You can specify the duration in milliseconds or seconds.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> (on <span class="title function_">timer</span>(500ms)) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default view<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="when"><a href="#when" class="headerlink" title="when"></a>when</h3><p>The <code>when</code> trigger accepts a custom conditional expression and loads the deferred content when the condition becomes true. You can control the <code>condition</code> in our component class.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@defer</span> (when condition) &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">app-product-detail</span>&gt;</span><span class="tag">&lt;/<span class="name">app-product-detail</span>&gt;</span></span></span><br><span class="line">&#125; <span class="meta">@placeholder</span> &#123;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>Default view<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>This is a one-time operation– the @defer block does not revert back to the placeholder if the condition changes to a falsy value after becoming truthy.</p>
-<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><h2 id="Conditions-for-deferrable-views"><a href="#Conditions-for-deferrable-views" class="headerlink" title="Conditions for deferrable views"></a>Conditions for deferrable views</h2><ol>
-<li>Must be standalone.</li>
-<li>Must not references outside of the <code>@defer</code> block in the same template file.</li>
-</ol>
-<h2 id="How-it-works"><a href="#How-it-works" class="headerlink" title="How it works"></a>How it works</h2><ol>
-<li>Angular use <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import">dynamic import</a> to load the deferrable views.</li>
-<li>The component loaded in @defer was bundled in a separated chunk.</li>
-</ol>
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/tutorials/learn-angular/10-deferrable-views">https://angular.dev/tutorials/learn-angular/10-deferrable-views</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.angular.dev/introducing-angular-v17-4d7033312e4b">https://blog.angular.dev/introducing-angular-v17-4d7033312e4b</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/templates/defer">https://angular.dev/guide/templates/defer</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://zdd.github.io/2025/01/01/angular-data-service/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/01/angular-data-service/" class="post-title-link" itemprop="url">angular-data-service</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-01 20:58:38" itemprop="dateCreated datePublished" datetime="2025-01-01T20:58:38+08:00">2025-01-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:34" itemprop="dateModified" datetime="2025-04-07T17:24:34+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>在Angular开发中经常要使用一些后台数据，下面是一个封装好的DataService服务，用于获取后台数据。数据来自：<a target="_blank" rel="noopener" href="https://jsonplaceholder.typicode.com/">JSONPlaceholder</a></p>
-<h1 id="DataService"><a href="#DataService" class="headerlink" title="DataService"></a>DataService</h1><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Injectable</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;<span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span>&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">DataService</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="title function_">fetchTodoById</span>(<span class="params"><span class="attr">id</span>: <span class="built_in">number</span></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">`https://jsonplaceholder.typicode.com/todos/<span class="subst">$&#123;id&#125;</span>`</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> response.<span class="title function_">json</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="title function_">fetch200Todos</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">`https://jsonplaceholder.typicode.com/todos`</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> response.<span class="title function_">json</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Data-types"><a href="#Data-types" class="headerlink" title="Data types"></a>Data types</h1><h2 id="Todo"><a href="#Todo" class="headerlink" title="Todo"></a>Todo</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">Todo</span> &#123;</span><br><span class="line">  <span class="attr">userId</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">title</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">completed</span>: <span class="built_in">boolean</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/30/">30</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1307,7 +1495,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">300</span>
+          <span class="site-state-item-count">305</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1320,7 +1508,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">423</span>
+        <span class="site-state-item-count">427</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1352,6 +1540,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">197k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">11:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
