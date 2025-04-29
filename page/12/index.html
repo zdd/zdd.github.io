@@ -187,6 +187,128 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/11/16/javascript-interview-questions-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/11/16/javascript-interview-questions-02/" class="post-title-link" itemprop="url">javascript-interview-questions-02</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-11-16 18:53:13" itemprop="dateCreated datePublished" datetime="2024-11-16T18:53:13+08:00">2024-11-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:23:00" itemprop="dateModified" datetime="2025-04-07T21:23:00+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/interview/" itemprop="url" rel="index"><span itemprop="name">interview</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>805</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="var-in-for-loop"><a href="#var-in-for-loop" class="headerlink" title="var in for loop."></a><code>var</code> in for loop.</h2><p>What’s the output of the following code?</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>Answer:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">100</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br><span class="line">5</span><br></pre></td></tr></table></figure>
+<p>分析：</p>
+<ol>
+<li>最后一行代码<code>console.log(100);</code>是同步代码，所以会先输出100。</li>
+<li>for循环一共执行5次，每次都会调用<code>setTimeout</code>，但是<code>setTimeout</code>是异步代码，JS引擎会将setTimeout的回调函数放到宏任务队列中，等待执行。</li>
+<li>当前Event loop执行完毕后，会去执行宏任务队列中的任务，这时候<code>setTimeout</code>的回调函数才会被执行，但是这时候<code>i</code>已经变成了5，所以会输出5个5。</li>
+</ol>
+<p>所以导致这段代码的问题有二，解决其中任何一个都可以让它输出0, 1, 2, 3, 4。</p>
+<ol>
+<li>使用了<code>var</code>, <code>var</code>是函数作用域，所以所有的循环都共享一个<code>i</code>。</li>
+<li>使用了<code>setTimeout</code>。<code>setTimeout</code>是整个循环结束后才开始执行的！如果我们把<code>setTimeout</code>删除就不会有问题了。以下代码works well!<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>那么是不是不用<code>setTimeout</code>就没有问题了呢？不是的，我们来看这道题的一个变种：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> func = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  func.<span class="title function_">push</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> <span class="title function_">f</span>());</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>这个变种没有使用<code>setTimeout</code>，但是结果依然是5个5。为什么呢？观察这个变种和原始题目我们可以看到，他们共同的特点都是在<code>for</code>循环结束后才执行代码，此时i的值已经是5了。这才是根本原因。</p>
+<p>好了，现在我们来看看如何解决这个问题。</p>
+<h3 id="方法一，使用let代替var。"><a href="#方法一，使用let代替var。" class="headerlink" title="方法一，使用let代替var。"></a>方法一，使用<code>let</code>代替<code>var</code>。</h3><p>由于<code>let</code>有块级作用域，所以每次循环都会创建一个新的变量i，而不是像<code>var</code>那样所有的循环都共享一个i。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="方法二：将循环变量i参数化"><a href="#方法二：将循环变量i参数化" class="headerlink" title="方法二：将循环变量i参数化"></a>方法二：将循环变量i参数化</h3><p>说得再通俗一点，将setTimeout的逻辑单独抽离成一个函数<code>print</code>。这样每次循环的时候，都会将当前的i传递给<code>print</code>函数，这样<code>setTimeout</code>的代码加入宏任务队列时会记住当前的i值。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="title function_">print</span>(i);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">print</span>(<span class="params">i</span>) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(i), <span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果觉得单独抽离函数不够优雅，可以使用IIFE（立即执行函数表达式）。注意，这里和闭包没有半毛钱关系，IIFE这里只是为了传递参数，也就是上面抽离函数的简化版。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  (<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(i);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;)(i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="方法三：使用setTimeout的第三个参数"><a href="#方法三：使用setTimeout的第三个参数" class="headerlink" title="方法三：使用setTimeout的第三个参数"></a>方法三：使用<code>setTimeout</code>的第三个参数</h3><p>这个方法可能很多同学都没有见过，其实<code>setTimeout</code>方法是有第三个参数的，这个参数是用来传递给回调函数的参数的。所以我们可以将当前的i值传递给<code>setTimeout</code>的回调函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">(<span class="params">j</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(j), <span class="number">1000</span>, i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<p>为了做区分，我把回到函数中的<code>i</code>改成了<code>j</code>，这样就不会混淆了。循环变量<code>i</code>通过<code>setTimeout</code>的第三个参数传递给回调函数。</p>
+<p>你学会了吗？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/11/16/javascript-interview-questions-01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1586,121 +1708,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/11/13/javascript-object-without-prototype/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/13/javascript-object-without-prototype/" class="post-title-link" itemprop="url">javascript-object-without-prototype</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-13 08:41:04" itemprop="dateCreated datePublished" datetime="2024-11-13T08:41:04+08:00">2024-11-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:25:08" itemprop="dateModified" datetime="2025-04-07T21:25:08+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>588</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>今天在练习正则表达式的时候，发现了一个有趣的输出，之前未见过（也许曾经见过，但没有留意），索性研究一下。</p>
-<p>代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">`name: zdd, age: 18, gender: male`</span>;</span><br><span class="line"><span class="keyword">const</span> regex = <span class="regexp">/name: (?&lt;name&gt;\w+), age: (?&lt;age&gt;\d+), gender: (?&lt;gender&gt;\w+)/</span>;</span><br><span class="line"><span class="keyword">const</span> match = str.<span class="title function_">match</span>(regex); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(match.<span class="property">groups</span>);</span><br></pre></td></tr></table></figure>
-
-<p>简单解释一下这个正则表达式：</p>
-<ol>
-<li><code>/.../</code> - 这是js的正则表达式语法，用<code>//</code>包裹。</li>
-<li><code>name: </code> - 匹配字符串<code>name: </code></li>
-<li><code>(?&lt;name&gt;...)</code> - 这是一个命名捕获，表示匹配后的值放到<code>name</code>这变量中，可以用<code>match.groups.name</code>来输出捕获的值。</li>
-<li><code>\w+</code> - 表示匹配任意字母、数字或下划线（等价于 [a-zA-Z0-9_]）, <code>+</code> - 表示一个或者多个。</li>
-</ol>
-<p>输出结果如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="title class_">Object</span>: <span class="literal">null</span> prototype] &#123; <span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, <span class="attr">age</span>: <span class="string">&#x27;18&#x27;</span>, <span class="attr">gender</span>: <span class="string">&#x27;male&#x27;</span> &#125;</span><br></pre></td></tr></table></figure>
-<p>这个输出结果里面的<code>[Object: null prototype]</code>是什么意思呢？问了一下通义千问，发现这是一个没有原型的对象。</p>
-<p>那么，啥是没有原型的对象呢？可以简单的理解为，这个对象没有继承任何Object的属性和方法，是一个干净的对象。它就是它自己！<br>此类对象没有<code>toString</code>、<code>valueOf</code>等方法，也没有<code>__proto__</code>属性，因此无法通过原型链访问到Object的属性和方法。我们可以通过<code>Object.create(null)</code>来创建一个没有原型的对象。</p>
-<p>以下代码会产生一个TypeError,因为<code>person</code>对象没有原型，所以无法访问<code>toString</code>, <code>hasOwnProperty</code>等方法。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line">person.<span class="property">name</span> = <span class="string">&#x27;Philip&#x27;</span>;</span><br><span class="line">person.<span class="property">age</span> = <span class="number">18</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="title function_">toString</span>()); <span class="comment">// TypeError: person.toString is not a function</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(person.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;name&#x27;</span>)); <span class="comment">// TypeError: person.hasOwnProperty is not a function</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;name&#x27;</span> <span class="keyword">in</span> person); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>没有原型的对象有哪些好处呢？我们常说，存在即有理，既然这种对象，那么必然有它存在的道理：</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
-<li>避免原型污染：在JavaScript中，我们经常会遇到原型污染的问题，通过创建没有原型的对象，可以避免这种问题。</li>
-<li>速度快：没有原型的对象，不需要查找原型链，因此访问属性和方法的速度更快。</li>
-<li>纯粹的数据容器：没有原型的对象，可以作为一个纯粹的数据容器。</li>
-</ol>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
-<li>无法使用<code>Object.prototype</code>上的方法，如<code>toString</code>、<code>valueOf</code>等。</li>
-<li>检查属性是否存在只能使用<code>in</code>操作符，不能使用<code>hasOwnProperty</code>方法。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1770,7 +1777,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">308</span>
+          <span class="site-state-item-count">309</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1819,12 +1826,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">198k</span>
+    <span title="Symbols count total">199k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:01</span>
+    <span title="Reading time total">12:02</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
