@@ -187,6 +187,123 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/01/vscode-search-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/01/vscode-search-tips/" class="post-title-link" itemprop="url">VSCode搜索技巧</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-05-01 10:52:00 / Modified: 12:23:51" itemprop="dateCreated datePublished" datetime="2025-05-01T10:52:00+08:00">2025-05-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>579</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>VSCode是时下最令行的前端开发工具，用好VSCode能极大的提高我们的开发效率，而搜索是日常开发中必不可少的操作，今天我们一起来聊聊VSCode中的搜索技巧。</p>
+<p>普通的搜索我们就不谈了，今天主要介绍一下正则表达式搜索和一些小技巧。</p>
+<h1 id="匹配换行符"><a href="#匹配换行符" class="headerlink" title="匹配换行符"></a>匹配换行符</h1><ul>
+<li><code>[.|\n]*</code> - 可以匹配任意字符，包括换行符。</li>
+<li><code>[\s\S]</code> - 注意这种方式不好用。</li>
+</ul>
+<p>一般情况下我们都是进行单行搜索，但是有些情况下我们需要跨行搜索，比如下面的React代码：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> lang = <span class="title class_">LocalStorageUtil</span>.<span class="title function_">getLanguage</span>();</span><br><span class="line">  i18n.<span class="title function_">changeLanguage</span>(lang);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+<p>如果我想搜索所有依赖数组为空的<code>useEffect</code>调用，该怎么写这个正则表达式呢？大家可以先试试，反正我试了半天也没写出来，后来还是差DeepSeek才搞定，答案如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useEffect\((.|\n)*?,\s*\[\s*\]\s*\)</span><br></pre></td></tr></table></figure>
+<p>我们来解析一下这个正则表达式：</p>
+<ul>
+<li>useEffect - 匹配<code>useEffect</code>字符串</li>
+<li><code>\(</code> - 匹配<code>(</code>字符，因为<code>(</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>(.|\n)*?</code> - 匹配任意字符，包括换行符，<code>*?</code>表示非贪婪匹配，尽可能少的匹配字符。</li>
+<li><code>,</code> - 匹配<code>,</code>字符</li>
+<li><code>\s*</code> - 匹配<code>,</code>与<code>[]</code>之间的任意空格字符，包括空格、制表符、换行符等，<code>*</code>表示匹配0次或多次。</li>
+<li><code>\[\s*\]</code> - 匹配空的依赖数组，因为<code>[</code>和<code>]</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>\s*\)</code> - 匹配最后的右括弧，<code>\s*</code>表示<code>[]</code>与右括弧之间可能有空格。</li>
+</ul>
+<p>这里面的关键是：<code>(.|\n)</code> - 它匹配任意字符包括换行符。</p>
+<h1 id="匹配markdown中的表格"><a href="#匹配markdown中的表格" class="headerlink" title="匹配markdown中的表格"></a>匹配markdown中的表格</h1><p>在Markdown中，使用如下方式来生成表格。</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| Name  | Age |</span><br><span class="line">| ----- | --- |</span><br><span class="line">| Tom   | 18  |</span><br><span class="line">| Jerry | 20  |</span><br></pre></td></tr></table></figure>
+
+<p>如果我们要查找所有的markdown表格，那么我们只需要找出如下特征字符串即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|------|-----|</span><br></pre></td></tr></table></figure>
+
+<p>可以使用如下的正则表达式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\|\s*-+</span><br></pre></td></tr></table></figure>
+<p>我们来解析一下这个正则表达式：</p>
+<ul>
+<li><code>\|</code> - 匹配<code>|</code>字符，因为<code>|</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>\s*</code> - 匹配<code>|</code>与<code>-</code>之间的任意空格字符。</li>
+<li><code>-+</code> - 匹配<code>-</code>字符，<code>+</code>表示匹配1次或多次。</li>
+</ul>
+<p>这样，我们就可以查出所有的markdown表格了。你学会了吗？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/29/lit-element-app-typescript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -210,10 +327,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-04-29 21:25:49 / Modified: 22:47:31" itemprop="dateCreated datePublished" datetime="2025-04-29T21:25:49+08:00">2025-04-29</time>
+              <time title="Created: 2025-04-29 21:25:49" itemprop="dateCreated datePublished" datetime="2025-04-29T21:25:49+08:00">2025-04-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-30 21:28:44" itemprop="dateModified" datetime="2025-04-30T21:28:44+08:00">2025-04-30</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -230,7 +353,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>544</span>
+              <span>557</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -269,7 +392,7 @@
 <p>不出意外，你会遇到<code>@customElement(&quot;my-element&quot;)</code>无法识别的错误：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Invalid or unexpected token (at my-element.ts:3:1)</span><br></pre></td></tr></table></figure>
 
-<p>这是因为<code>@customElement</code>是装饰器语法，这个语法还未被浏览器正式支持，目前处于state 3，在未来的版本中可以支持，所以暂时需要在<code>tsconfig.json</code>中添<code>&quot;experimentalDecorators&quot;: true</code>配置才行。</p>
+<p>这是因为<code>@customElement</code>是装饰器语法，这个语法还未被浏览器正式支持，目前处于state 3，在未来的版本中可以支持，所以暂时需要在<code>tsconfig.json</code>中添<code>&quot;experimentalDecorators&quot;: true</code>配置才行。关于Decorator的更多信息，可以看<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/docs/handbook/decorators.html#introduction">这里</a></p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="attr">&quot;experimentalDecorators&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>再次运行程序，不出意外，你会遇到如下错误：</p>
@@ -1078,102 +1201,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/06/css-troubleshooting/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/06/css-troubleshooting/" class="post-title-link" itemprop="url">css-troubleshooting</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-06 19:58:07" itemprop="dateCreated datePublished" datetime="2025-04-06T19:58:07+08:00">2025-04-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-08 10:10:49" itemprop="dateModified" datetime="2025-04-08T10:10:49+08:00">2025-04-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>749</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="body宽度设置为100-，为啥还有横向滚动条？"><a href="#body宽度设置为100-，为啥还有横向滚动条？" class="headerlink" title="body宽度设置为100%，为啥还有横向滚动条？"></a>body宽度设置为100%，为啥还有横向滚动条？</h1><h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象:"></a>问题现象:</h2><p>这是一个非常简单的例子，创建一个html文件，设置body的宽度为100%，然后在浏览器中打开，发现有横向滚动条。为什么呢？</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-tag">body</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    This is body</span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/06/css-troubleshooting/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1243,7 +1270,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">309</span>
+          <span class="site-state-item-count">310</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1297,7 +1324,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:02</span>
+    <span title="Reading time total">12:04</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

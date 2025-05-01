@@ -187,6 +187,103 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/05/angular-lifecycle-ngonchanges/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/05/angular-lifecycle-ngonchanges/" class="post-title-link" itemprop="url">angular-lifecycle-ngonchanges</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-05 10:04:38" itemprop="dateCreated datePublished" datetime="2024-12-05T10:04:38+08:00">2024-12-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-23 21:36:48" itemprop="dateModified" datetime="2025-04-23T21:36:48+08:00">2025-04-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>330</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngOnChanges</code>是Angular中非常重要的一个生命周期函数，今天我们来详细讨论一下它的用法。</p>
+<h2 id="Angular什么时候调用ngOnChanges？"><a href="#Angular什么时候调用ngOnChanges？" class="headerlink" title="Angular什么时候调用ngOnChanges？"></a>Angular什么时候调用<code>ngOnChanges</code>？</h2><p><code>ngOnChanges</code>是一个生命周期钩子，当Angular检测到组件的输入属性发生变化时，就会调用<code>ngOnChanges</code>函数。这意味着，只有当组件的输入属性发生变化时，<code>ngOnChanges</code>才会被调用。</p>
+<h2 id="我们什么时候需要重写ngOnChanges？"><a href="#我们什么时候需要重写ngOnChanges？" class="headerlink" title="我们什么时候需要重写ngOnChanges？"></a>我们什么时候需要重写<code>ngOnChanges</code>？</h2><p>通常情况下，我们不需要重写<code>ngOnChanges</code>函数，因为Angular会自动调用它。但是，以下几种情况都需要重写<code>ngOnChanges</code>函数：</p>
+<ol>
+<li>当我们使用了<code>OnPush</code>时，且需要根据Input变化做相应操作时，那么就要响应<code>ngOnChanges</code>。</li>
+<li>当我们需要在组件的输入属性发生变化时执行一些自定义逻辑时，我们就需要重写<code>ngOnChanges</code>函数。</li>
+</ol>
+<h2 id="配合OnPush"><a href="#配合OnPush" class="headerlink" title="配合OnPush"></a>配合OnPush</h2><p>假设有一个父组件：ParentComponent，一个子组件ChildComponent，父组件中调用一个API，返回值作为Input传递给子组件，子组件要根据这个Input继续调用另外一个API，这时候就需要在子组件中重写<code>ngOnChanges</code>函数。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">standalone</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;p&gt;Child Component&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">changeDetection</span>: <span class="title class_">ChangeDetectionStrategy</span>.<span class="property">OnPush</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> <span class="keyword">implements</span> <span class="title class_">OnChanges</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnChanges</span>(<span class="params"><span class="attr">changes</span>: <span class="title class_">SimpleChanges</span></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">fetchData</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">fetchData</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// Call API</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义逻辑"><a href="#自定义逻辑" class="headerlink" title="自定义逻辑"></a>自定义逻辑</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/03/angular-directive/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1336,119 +1433,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/11/30/angular-ngif/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/11/30/angular-ngif/" class="post-title-link" itemprop="url">angular-ngIf</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-11-30 14:32:43" itemprop="dateCreated datePublished" datetime="2024-11-30T14:32:43+08:00">2024-11-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:25:11" itemprop="dateModified" datetime="2025-04-07T17:25:11+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>476</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>ngIf</code> is a structural directive in Angular, it is used to conditionally render content in a template. Remember to import <code>CommonModule</code> in the module where you want to use <code>ngIf</code>.</p>
-<h2 id="Full-syntax-with-ng-template"><a href="#Full-syntax-with-ng-template" class="headerlink" title="Full syntax with ng-template"></a>Full syntax with <code>ng-template</code></h2><p><code>Structural directives</code> are used in <code>ng-template</code>, here is an example:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-template</span> [<span class="attr">ngIf</span>]=<span class="string">&quot;hero&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Shorthand-syntax"><a href="#Shorthand-syntax" class="headerlink" title="Shorthand syntax"></a>Shorthand syntax</h2><p>But, in practice, we often use <code>ngIf</code> in a more concise way by prefix a <code>*</code> before it, this is called the shorthand syntax:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> *<span class="attr">ngIf</span>=<span class="string">&quot;hero&quot;</span> <span class="attr">class</span>=<span class="string">&quot;name&quot;</span>&gt;</span>&#123;&#123;hero.name&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>Note, even we write it in the shorthand syntax, Angular will still convert it to the <code>ng-template</code> syntax after compiling.</p>
-<p>The above template will create a <code>div</code> element in the template, What if you don’t want to create a <code>div</code> element? You can use <code>ng-container</code> instead of <code>div</code>:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition&quot;</span>&gt;</span></span><br><span class="line">  Content to render when condition is true</span><br><span class="line"><span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>In this way, Angular will render the text directly without creating a <code>div</code> element.</p>
-<h2 id="New-syntax-with-if"><a href="#New-syntax-with-if" class="headerlink" title="New syntax with @if"></a>New syntax with <code>@if</code></h2><p>With the new built-in structural @if directive, you can use the following syntax:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@if (condition) &#123;</span><br><span class="line">  Content to render when condition is true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="If-else-then-with-ngIf"><a href="#If-else-then-with-ngIf" class="headerlink" title="If else then with *ngIf"></a>If else then with *ngIf</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-container</span> *<span class="attr">ngIf</span>=<span class="string">&quot;condition; then thenBlock else elseBlock&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-container</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">thenBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ng-template</span> #<span class="attr">elseBlock</span>&gt;</span></span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ng-template</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="If-else-then-with-if"><a href="#If-else-then-with-if" class="headerlink" title="If else then with @if"></a>If else then with @if</h2><p>With <code>@if</code> directive, you can use the following syntax, it’s more simple and readable:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;case-3&quot;</span>&gt;</span></span><br><span class="line">  @if (condition) &#123;</span><br><span class="line">    Content to render when condition is true</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    Content to render when condition is false</span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>既然Angular已经有<code>ngIf</code>, <code>ngFor</code>, ngSwitch等内置的结构性指令，为什么还要引入新的<code>@if</code>，<code>@for</code>, <code>@switch</code>呢？主要有以下原因</p>
-<ol>
-<li>更简洁的语法，比如要实现if - else if - … - else的逻辑，使用<code>ngIf</code>就会显得很臃肿。而使用<code>@if</code>就可以很好的解决这个问题。</li>
-<li>更好的类型检查机制，这个不知道是怎么实现的。</li>
-<li>更好的运行时性能，Angular编译器会将<code>@if</code>，<code>@for</code>，<code>@switch</code>编译成更高效的代码，这样可以减少运行时的开销。</li>
-<li>更小的包体积，最多可以减少30kb的包体积。</li>
-<li>不需要额外导入<code>CommonModule</code>模块，直接使用即可，<code>ngIf</code>等指令则需要导入<code>CommonModule</code>模块。</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1518,7 +1502,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">309</span>
+          <span class="site-state-item-count">310</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1572,7 +1556,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:02</span>
+    <span title="Reading time total">12:04</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
