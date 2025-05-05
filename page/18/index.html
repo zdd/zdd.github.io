@@ -1289,7 +1289,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-04 22:04:56" itemprop="dateModified" datetime="2025-05-04T22:04:56+08:00">2025-05-04</time>
+                <time title="Modified: 2025-05-05 10:02:37" itemprop="dateModified" datetime="2025-05-05T10:02:37+08:00">2025-05-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1307,14 +1307,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>566</span>
+              <span>812</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
 
         </div>
@@ -1357,6 +1357,22 @@
 <p>再看一个例子，你知道以下代码输出什么结果吗？</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">async1</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">4</span>));</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">async3</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">6</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">async1</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">7</span>);</span><br><span class="line"><span class="title function_">async3</span>();</span><br></pre></td></tr></table></figure>
 
+<p>答案是：1 7 4 6 2。来分析一下执行过程：</p>
+<ul>
+<li>执行<code>async1()</code>，输出1</li>
+<li>执行<code>await Promise.resolve().then(() =&gt; console.log(4))</code>，此时将<code>console.log(4)</code>加入微任务队列。</li>
+<li>执行<code>console.log(7)</code>，输出7</li>
+<li>执行<code>async3()</code>，将<code>console.log(6)</code>加入微任务队列</li>
+<li>执行微任务队列中的代码console.log(4)，输出4，此时<code>async1</code>中的<code>await</code>右侧的Promise执行完毕，将后续代码<code>console.log(2)</code>加入微任务队列</li>
+<li>执行微任务队列中的代码<code>console.log(6)</code>，输出6</li>
+<li>执行微任务队列中的代码<code>console.log(2)</code>，输出2</li>
+</ul>
+<p>总结一下：</p>
+<ul>
+<li>遇到<code>await</code>时，<code>await</code>会暂停当前<code>async</code>函数的执行，并等待右侧的<code>Promise</code>执行完毕，然后<code>async</code>函数后续代码加入微任务队列。</li>
+<li><code>await</code>只是暂停当前<code>async</code>函数的执行，并不会阻塞主线程的执行。当前<code>async</code>函数外的代码会继续执行。</li>
+<li>从影响范围来说，<code>await</code>只影响当前<code>async</code>函数，不影响其他函数。</li>
+</ul>
 <h2 id="await与Promise链"><a href="#await与Promise链" class="headerlink" title="await与Promise链"></a>await与Promise链</h2><p>In JavaScript, <code>await</code> can works with promise chain, it will get the resolved value of the last promise in the chain. For example:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">getData = <span class="function">() =&gt;</span></span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="number">1</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="number">2</span>)</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">test</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">getData</span>(); <span class="comment">// output: 3</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(res);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">test</span>();</span><br></pre></td></tr></table></figure>
 
@@ -1500,7 +1516,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:12</span>
+    <span title="Reading time total">12:13</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
