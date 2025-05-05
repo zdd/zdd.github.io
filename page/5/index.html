@@ -187,6 +187,147 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/22/react-interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/22/react-interview/" class="post-title-link" itemprop="url">React-interview</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-22 10:08:05" itemprop="dateCreated datePublished" datetime="2025-02-22T10:08:05+08:00">2025-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:30:45" itemprop="dateModified" datetime="2025-04-07T21:30:45+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="React-Fiber架构"><a href="#React-Fiber架构" class="headerlink" title="React Fiber架构"></a>React Fiber架构</h2><p>React的渲染可以分为两个主要阶段：Reconciler(协调阶段)，和Committer(提交阶段)。</p>
+<h3 id="Reconciler-协调阶段"><a href="#Reconciler-协调阶段" class="headerlink" title="Reconciler(协调阶段)"></a>Reconciler(协调阶段)</h3><p>工作内容： 构建Fiber树，比较新旧虚拟DOM的不同之处，生成一个变更记录，即一系列需要对真实DOM进行的操作。此阶段的特点：异步，并发，可中断。如果执行过程中有更高优先级的任务来了，那么会中断当前Reconciler的工作，转而处理更重要的任务。</p>
+<h3 id="Committer阶段"><a href="#Committer阶段" class="headerlink" title="Committer阶段"></a>Committer阶段</h3><p>工作内容：将Reconciler阶段生成的变更记录应用到真实的DOM上。此阶段是同步的，不可中断的。<br>工作阶段：</p>
+<ol>
+<li>Dom更新前 - useEffect在这个阶段执行，通过微任务队列异步执行（页面渲染后执行）</li>
+<li>Dom更新 - 执行真实DOM的更新</li>
+<li>Dom更新后 - useLayoutEffect在这个阶段执行，同步（页面渲染前执行）</li>
+</ol>
+<p>注意页面的渲染和JS的执行是互斥的，只有JS代码执行完，页面才能渲染，这就是<code>useLayoutEffect</code>的作用，可以在页面渲染前执行一些操作，比如调整布局。</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>Fiber架构中采用<code>FiberNod</code>e和<code>FiberTree</code>来描述虚拟DOM树。<code>FiberNode</code>是一个双向链表，每个节点都有一个指向父节点的指针，一个指向子节点的指针，一个指向兄弟节点的指针。<code>FiberTree</code>是一个树形结构，由<code>FiberNode</code>组成。</p>
+<h2 id="React-diff算法"><a href="#React-diff算法" class="headerlink" title="React diff算法"></a>React diff算法</h2><h3 id="树比较"><a href="#树比较" class="headerlink" title="树比较"></a>树比较</h3><p>只做同层级结点比较，如果结点不存在了，则直接删除。不会继续比较其子树。这避免了夸层级移动操作，对于跨层级移动操作，相当于删除再重建。同层级结点移动呢？可以处理。</p>
+<h3 id="组件比较"><a href="#组件比较" class="headerlink" title="组件比较"></a>组件比较</h3><p>只做同类型的组件比较，比如div和div比较，p和p比较，只有组件的类型相同，才进入子树进行深层次比较。如果类型不一致，则删除重新创建。</p>
+<h3 id="元素比较"><a href="#元素比较" class="headerlink" title="元素比较"></a>元素比较</h3><p>对于同层级的元素结点。</p>
+<ol>
+<li>元素在新集合中，但是不在原来的集合中，属于全新的结点，对集合进行插入操作。</li>
+<li>元素在原来的集合中，但是不在新的集合中，则删除该元素。</li>
+<li>元素在新集合中，也在原来的集合中，且元素并未更新，只是位置发生了变化，则进行移动操作。</li>
+</ol>
+<h3 id="双缓冲策略："><a href="#双缓冲策略：" class="headerlink" title="双缓冲策略："></a>双缓冲策略：</h3><ol>
+<li>current树负责呈现当前页面，而所有的更新都由workInProgress树来承接，当变更完成需要渲染时，将workInProgress树变成current树。</li>
+</ol>
+<h2 id="setState是同步还是异步？"><a href="#setState是同步还是异步？" class="headerlink" title="setState是同步还是异步？"></a><code>setState</code>是同步还是异步？</h2><p>这个问题需要区分开来看，在React18之前，如果<code>executionContext</code>被赋值了，代表该任务已经进入React调度流程中，此时React会对该任务进行异步处理（批量处理），如果<code>executionContext</code>没有被赋值，代表该任务还没有进入React调度流程，此时React会对该任务进行同步处理。想<code>setTimeout</code>, <code>setInterval</code>等函数都是不会进入React调度流程的，所以是同步处理。而合成事件都会进入到React调度流程中，所以会被异步处理。在React18后，如果使用<code>createRoot</code>创建根节点，那么<code>setState</code>会变成同步的。但是如果还是使用传统的<code>render</code>方式，那么和React18之前的处理逻辑一样。</p>
+<h2 id="虚拟DOM"><a href="#虚拟DOM" class="headerlink" title="虚拟DOM"></a>虚拟DOM</h2><p>虚拟DOM是React的核心概念之一，它是一个轻量级的JavaScript对象，用来描述真实DOM的层次结构。React通过比较新旧虚拟DOM的差异，然后只更新需要更新的部分，从而提高页面的渲染性能。</p>
+<p>虚拟DOM的量大作用：</p>
+<ol>
+<li>跨平台，因为虚拟DOM只是一个数据结构，所以可以在不同平台上使用，比如浏览器，移动端App等。这是虚拟DOM的重要特性，很多人没有意识到。</li>
+<li>高性能，通过比较新旧虚拟DOM的差异，只更新需要更新的部分，减少了对真实DOM的操作，提高了页面的渲染性能。</li>
+</ol>
+<h2 id="React中嵌套组件的渲染顺序，生命周期，销毁顺序。"><a href="#React中嵌套组件的渲染顺序，生命周期，销毁顺序。" class="headerlink" title="React中嵌套组件的渲染顺序，生命周期，销毁顺序。"></a>React中嵌套组件的渲染顺序，生命周期，销毁顺序。</h2><h3 id="渲染顺序"><a href="#渲染顺序" class="headerlink" title="渲染顺序"></a>渲染顺序</h3><p>当React开始渲染过程时，它首先从上到下、从父到子地渲染组件树。这意味着父组件会先于其子组件进行渲染。一旦父组件完成它的渲染（包括执行相关的生命周期方法），React会递归地进入该父组件的子组件，并按照同样的方式渲染它们。</p>
+<h3 id="生命周期顺序"><a href="#生命周期顺序" class="headerlink" title="生命周期顺序"></a>生命周期顺序</h3><ul>
+<li>首次挂载时：<ul>
+<li>父组件：constructor -&gt; static getDerivedStateFromProps -&gt; render -&gt; 子组件重复相同流程 -&gt; 子组件componentDidMount -&gt; 父组件componentDidMount</li>
+</ul>
+</li>
+<li>更新时（由于props变化或state变化）：<ul>
+<li>父组件：static getDerivedStateFromProps -&gt; shouldComponentUpdate -&gt; render -&gt; 子组件重复相同流程 -&gt; 子组件componentDidUpdate -&gt; 父组件componentDidUpdate</li>
+</ul>
+</li>
+</ul>
+<h3 id="销毁顺序"><a href="#销毁顺序" class="headerlink" title="销毁顺序"></a>销毁顺序</h3><p>当组件被卸载时，React会以相反的顺序卸载组件树中的组件。也就是说，React首先卸载最深层的子组件，然后逐步向上，直到根组件。</p>
+<h2 id="受控组件和非受控组件"><a href="#受控组件和非受控组件" class="headerlink" title="受控组件和非受控组件"></a>受控组件和非受控组件</h2><p>受控组件是指组件的值是由React的state来控制的，比如下面的input，其中关键一句就是<code>value=&#123;this.state.value&#125;</code> 这样就把input的value和组件的state关联起来了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">NameForm</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(props);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">state</span> = &#123;<span class="attr">value</span>: <span class="string">&#x27;&#x27;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">handleChange</span> = <span class="variable language_">this</span>.<span class="property">handleChange</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">handleSubmit</span> = <span class="variable language_">this</span>.<span class="property">handleSubmit</span>.<span class="title function_">bind</span>(<span class="variable language_">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleChange</span>(<span class="params">event</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;<span class="attr">value</span>: event.<span class="property">target</span>.<span class="property">value</span>&#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleSubmit</span>(<span class="params">event</span>) &#123;</span><br><span class="line">    <span class="title function_">alert</span>(<span class="string">&#x27;A name was submitted: &#x27;</span> + <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">value</span>);</span><br><span class="line">    event.<span class="title function_">preventDefault</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="language-xml"><span class="tag">&lt;<span class="name">form</span> <span class="attr">onSubmit</span>=<span class="string">&#123;this.handleSubmit&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">label</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          Name:</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">value</span>=<span class="string">&#123;this.state.value&#125;</span> <span class="attr">onChange</span>=<span class="string">&#123;this.handleChange&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">label</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Submit&quot;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义hook"><a href="#自定义hook" class="headerlink" title="自定义hook"></a>自定义hook</h2><h3 id="模拟componentDidMount"><a href="#模拟componentDidMount" class="headerlink" title="模拟componentDidMount"></a>模拟<code>componentDidMount</code></h3><p>当我们为<code>useEffect</code>的依赖传递空数组时，它只会在组件初始化时执行一次，这就相当于<code>componentDidMount</code>。注意，这个只是粗略的模拟，因为<code>useEffect</code>是异步执行，且时机是在浏览器渲染完成后，而<code>componentDidMount</code>是在浏览器渲染前同步执行。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useEffect&#125; <span class="keyword">from</span> <span class="string">&quot;react&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> useMount = (<span class="function">(<span class="params">callBack</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">callBack</span>();</span><br><span class="line">  &#125;, []);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="模拟componentDidUpdate"><a href="#模拟componentDidUpdate" class="headerlink" title="模拟componentDidUpdate"></a>模拟<code>componentDidUpdate</code></h3><p>componentDidUpdate是在每次组件的state或props更新是调用的，但是组件mount的时候不调用，所以我们需要一个变量来标志组件是否是第一次加载，这里我们使用<code>useRef</code>来标志组件是否是第一次加载。因为<code>useRef</code>包裹的值在整个组件声明周期内引用不变（有点像静态变量），并且这个值改变后不会触发组件的重新渲染。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="title function_">useUpdate</span> = (<span class="params">callback, deps</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> isMounted = <span class="title function_">useRef</span>(<span class="literal">false</span>); <span class="comment">// 🚩 关键点</span></span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isMounted.<span class="property">current</span>) &#123;</span><br><span class="line">      <span class="title function_">callback</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      isMounted.<span class="property">current</span> = <span class="literal">true</span>; <span class="comment">// 挂载后切换标识</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, deps);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，如果在React18+严格模式下运行该函数，还是会执行一次，因为React18+的严格模式会执行两次。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">createRoot</span>(<span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>)).<span class="title function_">render</span>(</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">StrictMode</span>&gt;</span> // 严格模式，去掉即可得到正确结果</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">BrowserRouter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">App</span>/&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">BrowserRouter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">StrictMode</span>&gt;</span></span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="模拟componentWillUnmount"><a href="#模拟componentWillUnmount" class="headerlink" title="模拟componentWillUnmount"></a>模拟<code>componentWillUnmount</code></h3><p>这个就比较简单了，<code>componentWillUnmount</code>是在组件卸载时调用的，我们可以使用<code>useEffect</code>的返回值来模拟这个生命周期。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> useUnmount = (<span class="function">(<span class="params">callback</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">callback</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, []);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/22/css-interview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1185,162 +1326,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/11/css-display-inline-inlineblock-block/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/css-display-inline-inlineblock-block/" class="post-title-link" itemprop="url">css-display-inline-inlineblock-block</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-11 20:20:55" itemprop="dateCreated datePublished" datetime="2025-02-11T20:20:55+08:00">2025-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:12:23" itemprop="dateModified" datetime="2025-04-07T21:12:23+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>373</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ol>
-<li><strong>display: inline</strong> 的局限性</li>
-</ol>
-<ul>
-<li>不能设置宽高 ：因为 <code>inline</code> 元素的尺寸完全由内容决定，无法通过 CSS 手动调整。</li>
-<li>垂直方向的 <code>margin</code> 和 <code>padding</code> 无效 ：虽然可以设置这些属性，但它们不会影响其他元素的布局。</li>
-<li>适合文本内容 ：通常用于 <code>&lt;span&gt;</code>、<code>&lt;a&gt;</code> 等需要与文本混合排版的元素。</li>
-</ul>
-<ol start="2">
-<li><strong>display: inline-block</strong> 的优势,结合了 <code>inline</code> 和 <code>block</code> 的优点 ：</li>
-</ol>
-<ul>
-<li>像 <code>inline</code> 一样可以同行排列。</li>
-<li>像 <code>block</code> 一样可以设置宽高和垂直方向的 <code>padding/margin</code>。</li>
-<li>适合需要精确控制尺寸的行内元素 ：例如导航栏中的按钮、图片画廊等。</li>
-</ul>
-<ol start="3">
-<li><strong>display: block</strong> 的典型用途</li>
-</ol>
-<ul>
-<li>结构化布局 ：用于页面的主要结构划分，例如标题、段落、表格等。</li>
-<li>独占一行 ：确保元素不会与其他元素共享同一行。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>display:block</th>
-<th>display:inline-block</th>
-<th>display:inline</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>是否独占一行</td>
-<td>是</td>
-<td>否</td>
-<td>否</td>
-</tr>
-<tr>
-<td>是否可以设置宽高</td>
-<td>可以</td>
-<td>可以</td>
-<td>不可以</td>
-</tr>
-<tr>
-<td>是否受空白符影响</td>
-<td>不受影响</td>
-<td>受影响（元素之间可能有间隙）</td>
-<td>不受影响</td>
-</tr>
-<tr>
-<td>默认宽度</td>
-<td>填满父容器</td>
-<td>仅包裹内容</td>
-<td>仅包裹内容</td>
-</tr>
-<tr>
-<td>是否可以设置垂直 padding&#x2F;margin</td>
-<td>可以</td>
-<td>可以</td>
-<td>不可以</td>
-</tr>
-<tr>
-<td>适用场景</td>
-<td>需要独占一行的布局（如标题、段落）</td>
-<td>需要同行排列且能设置宽高的布局（如按钮）</td>
-<td>需要同行排列且无需设置宽高的布局（如文本）</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1410,14 +1395,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">311</span>
+          <span class="site-state-item-count">312</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">39</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -1459,12 +1444,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">201k</span>
+    <span title="Symbols count total">202k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:13</span>
+    <span title="Reading time total">12:15</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
