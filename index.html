@@ -187,6 +187,256 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/11/typescript-config-outdir/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/11/typescript-config-outdir/" class="post-title-link" itemprop="url">typescript-config-outdir</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-05-11 11:16:25 / Modified: 11:44:03" itemprop="dateCreated datePublished" datetime="2025-05-11T11:16:25+08:00">2025-05-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>441</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天在玩耍<code>typescript</code>的时候，发现了一个有趣的问题，<code>tsconfig.json</code>中的<code>outDir</code>配置导致tsc命令无法编译。先看一下<code>tsconfig.json</code>的配置：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;es2016&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;commonjs&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;rootDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;esModuleInterop&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;forceConsistentCasingInFileNames&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>再来看一下项目的目录结构,<br>这里推荐一个在线生成项目目录结构的工具，是我自己写的，非常好用，大家如果要生成目录结构，不妨一试：<a target="_blank" rel="noopener" href="https://ascii-tree.com/">https://ascii-tree.com/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">my-app</span><br><span class="line">├─ src</span><br><span class="line">│   └─ add.ts</span><br><span class="line">└─ tsconfig.json</span><br></pre></td></tr></table></figure>
+
+<p>当我在terminal中使用<code>tsc</code>命令编译项目时，顺利生成了<code>add.js</code>文件, 于是我想，不如加上<code>outDir</code>吧，于是我就加上了。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;es2016&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;commonjs&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;rootDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;esModuleInterop&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;forceConsistentCasingInFileNames&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>当我再次运行<code>tsc</code>命令时，发现编译失败了，报错信息如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No inputs were found <span class="keyword">in</span> config file <span class="string">&#x27;xxx/tsconfig.json&#x27;</span>. Specified <span class="string">&#x27;include&#x27;</span> paths were <span class="string">&#x27;[&quot;**/*&quot;]&#x27;</span> and <span class="string">&#x27;exclude&#x27;</span> paths were <span class="string">&#x27;[&quot;xxx&quot;]&#x27;</span>.</span><br></pre></td></tr></table></figure>
+
+<p>于是我把把<code>outDir</code>删除了，再次编译，又能成功编译了，太邪门了！于是去官网查了一下:<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/#outDir">https://www.typescriptlang.org/tsconfig/#outDir</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">If specified, .js (as well as .d.ts, .js.map, etc.) files will be emitted into this directory. The directory structure of the original <span class="built_in">source</span> files is preserved; see rootDir <span class="keyword">if</span> the computed root is not what you intended.</span><br><span class="line"></span><br><span class="line">If not specified, .js files will be emitted <span class="keyword">in</span> the same directory as the .ts files they were generated from:</span><br></pre></td></tr></table></figure>
+<p>也没看出什么端倪来。</p>
+<p>后来问了一下Copilot，它是这么说的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The `outDir` option <span class="keyword">in</span> TypeScript specifies the output directory <span class="keyword">for</span> compiled JavaScript files. When you <span class="built_in">set</span> `outDir` to a specific directory, TypeScript expects that directory to exist and be writable. If it doesn<span class="string">&#x27;t exist or is not writable, you may encounter errors during compilation.</span></span><br></pre></td></tr></table></figure>
+
+<p>咱也不知道它的根据是啥，反正我觉得挺有道理，姑且信之，于是将<code>outDir</code>改成了<code>dist</code>, 再次编译，大功告成！</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;es2016&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;commonjs&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;rootDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;esModuleInterop&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;forceConsistentCasingInFileNames&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/06/jest-integrate-jest-to-react-app/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/06/jest-integrate-jest-to-react-app/" class="post-title-link" itemprop="url">jest-integrate-jest-to-react-app</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-05-06 20:39:03" itemprop="dateCreated datePublished" datetime="2025-05-06T20:39:03+08:00">2025-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-05-10 19:51:28" itemprop="dateModified" datetime="2025-05-10T19:51:28+08:00">2025-05-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/jest/" itemprop="url" rel="index"><span itemprop="name">jest</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天来看一下如何在React项目中使用Jest进行单元测试。</p>
+<h2 id="创建React项目"><a href="#创建React项目" class="headerlink" title="创建React项目"></a>创建React项目</h2><p>我们使用Vite来创建React项目，命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm create vite@latest react-app-jest --template react-ts</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用VSCode打开项目"><a href="#使用VSCode打开项目" class="headerlink" title="使用VSCode打开项目"></a>使用VSCode打开项目</h2><p>使用如下命令打开项目</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> react-app-jest</span><br><span class="line">code .</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装初始依赖"><a href="#安装初始依赖" class="headerlink" title="安装初始依赖"></a>安装初始依赖</h2><p>打开VSCode，选择菜单中的<code>Terminal | New Terminal</code>(或者快捷键<code>Ctrl + Shift + ` </code>)打开一个新的terminal，运行以下命令安装初始依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h2><p>运行以下命令来启动项目，确保项目可以正常运行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="安装Jest相关的依赖"><a href="#安装Jest相关的依赖" class="headerlink" title="安装Jest相关的依赖"></a>安装Jest相关的依赖</h2><p>需要安装的依赖很多，运行以下命令来安装, <code>npm i -D</code>相当于<code>npm install --save-dev</code>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -D jest @types/jest ts-jest @testing-library/react @testing-library/jest-dom jest-environment-jsdom ts-node</span><br></pre></td></tr></table></figure>
+<p>分别解释一下上面的包都有什么作用：</p>
+<ul>
+<li><code>jest</code>：Jest是一个JavaScript测试框架，主要用于单元测试和集成测试。</li>
+<li><code>@types/jest</code>：Jest的TypeScript类型定义文件。</li>
+<li><code>ts-jest</code>：Jest的TypeScript预处理器，允许你在Jest中使用TypeScript。</li>
+<li><code>@testing-library/react</code>：React Testing Library是一个用于测试React组件的库，提供了一些实用的工具和方法。</li>
+<li><code>@testing-library/jest-dom</code>：提供了一些自定义的Jest匹配器，用于测试DOM节点的状态。</li>
+<li><code>jest-environment-jsdom</code>：Jest的JS DOM环境，允许你在Node.js中模拟浏览器环境。</li>
+<li><code>ts-node</code>：TypeScript执行器，允许你在Node.js中直接运行TypeScript代码。Jest通过这个模块来读取<code>jest.config.ts</code>文件。</li>
+</ul>
+<h2 id="配置Jest"><a href="#配置Jest" class="headerlink" title="配置Jest"></a>配置Jest</h2><h3 id="jest-setup-ts"><a href="#jest-setup-ts" class="headerlink" title="jest.setup.ts"></a>jest.setup.ts</h3><p>在<code>src</code>目录下创建文件<code>jest.setup.ts</code>，这个文件用来导入<code>@testing-library/jest-dom</code>，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;@testing-library/jest-dom&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="mock文件"><a href="#mock文件" class="headerlink" title="mock文件"></a>mock文件</h3><p>在项目根目录下创建一个<code>mock</code>文件夹，里面添加一个文件<code>fileMock.ts</code>，这个文件主要用来处理svg, gif, css等非javascript&#x2F;json格式的文件，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">__esModule</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">default</span>: <span class="string">&#x27;test-file-stub&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在项目根目录下创建一个<code>jest.config.ts</code>文件，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Config</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;jest&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">config</span>: <span class="title class_">Config</span> = &#123;</span><br><span class="line">  <span class="attr">rootDir</span>: <span class="string">&#x27;./&#x27;</span>,</span><br><span class="line">  <span class="attr">testEnvironment</span>: <span class="string">&#x27;jsdom&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/src/jest.setup.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|tsx)$&#x27;</span>: <span class="string">&#x27;ts-jest&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> config;</span><br></pre></td></tr></table></figure>
+
+<h1 id="创建测试文件"><a href="#创建测试文件" class="headerlink" title="创建测试文件"></a>创建测试文件</h1><p>首先修改一下<code>src/App.tsx</code>文件，让它渲染一个<code>h</code>1标签，内容是<code>Hello, world!</code>。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;<span class="title class_">Hello</span>, world!&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>src</code>目录下创建一个测试文件<code>App.test.tsx</code>，内容如下：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; render, screen &#125; <span class="keyword">from</span> <span class="string">&#x27;@testing-library/react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">App</span> <span class="keyword">from</span> <span class="string">&#x27;./App&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;@testing-library/jest-dom&#x27;</span>;</span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;App&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">test</span>(<span class="string">&#x27;renders learn react link&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span></span>);</span><br><span class="line">    <span class="keyword">const</span> linkElement = screen.<span class="title function_">getByText</span>(<span class="regexp">/Hello, world/i</span>);</span><br><span class="line">    <span class="title function_">expect</span>(linkElement).<span class="title function_">toBeInTheDocument</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h1 id="运行测试"><a href="#运行测试" class="headerlink" title="运行测试"></a>运行测试</h1><h2 id="通过命令行运行"><a href="#通过命令行运行" class="headerlink" title="通过命令行运行"></a>通过命令行运行</h2><p>首先配置<code>package.json</code>，在<code>package.json</code>中添加以下脚本：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test:coverage&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --coverage&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>然后在终端中运行以下命令来运行测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p>如果你想查看测试覆盖率，可以运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run <span class="built_in">test</span>:coverage</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过Jest插件运行测试"><a href="#通过Jest插件运行测试" class="headerlink" title="通过Jest插件运行测试"></a>通过Jest插件运行测试</h2><p>有两个常用的Jest插件可以使用，一个是<code>Jest</code>，另一个是<code>Jest Runner</code>。这两个插件都可以在VSCode的扩展市场中找到。</p>
+<p>安装以后，打开测试文件<code>App.test.tsx</code>，你会看到每个测试用例旁边都有一个绿色的运行按钮，点击它就可以运行测试了。</p>
+<p>也可以使用鼠标右键菜单中的<code>Run Jest</code>来运行测试。</p>
+<h1 id="troubleshooting"><a href="#troubleshooting" class="headerlink" title="troubleshooting"></a>troubleshooting</h1><h2 id="SyntaxError-Private-field-‘-root’-must-be-declared-in-an-enclosing-class"><a href="#SyntaxError-Private-field-‘-root’-must-be-declared-in-an-enclosing-class" class="headerlink" title="SyntaxError: Private field ‘#root’ must be declared in an enclosing class"></a>SyntaxError: Private field ‘#root’ must be declared in an enclosing class</h2><p>如果遇到如下错误，仔细观察错误产生的位置，是在import App.css的地方，说明是css文件的问题。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SyntaxError: Private field <span class="string">&#x27;#root&#x27;</span> must be declared <span class="keyword">in</span> an enclosing class</span><br><span class="line"></span><br><span class="line">      1 | import &#123; useState &#125; from <span class="string">&#x27;react&#x27;</span></span><br><span class="line">    &gt; 2 | import <span class="string">&#x27;./App.css&#x27;</span></span><br><span class="line">        | ^</span><br><span class="line">      3 |</span><br><span class="line">      4 | <span class="keyword">function</span> <span class="function"><span class="title">App</span></span>() &#123;</span><br><span class="line">      5 |   const [count, setCount] = useState(0)</span><br><span class="line"></span><br><span class="line">      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1505:14)</span><br><span class="line">      at Object.&lt;anonymous&gt; (src/App.tsx:2:1)</span><br><span class="line">      at Object.&lt;anonymous&gt; (src/App.test.tsx:3:1)</span><br></pre></td></tr></table></figure>
+
+<p>将CSS文件格式添加到<code>jest.config.ts</code>文件中的<code>moduleNameMapper</code>区块中，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+
+<h2 id="require-of-ES-modules-is-not-supported"><a href="#require-of-ES-modules-is-not-supported" class="headerlink" title="require() of ES modules is not supported."></a>require() of ES modules is not supported.</h2><p>如果你遇到了如下错误，是因为你的<code>jest.config.ts</code>文件是ES Module格式的，而Jest默认使用CommonJS格式来解析配置文件。欲知详情请查看<a target="_blank" rel="noopener" href="https://github.com/jestjs/jest/issues/11453">这里</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error: Jest: Failed to parse the TypeScript config file D:\personal\codes\react\vite-react-app-jest\jest.config.ts</span><br><span class="line">  Error: Must use import to load ES Module: D:\personal\codes\react\vite-react-app-jest\jest.config.ts  </span><br><span class="line">require() of ES modules is not supported.</span><br></pre></td></tr></table></figure>
+<p>解决办法也很简单，因为Jest的配置文件支持多种格式，我们姑且不实用ts格式，而是使用js格式来编写配置文件。将<code>jest.config.ts</code>文件重命名为<code>jest.config.js</code>，并将文件内容修改为如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  <span class="attr">verbose</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">rootDir</span>: <span class="string">&#x27;./&#x27;</span>,</span><br><span class="line">  <span class="attr">testEnvironment</span>: <span class="string">&#x27;jsdom&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/src/jest.setup.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|tsx)$&#x27;</span>: <span class="string">&#x27;ts-jest&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> config;</span><br></pre></td></tr></table></figure>
+<p>如此这般，Jest就不会在使用<code>ts-node</code>来解析配置文件了，也就不会再报上面的错误了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/05/angular-use-lit-element-in-angular-app/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1135,200 +1385,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/19/mac-hotkeys/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/19/mac-hotkeys/" class="post-title-link" itemprop="url">mac-hotkeys</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-19 14:42:27" itemprop="dateCreated datePublished" datetime="2025-04-19T14:42:27+08:00">2025-04-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-01 16:58:28" itemprop="dateModified" datetime="2025-05-01T16:58:28+08:00">2025-05-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>283</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>MacOS上的快捷键特别多，用好这些快捷键能极大的提高我们的工作效率。</p>
-<h2 id="触控板手势"><a href="#触控板手势" class="headerlink" title="触控板手势"></a>触控板手势</h2><p>在Mac上用好触控板手势，基本上可以脱离鼠标进行工作。话不多少，直接上图，图片来自知乎。<br><img src="/../images/mac-gesture-1.webp" alt="mac-gesture-1"><br><img src="/../images/mac-gesture-2.png" alt="mac-gesture-2"><br><img src="/../images/mac-gesture-3.png" alt="mac-gesture-1"></p>
-<h2 id="MacOS-按键符号"><a href="#MacOS-按键符号" class="headerlink" title="MacOS 按键符号"></a>MacOS 按键符号</h2><p>MacOS上没有Windows3统上的<code>Ctrl</code>健(使用<code>Command</code>健代替)，而且多了一个Windows系统上没有的<code>Option</code>键。</p>
-<p>如果你看到的快捷键是<code>Ctrl</code>，那么在Mac上应该替换为<code>Command</code>，如果是<code>Alt</code>，那么在Mac上应该替换为<code>Option</code>。下面是MacOS上一些常用的按键符号：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/19/mac-hotkeys/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/16/vscode-shortcuts/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/16/vscode-shortcuts/" class="post-title-link" itemprop="url">vscode-shortcuts</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-16 19:59:32" itemprop="dateCreated datePublished" datetime="2025-04-16T19:59:32+08:00">2025-04-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-20 11:31:04" itemprop="dateModified" datetime="2025-04-20T11:31:04+08:00">2025-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>179</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>VSCode是如今市面上最流行的IDE了，用好VSCode是每一个前端程序员必备的技能，而VSCode又有大量的快捷键可以使用，下面是一些常用的VSCode快捷键。</p>
-<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>在MacOS上请将<code>Ctrl</code>替换为<code>Command</code>，<code>Alt</code>替换为<code>Option</code></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/16/vscode-shortcuts/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1398,7 +1454,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">312</span>
+          <span class="site-state-item-count">314</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1411,7 +1467,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">432</span>
+        <span class="site-state-item-count">433</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1447,12 +1503,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">202k</span>
+    <span title="Symbols count total">204k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:15</span>
+    <span title="Reading time total">12:21</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
