@@ -187,6 +187,120 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/09/12/angular-build-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/09/12/angular-build-process/" class="post-title-link" itemprop="url">angular-build-process</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-09-12 20:45:25" itemprop="dateCreated datePublished" datetime="2024-09-12T20:45:25+08:00">2024-09-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 16:32:11" itemprop="dateModified" datetime="2025-04-07T16:32:11+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>497</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Angular的编译过程是怎样的？<br>通常我么使用<code>ng build</code>命令来编译Angular项目，但是这个命令背后的逻辑是怎样的呢？</p>
+<ul>
+<li><code>ng build</code>命令底层是用<code>WebPack</code>还是<code>ESBuild</code>？</li>
+<li><code>ng build</code>命令是如何处理<code>TypeScript</code>文件的？</li>
+<li><code>ng build</code>命令是如何处理<code>HTML</code>文件的？</li>
+</ul>
+<h2 id="ts-js编译"><a href="#ts-js编译" class="headerlink" title="ts&#x2F;js编译"></a>ts&#x2F;js编译</h2><p>Webpack的配置文件在这里：<code>packages/angular_devkit/build_angular/src/tools/webpack/configs/common.ts</code></p>
+<p>这个文件里我们可以看到如下<code>rule</code>配置：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">test</span>: <span class="regexp">/\.[cm]?[tj]sx?$/</span>,</span><br><span class="line">  <span class="comment">// The below is needed due to a bug in `@babel/runtime`. See: https://github.com/babel/babel/issues/12824</span></span><br><span class="line">  <span class="attr">resolve</span>: &#123; <span class="attr">fullySpecified</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">  <span class="attr">exclude</span>: [</span><br><span class="line">    <span class="regexp">/[\\/]node_modules[/\\](?:core-js|@babel|tslib|web-animations-js|web-streams-polyfill|whatwg-url)[/\\]/</span>,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">use</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">loader</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;../../babel/webpack-loader&#x27;</span>),</span><br><span class="line">      <span class="attr">options</span>: &#123;</span><br><span class="line">        <span class="attr">cacheDirectory</span>: (cache.<span class="property">enabled</span> &amp;&amp; path.<span class="title function_">join</span>(cache.<span class="property">path</span>, <span class="string">&#x27;babel-webpack&#x27;</span>)) || <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">aot</span>: buildOptions.<span class="property">aot</span>,</span><br><span class="line">        <span class="attr">optimize</span>: buildOptions.<span class="property">buildOptimizer</span>,</span><br><span class="line">        <span class="attr">supportedBrowsers</span>: buildOptions.<span class="property">supportedBrowsers</span>,</span><br><span class="line">        <span class="attr">instrumentCode</span>: codeCoverage</span><br><span class="line">          ? &#123;</span><br><span class="line">              <span class="attr">includedBasePath</span>: sourceRoot ?? projectRoot,</span><br><span class="line">              <span class="attr">excludedPaths</span>: <span class="title function_">getInstrumentationExcludedPaths</span>(root, codeCoverageExclude),</span><br><span class="line">            &#125;</span><br><span class="line">          : <span class="literal">undefined</span>,</span><br><span class="line">      &#125; <span class="keyword">as</span> <span class="title class_">AngularBabelLoaderOptions</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>可以看到这个正则表达式匹配的是：</p>
+<ul>
+<li><code>.ts</code>、<code>.tsx</code></li>
+<li><code>.js</code>、<code>.jsx</code></li>
+<li><code>.cjs</code>、<code>.mjs</code></li>
+</ul>
+<p>这些文件都会被<code>require.resolve(&#39;../../babel/webpack-loader&#39;)</code>这个loader处理。而这个loader的代码在这里：<code>packages/angular_devkit/build_angular/src/tools/babel/webpack-loader.ts</code></p>
+<p>这个文件里面又调用了babelLoader。所以可知，<code>ng build</code>命令底层是用<code>Babel</code>来处理<code>TypeScript</code>文件的。</p>
+<p>这里可以画一个流程图：ng build -&gt; Webpack -&gt; Babel -&gt; TypeScript</p>
+<h2 id="scss-sass-less-css编译"><a href="#scss-sass-less-css编译" class="headerlink" title="scss&#x2F;sass&#x2F;less&#x2F;css编译"></a>scss&#x2F;sass&#x2F;less&#x2F;css编译</h2><p>Webpack通过各种loader来处理不同类型的文件，比如<code>css-loader</code>、<code>sass-loader</code>、<code>less-loader</code>等。那么什么是loader呢？loader是一个转换器，负责把一种文件格式转换为另一种文件格式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">output_format = loader(input_format)</span><br></pre></td></tr></table></figure>
+
+<p>loader是可以链式调用的，上一个loader的输出可以作为下一个loader的输入，比如<code>scss</code>文件可以先经过<code>sass-loader</code>处理，然后再经过<code>css-loader</code>处理，最后再经过<code>style-loader</code>处理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">output_format = style-loader(css-loader(sass-loader(input_format)))</span><br></pre></td></tr></table></figure>
+
+<p>Angular默认采用<code>scss</code>作为样式文件的扩展名，所以我们可以看到<code>scss</code>文件是如何被处理的：Webpack中关于样式文件的配置在这里：<code>packages/angular_devkit/build_angular/src/tools/webpack/configs/styles.ts</code></p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">extensions</span>: [<span class="string">&#x27;scss&#x27;</span>],</span><br><span class="line">  <span class="attr">use</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">loader</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;resolve-url-loader&#x27;</span>),</span><br><span class="line">      <span class="attr">options</span>: &#123;</span><br><span class="line">        <span class="attr">sourceMap</span>: cssSourceMap,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">loader</span>: <span class="built_in">require</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;sass-loader&#x27;</span>),</span><br><span class="line">      <span class="attr">options</span>: <span class="title function_">getSassLoaderOptions</span>(</span><br><span class="line">        root,</span><br><span class="line">        sassImplementation,</span><br><span class="line">        includePaths,</span><br><span class="line">        <span class="literal">false</span>,</span><br><span class="line">        !!buildOptions.<span class="property">verbose</span>,</span><br><span class="line">        !!buildOptions.<span class="property">preserveSymlinks</span>,</span><br><span class="line">      ),</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<h2 id="html编译"><a href="#html编译" class="headerlink" title="html编译"></a>html编译</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/09/09/angular-how-ng-serve-works/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1267,106 +1381,6 @@ When I build my app, I got the following error:</li>
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/07/28/what-s-new-in-angular-6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/07/28/what-s-new-in-angular-6/" class="post-title-link" itemprop="url">what's new in angular 6</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-07-28 10:30:00" itemprop="dateCreated datePublished" datetime="2024-07-28T10:30:00+08:00">2024-07-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:36:22" itemprop="dateModified" datetime="2025-04-07T21:36:22+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>42</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Table-of-content"><a href="#Table-of-content" class="headerlink" title="Table of content"></a>Table of content</h1><table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a href='#providein'>provideIn</a></td>
-<td>A new way to declare service scope</td>
-</tr>
-</tbody></table>
-<h2 id="provideIn"><a href="#provideIn" class="headerlink" title="provideIn"></a>provideIn</h2><p><a id='providein'></a><br>In Angular 6, you can use the <code>provideIn</code> property in the <code>@Injectable</code> decorator to declare the scope of the service.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1436,7 +1450,7 @@ When I build my app, I got the following error:</li>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">314</span>
+          <span class="site-state-item-count">315</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1449,7 +1463,7 @@ When I build my app, I got the following error:</li>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">433</span>
+        <span class="site-state-item-count">434</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1490,7 +1504,7 @@ When I build my app, I got the following error:</li>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:21</span>
+    <span title="Reading time total">12:23</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
