@@ -29,7 +29,7 @@
 <meta property="og:description" content="今天在玩耍typescript的时候，发现了一个有趣的问题，tsconfig.json中的outDir配置导致tsc命令无法编译，tsconfig.json的配置是这样的：">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-11T03:16:25.000Z">
-<meta property="article:modified_time" content="2025-05-17T03:42:01.054Z">
+<meta property="article:modified_time" content="2025-05-18T11:11:55.512Z">
 <meta property="article:author" content="Philip Zhang">
 <meta property="article:tag" content="typescript">
 <meta property="article:tag" content="tsconfig">
@@ -223,7 +223,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-17 11:42:01" itemprop="dateModified" datetime="2025-05-17T11:42:01+08:00">2025-05-17</time>
+                <time title="Modified: 2025-05-18 19:11:55" itemprop="dateModified" datetime="2025-05-18T19:11:55+08:00">2025-05-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,7 +272,7 @@
 <p>当我再次运行<code>tsc</code>命令时，发现编译失败了，报错信息如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">No inputs were found <span class="keyword">in</span> config file <span class="string">&#x27;xxx/tsconfig.json&#x27;</span>. Specified <span class="string">&#x27;include&#x27;</span> paths were <span class="string">&#x27;[&quot;**/*&quot;]&#x27;</span> and <span class="string">&#x27;exclude&#x27;</span> paths were <span class="string">&#x27;[&quot;xxx&quot;]&#x27;</span>.</span><br></pre></td></tr></table></figure>
 
-<p>于是我把把<code>outDir</code>删除了，再次编译，又能成功编译了，太邪门了！索性去官网查了一下<code>outDir</code>的详细说明: <a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/#outDir">https://www.typescriptlang.org/tsconfig/#outDir</a></p>
+<p>于是我把<code>outDir</code>删除了，再次编译，又能成功编译了，太邪门了！索性去官网查了一下<code>outDir</code>的详细说明: <a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/#outDir">https://www.typescriptlang.org/tsconfig/#outDir</a></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">If specified, .js (as well as .d.ts, .js.map, etc.) files will be emitted into this directory. The directory structure of the original <span class="built_in">source</span> files is preserved; see rootDir <span class="keyword">if</span> the computed root is not what you intended.</span><br><span class="line"></span><br><span class="line">If not specified, .js files will be emitted <span class="keyword">in</span> the same directory as the .ts files they were generated from:</span><br></pre></td></tr></table></figure>
 <p>这段话的大意是说：如果指定了<code>outDir</code>，那么编译后的<code>.js</code>文件会被输出到指定的目录中，并且会保留原始源文件的目录结构；如果没有指定<code>outDir</code>，那么<code>.js</code>文件会被输出到和<code>.ts</code>文件相同的目录中。- 仔细看了两遍，没看出什么有用的信息。</p>
 <p>后来问了一下Copilot，它说：<code>outDir</code>指定的目录会自动加入<code>exclude</code>中，也就是tsc不会编译该目录下的文件。这就说得通了，因为我指定了<code>outDir</code>为<code>./</code>，<code>rootDir</code>为<code>src/</code>，而<code>src</code>目录是根目录的子目录，既然根目录被排除掉了，那么<code>src</code>目录下的文件自然也会被排除掉，这相当于所有<code>src</code>目录下的文件都不会参与编译！</p>
