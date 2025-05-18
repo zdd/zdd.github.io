@@ -187,6 +187,122 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/18/umijs-unit-test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/18/umijs-unit-test/" class="post-title-link" itemprop="url">umijs-unit-test</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-05-18 00:15:26 / Modified: 11:53:35" itemprop="dateCreated datePublished" datetime="2025-05-18T00:15:26+08:00">2025-05-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>831</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近的项目使用阿里umijs框架，在做Unit Test时遇到了一些问题，在此记录一下，以供日后查阅。</p>
+<h1 id="创建Umi项目"><a href="#创建Umi项目" class="headerlink" title="创建Umi项目"></a>创建Umi项目</h1><p>使用以下命令创建一个新的Umi项目，项目模版选择<code>ant-design-pro</code>，npm client选择<code>npm</code>，npm registry选择<code>npm</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx create-umi@latest</span><br></pre></td></tr></table></figure>
+
+<h1 id="生成jest配置"><a href="#生成jest配置" class="headerlink" title="生成jest配置"></a>生成jest配置</h1><p>Umi的方便之处是可以一键生成jest配置，只需运行如下命令即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx umi g jest</span><br></pre></td></tr></table></figure>
+
+<h1 id="运行测试"><a href="#运行测试" class="headerlink" title="运行测试"></a>运行测试</h1><p>使用以下命令运行测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p>这时如果不出意外，你会遇到第一个错误：</p>
+<h2 id="第一个错误"><a href="#第一个错误" class="headerlink" title="第一个错误"></a>第一个错误</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error: Jest: Failed to parse the TypeScript config file D:\personal\codes\react\umi-app-umi-jest\jest.config.ts</span><br><span class="line">  TSError: ⨯ Unable to compile TypeScript:</span><br><span class="line">error TS5095: Option <span class="string">&#x27;bundler&#x27;</span> can only be used when <span class="string">&#x27;module&#x27;</span> is <span class="built_in">set</span> to <span class="string">&#x27;preserve&#x27;</span> or to <span class="string">&#x27;es2015&#x27;</span> or later.</span><br></pre></td></tr></table></figure>
+
+<p>看提示信息大概能猜到问题的原因，就是<code>tsconfig.json</code>中的<code>moduleResolution</code>配置与<code>module</code>配置之间有冲突。解决办法是修改<code>moduleResolution</code>的配置。打开项目根目录下的<code>tsconfig.json</code>文件，并设置<code>moduleResolution</code>为<code>node</code>，如下所示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;extends&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./src/.umi/tsconfig.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;moduleResolution&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node&quot;</span> <span class="comment">//这里设置为&quot;node&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>再次运行测试<code>npm test</code>，这时会遇到第二个错误：</p>
+<h2 id="第二个错误"><a href="#第二个错误" class="headerlink" title="第二个错误"></a>第二个错误</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AssertionError [ERR_ASSERTION]: Invalid config keys: antd, access, model, initialState, request, layout</span><br></pre></td></tr></table></figure>
+
+<p>这是因为我们的项目模板是<code>ant-design-pro</code>，自动集成了max，所以应该使用max来生成jest配置。<br>首先删除<code>jest.config.ts</code>文件，然后使用以下命令重新生成jest配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx max g jest</span><br></pre></td></tr></table></figure>
+<p>再次运行测试，已经没有错误了，但是会提示没有测试用例，所以我们添加一个测试用例。</p>
+<p>我们在<code>src/pages</code>下添加一个<code>login</code>目录，并在该目录下添加一个<code>index.tsx</code>文件，内容如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">LockOutlined</span>, <span class="title class_">UserOutlined</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@ant-design/icons&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; history &#125; <span class="keyword">from</span> <span class="string">&#x27;@umijs/max&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Button</span>, <span class="title class_">Card</span>, <span class="title class_">Form</span>, <span class="title class_">Input</span>, message &#125; <span class="keyword">from</span> <span class="string">&#x27;antd&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> styles <span class="keyword">from</span> <span class="string">&#x27;./index.less&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">LoginParams</span> &#123;</span><br><span class="line">  <span class="attr">username</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">password</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">LoginPage</span>: <span class="title class_">React</span>.<span class="property">FC</span> = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [form] = <span class="title class_">Form</span>.<span class="title function_">useForm</span>();</span><br><span class="line">  <span class="keyword">const</span> [loading, setLoading] = <span class="title class_">React</span>.<span class="title function_">useState</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handleSubmit</span> = <span class="keyword">async</span> (<span class="params"><span class="attr">values</span>: <span class="title class_">LoginParams</span></span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">      <span class="comment">// Replace this with your actual login API call</span></span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Login attempt with:&#x27;</span>, values);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Simulating API delay</span></span><br><span class="line">      <span class="keyword">await</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> <span class="built_in">setTimeout</span>(resolve, <span class="number">1000</span>));</span><br><span class="line"></span><br><span class="line">      <span class="comment">// On successful login</span></span><br><span class="line">      message.<span class="title function_">success</span>(<span class="string">&#x27;Login successful!&#x27;</span>);</span><br><span class="line">      history.<span class="title function_">push</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      message.<span class="title function_">error</span>(<span class="string">&#x27;Login failed. Please check your credentials.&#x27;</span>);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Login error:&#x27;</span>, error);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;styles.container&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Card</span> <span class="attr">className</span>=<span class="string">&#123;styles.loginCard&#125;</span> <span class="attr">title</span>=<span class="string">&quot;Login&quot;</span> <span class="attr">bordered</span>=<span class="string">&#123;false&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Form</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">form</span>=<span class="string">&#123;form&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">name</span>=<span class="string">&quot;login&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">layout</span>=<span class="string">&quot;vertical&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">requiredMark</span>=<span class="string">&#123;false&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">onFinish</span>=<span class="string">&#123;handleSubmit&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        &gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Form.Item</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">name</span>=<span class="string">&quot;username&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">rules</span>=<span class="string">&#123;[&#123;</span> <span class="attr">required:</span> <span class="attr">true</span>, <span class="attr">message:</span> &#x27;<span class="attr">Please</span> <span class="attr">enter</span> <span class="attr">your</span> <span class="attr">username</span>!&#x27; &#125;]&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          &gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">Input</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">prefix</span>=<span class="string">&#123;</span>&lt;<span class="attr">UserOutlined</span> /&gt;</span>&#125;</span></span><br><span class="line"><span class="language-xml">              placeholder=&quot;Username&quot;</span></span><br><span class="line"><span class="language-xml">              size=&quot;large&quot;</span></span><br><span class="line"><span class="language-xml">            /&gt;</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Form.Item</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">name</span>=<span class="string">&quot;password&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            <span class="attr">rules</span>=<span class="string">&#123;[&#123;</span> <span class="attr">required:</span> <span class="attr">true</span>, <span class="attr">message:</span> &#x27;<span class="attr">Please</span> <span class="attr">enter</span> <span class="attr">your</span> <span class="attr">password</span>!&#x27; &#125;]&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          &gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">Input.Password</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">prefix</span>=<span class="string">&#123;</span>&lt;<span class="attr">LockOutlined</span> /&gt;</span>&#125;</span></span><br><span class="line"><span class="language-xml">              placeholder=&quot;Password&quot;</span></span><br><span class="line"><span class="language-xml">              size=&quot;large&quot;</span></span><br><span class="line"><span class="language-xml">            /&gt;</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">Button</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">htmlType</span>=<span class="string">&quot;submit&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">size</span>=<span class="string">&quot;large&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">block</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">loading</span>=<span class="string">&#123;loading&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            &gt;</span></span></span><br><span class="line"><span class="language-xml">              Log in</span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;/<span class="name">Button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Form</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Card</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">LoginPage</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后添加一个样式文件<code>index.less</code>，内容如下：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.container</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">  <span class="attribute">justify-content</span>: center;</span><br><span class="line">  <span class="attribute">align-items</span>: center;</span><br><span class="line">  <span class="attribute">min-height</span>: <span class="number">100vh</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#f0f2f5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.loginCard</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">max-width</span>: <span class="number">400px</span>;</span><br><span class="line"></span><br><span class="line">  :<span class="selector-tag">global</span> &#123;</span><br><span class="line">    <span class="selector-class">.ant-card-head-title</span> &#123;</span><br><span class="line">      <span class="attribute">text-align</span>: center;</span><br><span class="line">      <span class="attribute">font-size</span>: <span class="number">24px</span>;</span><br><span class="line">      <span class="attribute">font-weight</span>: <span class="number">500</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后再添加一个测试用例<code>index.test.tsx</code>，内容如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; render, screen &#125; <span class="keyword">from</span> <span class="string">&#x27;@testing-library/react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">LoginPage</span> <span class="keyword">from</span> <span class="string">&#x27;./index&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;LoginPage&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;renders the login form correctly&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">LoginPage</span> /&gt;</span></span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Check that form elements are rendered</span></span><br><span class="line">    <span class="title function_">expect</span>(screen.<span class="title function_">getByPlaceholderText</span>(<span class="string">&#x27;Username&#x27;</span>)).<span class="title function_">toBeInTheDocument</span>();</span><br><span class="line">    <span class="title function_">expect</span>(screen.<span class="title function_">getByPlaceholderText</span>(<span class="string">&#x27;Password&#x27;</span>)).<span class="title function_">toBeInTheDocument</span>();</span><br><span class="line">    <span class="title function_">expect</span>(screen.<span class="title function_">getByRole</span>(<span class="string">&#x27;button&#x27;</span>, &#123; <span class="attr">name</span>: <span class="regexp">/log in/i</span> &#125;)).<span class="title function_">toBeInTheDocument</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>再次运行测试，这时候你会遇到第三个错误：</p>
+<h2 id="第三个错误"><a href="#第三个错误" class="headerlink" title="第三个错误"></a>第三个错误</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: window.matchMedia is not a <span class="keyword">function</span></span><br></pre></td></tr></table></figure>
+
+<p>解决办法：在项目根目录下的<code>jest.setup.ts</code>文件中添加如下代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="variable language_">window</span>, <span class="string">&#x27;matchMedia&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">writable</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">value</span>: <span class="function">(<span class="params"><span class="attr">query</span>: <span class="built_in">unknown</span></span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">matches</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">media</span>: query,</span><br><span class="line">    <span class="attr">onchange</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">addListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">removeListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">addEventListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">removeEventListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">dispatchEvent</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>再次运行测试，这时候已经没有错误了，感谢您的观看，祝您编程愉快！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/13/react-unit-test-mock-state/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -401,7 +517,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-17 14:52:55" itemprop="dateModified" datetime="2025-05-17T14:52:55+08:00">2025-05-17</time>
+                <time title="Modified: 2025-05-17 15:03:05" itemprop="dateModified" datetime="2025-05-17T15:03:05+08:00">2025-05-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -444,70 +560,14 @@
 
 <h2 id="使用VSCode打开项目"><a href="#使用VSCode打开项目" class="headerlink" title="使用VSCode打开项目"></a>使用VSCode打开项目</h2><p>使用如下命令打开项目</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> react-app-jest</span><br><span class="line">code .</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装初始依赖"><a href="#安装初始依赖" class="headerlink" title="安装初始依赖"></a>安装初始依赖</h2><p>打开VSCode，选择菜单中的<code>Terminal | New Terminal</code>(或者快捷键<code>Ctrl + Shift + ` </code>)打开一个新的terminal，运行以下命令安装初始依赖：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
-
-<h2 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h2><p>运行以下命令来启动项目，确保项目可以正常运行。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装Jest相关的依赖"><a href="#安装Jest相关的依赖" class="headerlink" title="安装Jest相关的依赖"></a>安装Jest相关的依赖</h2><p>需要安装的依赖很多，运行以下命令来安装, <code>npm i -D</code>相当于<code>npm install --save-dev</code>.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -D jest @types/jest ts-jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-environment-jsdom ts-node</span><br></pre></td></tr></table></figure>
-<p>分别解释一下上面的包都有什么作用：</p>
-<ul>
-<li><code>jest</code>：Jest是一个JavaScript测试框架，主要用于单元测试和集成测试。</li>
-<li><code>@types/jest</code>：Jest的TypeScript类型定义文件。</li>
-<li><code>ts-jest</code>：Jest的TypeScript预处理器，允许你在Jest中使用TypeScript。</li>
-<li><code>@testing-library/react</code>：React Testing Library是一个用于测试React组件的库，提供了一些实用的工具和方法。</li>
-<li><code>@testing-library/jest-dom</code>：提供了一些自定义的Jest匹配器，用于测试DOM节点的状态。</li>
-<li><code>jest-environment-jsdom</code>：Jest的JS DOM环境，允许你在Node.js中模拟浏览器环境。</li>
-<li><code>@testing-library/user-event</code>：提供了一些实用的工具和方法，用于模拟用户事件。它比<code>@testing-library/react</code>中内置的<code>fireEvent</code>更好用。</li>
-<li><code>ts-node</code>：TypeScript执行器，允许你在Node.js中直接运行TypeScript代码。Jest通过这个模块来读取<code>jest.config.ts</code>文件。</li>
-</ul>
-<h2 id="配置Jest"><a href="#配置Jest" class="headerlink" title="配置Jest"></a>配置Jest</h2><h3 id="jest-setup-ts"><a href="#jest-setup-ts" class="headerlink" title="jest.setup.ts"></a>jest.setup.ts</h3><p>在<code>src</code>目录下创建文件<code>test.setup.ts</code>，这个文件用来导入<code>@testing-library/jest-dom</code>，内容如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;@testing-library/jest-dom&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<h3 id="mock文件"><a href="#mock文件" class="headerlink" title="mock文件"></a>mock文件</h3><p>在项目根目录下创建一个<code>mock</code>文件夹，里面添加一个文件<code>fileMock.ts</code>，这个文件主要用来处理svg, gif, css等非javascript&#x2F;json格式的文件，内容如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">__esModule</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">default</span>: <span class="string">&#x27;test-file-stub&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在项目根目录下创建一个<code>jest.config.ts</code>文件，内容如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Config</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;jest&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">config</span>: <span class="title class_">Config</span> = &#123;</span><br><span class="line">  <span class="attr">rootDir</span>: <span class="string">&#x27;./&#x27;</span>,</span><br><span class="line">  <span class="attr">testEnvironment</span>: <span class="string">&#x27;jsdom&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/test.setup.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|tsx)$&#x27;</span>: <span class="string">&#x27;ts-jest&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> config;</span><br></pre></td></tr></table></figure>
-
-<h3 id="tsconfig-json配置"><a href="#tsconfig-json配置" class="headerlink" title="tsconfig.json配置"></a>tsconfig.json配置</h3><p>添加如下内容到项目根目录下的<code>tsconfig.json</code>文件中。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ES2020&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;module&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ESNext&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;lib&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;ES2020&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;DOM&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;DOM.Iterable&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;useDefineForClassFields&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;esModuleInterop&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;skipLibCheck&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;moduleResolution&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bundler&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;resolveJsonModule&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;isolatedModules&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;noEmit&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;jsx&quot;</span><span class="punctuation">:</span> <span class="string">&quot;react-jsx&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="创建测试文件"><a href="#创建测试文件" class="headerlink" title="创建测试文件"></a>创建测试文件</h1><p>首先修改一下<code>src/App.tsx</code>文件，让它渲染一个<code>h</code>1标签，内容是<code>Hello, world!</code>。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;<span class="title class_">Hello</span>, world!&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
-
-<p>然后在<code>src</code>目录下创建一个测试文件<code>App.test.tsx</code>，内容如下：</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; render, screen &#125; <span class="keyword">from</span> <span class="string">&#x27;@testing-library/react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">App</span> <span class="keyword">from</span> <span class="string">&#x27;./App&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;@testing-library/jest-dom&#x27;</span>;</span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;App&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">test</span>(<span class="string">&#x27;renders learn react link&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span></span>);</span><br><span class="line">    <span class="keyword">const</span> linkElement = screen.<span class="title function_">getByText</span>(<span class="regexp">/Hello, world/i</span>);</span><br><span class="line">    <span class="title function_">expect</span>(linkElement).<span class="title function_">toBeInTheDocument</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<h1 id="运行测试"><a href="#运行测试" class="headerlink" title="运行测试"></a>运行测试</h1><h2 id="通过命令行运行"><a href="#通过命令行运行" class="headerlink" title="通过命令行运行"></a>通过命令行运行</h2><p>首先配置<code>package.json</code>，在<code>package.json</code>中添加以下脚本：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;test:coverage&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jest --coverage&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>然后在终端中运行以下命令来运行测试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
-<p>如果你想查看测试覆盖率，可以运行以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run <span class="built_in">test</span>:coverage</span><br></pre></td></tr></table></figure>
-
-<h2 id="通过Jest插件运行测试"><a href="#通过Jest插件运行测试" class="headerlink" title="通过Jest插件运行测试"></a>通过Jest插件运行测试</h2><p>有两个常用的Jest插件可以使用，一个是<code>Jest</code>，另一个是<code>Jest Runner</code>。这两个插件都可以在VSCode的扩展市场中找到。</p>
-<p>安装以后，打开测试文件<code>App.test.tsx</code>，你会看到每个测试用例旁边都有一个绿色的运行按钮，点击它就可以运行测试了。</p>
-<p>也可以使用鼠标右键菜单中的<code>Run Jest</code>来运行测试。</p>
-<h1 id="troubleshooting"><a href="#troubleshooting" class="headerlink" title="troubleshooting"></a>troubleshooting</h1><h2 id="Support-for-the-experimental-syntax-‘jsx’-isn’t-currently-enabled"><a href="#Support-for-the-experimental-syntax-‘jsx’-isn’t-currently-enabled" class="headerlink" title="Support for the experimental syntax ‘jsx’ isn’t currently enabled"></a>Support for the experimental syntax ‘jsx’ isn’t currently enabled</h2><h2 id="SyntaxError-Private-field-‘-root’-must-be-declared-in-an-enclosing-class"><a href="#SyntaxError-Private-field-‘-root’-must-be-declared-in-an-enclosing-class" class="headerlink" title="SyntaxError: Private field ‘#root’ must be declared in an enclosing class"></a>SyntaxError: Private field ‘#root’ must be declared in an enclosing class</h2><p>如果遇到如下错误，仔细观察错误产生的位置，是在import App.css的地方，说明是css文件的问题。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">SyntaxError: Private field <span class="string">&#x27;#root&#x27;</span> must be declared <span class="keyword">in</span> an enclosing class</span><br><span class="line"></span><br><span class="line">      1 | import &#123; useState &#125; from <span class="string">&#x27;react&#x27;</span></span><br><span class="line">    &gt; 2 | import <span class="string">&#x27;./App.css&#x27;</span></span><br><span class="line">        | ^</span><br><span class="line">      3 |</span><br><span class="line">      4 | <span class="keyword">function</span> <span class="function"><span class="title">App</span></span>() &#123;</span><br><span class="line">      5 |   const [count, setCount] = useState(0)</span><br><span class="line"></span><br><span class="line">      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1505:14)</span><br><span class="line">      at Object.&lt;anonymous&gt; (src/App.tsx:2:1)</span><br><span class="line">      at Object.&lt;anonymous&gt; (src/App.test.tsx:3:1)</span><br></pre></td></tr></table></figure>
-
-<p>将CSS文件格式添加到<code>jest.config.ts</code>文件中的<code>moduleNameMapper</code>区块中，内容如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
-
-<h2 id="require-of-ES-modules-is-not-supported"><a href="#require-of-ES-modules-is-not-supported" class="headerlink" title="require() of ES modules is not supported."></a>require() of ES modules is not supported.</h2><p>如果你遇到了如下错误，是因为你的<code>jest.config.ts</code>文件是ES Module格式的，而Jest默认使用CommonJS格式来解析配置文件。欲知详情请查看<a target="_blank" rel="noopener" href="https://github.com/jestjs/jest/issues/11453">这里</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error: Jest: Failed to parse the TypeScript config file D:\personal\codes\react\vite-react-app-jest\jest.config.ts</span><br><span class="line">  Error: Must use import to load ES Module: D:\personal\codes\react\vite-react-app-jest\jest.config.ts  </span><br><span class="line">require() of ES modules is not supported.</span><br></pre></td></tr></table></figure>
-<p>解决办法也很简单，因为Jest的配置文件支持多种格式，我们姑且不实用ts格式，而是使用js格式来编写配置文件。将<code>jest.config.ts</code>文件重命名为<code>jest.config.js</code>，并将文件内容修改为如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  <span class="attr">verbose</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">rootDir</span>: <span class="string">&#x27;./&#x27;</span>,</span><br><span class="line">  <span class="attr">testEnvironment</span>: <span class="string">&#x27;jsdom&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/src/test.setup.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">transform</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;^.+\\.(ts|tsx)$&#x27;</span>: <span class="string">&#x27;ts-jest&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">moduleNameMapper</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;\\.(jpg|jpeg|png|gif|svg|css)$&#x27;</span>: <span class="string">&#x27;&lt;rootDir&gt;/fileMock.js&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> config;</span><br></pre></td></tr></table></figure>
-<p>如此这般，Jest就不会在使用<code>ts-node</code>来解析配置文件了，也就不会再报上面的错误了。</p>
-<h2 id="Aggregate-Error"><a href="#Aggregate-Error" class="headerlink" title="Aggregate Error:"></a>Aggregate Error:</h2><p>这个错误非常的诡异，出现的场景也不尽相同，我至今没有搞懂这个错误的根源到底是什么。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">AggregateError</span></span><br><span class="line"></span><br><span class="line">      <span class="number">39</span> |</span><br><span class="line">      <span class="number">40</span> |   <span class="title function_">test</span>(<span class="string">&#x27;shows validation errors when submitting empty form&#x27;</span>, <span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">    &gt; <span class="number">41</span> |     <span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">Login</span> /&gt;</span></span>);</span><br><span class="line">         |           ^</span><br><span class="line">      <span class="number">42</span> |</span><br><span class="line">      <span class="number">43</span> |     <span class="comment">// Submit the form without filling any fields</span></span><br><span class="line">      <span class="number">44</span> |     <span class="keyword">const</span> loginButton = screen.<span class="title function_">getByTestId</span>(<span class="string">&#x27;login-button&#x27;</span>);</span><br><span class="line"></span><br><span class="line">      at <span class="title function_">aggregateErrors</span> (node_modules/react/cjs/react.<span class="property">development</span>.<span class="property">js</span>:<span class="number">527</span>:<span class="number">11</span>)</span><br><span class="line">      at <span class="title class_">Object</span>.&lt;anonymous&gt; (src/<span class="title class_">Login</span>.<span class="property">test</span>.<span class="property">tsx</span>:<span class="number">41</span>:<span class="number">11</span>)</span><br></pre></td></tr></table></figure>
-<p>AggregateError是一个内置的JavaScript错误类型，表示多个错误的集合。这个错误通常是由于Promise.all()方法中的多个Promise被拒绝时抛出的。详情可以看<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/AggregateError">这里</a></p>
-<p>处理办法：<br>在<code>test.setup.ts</code>文件中添加如下代码：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="variable language_">window</span>, <span class="string">&#x27;matchMedia&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">writable</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">value</span>: <span class="function">(<span class="params"><span class="attr">query</span>: <span class="built_in">unknown</span></span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">matches</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">media</span>: query,</span><br><span class="line">    <span class="attr">onchange</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">addListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">removeListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">addEventListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">removeEventListener</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">    <span class="attr">dispatchEvent</span>: <span class="function">() =&gt;</span> &#123; &#125;,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/05/06/jest-integrate-jest-to-react-app/#more" rel="contents" target="_blank" rel="noopener">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1182,100 +1242,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/20/typescript-stop-running-app-on-type-error/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/20/typescript-stop-running-app-on-type-error/" class="post-title-link" itemprop="url">typescript-stop-running-app-on-type-error</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-04-20 16:59:07 / Modified: 17:13:00" itemprop="dateCreated datePublished" datetime="2025-04-20T16:59:07+08:00">2025-04-20</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>367</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>公司的项目是基于React，今天周末闲着没事用Vite搭建了一个React项目，在运行的时候，突然发现，即使typescript类型匹配，程序竟然也没有报错，于是突发奇想，能不能在类型不匹配的时候停止运行并报错呢？</p>
-<p>代码很简单，首先我定义了一个<code>Card</code>组件：</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123;<span class="title class_">ReactNode</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">CardProps</span> &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">content</span>: <span class="built_in">string</span>;</span><br><span class="line">    <span class="attr">children</span>?: <span class="title class_">ReactNode</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">Card</span>(<span class="params"><span class="attr">props</span>: <span class="title class_">CardProps</span></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&quot;card&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">h2</span>&gt;</span>&#123;props.title&#125;<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;props.content&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">p</span>&gt;</span>&#123;props.footer&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            &#123;props.children&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在返回的组件中，我故意使用了一个<code>CardProps</code>中没有的属性 - <code>footer</code>。此时运行程序，你会发现一切正常！<br>这有点不合逻辑呀，应该报错才是，于是对着AI一番操作，找到如下方法：</p>
-<p>首先安装<code>vite-plugin-checker</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev vite-plugin-checker</span><br></pre></td></tr></table></figure>
-
-<p>然后在<code>vite.config.ts</code>中添加如下配置：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;defineConfig&#125; <span class="keyword">from</span> <span class="string">&#x27;vite&#x27;</span></span><br><span class="line"><span class="keyword">import</span> react <span class="keyword">from</span> <span class="string">&#x27;@vitejs/plugin-react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> checker <span class="keyword">from</span> <span class="string">&#x27;vite-plugin-checker&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// https://vite.dev/config/</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">    <span class="attr">plugins</span>: [</span><br><span class="line">        <span class="title function_">react</span>(),</span><br><span class="line">        <span class="title function_">checker</span>(&#123;</span><br><span class="line">            <span class="attr">typescript</span>: <span class="literal">true</span>,</span><br><span class="line">        &#125;),</span><br><span class="line">    ],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>再次运行<code>npm run dev</code>，你会发现控制台给出类型不匹配的报错了, 浏览器中的页面也给出了报错，这才是我想要的结果呀！</p>
-<p>有的建议在<code>tsconfig.json</code>中开启<code>strict: true</code>模式，其实和这个选项无关。typescript是静态类型检查，只在编译时有作用，运行时已经没有typescript了，所以只能靠打包工具来控制是否报错，比如<code>vite</code>或者<code>webpack</code>等。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1345,7 +1311,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">315</span>
+          <span class="site-state-item-count">316</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1358,7 +1324,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">434</span>
+        <span class="site-state-item-count">435</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1394,12 +1360,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">205k</span>
+    <span title="Symbols count total">206k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:25</span>
+    <span title="Reading time total">12:28</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
