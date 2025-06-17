@@ -878,7 +878,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:21:03" itemprop="dateModified" datetime="2025-04-07T21:21:03+08:00">2025-04-07</time>
+                <time title="Modified: 2025-06-13 22:09:29" itemprop="dateModified" datetime="2025-06-13T22:09:29+08:00">2025-06-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -896,7 +896,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>819</span>
+              <span>877</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -915,15 +915,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>写好代码不是一件容易的事，代码能够按照预期效果工作只是最低要求，在这个基础上将代码写得简洁，可维护性高，可以说是一门艺术，今天读了一本书：《The art of readable code》，感触颇深，现摘取一例，与大家分享，为了便于阅读，我将代码简化并用JS重写了一下，先看原始代码：</p>
+          <p>写好代码不是一件容易的事，代码能够按照预期效果工作只是最低要求，在这个基础上将代码写得简洁，可维护，可以说是一门艺术，今天读了一本书：《The art of readable code》，感触颇深，现摘取一例，与大家分享，为了便于阅读，我将代码简化并用JS重写了一下，先看原始代码：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reply</span>(<span class="params">userResult, permissionResult</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (userResult === <span class="string">&quot;SUCCESS&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (permissionResult !== <span class="string">&quot;SUCCESS&quot;</span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;error reading permissions&quot;</span>);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;success&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(userResult);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>很简单的一段代码，就是根据输入参数的不同取值，打印不同的log，但是代码里一个嵌套的<code>if</code>语句，导致可读性下降，即使经验再丰富的程序员，也要停留思考一下。罗马不是一天建成的，可读性差的代码也不是一天写成的，通常随着功能的增加，维护人员的增多，代码的可读性会越来越差，其实这段代码一开始逻辑很简单。就是根据<code>userResult</code>的值不同，做不同的处理。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reply</span>(<span class="params">userResult</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (userResult === <span class="string">&quot;SUCCESS&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;success&quot;</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(userResult);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后突然有一天增加了一个需求，需要根据<code>permissionResult</code>的值来做进一步的处理，于是该函数多了一个参数，处理逻辑也跟着复杂起来，这便有了文章开头那段代码.</p>
 <p>那么如何优化这段代码呢？可以看到外层的<code>if</code>有点头重脚轻的感觉，我们可以采用优先处理<code>negative case</code>的方式，这样可以减少嵌套，提高代码的可读性。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reply</span>(<span class="params">userResult, permissionResult</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (userResult !== <span class="string">&quot;SUCCESS&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(userResult);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (permissionResult !== <span class="string">&quot;SUCCESS&quot;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;error reading permissions&quot;</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;success&quot;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;done&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>至此，我们就移出了嵌套的<code>if</code>，使这两个<code>if</code>变为平级结构，可读性好多了。需要注意的是，因为我们在两个<code>if</code>中都使用了<code>return</code>(<code>return early principle</code>)，所以需要将末尾的<code>console.log(&quot;done&quot;)</code>上提到每个<code>if</code>中，否则会导致逻辑丢失。</p>
-<p>原书写到这里就结束了，但是我想再进一步，可以改进后的代码里仍然有多个重复的<code>console.log(&quot;done&quot;)</code>，我们可以将其提取出来，别忘了那句名言：<code>Don&#39;t repeat yourself</code>。</p>
+<p>至此，我们就移出了嵌套的<code>if</code>，使这两个<code>if</code>变为平级结构，可读性好多了。需要注意的是，因为我们在两个<code>if</code>中都使用了<code>return</code>(<code>尽早返回原则</code>)，所以需要将末尾的<code>console.log(&quot;done&quot;)</code>上提到每个<code>if</code>中，否则会导致逻辑丢失。</p>
+<p>原书写到这里就结束了，但是我想再进一步，注意到改进后的代码里仍然有多个重复的<code>console.log(&quot;done&quot;)</code>，我们可以将其提取出来，别忘了那句名言：<code>Don&#39;t repeat yourself</code>。</p>
 <p>在改动之前，先讲一个原理。</p>
 <h2 id="将-if-return-结构转换为if-else结构"><a href="#将-if-return-结构转换为if-else结构" class="headerlink" title="将 if{..., return}结构转换为if-else结构"></a>将 <code>if&#123;..., return&#125;</code>结构转换为<code>if-else</code>结构</h2><p>如果一个函数中有多个<code>if</code>，每个<code>if</code>中都有<code>return</code>，可以考虑将其转换为<code>if-else</code>结构。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (condition1) &#123; <span class="comment">// 1</span></span><br><span class="line">    <span class="comment">// code block</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (condition2) &#123; <span class="comment">// 2</span></span><br><span class="line">    <span class="comment">// code block</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// code block</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -937,6 +937,8 @@
 
 <p>最后需要注意的是，这种逻辑性的改动，必须经过严密的单元测试才可以。因为只有两个参数，两两组合，所以测试用例有4个：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">userResult = <span class="string">&quot;SUCCESS&quot;</span>, permissionResult = <span class="string">&quot;SUCCESS&quot;</span>;</span><br><span class="line">userResult = <span class="string">&quot;SUCCESS&quot;</span>, permissionResult = <span class="string">&quot;ERROR&quot;</span>;</span><br><span class="line">userResult = <span class="string">&quot;ERROR&quot;</span>, permissionResult = <span class="string">&quot;SUCCESS&quot;</span>;</span><br><span class="line">userResult = <span class="string">&quot;ERROR&quot;</span>, permissionResult = <span class="string">&quot;ERROR&quot;</span>;</span><br></pre></td></tr></table></figure>
+<p>我们将这四组参数分别传递给修改前和修改后的函数，确保输出结果一致。<br>这样就完成了对这段代码的重构，提升了可读性和可维护性。</p>
+
       
     </div>
 
@@ -1520,7 +1522,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">437</span>
+        <span class="site-state-item-count">438</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1556,12 +1558,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">208k</span>
+    <span title="Symbols count total">210k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:35</span>
+    <span title="Reading time total">12:43</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
