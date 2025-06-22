@@ -187,6 +187,327 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/05/angular-use-lit-element-in-angular-app/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/05/angular-use-lit-element-in-angular-app/" class="post-title-link" itemprop="url">如何在Angular应用中使用Lit Element</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-05-05 10:52:54 / Modified: 11:16:09" itemprop="dateCreated datePublished" datetime="2025-05-05T10:52:54+08:00">2025-05-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/lit/" itemprop="url" rel="index"><span itemprop="name">Lit</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>553</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天来研究一下如何在Angular应用中集成Lit Element。Lit Element是一个轻量级的Web Component库，基于标准的Web Component API，因此可以在任何支持Web Component的框架中使用，比如React、Vue、Angular等。</p>
+<h1 id="使用Angular-CLI创建Angular项目"><a href="#使用Angular-CLI创建Angular项目" class="headerlink" title="使用Angular CLI创建Angular项目"></a>使用Angular CLI创建Angular项目</h1><p>如果你已经安装了Angular CLI，可以直接使用以下命令创建一个新的Angular项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new lit_element-app-angular</span><br></pre></td></tr></table></figure>
+<p>如果你没有安装过Angular CLI，也没关系，可以使用以下命令创建Angular项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@latest new lit_element-app-angular</span><br></pre></td></tr></table></figure>
+<p>在cli创建项目的过程中可能会提示你选择CSS预处理器，我们直接选择CSS即可，CLI还会询问是否启用服务端渲染，我们选择否。</p>
+<h1 id="安装Lit-Element依赖"><a href="#安装Lit-Element依赖" class="headerlink" title="安装Lit Element依赖"></a>安装Lit Element依赖</h1><p>待项目创建好以后，我们使用如下命令用VSCode打开项目，首先使用<code>cd lit_element-app-angular</code>进入项目目录，然后使用<code>code .</code>表示用VSCode打开当前目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> lit_element-app-angular</span><br><span class="line">code .</span><br></pre></td></tr></table></figure>
+<p>打开VSCode中的Terminal，运行以下命令安装<code>lit</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install lit</span><br></pre></td></tr></table></figure>
+
+<h1 id="创建Lit-Element组件"><a href="#创建Lit-Element组件" class="headerlink" title="创建Lit Element组件"></a>创建Lit Element组件</h1><p>在<code>src</code>目录下创建一个<code>components</code>目录，然后在<code>components</code>目录下创建一个<code>my-element.ts</code>文件，内容如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">LitElement</span>, css, html &#125; <span class="keyword">from</span> <span class="string">&#x27;lit&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; customElement, property &#125; <span class="keyword">from</span> <span class="string">&#x27;lit/decorators.js&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@customElement</span>(<span class="string">&#x27;my-element&#x27;</span>)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">MyElement</span> <span class="keyword">extends</span> <span class="title class_ inherited__">LitElement</span> &#123;</span><br><span class="line">  <span class="meta">@property</span>(&#123; <span class="attr">type</span>: <span class="title class_">String</span> &#125;) name = <span class="string">&#x27;World&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">override</span> styles = css`<span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-pseudo">:host</span> &#123;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">display</span>: block;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">padding</span>: <span class="number">16px</span>;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">color</span>: <span class="built_in">var</span>(--my-element-text-color, black);</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">  `</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> html`<span class="language-xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, </span><span class="subst">$&#123;<span class="variable language_">this</span>.name&#125;</span><span class="language-xml">!<span class="tag">&lt;/<span class="name">p</span>&gt;</span>`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用my-element组件"><a href="#使用my-element组件" class="headerlink" title="使用my-element组件"></a>使用my-element组件</h1><p>首先：在<code>src/app/app.component.ts</code>中引入<code>my-element.ts</code>并添加<code>CUSTOM_ELEMENTS_SCHEMA</code>，代码如下：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="variable constant_">CUSTOM_ELEMENTS_SCHEMA</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">RouterOutlet</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;../components/my-element&#x27;</span>; <span class="comment">// 引入my-element组件</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterOutlet</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./app.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">schemas</span>: [<span class="variable constant_">CUSTOM_ELEMENTS_SCHEMA</span>], <span class="comment">// 添加CUSTOM_ELEMENTS_SCHEMA</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;lit_element-app-angular&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后：在<code>src/app/app.component.html</code>中使用<code>my-element</code>组件：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">my-element</span> <span class="attr">name</span>=<span class="string">&quot;World&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">my-element</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="更新tsconfig设置"><a href="#更新tsconfig设置" class="headerlink" title="更新tsconfig设置"></a>更新tsconfig设置</h1><p>打开项目根目录下（package.json所在目录）的<code>tsconfig.app.json</code>文件，添加以下配置：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;experimentalDecorators&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span> </span><br><span class="line">    <span class="attr">&quot;useDefineForClassFields&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run start</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器中访问<code>http://localhost:4200</code>，你应该能看到如下效果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<p>话说Angular集成Lit简直是分分钟的事，比React简单太多了。为什么国内用Angular的人这么少呢？不理解…</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/01/git-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/01/git-tips/" class="post-title-link" itemprop="url">git最佳实践及常用技巧</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-05-01 17:01:36" itemprop="dateCreated datePublished" datetime="2025-05-01T17:01:36+08:00">2025-05-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-05-17 11:42:33" itemprop="dateModified" datetime="2025-05-17T11:42:33+08:00">2025-05-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="分支的本质是什么？"><a href="#分支的本质是什么？" class="headerlink" title="分支的本质是什么？"></a>分支的本质是什么？</h1><p>分支的本质是一个指向某个commit的指针。所以未commit的修改是没有分支的概念的，只有commit才有分支的概念。</p>
+<p>下面的命令中我们使用<code>git checkout</code>来切换分支，新版本的git推荐使用<code>git switch</code>来切换分支。但是<code>git checkout</code>命令还有其他功能，比如检出某个版本，所以<code>git switch</code>命令并不能完全替代<code>git checkout</code>命令。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/05/01/git-tips/#more" rel="contents" target="_blank" rel="noopener">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/01/vscode-search-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/05/01/vscode-search-tips/" class="post-title-link" itemprop="url">VSCode搜索技巧</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-05-01 10:52:00 / Modified: 12:23:51" itemprop="dateCreated datePublished" datetime="2025-05-01T10:52:00+08:00">2025-05-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>579</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>VSCode是时下最令行的前端开发工具，用好VSCode能极大的提高我们的开发效率，而搜索是日常开发中必不可少的操作，今天我们一起来聊聊VSCode中的搜索技巧。</p>
+<p>普通的搜索我们就不谈了，今天主要介绍一下正则表达式搜索和一些小技巧。</p>
+<h1 id="匹配换行符"><a href="#匹配换行符" class="headerlink" title="匹配换行符"></a>匹配换行符</h1><ul>
+<li><code>[.|\n]*</code> - 可以匹配任意字符，包括换行符。</li>
+<li><code>[\s\S]</code> - 注意这种方式不好用。</li>
+</ul>
+<p>一般情况下我们都是进行单行搜索，但是有些情况下我们需要跨行搜索，比如下面的React代码：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> lang = <span class="title class_">LocalStorageUtil</span>.<span class="title function_">getLanguage</span>();</span><br><span class="line">  i18n.<span class="title function_">changeLanguage</span>(lang);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+<p>如果我想搜索所有依赖数组为空的<code>useEffect</code>调用，该怎么写这个正则表达式呢？大家可以先试试，反正我试了半天也没写出来，后来还是差DeepSeek才搞定，答案如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useEffect\((.|\n)*?,\s*\[\s*\]\s*\)</span><br></pre></td></tr></table></figure>
+<p>我们来解析一下这个正则表达式：</p>
+<ul>
+<li>useEffect - 匹配<code>useEffect</code>字符串</li>
+<li><code>\(</code> - 匹配<code>(</code>字符，因为<code>(</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>(.|\n)*?</code> - 匹配任意字符，包括换行符，<code>*?</code>表示非贪婪匹配，尽可能少的匹配字符。</li>
+<li><code>,</code> - 匹配<code>,</code>字符</li>
+<li><code>\s*</code> - 匹配<code>,</code>与<code>[]</code>之间的任意空格字符，包括空格、制表符、换行符等，<code>*</code>表示匹配0次或多次。</li>
+<li><code>\[\s*\]</code> - 匹配空的依赖数组，因为<code>[</code>和<code>]</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>\s*\)</code> - 匹配最后的右括弧，<code>\s*</code>表示<code>[]</code>与右括弧之间可能有空格。</li>
+</ul>
+<p>这里面的关键是：<code>(.|\n)</code> - 它匹配任意字符包括换行符。</p>
+<h1 id="匹配markdown中的表格"><a href="#匹配markdown中的表格" class="headerlink" title="匹配markdown中的表格"></a>匹配markdown中的表格</h1><p>在Markdown中，使用如下方式来生成表格。</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| Name  | Age |</span><br><span class="line">| ----- | --- |</span><br><span class="line">| Tom   | 18  |</span><br><span class="line">| Jerry | 20  |</span><br></pre></td></tr></table></figure>
+
+<p>如果我们要查找所有的markdown表格，那么我们只需要找出如下特征字符串即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|------|-----|</span><br></pre></td></tr></table></figure>
+
+<p>可以使用如下的正则表达式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\|\s*-+</span><br></pre></td></tr></table></figure>
+<p>我们来解析一下这个正则表达式：</p>
+<ul>
+<li><code>\|</code> - 匹配<code>|</code>字符，因为<code>|</code>是正则表达式中的特殊字符，所以需要转义。</li>
+<li><code>\s*</code> - 匹配<code>|</code>与<code>-</code>之间的任意空格字符。</li>
+<li><code>-+</code> - 匹配<code>-</code>字符，<code>+</code>表示匹配1次或多次。</li>
+</ul>
+<p>这样，我们就可以查出所有的markdown表格了。你学会了吗？</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/29/lit-element-app-typescript/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -907,299 +1228,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/09/diary-2025-04/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/09/diary-2025-04/" class="post-title-link" itemprop="url">diary-2025-04</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-09 17:12:47" itemprop="dateCreated datePublished" datetime="2025-04-09T17:12:47+08:00">2025-04-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-20 11:32:06" itemprop="dateModified" datetime="2025-04-20T11:32:06+08:00">2025-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>312</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="2025-04-08"><a href="#2025-04-08" class="headerlink" title="2025-04-08"></a>2025-04-08</h2><p>今天是2025年4月8日，星期二，天气晴。<br>今天王军来大连出差，住中山区新文园大酒店，我正好失业在家，于是就去找他喝酒，晚上是在钱库里自助吃的。十多年没见了，有很多话要说，家长里短的聊了一大通，他第二天还要培训，而我再过一天也要去天津渣打银行报道，所以没有喝太多酒！<br>期待下次相聚。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/09/diary-2025-04/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/08/css-hide-elements/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/08/css-hide-elements/" class="post-title-link" itemprop="url">CSS中如何隐藏元素</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-08 10:49:27" itemprop="dateCreated datePublished" datetime="2025-04-08T10:49:27+08:00">2025-04-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-20 11:32:40" itemprop="dateModified" datetime="2025-04-20T11:32:40+08:00">2025-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>625</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>CSS中隐藏元素的方法有很多，每种方式都有其适用的场景，在合适的场景下使用合适的方式，能使编程事半功倍。</p>
-<h1 id="1-display-none"><a href="#1-display-none" class="headerlink" title="1. display: none"></a>1. display: none</h1><p><code>display: none</code>是最常用的隐藏元素的方法，它会将元素从文档流中移除，元素不占据空间。</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.hidden</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: none;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;hidden&quot;</span>&gt;</span>This is a hidden element<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/08/css-hide-elements/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/04/06/css-troubleshooting/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/06/css-troubleshooting/" class="post-title-link" itemprop="url">css-troubleshooting</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-04-06 19:58:07" itemprop="dateCreated datePublished" datetime="2025-04-06T19:58:07+08:00">2025-04-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-08 10:10:49" itemprop="dateModified" datetime="2025-04-08T10:10:49+08:00">2025-04-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>749</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="body宽度设置为100-，为啥还有横向滚动条？"><a href="#body宽度设置为100-，为啥还有横向滚动条？" class="headerlink" title="body宽度设置为100%，为啥还有横向滚动条？"></a>body宽度设置为100%，为啥还有横向滚动条？</h1><h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象:"></a>问题现象:</h2><p>这是一个非常简单的例子，创建一个html文件，设置body的宽度为100%，然后在浏览器中打开，发现有横向滚动条。为什么呢？</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">      <span class="selector-tag">body</span> &#123;</span></span><br><span class="line"><span class="language-css">        <span class="attribute">width</span>: <span class="number">100%</span>;</span></span><br><span class="line"><span class="language-css">      &#125;</span></span><br><span class="line"><span class="language-css">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    This is body</span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/06/css-troubleshooting/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1265,7 +1297,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">319</span>
+          <span class="site-state-item-count">321</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1278,7 +1310,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">438</span>
+        <span class="site-state-item-count">440</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1314,12 +1346,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">210k</span>
+    <span title="Symbols count total">212k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:43</span>
+    <span title="Reading time total">12:51</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
