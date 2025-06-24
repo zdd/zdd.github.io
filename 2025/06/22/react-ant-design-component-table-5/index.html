@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+<meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frontendthink.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="介绍大家好，今天我们继续讲解Ant Design中的Table组件，今天我们来看看如何为Table组件添加排序和搜索功能。排序和搜索是数据表格中非常常见的功能，用户可以通过点击表头来对数据进行升序或降序排序，也可以使用搜索框来过滤数据。 在阅读本篇之前，还是建议先阅读前面的几篇文章，了解Table组件的基本用法。 &#x2F;&#x2F; 插入前面几篇内容 为Table组件添加排序功能排序功能的添">
+<meta property="og:type" content="article">
+<meta property="og:title" content="react-ant-design-component-table-5">
+<meta property="og:url" content="https://frontendthink.com/2025/06/22/react-ant-design-component-table-5/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="介绍大家好，今天我们继续讲解Ant Design中的Table组件，今天我们来看看如何为Table组件添加排序和搜索功能。排序和搜索是数据表格中非常常见的功能，用户可以通过点击表头来对数据进行升序或降序排序，也可以使用搜索框来过滤数据。 在阅读本篇之前，还是建议先阅读前面的几篇文章，了解Table组件的基本用法。 &#x2F;&#x2F; 插入前面几篇内容 为Table组件添加排序功能排序功能的添">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-22T09:34:38.000Z">
+<meta property="article:modified_time" content="2025-06-22T11:22:50.802Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="react">
+<meta property="article:tag" content="ant-design">
+<meta property="article:tag" content="table">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>react-ant-design-component-table-5 | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          react-ant-design-component-table-5
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-22 17:34:38 / Modified: 19:22:50" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:38+08:00">2025-06-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>540</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>大家好，今天我们继续讲解Ant Design中的<code>Table</code>组件，今天我们来看看如何为<code>Table</code>组件添加排序和搜索功能。排序和搜索是数据表格中非常常见的功能，用户可以通过点击表头来对数据进行升序或降序排序，也可以使用搜索框来过滤数据。</p>
+<p>在阅读本篇之前，还是建议先阅读前面的几篇文章，了解<code>Table</code>组件的基本用法。</p>
+<p>&#x2F;&#x2F; 插入前面几篇内容</p>
+<h2 id="为Table组件添加排序功能"><a href="#为Table组件添加排序功能" class="headerlink" title="为Table组件添加排序功能"></a>为Table组件添加排序功能</h2><p>排序功能的添加非常简单，只需要在列的定义中添加<code>sorter</code>属性即可。我们以用户ID列为例，给它添加一个排序功能。<code>sorter</code>属性对应一个排序函数，这个函数接受两个参数，分别是要比较的两行数据，返回值为负数表示前者小于后者，返回值为正数表示前者大于后者，返回值为0表示两者相等。</p>
+<p>排序的方式取决于<code>a.id - b.id</code>的结果：</p>
+<ul>
+<li>如果为负数，表示<code>a</code>的ID小于<code>b</code>的ID，<code>a</code>会排在<code>b</code>前面；</li>
+<li>如果为正数，表示<code>a</code>的ID大于<code>b</code>的ID，<code>a</code>会排在<code>b</code>后面；</li>
+<li>如果为0，表示两者相等，顺序不变。</li>
+</ul>
+<p>比如下面的代码按照用户ID升序排列</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> a.<span class="property">id</span> - b.<span class="property">id</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>设置好排序之后，表头对应的字段右侧会出现两个小箭头，点击上面的箭头表示升序排列，点击下面的箭头表示降序排列。</p>
+<h3 id="降序排列"><a href="#降序排列" class="headerlink" title="降序排列"></a>降序排列</h3><p>如果要按照用户ID降序排列，只需要把<code>a.id - b.id</code>改成<code>b.id - a.id</code>即可。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> b.<span class="property">id</span> - a.<span class="property">id</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<h3 id="默认的排序顺序"><a href="#默认的排序顺序" class="headerlink" title="默认的排序顺序"></a>默认的排序顺序</h3><p>如果要设置默认的排序顺序，可以使用<code>defaultSortOrder</code>属性。这个属性可以设置为<code>&#39;ascend&#39;</code>表示升序，或者<code>&#39;descend&#39;</code>表示降序。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> a.<span class="property">id</span> - b.<span class="property">id</span>,</span><br><span class="line">    <span class="attr">defaultSortOrder</span>: <span class="string">&#x27;descend&#x27;</span>, <span class="comment">// 默认降序排列</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="为Table组件添加搜索功能"><a href="#为Table组件添加搜索功能" class="headerlink" title="为Table组件添加搜索功能"></a>为Table组件添加搜索功能</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/react/" rel="tag"># react</a>
+              <a href="/tags/ant-design/" rel="tag"># ant-design</a>
+              <a href="/tags/table/" rel="tag"># table</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/06/22/react-ant-design-component-table-4/" rel="prev" title="react-ant-design-component-table-4">
+      <i class="fa fa-chevron-left"></i> react-ant-design-component-table-4
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/06/22/react-ant-design-component-table-6/" rel="next" title="react-ant-design-component-table-6">
+      react-ant-design-component-table-6 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BATable%E7%BB%84%E4%BB%B6%E6%B7%BB%E5%8A%A0%E6%8E%92%E5%BA%8F%E5%8A%9F%E8%83%BD"><span class="nav-number">2.</span> <span class="nav-text">为Table组件添加排序功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%8D%E5%BA%8F%E6%8E%92%E5%88%97"><span class="nav-number">2.1.</span> <span class="nav-text">降序排列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BB%98%E8%AE%A4%E7%9A%84%E6%8E%92%E5%BA%8F%E9%A1%BA%E5%BA%8F"><span class="nav-number">2.2.</span> <span class="nav-text">默认的排序顺序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BATable%E7%BB%84%E4%BB%B6%E6%B7%BB%E5%8A%A0%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="nav-number">3.</span> <span class="nav-text">为Table组件添加搜索功能</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">333</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">442</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">219k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">13:15</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MRKXK1S1GG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MRKXK1S1GG');
+</script>
+</body>
+</html>

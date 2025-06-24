@@ -187,7 +187,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/04/10/Hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/07/13/javascript-cors/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -201,7 +201,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/04/10/Hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+            <a href="/2023/07/13/javascript-cors/" class="post-title-link" itemprop="url">JavaScript CORS</a>
         </h2>
 
         <div class="post-meta">
@@ -211,14 +211,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-04-10 19:58:22" itemprop="dateCreated datePublished" datetime="2023-04-10T19:58:22+08:00">2023-04-10</time>
+              <time title="Created: 2023-07-13 21:51:11" itemprop="dateCreated datePublished" datetime="2023-07-13T21:51:11+08:00">2023-07-13</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:41:46" itemprop="dateModified" datetime="2025-04-07T21:41:46+08:00">2025-04-07</time>
+                <time title="Modified: 2025-04-07 21:21:21" itemprop="dateModified" datetime="2025-04-07T21:21:21+08:00">2025-04-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +226,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hexo/" itemprop="url" rel="index"><span itemprop="name">hexo</span></a>
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
                 </span>
             </span>
 
@@ -236,7 +236,517 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>78</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是跨域"><a href="#什么是跨域" class="headerlink" title="什么是跨域"></a>什么是跨域</h2><p>相信很多做前端开发的同学都在浏览器控制台遇到过如下错误。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access to XMLHttpRequest at &#x27;http://localhost:3000/api/xxx&#x27; from origin &#x27;http://localhost:4200&#x27; has been blocked by CORS policy: No &#x27;Access-Control-Allow-Origin&#x27; header is present on the requested resource.</span><br></pre></td></tr></table></figure>
+<p>这个错误是由于浏览器的同源策略导致的，同源策略是浏览器的一种安全策略，它要求浏览器只能向同源网址发送请求，同源网址指的是协议、域名、端口号都相同的网址。</p>
+<p>以下几种情况都不同源，都会导致跨域。</p>
+<ol>
+<li>域名不同<br><code>remotehost</code> vs <code>localhost</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:4200 和 http://remotehost:3000</span><br></pre></td></tr></table></figure></li>
+<li>协议不同<br><code>http</code> vs <code>https</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 https://localhost:3000</span><br></pre></td></tr></table></figure></li>
+<li>端口不同<br><code>3000</code> vs <code>4200</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000 和 http://localhost:4200</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>文章开头的错误消息中，<code>http://localhost:4200</code>(4200是Angular项目常用端口)和<code>http://localhost:3000</code>（3000是Node.js项目常用端口）就不是同源网址，因为它们的端口号不同。</p>
+<p>同源策略的目的是为了防止恶意的网站窃取数据，但是对于前端开发来说，这个策略有时候就显得有点过于严格了，比如我们在开发时，前端项目和后端项目往往是分开的，前端项目一般运行在<code>http://localhost:4200</code>，而后端项目一般运行在<code>http://localhost:3000</code>，这样就导致了前端项目无法向后端项目发送请求，从而导致了上面的错误。那么如何解决这个问题呢？我们可以在后端项目中启用CORS，从而解决这个问题。下面我们就来看看如何在Node和Express中启用CORS。</p>
+<h2 id="什么是CORS"><a href="#什么是CORS" class="headerlink" title="什么是CORS"></a>什么是CORS</h2><p>CORS是Cross-Origin Resource Sharing的缩写，中文名是跨域资源共享，它是一种机制，它使用额外的HTTP头来告诉浏览器，允许运行在一个源上的Web应用访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，会发起一个跨域HTTP请求。</p>
+<p>哪些请求会使用CORS呢？</p>
+<ul>
+<li>Fetch与XMLHttpRequest</li>
+<li>Web Fonts，@font-face within CSS</li>
+<li>WebGL textures</li>
+</ul>
+<h2 id="简单请求与非简单请求"><a href="#简单请求与非简单请求" class="headerlink" title="简单请求与非简单请求"></a>简单请求与非简单请求</h2><p>为什么要介绍简单请求和非简单请求呢？因为对于简单请求和非简单请求，浏览器的处理方式是不同的。</p>
+<ul>
+<li>简单请求， 浏览器会自动处理跨域请求，不需要额外的处理。</li>
+<li>非简单请求，浏览器会先发送一个OPTIONS请求，询问服务器是否允许跨域请求，如果服务器允许，浏览器才会发送真正的请求。</li>
+</ul>
+<h3 id="简单请求："><a href="#简单请求：" class="headerlink" title="简单请求："></a>简单请求：</h3><p>满足以下条件的请求是简单请求。</p>
+<ol>
+<li>请求方法是以下三种方法之一：<ul>
+<li>HEAD</li>
+<li>GET</li>
+<li>POST</li>
+</ul>
+</li>
+<li>HTTP的头信息不超出以下几种字段：<ul>
+<li>Accept</li>
+<li>Accept-Language</li>
+<li>Content-Language</li>
+<li>Last-Event-ID</li>
+<li>Content-Type：只限于三个值： <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code>,  <code>text/plain</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="非简单请求"><a href="#非简单请求" class="headerlink" title="非简单请求"></a>非简单请求</h3><p>除了简单请求，都是非简单请求。</p>
+<h3 id="Preflight请求"><a href="#Preflight请求" class="headerlink" title="Preflight请求"></a>Preflight请求</h3><p>又称为预检请求，在非简单请求之前，浏览器会发送一个preflight请求，询问后端服务器是否支持跨域，preflight请求都是Option请求，下面是一个列子。</p>
+<ol>
+<li>General块中可以看到，预检请求用的是 <code>OPTIONS</code>请求，而且返回值是200，说明请求成功了。</li>
+</ol>
+<p><strong>General</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Request</span> <span class="attr">URL</span>: <span class="attr">http</span>:<span class="comment">//10.10.143.144:9898/bff/api/v1/application/sysVariable/list?_t=1641265683731</span></span><br><span class="line">**<span class="title class_">Request</span> <span class="title class_">Method</span>**: <span class="variable constant_">OPTIONS</span></span><br><span class="line"><span class="title class_">Status</span> <span class="title class_">Code</span>: <span class="number">200</span> <span class="variable constant_">OK</span></span><br><span class="line"><span class="title class_">Remote</span> <span class="title class_">Address</span>: <span class="number">10.10</span><span class="number">.143</span><span class="number">.144</span>:<span class="number">9898</span></span><br><span class="line"><span class="title class_">Referrer</span> <span class="title class_">Policy</span>: strict-origin-when-cross-origin</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>Request Header区块中<strong>Access-Control-Request-Headers</strong>指定的是GET请求，说明接下来要进行的跨域请求是GET请求，而且有自定义请求头，放在<strong>Access-Control-Request-Headers</strong>字段中，请求的来源是<strong>Origin</strong>字段标明的，是<code>http://localhost:3001</code>，表示当前正在本机进行调试。</li>
+</ol>
+<p><strong>Request Header</strong></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Accept: */*</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: en,zh-CN;q=0.9,zh;q=0.8,zh-TW;q=0.7</span><br><span class="line">**Access-Control-Request-Headers**: app,cache-control,dcid,nounce,timestamp,userid,uuid</span><br><span class="line">**Access-Control-Request-Method**: GET</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Host: 10.10.143.144:9898</span><br><span class="line">**Origin**: http://localhost:3001</span><br><span class="line">Referer: http://localhost:3001/</span><br><span class="line">Sec-Fetch-Mode: cors</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>Response Header区块中反应的是OPTIONS请求后的结果，图中四个标红加粗的字段表示服务器的跨域请求设置<ul>
+<li><strong>Access-Control-Allow-Headers</strong>表示允许的自定义请求头。</li>
+<li><strong>Access-Control-Allow-Methods</strong>表示允许的请求方法</li>
+<li><strong>Access-Control-Allow-Origin</strong>表示允许的跨域请求的来源</li>
+<li><strong>Access-Control-Max-Age</strong>表示预检请求的缓存时间，在这个时间内，如果再发生跨域请求，则无需发送预检请求。</li>
+</ul>
+</li>
+</ol>
+<p><strong>Response Header</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Headers</span>: app, cache-control, dcid, nounce, timestamp, userid, uuid</span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Methods</span>: <span class="variable constant_">PUT</span>,<span class="variable constant_">DELETE</span>,<span class="variable constant_">GET</span>,<span class="variable constant_">POST</span>,<span class="variable constant_">OPTIONS</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Allow</span>-<span class="title class_">Origin</span>: <span class="attr">http</span>:<span class="comment">//localhost:3001</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Expose</span>-<span class="title class_">Headers</span>: access-control-allow-headers, access-control-allow-methods, access-control-allow-origin, access-control-max-age, X-<span class="title class_">Frame</span>-<span class="title class_">Options</span></span><br><span class="line"><span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Max</span>-<span class="title class_">Age</span>: <span class="number">3600</span></span><br><span class="line"><span class="title class_">Allow</span>: <span class="variable constant_">GET</span>, <span class="variable constant_">HEAD</span>, <span class="variable constant_">POST</span>, <span class="variable constant_">PUT</span>, <span class="variable constant_">DELETE</span>, <span class="variable constant_">TRACE</span>, <span class="variable constant_">OPTIONS</span>, <span class="variable constant_">PATCH</span></span><br><span class="line"><span class="title class_">Cache</span>-<span class="title class_">Control</span>: no-store</span><br><span class="line"><span class="title class_">Connection</span>: keep-alive</span><br><span class="line"><span class="title class_">Content</span>-<span class="title class_">Length</span>: <span class="number">0</span></span><br><span class="line"><span class="title class_">Date</span>: <span class="title class_">Tue</span>, <span class="number">04</span> <span class="title class_">Jan</span> <span class="number">2022</span> <span class="number">03</span>:<span class="number">08</span>:<span class="number">03</span> <span class="variable constant_">GMT</span></span><br><span class="line"><span class="title class_">Pragma</span>: no-cache</span><br><span class="line"><span class="title class_">Server</span>: nginx/<span class="number">1.17</span><span class="number">.5</span></span><br><span class="line"><span class="title class_">Strict</span>-<span class="title class_">Transport</span>-<span class="title class_">Security</span>: max-age=<span class="number">8995000</span>; includeSubdomains</span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Origin</span></span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Request</span>-<span class="title class_">Method</span></span><br><span class="line"><span class="title class_">Vary</span>: <span class="title class_">Access</span>-<span class="title class_">Control</span>-<span class="title class_">Request</span>-<span class="title class_">Headers</span></span><br><span class="line">X-<span class="title class_">Content</span>-<span class="title class_">Type</span>-<span class="title class_">Options</span>: nosniff</span><br><span class="line">X-<span class="title class_">Frame</span>-<span class="title class_">Options</span>: <span class="variable constant_">SAMEORIGIN</span></span><br><span class="line">X-<span class="variable constant_">XSS</span>-<span class="title class_">Protection</span>: <span class="number">1</span>; mode=block</span><br></pre></td></tr></table></figure>
+
+<h2 id="解决跨域"><a href="#解决跨域" class="headerlink" title="解决跨域"></a>解决跨域</h2><p>解决跨域的方法很多，常用的有以下几种：</p>
+<h3 id="后端开启CORS"><a href="#后端开启CORS" class="headerlink" title="后端开启CORS"></a>后端开启CORS</h3><p>根据同源策略，我们可以在后端设置<code>Access-Control-Allow-Origin</code>这个响应头，来允许指定的域名访问该资源。下面我们来看看如何在Node和Express中启用CORS。</p>
+<ol>
+<li>创建一个Express项目并安装cors<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm init</span><br><span class="line">npm install express --save</span><br><span class="line">npm install cors --save</span><br></pre></td></tr></table></figure></li>
+<li>在项目根目录下创建<code>server.js</code>文件，添加如下内容，这个服务器提供两个接口，一个是<code>/</code>，一个是<code>/users</code>，其中<code>/users</code>接口返回一个用户列表。而且在<code>server.js</code>中启用了CORS，允许<code>http://localhost:4200</code>这个地址访问该服务提供的接口。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">&#x27;cors&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Enable CORS</span></span><br><span class="line"><span class="keyword">let</span> corsOptions = &#123;</span><br><span class="line"> origin : [<span class="string">&#x27;http://localhost:4200&#x27;</span>], <span class="comment">// 前端项目地址</span></span><br><span class="line">&#125;;</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>(corsOptions));</span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> res.<span class="title function_">send</span>(<span class="string">&#x27;Hello World!&#x27;</span>)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/users&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"> <span class="keyword">const</span> users = [</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;John&#x27;</span>, <span class="attr">age</span>: <span class="number">30</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">name</span>: <span class="string">&#x27;Jane&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span>&#125;,</span><br><span class="line"> ];</span><br><span class="line"></span><br><span class="line"> res.<span class="title function_">json</span>(users);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li>启动项目<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node server.js</span><br></pre></td></tr></table></figure></li>
+<li>新建一个前端项目（Angular），启动项目后运行在localhost:4200,通过前端访问这个api时就不会有跨域问题了。<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">OnInit</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">UsersModel</span>&#125; <span class="keyword">from</span> <span class="string">&quot;./users.model&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClient</span>&#125; <span class="keyword">from</span> <span class="string">&quot;@angular/common/http&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-users&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./users.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./users.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">UsersComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">users</span>: <span class="title class_">UsersModel</span>[] = [];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">http</span>: <span class="title class_">HttpClient</span></span>) &#123;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="property">get</span>&lt;<span class="title class_">UsersModel</span>[]&gt;(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>)</span><br><span class="line">      .<span class="title function_">subscribe</span>(<span class="function">(<span class="params"><span class="attr">users</span>: <span class="title class_">UsersModel</span>[]</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">users</span> = users;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>记得在app.module.ts中启用HttpClientModule<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">HttpClientModule</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">   <span class="attr">declarations</span>: [</span><br><span class="line">   <span class="title class_">AppComponent</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">imports</span>: [</span><br><span class="line">     <span class="title class_">HttpClientModule</span>,</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">providers</span>: [],</span><br><span class="line">   <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="使用JsonP"><a href="#使用JsonP" class="headerlink" title="使用JsonP"></a>使用JsonP</h3><p>JSONP (JSON with Padding) 是一种跨域数据交互协议，它允许页面从不同的域名下获取数据。其实现跨域的原理主要基于浏览器对<code>&lt;script&gt;</code>标签的宽松政策，即浏览器允许页面通过<code>&lt;script&gt;</code>标签加载并执行来自任何来源（即任何域名）的JavaScript代码。</p>
+<p>浏览器对一些html标签允许跨域访问，比如<code>&lt;img&gt;</code>、<code>&lt;link&gt;</code>、<code>&lt;script&gt;</code>等，详情参考<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy#cross-origin_network_access">这里</a></p>
+<p>以下是JSONP实现跨域的基本步骤：</p>
+<ol>
+<li><p><strong>创建<code>&lt;script&gt;</code>标签</strong>：在需要请求数据的网页中动态创建一个<code>&lt;script&gt;</code>标签，并设置其<code>src</code>属性为要请求的数据接口地址。这个地址通常会包含一个回调函数名作为参数。</p>
+</li>
+<li><p><strong>定义回调函数</strong>：在网页中定义一个JavaScript函数，该函数的名字就是之前在<code>src</code>属性中指定的回调函数名。当服务器响应返回时，这个函数会被调用，且响应的数据会作为参数传递给这个函数。</p>
+</li>
+<li><p><strong>服务器端响应</strong>：服务器接收到请求后，会将数据包装在一个函数调用中返回。这个函数名就是客户端请求中指定的那个回调函数名。例如，如果回调函数名为<code>handleResponse</code>，而返回的数据是<code>&#123;&quot;name&quot;: &quot;John&quot;&#125;</code>，那么服务器可能会返回如下内容：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">handleResponse</span>(&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;John&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>执行回调函数</strong>：由于<code>&lt;script&gt;</code>标签加载的是一个有效的JavaScript脚本，所以浏览器会执行这个脚本，即执行<code>handleResponse</code>函数，并将数据作为参数传入。这样，客户端就可以处理从服务器接收到的数据了。</p>
+</li>
+</ol>
+<p>JsonP实现示意图。<br><img src="/../images/jsonp.png" alt="JSONP"></p>
+<p>JSONP的主要优点是简单易用，不需要特殊的服务器配置，且几乎所有的浏览器都支持。然而，它也存在一些限制和安全风险：</p>
+<ul>
+<li><strong>仅支持GET请求</strong>：JSONP只能发起GET请求，无法使用POST等其他HTTP方法。</li>
+<li><strong>安全性问题</strong>：因为JSONP本质上是在执行来自外部源的任意JavaScript代码，所以存在注入攻击的风险。必须确保数据来源可靠。</li>
+<li><strong>错误处理困难</strong>：JSONP没有标准的错误处理机制，一旦请求失败，很难确定失败的原因。</li>
+</ul>
+<p>因此，在选择是否使用JSONP时，开发者需要权衡其带来的便利性和潜在的安全风险。随着CORS（跨源资源共享）等更现代的解决方案的出现，JSONP的使用正在逐渐减少。</p>
+<p>Angular中HttpClient模块也提供了JSONP的支持，使用方法如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">OnInit</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">HttpClient</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/common/http&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-jsonp&#x27;</span>,</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./jsonp.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrls</span>: [<span class="string">&#x27;./jsonp.component.less&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">JsonpComponent</span> <span class="keyword">implements</span> <span class="title class_">OnInit</span> &#123;</span><br><span class="line">  <span class="attr">data</span>: <span class="built_in">any</span>;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">http</span>: <span class="title class_">HttpClient</span></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">ngOnInit</span>(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">http</span>.<span class="title function_">jsonp</span>(<span class="string">&#x27;http://localhost:3000/users&#x27;</span>, <span class="string">&#x27;callback&#x27;</span>)</span><br><span class="line">        .<span class="title function_">subscribe</span>(<span class="function">(<span class="params"><span class="attr">data</span>: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">data</span> = data;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="前端使用反向代理"><a href="#前端使用反向代理" class="headerlink" title="前端使用反向代理"></a>前端使用反向代理</h3><p>这种方法一般是开发阶段使用的，因为本质上，前端是无法解决跨域问题的，只能通过后端来解决。</p>
+<h4 id="Angular项目"><a href="#Angular项目" class="headerlink" title="Angular项目"></a>Angular项目</h4><p>Angular项目中可以使用<code>proxy.conf.json</code>文件配置反向代理，然后在<code>angular.json</code>或者<code>project.json</code>(基于Nx的Mono repo)中配置<code>proxyConfig</code>指向该文件即可。</p>
+<p><code>proxy.conf.json</code>文件内容如下：<br>   <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;/api&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;target&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://localhost:3000&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;secure&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p><code>angular.json</code>或<code>project.json</code>文件内容如下：<br>   <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;serve&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;builder&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@angular-devkit/build-angular:dev-server&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;proxyConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;proxy.conf.json&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="使用浏览器插件"><a href="#使用浏览器插件" class="headerlink" title="使用浏览器插件"></a>使用浏览器插件</h3><p>这个不做过多介绍，大家自行探索</p>
+<h3 id="使用非安全模式启动浏览器"><a href="#使用非安全模式启动浏览器" class="headerlink" title="使用非安全模式启动浏览器"></a>使用非安全模式启动浏览器</h3><p>在Windows系统上，可以通过以下命令启动Chrome浏览器，这样就可以绕过浏览器的同源策略。这种方式也不推荐。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chrome.exe --user-data-dir=&quot;C://Chrome dev session&quot; --disable-web-security</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/07/12/communication-between-components-directives-by-service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/12/communication-between-components-directives-by-service/" class="post-title-link" itemprop="url">Communication between components/directives by service</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-12 18:44:28" itemprop="dateCreated datePublished" datetime="2023-07-12T18:44:28+08:00">2023-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 16:44:03" itemprop="dateModified" datetime="2025-04-07T16:44:03+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>420</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>组件（指令）间通信是Angular中一个非常常见的需求，对于有直接嵌套关系（比如父子组件）的组件，我们可以使用<code>@Input</code>和<code>@Output</code>来实现通信，但是对于没有嵌套关系的组件（亦或者嵌套层级很深的组件），我们就需要使用其他的方法来实现通信了，比如使用服务来实现组件间通信。<br>下面这个例子就是两个没有嵌套关系的指令之间通信的例子，我们将使用服务来实现这个功能。<br>注意：在Angular中，组件和指令是一样的，组件是一种特殊的指令。</p>
+<h2 id="Create-a-service"><a href="#Create-a-service" class="headerlink" title="Create a service"></a>Create a service</h2><p>首先我们需要创建一个服务，用于组件间通信。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Injectable</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Subject</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;rxjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>(&#123;</span><br><span class="line">  <span class="attr">providedIn</span>: <span class="string">&#x27;root&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CommunicationService</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> messageSource = <span class="keyword">new</span> <span class="title class_">Subject</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此变量的类型是Observable，用来接收消息, message$.subscribe()用来订阅消息。</span></span><br><span class="line">  <span class="keyword">public</span> message$ = <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">asObservable</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此函数用来发消息</span></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params"><span class="attr">message</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageSource</span>.<span class="title function_">next</span>(message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Directive-Send-message"><a href="#Directive-Send-message" class="headerlink" title="Directive(Send message)"></a>Directive(Send message)</h2><p>该指令使用上面定义的service发送消息</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span>, <span class="title class_">HostListener</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[senderDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">SenderDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">communicationService</span>: <span class="title class_">CommunicationService</span></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@HostListener</span>(<span class="string">&#x27;click&#x27;</span>)</span><br><span class="line">  <span class="title function_">onClick</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="title function_">sendMessage</span>(<span class="string">&#x27;Hello from sender directive!&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Directive-Receive-message"><a href="#Directive-Receive-message" class="headerlink" title="Directive(Receive message)"></a>Directive(Receive message)</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">该指令使用上面定义的service接收消息</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Directive</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Directive</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;[receiverDirective]&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ReceiverDirective</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">communicationService</span>: <span class="title class_">CommunicationService</span></span>) &#123;</span><br><span class="line">    <span class="comment">// 接收消息</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">communicationService</span>.<span class="property">message$</span>.<span class="title function_">subscribe</span>(<span class="function"><span class="params">message</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Received message:&#x27;</span>, message);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="AppModule"><a href="#AppModule" class="headerlink" title="AppModule"></a>AppModule</h2><p>我们需要在appModule中声明这两个指令</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">NgModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">CommunicationService</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./communication.service&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">SenderDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./sender.directive&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ReceiverDirective</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./receiver.directive&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@NgModule</span>(&#123;</span><br><span class="line">  <span class="attr">declarations</span>: [</span><br><span class="line">    <span class="title class_">AppComponent</span>,</span><br><span class="line">    <span class="title class_">SenderDirective</span>,</span><br><span class="line">    <span class="title class_">ReceiverDirective</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">imports</span>: [</span><br><span class="line">    <span class="title class_">BrowserModule</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">providers</span>: [<span class="title class_">CommunicationService</span>],</span><br><span class="line">  <span class="attr">bootstrap</span>: [<span class="title class_">AppComponent</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppModule</span> &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">senderDirective</span>&gt;</span>Send message<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">receiverDirective</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/07/04/html5-drag-and-drop-events/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/04/html5-drag-and-drop-events/" class="post-title-link" itemprop="url">html5 drag and drop events</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-04 19:38:03" itemprop="dateCreated datePublished" datetime="2023-07-04T19:38:03+08:00">2023-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:19:05" itemprop="dateModified" datetime="2025-04-07T21:19:05+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/html/" itemprop="url" rel="index"><span itemprop="name">html</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>8 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="html5-drag-and-drop-events"><a href="#html5-drag-and-drop-events" class="headerlink" title="html5 drag and drop events"></a>html5 drag and drop events</h1><p>html5中的拖放事件有以下几个：</p>
+<ul>
+<li>dragstart</li>
+<li>drag</li>
+<li>dragleave</li>
+<li>dragenter</li>
+<li>dragover</li>
+<li>drop</li>
+<li>dragend</li>
+</ul>
+<p>我们将从以下几个方面依次讲解这些事件，包括事件的触发条件，事件的触发源头，事件的触发频率等</p>
+<h2 id="dragstart"><a href="#dragstart" class="headerlink" title="dragstart"></a>dragstart</h2><p>触发条件：当用户开始拖动一个元素时，会触发<code>dragstart</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。</p>
+<h2 id="drag"><a href="#drag" class="headerlink" title="drag"></a>drag</h2><p>触发条件：当用户拖动一个元素时，会触发<code>drag</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：多次。  </p>
+<h2 id="dragleave"><a href="#dragleave" class="headerlink" title="dragleave"></a>dragleave</h2><p>触发条件：当用户拖动一个元素，离开了一个可放置的目标元素时，会触发<code>dragleave</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragenter"><a href="#dragenter" class="headerlink" title="dragenter"></a>dragenter</h2><p>触发条件：当用户拖动一个元素，进入了一个可放置的目标元素时，会触发<code>dragenter</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragover"><a href="#dragover" class="headerlink" title="dragover"></a>dragover</h2><p>触发条件：当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发<code>dragover</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：多次。  </p>
+<h2 id="drop"><a href="#drop" class="headerlink" title="drop"></a>drop</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>drop</code>事件。<br>触发源头：目标区域（松开鼠标后，元素放置的区域）。<br>触发频率：一次。  </p>
+<h2 id="dragend"><a href="#dragend" class="headerlink" title="dragend"></a>dragend</h2><p>触发条件：当用户拖动一个元素，释放鼠标按钮时，会触发<code>dragend</code>事件。<br>触发源头：被拖动的元素。<br>触发频率：一次。  </p>
+<h2 id="实例讲解"><a href="#实例讲解" class="headerlink" title="实例讲解"></a>实例讲解</h2><p>下面以一个实际例子来讲解事件发生的顺序，如下图，页面上有两个容器，Container A和Container B，container A中有一个元素Child，container B中没有元素。我们将container A中的Child元素拖动到container B中，观察事件的触发顺序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|     Container A   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|      Child        |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">|        |          |</span><br><span class="line">+--------|----------+</span><br><span class="line">         |</span><br><span class="line">        \/</span><br><span class="line"></span><br><span class="line">+-------------------+</span><br><span class="line">|    Container B    |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">|                   |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>首先触发的事件是 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dragstart_event">dragstart</a>，触发源头是被拖动的元素，触发频率是一次。我们可以通过打印<code>event.target</code>来验证这一点。</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">dragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">stopPropagation</span>(); <span class="comment">// 阻止事件冒泡，也就是阻止事件向父元素传递。</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;drag start...&quot;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">target</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>);</span><br><span class="line">  e.<span class="property">dataTransfer</span>.<span class="title function_">setData</span>(<span class="string">&quot;text&quot;</span>, e.<span class="property">target</span>.<span class="property">id</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>事件处理函数中的<code>e.target</code>是指触发该事件的元素，比如当用户点击某一个按钮时会触发<code>click</code>事件，那么按钮就是click事件的e.target。而<code>this</code>是指注册事件处理函数的元素，大部分情况下这二者是相同的，但是也有例外，详情请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/08/02/event-target-vs-event-currentTarget/">这里</a>。  </p>
+<p><code>dragstart</code>不同于其他拖拽处理函数的地方是，它是唯一可以设置transfer data的地方。我们可以通过<code>e.dataTransfer.setData</code>方法来设置transfer data，该方法接受两个参数，第一个参数是transfer data的类型，第二个参数是transfer data的值。这里我们设置transfer data的类型为<code>text</code>，值为被拖动元素的id。</p>
+<ol start="2">
+<li><p>然后触发的事件是<code>drag</code>，触发源头是被拖动的元素，该事件会在拖动过程中一直触发。在实际应用中，一般不监听这个事件，因为它没啥用，而且触发太频繁。</p>
+</li>
+<li><p>接下来触发的事件是<code>dragenter</code>，当用户拖动一个元素到一个可放置的目标时，会触发该事件，只会触发一次。由于Container A也是一个可放置的区域，而刚开始拖动时Child就已经位于Container A中，所以会触发<code>dragenter</code>事件。</p>
+</li>
+<li><p>然后触发的事件是<code>dragover</code>，当用户拖动一个元素，悬停在一个可放置的目标元素上时，会触发该事件，会在拖动过程中一直触发。与其他事件处理函数不同，该函数有如下两个特点。</p>
+<ol>
+<li>该事件在放置目标区域上触发，而不是被拖拽的元素上触发。</li>
+<li>这个事件是需要阻止默认行为的，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</li>
+</ol>
+</li>
+<li><p>接下来，如果用户在目标区域释放了鼠标，那么会触发<code>drop</code>事件，该事件会在放置目标区域上触发，只会触发一次。我们可以通过<code>e.dataTransfer.getData</code>来获取transfer data，该方法接受一个参数，表示要获取的transfer data的类型，这里我们传入<code>text</code>，表示获取类型为<code>text</code>的transfer data。如果我们在<code>dragstart</code>事件处理函数中设置了transfer data，那么在<code>drop</code>事件处理函数中就可以获取到transfer data了。</p>
+</li>
+<li><p>如果用户在目标区没有释放鼠标，而是继续拖动，直到离开目标区域，那么会触发<code>dragleave</code>事件，该事件会在放置目标区域上触发，只会触发一次。反之，如果用户在目标区域释放了鼠标，那么该事件不会触发。也就是说，对于同一个目标区域而言，<code>dragleave</code>事件和<code>drop</code>事件是互斥的，只会触发其中一个。</p>
+</li>
+</ol>
+<p>注意：<code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
+<h2 id="总结如下："><a href="#总结如下：" class="headerlink" title="总结如下："></a>总结如下：</h2><table>
+<thead>
+<tr>
+<th>事件</th>
+<th>触发条件</th>
+<th>触发源头</th>
+<th>触发频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dragstart</td>
+<td>当用户开始拖动一个元素时</td>
+<td>被拖动的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>drag</td>
+<td>当用户拖动一个元素时</td>
+<td>被拖动的元素</td>
+<td>多次</td>
+</tr>
+<tr>
+<td>dragleave</td>
+<td>当用户拖动一个元素，离开了一个可放置的目标元素时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragenter</td>
+<td>当用户拖动一个元素，进入了一个可放置的目标元素时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragover</td>
+<td>当用户拖动一个元素，悬停在一个可放置的目标元素上时</td>
+<td>目标区域对应的元素</td>
+<td>多次</td>
+</tr>
+<tr>
+<td>drop</td>
+<td>当用户拖动一个元素，释放鼠标按钮时</td>
+<td>目标区域对应的元素</td>
+<td>一次</td>
+</tr>
+<tr>
+<td>dragend</td>
+<td>当用户拖动一个元素，释放鼠标按钮时</td>
+<td>被拖动的元素</td>
+<td>一次</td>
+</tr>
+</tbody></table>
+<h2 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h2><ol>
+<li><p><code>dragenter</code>, <code>dragleave</code>, <code>dragover</code> - 这里都是指鼠标的进入，离开，悬停，而不是指被拖动的元素的进入，离开，悬停。</p>
+</li>
+<li><p>在处理从一个区域拖拽到另一个区域的情况时比较简单，比如常见的左右两个列表，将一个元素从左侧列表拖拽到右侧列表。这时候被拖拽的元素和放置目标之间的界限比较明显，处理起来比较容易，也就是说被拖拽的元素响应以下事件即可：</p>
+<ul>
+<li>dragstart</li>
+<li>drag</li>
+<li>dragend</li>
+</ul>
+<p>而放置目标响应以下事件即可：</p>
+<ul>
+<li>dragenter</li>
+<li>dragover</li>
+<li>drop</li>
+<li>dragleave</li>
+</ul>
+</li>
+<li><p>但是如果处理一组元素之间的互相拖拽及排序，那就比较麻烦，比如一个相册列表，或者一个瀑布流布局，或者masonry布局，就是一个大容器，里面有如果子元素，我们可以拖拽任意一个元素到其他位置，在拖拽过程中要有placeholder，其他元素要给被拖拽的元素让路。这种情况下，每个元素都要响应所有事件，所以一个必要的操作就是判断被拖拽的元素和放置目标是否是同一个元素，如果是同一个元素，那么就不需要做任何处理，否则就需要做相应的处理。这里有一个技巧，可以使用<code>e.target</code>和<code>e.currentTarget</code>来判断被拖拽的元素和放置目标是否是同一个元素，常见的做法如下：</p>
+</li>
+</ol>
+<ul>
+<li>在<code>dragstart</code>函数中记录被拖拽的元素<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> dragSrcEl = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragStart</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  dragSrcEl = <span class="variable language_">this</span>; <span class="comment">// record the dragged element</span></span><br><span class="line">  dragSrcEl.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;dragging&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>在<code>dragenter</code>, <code>dragover</code>, <code>dragleave</code>, <code>drop</code>等方法中判断被拖拽元素是否等于this，如果是，那么说明是同一个元素，直接return，如果不是，再进行具体的处理工作。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragEnter</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  <span class="comment">// this event also triggered on the dragged item itself, we should ignore this case.</span></span><br><span class="line">  <span class="keyword">if</span> (dragSrcEl === <span class="variable language_">this</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// do something...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="4">
+<li><p>在<code>dragover</code>事件处理函数中，需要阻止默认行为，否则会导致<code>drop</code>事件无法触发。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDragOver</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>drop</code>事件处理函数中，需要阻止默认行为，否则会导致浏览器打开被拖拽的元素。我们可以通过<code>e.preventDefault()</code>来阻止默认行为。</p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleDrop</span>(<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>(); <span class="comment">// prevent default behavior</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/07/01/javascript-array-like-object/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/07/01/javascript-array-like-object/" class="post-title-link" itemprop="url">Array-like object</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-01 07:34:21" itemprop="dateCreated datePublished" datetime="2023-07-01T07:34:21+08:00">2023-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 14:02:48" itemprop="dateModified" datetime="2025-04-07T14:02:48+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/array/" itemprop="url" rel="index"><span itemprop="name">array</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>358</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -255,19 +765,788 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+          <h2 id="What-is-array-like-object"><a href="#What-is-array-like-object" class="headerlink" title="What is array-like object?"></a>What is array-like object?</h2><p>Array-like object is an object that has a <code>length</code> property and indexed elements. For example, <code>arguments</code> is an array-like object.</p>
+<p>Has indexed access to the elements and a non-negative length property to know the number of elements in it. These are the only similarities it has with an array.<br>Doesn’t have any of the Array methods like push, pop, join, map, etc.</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike[<span class="number">1</span>]); <span class="comment">// &#x27;b&#x27;</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">length</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arrayLike.<span class="property">push</span>); <span class="comment">// Uncaught TypeError: arrayLike.push is not a function</span></span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<h2 id="What-is-the-difference-between-array-and-array-like-object"><a href="#What-is-the-difference-between-array-and-array-like-object" class="headerlink" title="What is the difference between array and array-like object?"></a>What is the difference between array and array-like object?</h2><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>length属性</th>
+<th>索引访问</th>
+<th>有Array.prototype方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Array</td>
+<td>✔️</td>
+<td>✔️</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>Array-like object</td>
+<td>✔️</td>
+<td>✔️</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h2 id="Which-type-in-JavaScript-is-array-like-object"><a href="#Which-type-in-JavaScript-is-array-like-object" class="headerlink" title="Which type in JavaScript is array-like object?"></a>Which type in JavaScript is array-like object?</h2><p>There are many types in JavaScript are array-like object, including:</p>
+<ol>
+<li><code>arguments</code> in a function</li>
+<li><code>NodeList</code>(and other DOM collections)</li>
+<li><code>HTMLCollection</code></li>
+</ol>
+<h3 id="arguments-in-a-function"><a href="#arguments-in-a-function" class="headerlink" title="arguments in a function"></a>arguments in a function</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]</span></span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<h3 id="NodeList-and-other-DOM-collections"><a href="#NodeList-and-other-DOM-collections" class="headerlink" title="NodeList(and other DOM collections)"></a>NodeList(and other DOM collections)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nodeList = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;div&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(nodeList); <span class="comment">// NodeList(3) [div, div, div]</span></span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<h3 id="HTMLCollection"><a href="#HTMLCollection" class="headerlink" title="HTMLCollection"></a>HTMLCollection</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> htmlCollection = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(htmlCollection); <span class="comment">// HTMLCollection(3) [div.container, div.container, div.container]</span></span><br></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<h2 id="How-to-convert-array-like-object-to-array"><a href="#How-to-convert-array-like-object-to-array" class="headerlink" title="How to convert array-like object to array?"></a>How to convert array-like object to array?</h2><p>There are several ways to convert array-like object to array.</p>
+<h3 id="Array-from-…"><a href="#Array-from-…" class="headerlink" title="Array.from(…)"></a>Array.from(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="title function_">from</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Use-ES6-spread-operator"><a href="#Use-ES6-spread-operator" class="headerlink" title="Use ES6 spread operator"></a>Use ES6 spread operator</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = [...arrayLike];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Array-prototype-slice-call-…"><a href="#Array-prototype-slice-call-…" class="headerlink" title="Array.prototype.slice.call(…)"></a>Array.prototype.slice.call(…)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arrayLike = &#123;</span><br><span class="line">  <span class="number">0</span>: <span class="string">&#x27;a&#x27;</span>,</span><br><span class="line">  <span class="number">1</span>: <span class="string">&#x27;b&#x27;</span>,</span><br><span class="line">  <span class="number">2</span>: <span class="string">&#x27;c&#x27;</span>,</span><br><span class="line">  <span class="attr">length</span>: <span class="number">3</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> array = <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">slice</span>.<span class="title function_">call</span>(arrayLike);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(array); <span class="comment">// [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><ol>
+<li>Array-like object is an object that has a <code>length</code> property</li>
+<li>Array-like object has indexed access to the elements, you access the elements by using <code>arrayLike[n]</code></li>
+<li>Array-like object doesn’t have any of the Array methods like push, pop, join, map, etc.</li>
+<li>You can convert array-like object to array by using <code>Array.from(...)</code>, ES6 spread operator or <code>Array.prototype.slice.call(...)</code>.</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/06/29/How-to-get-DOM-element-on-page/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/29/How-to-get-DOM-element-on-page/" class="post-title-link" itemprop="url">How to get DOM element on page</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-29 20:14:35" itemprop="dateCreated datePublished" datetime="2023-06-29T20:14:35+08:00">2023-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:18:07" itemprop="dateModified" datetime="2025-04-07T21:18:07+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>684</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-to-get-DOM-elements-on-page"><a href="#How-to-get-DOM-elements-on-page" class="headerlink" title="How to get DOM elements on page"></a>How to get DOM elements on page</h1><p>获取Dom元素总体来说有两类方法：</p>
+<ul>
+<li>getElementByXXX</li>
+<li>queryXXX</li>
+</ul>
+<p>这两种方法都是从document对象开始查找，所以可以直接使用，不需要先获取document对象。</p>
+<h2 id="get方法"><a href="#get方法" class="headerlink" title="get方法"></a>get方法</h2><h3 id="getElementById"><a href="#getElementById" class="headerlink" title="getElementById"></a>getElementById</h3><p>这是最常用的方法，如果你的元素有id属性，那么可以使用这个方法获取元素，返回的是一个Element对象。如果没有找到，则返回null。<br>html代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;root&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;root&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> (element) &#123;</span><br><span class="line">  <span class="comment">// do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="getElementsByClassName"><a href="#getElementsByClassName" class="headerlink" title="getElementsByClassName"></a>getElementsByClassName</h3><p>这个方法可以获取到所有class属性中包含指定类名的元素，返回的是一个<a target="_blank" rel="noopener" href="https://daily.dev/blog/why-do-you-need-to-know-about-array-like-objects"><code>array-like</code></a>对象HTMLCollection，可以使用Array.from()方法将其转换为数组。<br>html代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&#x27;container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，这个方法返回的是一个动态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合也会跟着改变。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>A<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>B<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button&quot;</span>&gt;</span>C<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 初始时，页面上有三个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttons = <span class="variable language_">document</span>.<span class="title function_">getElementsByClassName</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(3) [button, button, button]</span></span></span><br><span class="line"><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 添加一个按钮, 此时再打印buttons，则输出四个按钮。</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> buttonD = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;button&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">innerHTML</span> = <span class="string">&quot;D&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    buttonD.<span class="property">className</span> = <span class="string">&quot;button&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(buttonD);</span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(buttons); <span class="comment">// HTMLCollection(4) [button, button, button, button]</span></span></span><br><span class="line"><span class="language-javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="query方法"><a href="#query方法" class="headerlink" title="query方法"></a>query方法</h2><p>query类的方法参数是CSS选择器，比如 </p>
+<ul>
+<li>“#root” - 查找id为root的结点，</li>
+<li>“.container” - 查找class为container的结点，</li>
+<li>“div” - 查找所有div结点。</li>
+</ul>
+<h3 id="querySelector"><a href="#querySelector" class="headerlink" title="querySelector"></a>querySelector</h3><p>这个方法可以获取到第一个匹配的元素，它的返回值类型是Element。如果没有匹配的元素，返回null。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> element = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="querySelectorAll"><a href="#querySelectorAll" class="headerlink" title="querySelectorAll"></a>querySelectorAll</h3><p>这个方法可以获取到所有匹配的元素，返回的是一个类数组对象NodeList，可以使用Array.from()方法将其转换为数组。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>js代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> elements = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;.container&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> elementsArray = <span class="title class_">Array</span>.<span class="title function_">from</span>(elements);</span><br></pre></td></tr></table></figure>
+
+<p>querySelectorAll方法返回的是一个静态的集合，也就是说，如果你在获取到元素之后，再向页面中添加或者删除元素，那么这个集合不会跟着改变。</p>
+<p>需要注意的是，尽管querySelectorAll方法返回的NodeList是静态的，但是NodeList在有些情况下却是动态的，比如 <code>Node.childNodes</code> 返回的就是一个动态的NodeList。</p>
+<h2 id="总结成如下表格"><a href="#总结成如下表格" class="headerlink" title="总结成如下表格"></a>总结成如下表格</h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>返回值类型</th>
+<th>返回值个数</th>
+<th>查不到时返回值</th>
+<th>返回值状态：动态&#x2F;静态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>getElementById</td>
+<td>Element</td>
+<td>1</td>
+<td>null</td>
+<td>-</td>
+</tr>
+<tr>
+<td>getElementsByClassName</td>
+<td>HTMLCollection(Array-like object)</td>
+<td>0~n</td>
+<td>空的HTMLCollection</td>
+<td>动态</td>
+</tr>
+<tr>
+<td>querySelector</td>
+<td>Element</td>
+<td>1</td>
+<td>null</td>
+<td>-</td>
+</tr>
+<tr>
+<td>querySelectorAll</td>
+<td>NodeList(Array-like object)</td>
+<td>0~n</td>
+<td>空的NodeList</td>
+<td>静态</td>
+</tr>
+</tbody></table>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementById">getElementById</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/getElementsByClassName">getElementsByClassName</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelector">querySelector</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelectorAll">querySelectorAll</a>  </p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/06/17/javaScrip-array-operations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/17/javaScrip-array-operations/" class="post-title-link" itemprop="url">javaScript array operations</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-17 22:17:48" itemprop="dateCreated datePublished" datetime="2023-06-17T22:17:48+08:00">2023-06-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-27 22:31:06" itemprop="dateModified" datetime="2025-04-27T22:31:06+08:00">2025-04-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/array/" itemprop="url" rel="index"><span itemprop="name">array</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Array-operations"><a href="#Array-operations" class="headerlink" title="Array operations"></a>Array operations</h1><h2 id="Create-array"><a href="#Create-array" class="headerlink" title="Create array"></a>Create array</h2><h3 id="Array-constructor"><a href="#Array-constructor" class="headerlink" title="Array constructor"></a>Array constructor</h3><p>ES5中Array的构造函数语法比较混乱，传入不同的值会得到不同的结果。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a1 = <span class="keyword">new</span> <span class="title class_">Array</span>(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a1); <span class="comment">// [1, 2]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a3 = <span class="keyword">new</span> <span class="title class_">Array</span>(<span class="string">&#x27;2&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a3); <span class="comment">// [&#x27;2&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a2 = <span class="keyword">new</span> <span class="title class_">Array</span>(<span class="number">2</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a2); <span class="comment">// [undefined, undefined], why?</span></span><br></pre></td></tr></table></figure>
+<p>通常情况下，Array的构造函数就是根据传入的参数初始化数组，只有一种情况例外：当且仅当传入一个number类型的参数时。此时，构造函数会创建一个指定长度的数组，而不是包含一个元素的数组。比如上面的数组<code>a2</code>，它的长度是2，且两个元素都是undefined，而不是一个包含数字2的数组。这种行为是不符合直觉的，</p>
+<p>注意：在实际编程中，我们一般不使用Array构造函数来创建数组，而是使用数组字面量的方式<code>[]</code>来创建数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = [<span class="number">1</span>, <span class="number">2</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// [1, 2]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> b = [<span class="string">&#x27;2&#x27;</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// [&#x27;2&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> c = [<span class="number">2</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c); <span class="comment">// [2]</span></span><br></pre></td></tr></table></figure>
+
+<p>为了解决Array constructor这种混乱，ES6引入了<code>Array.of</code>和<code>Array.from</code>方法。</p>
+<h3 id="Array-of"><a href="#Array-of" class="headerlink" title="Array.of"></a>Array.of</h3><p><code>Array.of</code>方法用于创建一个具有可变数量参数的数组实例，用户传入什么，就用什么创建数组，简单明了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a1 = <span class="title class_">Array</span>.<span class="title function_">of</span>(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a1); <span class="comment">// [1, 2]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a2 = <span class="title class_">Array</span>.<span class="title function_">of</span>(<span class="string">&#x27;2&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a2); <span class="comment">// [&#x27;2&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a3 = <span class="title class_">Array</span>.<span class="title function_">of</span>(<span class="number">2</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a3); <span class="comment">// [2]</span></span><br></pre></td></tr></table></figure>
+<h3 id="Array-from"><a href="#Array-from" class="headerlink" title="Array.from"></a>Array.from</h3><p>既然有了<code>Array.of</code>，那么为啥还需要<code>Array.from</code>呢？<code>Array.from</code>主要是用于将其他类型转换为数组的。可以转换的类型有：</p>
+<ul>
+<li>Array-like objects (<code>arguments</code> in function or <code>NodeList</code> from DOM)</li>
+<li>Iterable objects (Set, Map, String, etc.)</li>
+</ul>
+<h4 id="Array-like-objects"><a href="#Array-like-objects" class="headerlink" title="Array-like objects"></a>Array-like objects</h4><p>在ES6之前，把Array-like objects转换为数组大致有两种方式：</p>
+<ol>
+<li>逐个元素复制，因为Array-like objects有<code>length</code>属性且可用下标迭代。</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="variable language_">arguments</span>.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  arr.<span class="title function_">push</span>(args[i]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> arr;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>使用<code>Array.prototype.slice.call(arguments)</code>，这种方式更简洁。</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">slice</span>.<span class="title function_">call</span>(<span class="variable language_">arguments</span>);</span><br></pre></td></tr></table></figure>
+<p>ES6之后，我们可以使用<code>Array.from</code>来转换Array-like objects为数组。<br>下面是一个求和函数，函数<code>sum</code>的参数是一个类数组对象，我们可以使用<code>Array.from</code>将其转换为数组，并累加求和。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Array-like objects</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(<span class="variable language_">arguments</span>).<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc + cur, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+
+<p>当然，更好的写法是使用扩展运算符<code>...</code>，这样更简洁。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> args.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc + cur, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">sum</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Iterable-objects"><a href="#Iterable-objects" class="headerlink" title="Iterable objects"></a>Iterable objects</h4><p>下面是一个将字符串转换为数组的例子。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> str = <span class="string">&#x27;hello&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> arr = <span class="title class_">Array</span>.<span class="title function_">from</span>(str);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [&#x27;h&#x27;, &#x27;e&#x27;, &#x27;l&#x27;, &#x27;l&#x27;, &#x27;o&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<p>将Set转换为数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="title class_">Set</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);</span><br><span class="line"><span class="keyword">const</span> arr = <span class="title class_">Array</span>.<span class="title function_">from</span>(set);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 2, 3]</span></span><br></pre></td></tr></table></figure>
+
+<p>将Map转换为数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> map = <span class="keyword">new</span> <span class="title class_">Map</span>([[<span class="number">1</span>, <span class="string">&#x27;one&#x27;</span>], [<span class="number">2</span>, <span class="string">&#x27;two&#x27;</span>], [<span class="number">3</span>, <span class="string">&#x27;three&#x27;</span>]]);</span><br><span class="line"><span class="keyword">const</span> arr = <span class="title class_">Array</span>.<span class="title function_">from</span>(map);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [[1, &#x27;one&#x27;], [2, &#x27;two&#x27;], [3, &#x27;three&#x27;]]</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：<code>Array.from</code>方法的第二个参数是一个map函数，可以对数组中的每个元素进行处理。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> arr = <span class="title class_">Array</span>.<span class="title function_">from</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="function"><span class="params">x</span> =&gt;</span> x * x);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr); <span class="comment">// [1, 4, 9]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Search-in-array"><a href="#Search-in-array" class="headerlink" title="Search in array"></a>Search in array</h2><p>Please see this blog post: <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/12/13/javascript-search-in-array/">JavaScript Search in Array</a></p>
+<h2 id="插入，删除，替换数组元素"><a href="#插入，删除，替换数组元素" class="headerlink" title="插入，删除，替换数组元素"></a>插入，删除，替换数组元素</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// insert 6 at index 2</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">0</span>, <span class="number">6</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// remove 2 elements starting from index 3</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">3</span>, <span class="number">2</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 6, 5]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// replace 1 element at index 2 with 7</span></span><br><span class="line">numbers.<span class="title function_">splice</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="number">7</span>); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numbers); <span class="comment">// [1, 2, 7, 5]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="获取最后一个元素"><a href="#获取最后一个元素" class="headerlink" title="获取最后一个元素"></a>获取最后一个元素</h2><h3 id="使用length属性"><a href="#使用length属性" class="headerlink" title="使用length属性"></a>使用<code>length</code>属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers[numbers.<span class="property">length</span> - <span class="number">1</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用slice方法"><a href="#使用slice方法" class="headerlink" title="使用slice方法"></a>使用<code>slice</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">slice</span>(-<span class="number">1</span>)[<span class="number">0</span>];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用at方法："><a href="#使用at方法：" class="headerlink" title="使用at方法："></a>使用<code>at</code>方法：</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">at</span>(-<span class="number">1</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+<p>原本JavaScript并不支持负值索引，但是有了<code>at</code>方法后，则可以使用负值索引。<br>注意<code>at</code>方法需要新版的浏览器和Node.js支持，详情看这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at</a></p>
+<h3 id="截取数组的一部分"><a href="#截取数组的一部分" class="headerlink" title="截取数组的一部分"></a>截取数组的一部分</h3><h4 id="使用slice方法-1"><a href="#使用slice方法-1" class="headerlink" title="使用slice方法"></a>使用<code>slice</code>方法</h4><p><code>slice</code> return a shallow copy of a portion of an array into a new array object selected from <code>begin</code> to <code>end</code> (not included). The original array will not be modified.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">slice</span>(<span class="number">1</span>, <span class="number">3</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [2, 3]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="合并两个数组"><a href="#合并两个数组" class="headerlink" title="合并两个数组"></a>合并两个数组</h2><h3 id="使用concat方法"><a href="#使用concat方法" class="headerlink" title="使用concat方法"></a>使用<code>concat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">concat</span>(numbers2);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用扩展运算符"><a href="#使用扩展运算符" class="headerlink" title="使用扩展运算符"></a>使用扩展运算符</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组去重"><a href="#数组去重" class="headerlink" title="数组去重"></a>数组去重</h2><h3 id="使用Set对象"><a href="#使用Set对象" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>(numbers)];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用filter方法"><a href="#使用filter方法" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><p>这个方法比较巧妙，对于数组中的某个元素item，如果它在数组中的索引等于它第一次出现的索引，那么就保留它，否则就过滤掉。如果数组中有重复元素，在使用indexOf查找其下标时，会返回第一个出现的下标。这会导致indexOf(item) !&#x3D;&#x3D; index，所以重复元素会被过滤掉。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index</span>) =&gt;</span> numbers.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用reduce方法"><a href="#使用reduce方法" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5]</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组diff"><a href="#数组diff" class="headerlink" title="数组diff"></a>数组diff</h2><h3 id="使用filter方法-1"><a href="#使用filter方法-1" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用reduce方法-1"><a href="#使用reduce方法-1" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2]</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组交集"><a href="#数组交集" class="headerlink" title="数组交集"></a>数组交集</h2><h3 id="使用filter方法-2"><a href="#使用filter方法-2" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用reduce方法-2"><a href="#使用reduce方法-2" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = numbers1.<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers2.<span class="title function_">includes</span>(cur) ? [...acc, cur] : acc, []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [3, 4, 5]</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组并集"><a href="#数组并集" class="headerlink" title="数组并集"></a>数组并集</h2><h3 id="使用Set对象-1"><a href="#使用Set对象-1" class="headerlink" title="使用Set对象"></a>使用<code>Set</code>对象</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...<span class="keyword">new</span> <span class="title class_">Set</span>([...numbers1, ...numbers2])];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用filter方法-3"><a href="#使用filter方法-3" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function">(<span class="params">item, index, arr</span>) =&gt;</span> arr.<span class="title function_">indexOf</span>(item) === index);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用reduce方法-3"><a href="#使用reduce方法-3" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> acc.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7]</span></span><br></pre></td></tr></table></figure>
+<h2 id="数组差集"><a href="#数组差集" class="headerlink" title="数组差集"></a>数组差集</h2><h3 id="使用filter方法-4"><a href="#使用filter方法-4" class="headerlink" title="使用filter方法"></a>使用<code>filter</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> !numbers1.<span class="title function_">includes</span>(item) || !numbers2.<span class="title function_">includes</span>(item));</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用reduce方法-4"><a href="#使用reduce方法-4" class="headerlink" title="使用reduce方法"></a>使用<code>reduce</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">const</span> numbers2 = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>];</span><br><span class="line"><span class="keyword">const</span> result = [...numbers1, ...numbers2].<span class="title function_">reduce</span>(<span class="function">(<span class="params">acc, cur</span>) =&gt;</span> numbers1.<span class="title function_">includes</span>(cur) &amp;&amp; numbers2.<span class="title function_">includes</span>(cur) ? acc : [...acc, cur], []); </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 6, 7]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="打平数组"><a href="#打平数组" class="headerlink" title="打平数组"></a>打平数组</h2><h3 id="使用flat方法"><a href="#使用flat方法" class="headerlink" title="使用flat方法"></a>使用<code>flat</code>方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> numbers = [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, [<span class="number">5</span>, <span class="number">6</span>, [<span class="number">7</span>, <span class="number">8</span>]]]];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result1 = numbers.<span class="title function_">flat</span>(); <span class="comment">// 默认只展开一层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result1); <span class="comment">// [ 1, 2, 3, 4, [ 5, 6, [ 7, 8 ] ] ]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result2 = numbers.<span class="title function_">flat</span>(<span class="number">2</span>); <span class="comment">// 展开两层</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result2); <span class="comment">// [1, 2, 3, 4, 5, 6, [7, 8]]; </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result = numbers.<span class="title function_">flat</span>(<span class="title class_">Infinity</span>); <span class="comment">// Infinity 表示展开所有层级</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(result); <span class="comment">// [1, 2, 3, 4, 5, 6, 7, 8]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/06/07/angular-jest-integration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/06/07/angular-jest-integration/" class="post-title-link" itemprop="url">integrate jest to angular app</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-06-07 15:41:24" itemprop="dateCreated datePublished" datetime="2023-06-07T15:41:24+08:00">2023-06-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-27 22:29:33" itemprop="dateModified" datetime="2025-04-27T22:29:33+08:00">2025-04-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>170</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Integrate-Jest-to-Angular-App"><a href="#Integrate-Jest-to-Angular-App" class="headerlink" title="Integrate Jest to Angular App"></a>Integrate Jest to Angular App</h1><ol>
+<li>Create your angular app</li>
+<li>Install jest<br><code>npm install jest jest-preset-angular @types/jest</code></li>
+<li>In your project root, create a setup-jest.ts file with the following contents:<br><code>import &#39;jest-preset-angular/setup-jest&#39;;</code></li>
+<li>Create the jest.config.js file in your project root directory with the following contents:  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">preset</span>: <span class="string">&#x27;jest-preset-angular&#x27;</span>,</span><br><span class="line">  <span class="attr">setupFilesAfterEnv</span>: [<span class="string">&#x27;&lt;rootDir&gt;/setup-jest.ts&#x27;</span>],</span><br><span class="line">  <span class="attr">globalSetup</span>: <span class="string">&#x27;jest-preset-angular/global-setup&#x27;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>Adjust your <code>tsconfig.spec.json</code> in your project root<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;extends&quot;</span>: <span class="string">&quot;./tsconfig.json&quot;</span>,  </span><br><span class="line">   <span class="string">&quot;compilerOptions&quot;</span>: &#123;  </span><br><span class="line">      <span class="string">&quot;outDir&quot;</span>: <span class="string">&quot;./out-tsc/spec&quot;</span>,  </span><br><span class="line">      <span class="string">&quot;module&quot;</span>: <span class="string">&quot;CommonJs&quot;</span>,  </span><br><span class="line">      <span class="string">&quot;types&quot;</span>: [<span class="string">&quot;jest&quot;</span>]  </span><br><span class="line">   &#125;,  </span><br><span class="line">   <span class="string">&quot;include&quot;</span>: [<span class="string">&quot;src/**/*.spec.ts&quot;</span>, <span class="string">&quot;src/**/*.d.ts&quot;</span>]  </span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure></li>
+<li>update <code>package.json</code> file in your project root as below.<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;test&quot;</span>: <span class="string">&quot;jest --verbose&quot;</span>,</span><br><span class="line"><span class="string">&quot;test:watch&quot;</span>: <span class="string">&quot;jest --watch&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li>Open your terminal and run <code>npm run test</code>, enjoy!</li>
+<li>If you want to remove <code>karma</code> and <code>Jasmine</code> and switch to <code>Jest</code> completely, run the following command.<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall karma karma-chrome-launcher karma-coverage-istanbul-reporter karma-jasmine karma-jasmine-html-reporter jasmine-core jasmine-spec-reporter</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="references"><a href="#references" class="headerlink" title="references:"></a>references:</h2><p><a target="_blank" rel="noopener" href="https://www.xfive.co/blog/testing-angular-faster-jest/">xfive.co&#x2F;blog&#x2F;testing-angular-faster-jest&#x2F;</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/05/14/Javascript%E4%B8%AD%E7%9A%84for-of%E5%BE%AA%E7%8E%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/05/14/Javascript%E4%B8%AD%E7%9A%84for-of%E5%BE%AA%E7%8E%AF/" class="post-title-link" itemprop="url">Javascript for ... of</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-05-14 20:25:38" itemprop="dateCreated datePublished" datetime="2023-05-14T20:25:38+08:00">2023-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-05-28 22:12:47" itemprop="dateModified" datetime="2025-05-28T22:12:47+08:00">2025-05-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>720</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="for-…-of-功能"><a href="#for-…-of-功能" class="headerlink" title="for … of 功能"></a>for … of 功能</h2><p>javascript中的<code>for ... of</code>语句用来遍历可迭代对象，比如遍历数组可以使用如下代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可迭代对象有很多，包括以下这些：</p>
+<ol>
+<li>Array</li>
+<li>String</li>
+<li>TypeArray</li>
+<li>Map</li>
+<li>Set</li>
+<li>NodeList(and other DOM collections)</li>
+<li>Array like objects(<code>arguments</code>)</li>
+<li>generators produced by generator functions</li>
+<li>User-defined iterables.</li>
+</ol>
+<h2 id="for-…-of-执行原理"><a href="#for-…-of-执行原理" class="headerlink" title="for … of 执行原理"></a>for … of 执行原理</h2><p><code>for ... of</code>首先会调用可迭代对象的<code>@@iterator()</code>方法获取一个<code>iterator</code>,然后反复调用这个<code>iterator</code>的<code>next</code>方法来获取对应的值。</p>
+<h2 id="for-…-of-何时结束迭代？"><a href="#for-…-of-何时结束迭代？" class="headerlink" title="for … of 何时结束迭代？"></a>for … of 何时结束迭代？</h2><p>以下三种情况都会导致for … of结束迭代。</p>
+<ol>
+<li>遇到<code>break</code>语句</li>
+<li>遇到<code>continue</code>语句</li>
+<li><code>iterator</code>的<code>next</code>方法返回 <code>done: true</code>时（也就是正常遍历结束）</li>
+</ol>
+<h2 id="for-…-of-不会修改被迭代的对象"><a href="#for-…-of-不会修改被迭代的对象" class="headerlink" title="for … of 不会修改被迭代的对象"></a>for … of 不会修改被迭代的对象</h2><p>for … of底层使用generator实现，每次迭代都会生成一个新的变量，所以不会改变被迭代的对象。下面的代码将数组中每个值加1，并不会改变原来的数组，因为变量<code>num</code>时迭代时生成的，而且每次迭代就重新生成一个。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  num += <span class="number">1</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 2, 3, 4</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(nums); <span class="comment">// still [1, 2, 3]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="for-…-of-中可以使用destruction"><a href="#for-…-of-中可以使用destruction" class="headerlink" title="for … of 中可以使用destruction"></a>for … of 中可以使用destruction</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> students = [</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>, <span class="attr">age</span>: <span class="number">20</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Bob&#x27;</span>, <span class="attr">age</span>: <span class="number">21</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">name</span>: <span class="string">&#x27;Cindy&#x27;</span>, <span class="attr">age</span>: <span class="number">22</span> &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> &#123; name, age &#125; <span class="keyword">of</span> students) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(name, age);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="何时使用经典的for循环？"><a href="#何时使用经典的for循环？" class="headerlink" title="何时使用经典的for循环？"></a>何时使用经典的for循环？</h2><p>所谓经典for循环就是使用下标遍历的循环，类似C语言中的for循环。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; nums.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>是否使用经典的for循环有一个简单的判断标准，在遍历的过程中是否要改变原数组，如果需要，就使用，否则就可以使用其他循环代替，比如<code>for ... of</code>, <code>forEach</code>, <code>filter</code>, <code>map</code>, <code>reduce</code>等。</p>
+<h2 id="for…of-vs-for…in"><a href="#for…of-vs-for…in" class="headerlink" title="for…of vs for…in"></a>for…of vs for…in</h2><p><code>for ... of</code>和<code>for ... in</code>都是用来遍历对象的，但是有一些区别：</p>
+<ol>
+<li><code>for ... of</code>遍历的是<code>可迭代</code>对象，而<code>for ... in</code>遍历的是<code>可枚举</code>对象。</li>
+<li><code>for ... of</code>遍历的是值，而<code>for ... in</code>遍历的是键。</li>
+</ol>
+<h3 id="遍历Array"><a href="#遍历Array" class="headerlink" title="遍历Array"></a>遍历Array</h3><p>对于数组来说，<code>for ... of</code>遍历的是数组的值，而<code>for ... in</code>遍历的是数组的键（下标）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">nums.<span class="property">foo</span> = <span class="string">&#x27;bar&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> num <span class="keyword">of</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// 1, 2, 3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> nums) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// 0, 1, 2, foo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="遍历Object"><a href="#遍历Object" class="headerlink" title="遍历Object"></a>遍历Object</h3><p>在对象上使用<code>for ... of</code>会报错，因为对象不是可迭代对象，但是可以使用<code>for ... in</code>来遍历对象的键。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="string">&quot;bar&quot;</span>,</span><br><span class="line">  <span class="attr">baz</span>: <span class="string">&quot;qux&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> value <span class="keyword">of</span> obj) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(num); <span class="comment">// TypeError: obj is not iterable</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// 0, 1, 2, foo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>for...of</code>可以对<code>Object.keys</code>或者<code>Object.values</code>来进行遍历。</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="string">&quot;bar&quot;</span>,</span><br><span class="line">  <span class="attr">baz</span>: <span class="string">&quot;qux&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">keys</span>(obj)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key); <span class="comment">// foo, baz</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> value <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">values</span>(obj)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(value); <span class="comment">// bar, qux</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/04/25/android-version-sdk-version-API-level-mapping/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/25/android-version-sdk-version-API-level-mapping/" class="post-title-link" itemprop="url">Android version, sdk version API level mapping</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-25 20:56:10" itemprop="dateCreated datePublished" datetime="2023-04-25T20:56:10+08:00">2023-04-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 16:29:03" itemprop="dateModified" datetime="2025-04-07T16:29:03+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>6</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>See here for details:<br><a target="_blank" rel="noopener" href="https://apilevels.com/">https://apilevels.com/</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2023/04/22/android-dependencies-troubleshooting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/04/22/android-dependencies-troubleshooting/" class="post-title-link" itemprop="url">android dependencies</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-04-22 17:28:14" itemprop="dateCreated datePublished" datetime="2023-04-22T17:28:14+08:00">2023-04-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-27 22:27:52" itemprop="dateModified" datetime="2025-04-27T22:27:52+08:00">2025-04-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>94</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Android-dependencies-conflict-resolve"><a href="#Android-dependencies-conflict-resolve" class="headerlink" title="Android dependencies conflict resolve"></a>Android dependencies conflict resolve</h1><p>今天在编译Android应用“草书字典”时突然发现以下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-18.0 (com.google.guava:guava:18.0) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)</span><br></pre></td></tr></table></figure>
+<p>大意是说<code>com.google.common.util.concurrent.ListenableFuture</code>这个class出现在不同的package中，属于重复依赖，gradle无法处理，要手动处理一下。</p>
+<p>在<code>app.gradle</code>文件中加入如下一行就好了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">implementation &#x27;com.google.guava:guava:27.0.1-android&#x27;</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -286,7 +1565,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/32/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><span class="page-number current">33</span>
+    <a class="extend prev" rel="prev" href="/page/32/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><span class="page-number current">33</span><a class="page-number" href="/page/34/">34</a><a class="extend next" rel="next" href="/page/34/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -352,20 +1631,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">321</span>
+          <span class="site-state-item-count">333</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">440</span>
+        <span class="site-state-item-count">442</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -401,12 +1680,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">212k</span>
+    <span title="Symbols count total">219k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">12:51</span>
+    <span title="Reading time total">13:15</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
