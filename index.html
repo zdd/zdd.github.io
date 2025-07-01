@@ -187,6 +187,591 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/30/javascript-iife-history/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/30/javascript-iife-history/" class="post-title-link" itemprop="url">javascript-iife-history</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-30 22:14:00 / Modified: 23:18:45" itemprop="dateCreated datePublished" datetime="2025-06-30T22:14:00+08:00">2025-06-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE(Immediately Invoked Function Expression)，中文名称：立即执行函数表达式，其实IIFE最早并不叫这个名字，而是叫做<code>Self-Executing Anonymous Function</code>，即自执行匿名函数。根据MDN的资料，IIFE这个说法最早由Ben Alman于2010年提出，下面我们一起来看看这个名字的来龙去脉。</p>
+<p>2010年11月5日，Ben Alman写下来他的著名文章：<a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">Immediately-Invoked Function Expression (IIFE)</a>，标志着IIFE这个名字的诞生。</p>
+<p>在文章中，Ben Alman称他是一个对待术语非常严谨的人，之前他多次看到<code>Self-Executing Anonymous Function</code>这个说法，觉得不是很恰当，于是他提出了<code>Immediately-Invoked Function Expression</code>这个说法。</p>
+<h2 id="IIFE到底是咋来的？"><a href="#IIFE到底是咋来的？" class="headerlink" title="IIFE到底是咋来的？"></a>IIFE到底是咋来的？</h2><p>当我们定义一个函数或者一个函数表达式时，你得到的是一个名字，通过这个名字，你就可以调用这个函数。</p>
+<p>下面这两段代码，第一个定义了一个普通函数，第二个定义了一个函数表达式，这两种形式，我们都可以通过标识符<code>foo</code>来调用它们。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通函数</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数表达式</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function expression&#x27;</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>也就是说，当<code>javascript</code>解释器遇到全局<code>function</code>关键字，或者一个函数内部的<code>function</code>关键字时，会将其解释为一个函数声明。</p>
+<p>然而函数声明是无法直接调用的，所以下面的写法会导致错误：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>我们来分析一下，上面这段代码，javascript解释器会将其解释为一个函数声明，和一个分组操作符(<code>()</code>), 分组操作符是用来改变运算符优先级的，里面必须有表达式才行，所以javascript解释器会报错。</p>
+<p>那我们就给它一个表达式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>这回代码不报错了，但是这段代码毫无意义，这个函数并没有执行，实际上这段代码与下面的代码等价：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>它的返回值就是1，这不是我们想要的结果，我们需要函数定义后能立即被执行，那就需要我们告诉javascript解释器，这个函数是一个表达式，而不是一个声明，因为表达式可以立即执行，但是声明不能。</p>
+<p>而在javascript中，生成表达式最简单的方式就是用<code>()</code>包裹起来，于是有了下面的代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样函数声明就变成了一个函数表达式，但是这个表达是没有名字，我们没法调用它，我们先给它一个名字，然后通过名字调用它。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> bar = (<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">bar</span>(); <span class="comment">// I am a function</span></span><br></pre></td></tr></table></figure>
+<p>这样完全没有问题，但是这里的<code>bar</code>实在有点多余，实际上<code>bar</code>和</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>是等价的，既然<code>bar()</code>可以调用函数，那么我们直接在函数表达式末尾加上<code>()</code>，也可以调用这个函数，于是就有了下面的代码，这就是IIFE的由来。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>将<code>()</code>写在外层的括号内也一样，这种方式颇得javascript专家<a target="_blank" rel="noopener" href="https://www.crockford.com/fash.html">Douglas Crockford</a>的青睐。我本人更喜欢第一种。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>有上面介绍可知，生成IIFE的精髓就是<code>将函数声明变成函数表达式</code>，而在javascript中，生成表达式可不止使用<code>()</code>包裹起来这一种方式，还有很多其他的方式可以实现。于是IIFE也就是产生了诸多变种。</p>
+<p>这个变种利用赋值运算符<code>=</code>来实现，赋值运算符是将右侧表达式的值赋值给左侧变量的，所以它右侧的部分被解析成了函数表达式及其调用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> i = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>下面的表中使用逻辑运算符来生成表达式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> &amp; (<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<p>还有下面这些，都是利用一元运算符来生成函数表达式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br></pre></td></tr></table></figure>
+
+<p>最后来一个不为人知的，<code>void</code>运算符会对其右侧的表达是求值然后返回<code>undefined</code>。（<code>void expression</code> - 先对<code>expression</code>求值，然后返回<code>undefined</code>）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>还有使用<code>new</code>运算符来生成IIFE，这种方式比较少见，因为它会创建一个新的对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这些方式都比较偏门了，不建议使用，只是用来帮助我们理解IIFE的。</p>
+<h2 id="为什么Self-Executing-Anonymous-Function这个名字不好？"><a href="#为什么Self-Executing-Anonymous-Function这个名字不好？" class="headerlink" title="为什么Self-Executing Anonymous Function这个名字不好？"></a>为什么Self-Executing Anonymous Function这个名字不好？</h2><p><code>Ben Alman</code>认为这个名字有两个问题：</p>
+<p><strong>Self-Executing</strong>：这个名字暗示函数会调用自己，但是实际上函数是立即被执行的，而不是调用它自身。<br>比如下面的几段代码都会调用自己，但是这并不是IIFE的语义。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 递归调用自身</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123; <span class="title function_">foo</span>(); </span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用arguments.callee调用自身</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="variable language_">arguments</span>.<span class="title function_">callee</span>(); &#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Anonymous</strong>：这个名字暗示函数是匿名的，但实际上函数可以有名字，也可以没有名字，比如下面的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 有名字的IIFE</span></span><br><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife</a></p>
+<p>大家有时间可以去拜读<code>Ben Alman</code>的原文，大佬写的东西就是不一样，通俗易懂，是我辈楷模！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-iife/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/29/javascript-iife/" class="post-title-link" itemprop="url">javascript-IIFE</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-29 16:57:32 / Modified: 23:20:35" itemprop="dateCreated datePublished" datetime="2025-06-29T16:57:32+08:00">2025-06-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE（Immediately Invoked Function Expression）中文名称：<code>立即执行函数表达式</code>，是一种JavaScript编程模式，它允许函数在定义后立即执行。由这个定义可以看出IIFE有两个特点：</p>
+<ol>
+<li>它是函数表达式</li>
+<li>它是定义后立即执行的</li>
+</ol>
+<p>来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>将这段代码放在浏览器控制台中执行，会输出<code>I am an IIFE</code>。这就是一个简单的IIFE。</p>
+<p>分析一下上面的代码，它分为两部分，每个部分由一组<code>()</code>包裹。<br>第一部分是一个函数(本例用的是匿名函数，也可以是具名函数)：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>第二部分是一个函数调用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">();</span><br></pre></td></tr></table></figure>
+<p>这两部分结合在一起，就形成了一个IIFE。</p>
+<h2 id="快速掌握IIFE"><a href="#快速掌握IIFE" class="headerlink" title="快速掌握IIFE"></a>快速掌握IIFE</h2><p>IIFE的语法其实不复杂，但是刚开始要记住它并不容易，这里教大家一个小技巧，可以快速书写IIFE代码。</p>
+<ol>
+<li>首先，写下两组括弧<code>()()</code></li>
+<li>然后在第一组括弧内写下函数定义 - 注意这里必须是匿名函数。</li>
+<li>如果函数需要参数，那么在第二组括弧内传入参数。</li>
+</ol>
+<h3 id="一道练习题，写一个IIFE，计算1-2的和"><a href="#一道练习题，写一个IIFE，计算1-2的和" class="headerlink" title="一道练习题，写一个IIFE，计算1 + 2的和"></a>一道练习题，写一个IIFE，计算1 + 2的和</h3><p>我们使用上面的技巧来书写：</p>
+<p>首先写下两组括弧</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">()()</span><br></pre></td></tr></table></figure>
+<p>然后在第一组括弧内写下函数定义</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>因为这里的add函数需要参数，所以我们要在第二组括弧内传入参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)(<span class="number">1</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>上面介绍的IIFE写法是最常见的形式，其实IIFE还有一些其他写法(至于为什么这些写法是可以的，我们下一篇再做介绍)，现罗列如下：</p>
+<p>这种写法将调用函数的括号放到了第一组括弧内部。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<p>以下几种写法都是使用一元运算符来实现的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with !&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with ~&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with +&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with -&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这些一元运算符的作用是将函数定义转换为一个表达式，从而使其可以被调用。如果不加这些一元运算符的话，就变成了下面的形式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE without unary operator&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这会导致一个语法错误，因为JavaScript引擎会将其解析为一个函数声明，而不是函数表达式。函数声明需要一个函数名，而匿名函数没有名字，所以会报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Function statements require a <span class="keyword">function</span> name</span><br></pre></td></tr></table></figure>
+<p>我们给它加上一个名字，变成下面这样</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>但是还是会报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Unexpected token <span class="string">&#x27;)&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>javascript引擎会将上述代码解析为一个函数声明和一个分组操作符 - 即<code>()</code>，但是分组操作符内不能是空的，必须有一个表达式，我们在里面加上一个1</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>这样就不会报错了，但是这不是一个IIFE了。它的返回值就是分组表达式的值，也就是1。</p>
+<h2 id="为什么需要IIFE"><a href="#为什么需要IIFE" class="headerlink" title="为什么需要IIFE?"></a>为什么需要IIFE?</h2><p>早期在JavaScript尚未支持模块化的时候，IIFE是实现模块化的一种简单方式，它可以创建一个独立的作用域，从而避免全局污染，下面看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> myModule = (<span class="keyword">function</span> <span class="title function_">MyModule</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> privateVariable = <span class="string">&#x27;private variable&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> publicVariable = <span class="string">&#x27;public variable&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">privateMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(privateVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">publicMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(publicVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将需要暴露给外界的变量和方法写在返回的对象中</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    publicVariable,</span><br><span class="line">    publicMethod,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">publicVariable</span>); <span class="comment">// 访问公共变量</span></span><br><span class="line">myModule.<span class="title function_">publicMethod</span>(); <span class="comment">// 访问公共方法</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">privateVariable</span>); <span class="comment">// undefined</span></span><br><span class="line">myModule.<span class="title function_">privateMethod</span>(); <span class="comment">// TypeError: myModule.privateMethod is not a function, privateMethod is not accessible</span></span><br></pre></td></tr></table></figure>
+<p>分析一下上面的代码，这是一个典型的IIFE + 闭包实现模块化的例子。</p>
+<p>MyModule是一个IIFE，它在内部定义了：</p>
+<ul>
+<li>私有变量<code>privateVariable</code></li>
+<li>私有方法<code>privateMethod</code></li>
+</ul>
+<p>这些变量和方法无法从外部访问。</p>
+<p>它还定义了</p>
+<ul>
+<li>一个公共变量<code>publicVariable</code></li>
+<li>一个公共方法<code>publicMethod</code></li>
+</ul>
+<p>这些可以通过返回的对象访问。</p>
+<p>IIFE的返回值赋值给了<code>myModule</code>变量，这样就可以通过<code>myModule</code>访问公共变量和方法。</p>
+<p>注意：这个例子仅供参考，在ES6模块已经十分普及的今天，这种方式已经不推荐使用了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-simulate-a-50ms-task/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/29/javascript-simulate-a-50ms-task/" class="post-title-link" itemprop="url">javascript-simulate-a-50ms-task</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-29 10:35:00 / Modified: 10:48:49" itemprop="dateCreated datePublished" datetime="2025-06-29T10:35:00+08:00">2025-06-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>364</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天在写前端性能监控的文章时，需要模拟一个长任务，所谓长任务就是指阻塞主线程超过50毫秒的任务。</p>
+<p>这种任务当然直接交给AI做了，我给了AI一个提示：帮我模拟一个执行事件超过50毫秒的JavaScript任务。</p>
+<p>于是AI给了以下几个代码片段：</p>
+<h2 id="使用Busy-Wait来模拟一个长任务"><a href="#使用Busy-Wait来模拟一个长任务" class="headerlink" title="使用Busy-Wait来模拟一个长任务"></a>使用Busy-Wait来模拟一个长任务</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">使用<span class="title class_">Busy</span>-<span class="title class_">Wait</span>来模拟一个长任务，这个实现没啥毛病，也是我最终采用的方案，就是阻塞主线程直到<span class="number">50</span>毫秒过去：</span><br><span class="line"><span class="string">``</span><span class="string">`javascript</span></span><br><span class="line"><span class="string">function simulateLongTask() &#123;</span></span><br><span class="line"><span class="string">  const start = performance.now();</span></span><br><span class="line"><span class="string">  while (performance.now() - start &lt; 50) &#123;</span></span><br><span class="line"><span class="string">    // 模拟一个长任务</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="使用setTimeout来模拟一个长任务"><a href="#使用setTimeout来模拟一个长任务" class="headerlink" title="使用setTimeout来模拟一个长任务"></a>使用setTimeout来模拟一个长任务</h2><p>下面这个实现使用<code>setTimeout</code>来模拟一个长任务。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulate50msTask</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> start = performance.<span class="title function_">now</span>();</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> end = performance.<span class="title function_">now</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Task took ~<span class="subst">$&#123;end - start&#125;</span>ms`</span>);</span><br><span class="line">  &#125;, <span class="number">50</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是这个长任务是有问题的，它不会阻塞主线程，因为<code>setTimeout</code>是异步的，所以它不会在50毫秒内阻塞主线程。</p>
+<p>这可能是一个常见的误区吧，<code>setTimeout</code>中的延时参数并不意味着主线程会在这个时间内被阻塞，它只是告诉浏览器在指定的时间后执行回调函数。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>所以，如果要模拟一个长任务，不能使用<code>setTimeout</code>，最好的办法就是使用循环(<code>while</code>, <code>for</code>)等待的方式，直到耗尽给定的时间。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-performance-monitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/29/javascript-performance-monitor/" class="post-title-link" itemprop="url">javascript-performance-monitor</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-29 09:38:20 / Modified: 10:28:24" itemprop="dateCreated datePublished" datetime="2025-06-29T09:38:20+08:00">2025-06-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>590</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天我们来谈谈JavaScript中如何做性能监控，性能优化也是前端开发中的老话题了，做好性能优化的前提是要有性能监控，只有知道哪里有性能问题，才能有针对性的进行优化。<br>性能监控的方式多种多样，比如使用浏览器的开发者工具，使用第三方性能监控工具，或者自己编写代码来监控性能等。</p>
+<p>今天我们主要介绍一下从代码层面如何做性能监控，JavaScript中提供了一个<code>PerformanceObserver</code>接口，可以用来监控性能相关的事件。</p>
+<h2 id="使用PerformanceObserver进行性能监控"><a href="#使用PerformanceObserver进行性能监控" class="headerlink" title="使用PerformanceObserver进行性能监控"></a>使用PerformanceObserver进行性能监控</h2><p>首先我们需要定义一个<code>PerformanceObserver</code>实例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="title class_">PerformanceObserver</span>(<span class="function">(<span class="params">list</span>) =&gt;</span> &#123;</span><br><span class="line">  list.<span class="title function_">getEntries</span>().<span class="title function_">forEach</span>(<span class="function">(<span class="params">entry</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;entry.entryType&#125;</span>: <span class="subst">$&#123;entry.name&#125;</span> - <span class="subst">$&#123;entry.startTime&#125;</span> - <span class="subst">$&#123;entry.duration&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><code>PerformanceObserver</code>的构造函数，接受以下三个参数：</p>
+<ol>
+<li><code>entities</code> - 这是一个<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserverEntryList">PerformanceObserverEntryList</a>对象，包含一系列可观察的性能事件。</li>
+<li><code>observer</code> - 接收上述事件的观察者对象。</li>
+<li><code>options</code> - 这是一个可选的配置对象，我们暂时用不到它，先忽略。</li>
+</ol>
+<p>接下来，我们需要指定我们要监听的性能事件类型，比如<code>longtask</code>、<code>mark</code>等。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">observer.<span class="title function_">observe</span>(&#123; <span class="attr">entryTypes</span>: [<span class="string">&#x27;longtask&#x27;</span>, <span class="string">&#x27;mark&#x27;</span>] &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>可以使用<code>PerformanceObserver</code>中的静态函数<code>PerformanceObserver.supportedEntryTypes</code>来获取支持的性能事件类型。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">PerformanceObserver</span>.<span class="property">supportedEntryTypes</span>);</span><br></pre></td></tr></table></figure>
+<p>在我的浏览器上，支持以下类型的性能事件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;element&quot;</span></span><br><span class="line"><span class="string">&quot;event&quot;</span></span><br><span class="line"><span class="string">&quot;first-input&quot;</span></span><br><span class="line"><span class="string">&quot;largest-contentful-paint&quot;</span></span><br><span class="line"><span class="string">&quot;layout-shift&quot;</span></span><br><span class="line"><span class="string">&quot;long-animation-frame&quot;</span></span><br><span class="line"><span class="string">&quot;longtask&quot;</span></span><br><span class="line"><span class="string">&quot;mark&quot;</span>`</span><br><span class="line"><span class="string">&quot;measure&quot;</span></span><br><span class="line"><span class="string">&quot;navigation&quot;</span></span><br><span class="line"><span class="string">&quot;paint&quot;</span></span><br><span class="line"><span class="string">&quot;resource&quot;</span></span><br><span class="line"><span class="string">&quot;visibility-state&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="监控longtask事件"><a href="#监控longtask事件" class="headerlink" title="监控longtask事件"></a>监控longtask事件</h2><p><code>longtask</code>任务是指阻塞主线程超过50毫秒的任务，我们首先来模拟一个<code>longtask</code>任务。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulateLongTask</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> start = performance.<span class="title function_">now</span>();</span><br><span class="line">  <span class="keyword">while</span> (performance.<span class="title function_">now</span>() - start &lt; <span class="number">50</span>) &#123;&#125; <span class="comment">// 模拟一个50毫秒的任务</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来，我们在<code>PerformanceObserver</code>中监听<code>longtask</code>事件。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create a PerformanceObserver to observe long tasks</span></span><br><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="title class_">PerformanceObserver</span>(<span class="function">(<span class="params">list</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> entries = list.<span class="title function_">getEntries</span>();</span><br><span class="line">  entries.<span class="title function_">forEach</span>(<span class="function">(<span class="params">entry</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Long task detected:&quot;</span>, entry);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start observing long tasks</span></span><br><span class="line">observer.<span class="title function_">observe</span>(&#123; <span class="attr">type</span>: <span class="string">&quot;longtask&quot;</span>, <span class="attr">buffered</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start the long task.</span></span><br><span class="line"><span class="title function_">simulateLongTask</span>();</span><br></pre></td></tr></table></figure>
+<p>打开控制台，可以看到如下输出，可以看到<code>entryType</code>为<code>longtask</code>，表示这是一个长任务。duration表示任务的持续时间为50毫秒，满足长任务的条件。如果将<code>simulateLongTask</code>中的时间改为小于50毫秒，则不会触发<code>longtask</code>事件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Long task detected: PerformanceLongTaskTiming </span><br><span class="line">&#123;</span><br><span class="line">  name: <span class="string">&quot;self&quot;</span>,</span><br><span class="line">  entryType: <span class="string">&quot;longtask&quot;</span>,</span><br><span class="line">  startTime: 10.299999997019768,</span><br><span class="line">  duration: 50,</span><br><span class="line">  attribution: [</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">&quot;unknown&quot;</span>,</span><br><span class="line">      entryType: <span class="string">&quot;taskattribution&quot;</span>,</span><br><span class="line">      startTime: 0,</span><br><span class="line">      duration: 0,</span><br><span class="line">      containerType: <span class="string">&quot;window&quot;</span>,</span><br><span class="line">      containerSrc: <span class="string">&quot;&quot;</span>,</span><br><span class="line">      containerId: <span class="string">&quot;&quot;</span>,</span><br><span class="line">      containerName: <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver">https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/26/ant-design-select-no-placeholder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/26/ant-design-select-no-placeholder/" class="post-title-link" itemprop="url">ant-design-select-no-placeholder</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-26 22:09:02 / Modified: 23:55:27" itemprop="dateCreated datePublished" datetime="2025-06-26T22:09:02+08:00">2025-06-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/ant-design/" itemprop="url" rel="index"><span itemprop="name">ant design</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>832</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天在写代码的时候，用到了Ant Design的Select组件，也就是下拉选择框，和以前一样，习惯性的给Select组件加上了<code>placeholder</code>，但是运行程序时，发现Select组件中并未显示<code>placeholder</code>。我的代码如下，大家看出问题来了吗？</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Form</span>, <span class="title class_">Select</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;antd&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">SelectComponent</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="attr">options</span>: &#123; <span class="attr">label</span>: <span class="built_in">string</span>; <span class="attr">value</span>: <span class="built_in">string</span> &#125;[] = [</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 1&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option1&#x27;</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 2&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option2&#x27;</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 3&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option3&#x27;</span> &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Form</span> <span class="attr">initialValues</span>=<span class="string">&#123;&#123;</span> <span class="attr">select:</span> &#x27;&#x27; &#125;&#125; <span class="attr">layout</span>=<span class="string">&quot;vertical&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Form.Item</span> <span class="attr">label</span>=<span class="string">&quot;Select an option&quot;</span> <span class="attr">name</span>=<span class="string">&quot;select&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Select</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">options</span>=<span class="string">&#123;options&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">width:</span> <span class="attr">200</span> &#125;&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">placeholder</span>=<span class="string">&quot;Select an option&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">allowClear</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Form</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>没错，罪魁祸首就是这个<code>initialValues=&#123;&#123; select: '' &#125;&#125;</code>，因为我在<code>Form</code>组件中设置了<code>Select</code>组件初始值为<code>&#39;&#39;</code>，注意initialValues中小写的<code>select</code>对应Form.Item中组件的<code>name</code>，不要与大写的Select名字搞混了，这就导致该组件的值被设置为空字符串，从而无法显示<code>placeholder</code>。</p>
+<p>如果把这个<code>initialValues</code>去掉，或者将其设置为<code>undefined</code>，就可以正常显示<code>placeholder</code>了。</p>
+<p>反过来思考一下，<code>placeholder</code>的作用是在用户尚未选择某个值的时候给用户一个提示，而空字符串从程序的角度来说，是一个合法的值，从而导致Ant Design的Select组件不会显示<code>placeholder</code>。</p>
+<p>但是<code>undefined</code>就不一样了，它表示没有值，这时Select组件就会显示<code>placeholder</code>。（还是基础不牢呀）。</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>为了追本溯源，我们从源码的角度分析一下其中细节，首先去<code>Ant Design</code>的github页面将源码下载到本机。<a target="_blank" rel="noopener" href="https://github.com/ant-design/ant-design">https://github.com/ant-design/ant-design</a></p>
+<p>然后找到<code>Select</code>组件的源码，路径是<code>src/components/select</code>。在这个目录下，我们可以找到<code>index.tsx</code>文件。这就是Select组件的入口了。</p>
+<p>于是尝试在文件中搜索<code>placeholder</code>，竟然没找到，这时我才意识到，Ant Design的Select组件并没有直接处理<code>placeholder</code>，而是通过<code>rc-select</code>这个库来实现的。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">InternalSelect</span> = &lt;<span class="title class_">OptionType</span> <span class="keyword">extends</span> <span class="title class_">BaseOptionType</span> | <span class="title class_">DefaultOptionType</span> = <span class="title class_">DefaultOptionType</span>&gt;() &#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;<span class="title class_">RcSelect</span>&lt;<span class="built_in">any</span>, <span class="built_in">any</span>&gt;</span><br><span class="line">      ref=&#123;ref <span class="keyword">as</span> <span class="built_in">any</span>&#125;</span><br><span class="line">      virtual=&#123;virtual&#125;</span><br><span class="line">      dropdownMatchSelectWidth=&#123;dropdownMatchSelectWidth&#125;</span><br><span class="line">      &#123;...selectProps&#125;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    /&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Select</span> = <span class="title class_">React</span>.<span class="title function_">forwardRef</span>(<span class="title class_">InternalSelect</span>);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Select</span>;</span><br></pre></td></tr></table></figure>
+<p>从上面的代码可以看出，<code>InternalSelect</code>组件内容是通过<code>RcSelect</code>来实现的，而<code>RcSelect</code>是一个来自<code>rc-select</code>库的组件。遂又去github上找到这个库的源码 - <a target="_blank" rel="noopener" href="https://github.com/react-component/select%E3%80%82">https://github.com/react-component/select。</a></p>
+<p>全库搜索<code>placeholder</code>，很快找到了相关代码，下面是<code>placeholder</code>对应的结点的定义，最终Select通过渲染这个结点来显示<code>placeholder</code>。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> placeholderNode = <span class="title class_">React</span>.<span class="property">useMemo</span>&lt;<span class="title class_">React</span>.<span class="property">ReactNode</span>&gt;(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (item) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">span</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">className</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">prefixCls</span>&#125;<span class="attr">-selection-placeholder</span>`&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">style</span>=<span class="string">&#123;hasTextInput</span> ? &#123; <span class="attr">visibility:</span> &#x27;<span class="attr">hidden</span>&#x27; &#125; <span class="attr">:</span> <span class="attr">undefined</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">    &gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;placeholder&#125;</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;, [item, hasTextInput, placeholder, prefixCls]);</span><br></pre></td></tr></table></figure>
+<p><code>if(item)</code> - 这句很快被排除，因为<code>item</code>是当前选中的值，而我们要显示<code>placeholder</code>的前提是没有选中任何值。</p>
+<p>于是来到style这一行，可以看到如果<code>hasTextInput</code>为<code>true</code>，则<code>placeholder</code>的样式会被设置为<code>visibility: &#39;hidden&#39;</code> - 也就是隐藏。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">style=&#123; hasTextInput ? &#123; <span class="attr">visibility</span>: <span class="string">&#x27;hidden&#x27;</span> &#125; : <span class="literal">undefined</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续查找<code>hasTextInput</code>的定义，发现它是通过<code>inputValue</code>来判断的。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hasTextInput = mode !== <span class="string">&#x27;combobox&#x27;</span> &amp;&amp; !open &amp;&amp; !showSearch ? <span class="literal">false</span> : !!inputValue;</span><br></pre></td></tr></table></figure>
+
+<p>继续查找<code>inputValue</code>的定义，最终发现如下代码，看到了吗？这里添加了空字符串，也就是说如果<code>inputValue</code>是空字符串，那么<code>hasTextInput</code>就会被设置为<code>true</code>，从而导致<code>placeholder</code>被隐藏。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="attr">inputValue</span>: <span class="built_in">string</span> = searchValue || <span class="string">&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>打完收工，觉得有用就点个关注，你的关注是我输出的动力！我们明天再见！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/24/css-extension/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -713,446 +1298,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-8/" class="post-title-link" itemprop="url">react-ant-design-component-table-8</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:51" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:51+08:00">2025-06-22</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-7/" class="post-title-link" itemprop="url">react-ant-design-component-table-7</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:47" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:47+08:00">2025-06-22</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-6/" class="post-title-link" itemprop="url">react-ant-design-component-table-6</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:43" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:43+08:00">2025-06-22</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-5/" class="post-title-link" itemprop="url">react-ant-design-component-table-5</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-22 17:34:38 / Modified: 19:22:50" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:38+08:00">2025-06-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>540</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>大家好，今天我们继续讲解Ant Design中的<code>Table</code>组件，今天我们来看看如何为<code>Table</code>组件添加排序和搜索功能。排序和搜索是数据表格中非常常见的功能，用户可以通过点击表头来对数据进行升序或降序排序，也可以使用搜索框来过滤数据。</p>
-<p>在阅读本篇之前，还是建议先阅读前面的几篇文章，了解<code>Table</code>组件的基本用法。</p>
-<p>&#x2F;&#x2F; 插入前面几篇内容</p>
-<h2 id="为Table组件添加排序功能"><a href="#为Table组件添加排序功能" class="headerlink" title="为Table组件添加排序功能"></a>为Table组件添加排序功能</h2><p>排序功能的添加非常简单，只需要在列的定义中添加<code>sorter</code>属性即可。我们以用户ID列为例，给它添加一个排序功能。<code>sorter</code>属性对应一个排序函数，这个函数接受两个参数，分别是要比较的两行数据，返回值为负数表示前者小于后者，返回值为正数表示前者大于后者，返回值为0表示两者相等。</p>
-<p>排序的方式取决于<code>a.id - b.id</code>的结果：</p>
-<ul>
-<li>如果为负数，表示<code>a</code>的ID小于<code>b</code>的ID，<code>a</code>会排在<code>b</code>前面；</li>
-<li>如果为正数，表示<code>a</code>的ID大于<code>b</code>的ID，<code>a</code>会排在<code>b</code>后面；</li>
-<li>如果为0，表示两者相等，顺序不变。</li>
-</ul>
-<p>比如下面的代码按照用户ID升序排列</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> a.<span class="property">id</span> - b.<span class="property">id</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-<p>设置好排序之后，表头对应的字段右侧会出现两个小箭头，点击上面的箭头表示升序排列，点击下面的箭头表示降序排列。</p>
-<h3 id="降序排列"><a href="#降序排列" class="headerlink" title="降序排列"></a>降序排列</h3><p>如果要按照用户ID降序排列，只需要把<code>a.id - b.id</code>改成<code>b.id - a.id</code>即可。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> b.<span class="property">id</span> - a.<span class="property">id</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-<h3 id="默认的排序顺序"><a href="#默认的排序顺序" class="headerlink" title="默认的排序顺序"></a>默认的排序顺序</h3><p>如果要设置默认的排序顺序，可以使用<code>defaultSortOrder</code>属性。这个属性可以设置为<code>&#39;ascend&#39;</code>表示升序，或者<code>&#39;descend&#39;</code>表示降序。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">sorter</span>: <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">User</span>, <span class="attr">b</span>: <span class="title class_">User</span></span>) =&gt;</span> a.<span class="property">id</span> - b.<span class="property">id</span>,</span><br><span class="line">    <span class="attr">defaultSortOrder</span>: <span class="string">&#x27;descend&#x27;</span>, <span class="comment">// 默认降序排列</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="为Table组件添加搜索功能"><a href="#为Table组件添加搜索功能" class="headerlink" title="为Table组件添加搜索功能"></a>为Table组件添加搜索功能</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-4/" class="post-title-link" itemprop="url">react-ant-design-component-table-4</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-22 17:34:34 / Modified: 18:31:41" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:34+08:00">2025-06-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.3k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>这篇文章我们继续讲解Ant Design中的<code>Table</code>组件，今天我们来看看如何为<code>Table</code>组件添加分页功能。随着项目的进行，数据量会变得越来越大，一页不可能显示所有的数据，所以分页功能就非常必要了。</p>
-<h2 id="为Table组件添加分页功能"><a href="#为Table组件添加分页功能" class="headerlink" title="为Table组件添加分页功能"></a>为Table组件添加分页功能</h2><p>为了实现分页，我们首先模拟一些数据，假设后端API返回100条数据，我们改造一下<code>fetchUsers</code>这个方法，动态生成100条User数据。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchUsers</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="attr">users</span>: <span class="title class_">User</span>[] = <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: <span class="number">100</span> &#125;, <span class="function">(<span class="params">_, index</span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">id</span>: index + <span class="number">1</span>,</span><br><span class="line">    <span class="attr">name</span>: <span class="string">`User<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>`</span>,</span><br><span class="line">    <span class="attr">email</span>: <span class="string">`user<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>@gmail.com`</span>,</span><br><span class="line">    <span class="attr">phone</span>: <span class="string">`130<span class="subst">$&#123;<span class="built_in">Math</span>.floor(<span class="number">10000000</span> + <span class="built_in">Math</span>.random() * <span class="number">90000000</span>)&#125;</span>`</span>,</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;&#123; <span class="attr">data</span>: <span class="title class_">User</span>[] &#125;&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(&#123; <span class="attr">data</span>: users &#125;);</span><br><span class="line">    &#125;, <span class="number">1000</span>); <span class="comment">// 1秒后返回数据</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在运行程序，发现分页功能已经自动启用了，这是因为Ant Design的<code>Table</code>组件默认会启用分页功能。但是这个分页实际上是纯前端的分页，也就是说，<code>Table</code>组件会把所有数据都加载到前端，然后自己在前端进行分页，这样做的缺点是如果数据量非常大，前端加载时间会很长，用户体验会很差。</p>
-<p>所以，真正的分页一定需要后端api的支持，前端只需要传递当前页码和每页条数给后端，后端返回对应页码的数据即可。我们改造一下<code>fetchUsers</code>方法，模拟后端分页的api。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">User</span> &#125; <span class="keyword">from</span> <span class="string">&quot;./User&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchUsers</span>(<span class="params"><span class="attr">pageNumber</span>: <span class="built_in">number</span>, <span class="attr">pageSize</span>: <span class="built_in">number</span> = <span class="number">10</span></span>): <span class="title class_">Promise</span>&lt;&#123; <span class="attr">data</span>: <span class="title class_">User</span>[] &#125;&gt; &#123;</span><br><span class="line">  <span class="comment">// 动态生成100条数据</span></span><br><span class="line">  <span class="keyword">const</span> <span class="attr">users</span>: <span class="title class_">User</span>[] = <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: <span class="number">100</span> &#125;, <span class="function">(<span class="params">_, index</span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">id</span>: index + <span class="number">1</span>,</span><br><span class="line">    <span class="attr">name</span>: <span class="string">`User<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>`</span>,</span><br><span class="line">    <span class="attr">email</span>: <span class="string">`user<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>@gmail.com`</span>,</span><br><span class="line">    <span class="attr">phone</span>: <span class="string">`130<span class="subst">$&#123;<span class="built_in">Math</span>.floor(<span class="number">10000000</span> + <span class="built_in">Math</span>.random() * <span class="number">90000000</span>)&#125;</span>`</span>,</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取分页对应的数据</span></span><br><span class="line">  <span class="keyword">const</span> pageData = users.<span class="title function_">slice</span>((pageNumber - <span class="number">1</span>) * pageSize, pageNumber * pageSize);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回分页数据</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;&#123; <span class="attr">data</span>: <span class="title class_">User</span>[] &#125;&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(&#123; <span class="attr">data</span>: pageData &#125;);</span><br><span class="line">    &#125;, <span class="number">1000</span>); <span class="comment">// 1秒后返回数据</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后改造一下<code>getUsers</code>方法，传递页码和每页条数给<code>fetchUsers</code>方法。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUsers</span> = <span class="keyword">async</span> (<span class="params"><span class="attr">pageNumber</span>: <span class="built_in">number</span>, <span class="attr">pageSize</span>?: <span class="built_in">number</span></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetchUsers</span>(pageNumber, pageSize);</span><br><span class="line">    <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error fetching users:&#x27;</span>, error);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>接下来在<code>useEffect</code>中调用<code>getUsers</code>方法时，传递页码1。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">getUsers</span>(<span class="number">1</span>); <span class="comment">// </span></span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
-<p>这时候，你会发现Table组件右下角没有分页了，只显示了一个页码1，这是因为我们只返回了一页数据，要开启分页功能必须返回一个total参数告知Table组件数据的总数。</p>
-<p>我们在<code>fetchUsers</code>方法中添加一个total参数，表示数据的总数。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">User</span> &#125; <span class="keyword">from</span> <span class="string">&quot;./User&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义分页查询用户的响应类型</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">FetchUsersResponse</span> &#123;</span><br><span class="line">  <span class="attr">data</span>: <span class="title class_">User</span>[];</span><br><span class="line">  <span class="attr">total</span>: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchUsers</span>(<span class="params"><span class="attr">pageNumber</span>: <span class="built_in">number</span>, <span class="attr">pageSize</span>: <span class="built_in">number</span> = <span class="number">10</span></span>): <span class="title class_">Promise</span>&lt;<span class="title class_">FetchUsersResponse</span>&gt; &#123;</span><br><span class="line">  <span class="comment">// 动态生成100条数据</span></span><br><span class="line">  <span class="keyword">const</span> <span class="attr">users</span>: <span class="title class_">User</span>[] = <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: <span class="number">100</span> &#125;, <span class="function">(<span class="params">_, index</span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">id</span>: index + <span class="number">1</span>,</span><br><span class="line">    <span class="attr">name</span>: <span class="string">`User<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>`</span>,</span><br><span class="line">    <span class="attr">email</span>: <span class="string">`user<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>@gmail.com`</span>,</span><br><span class="line">    <span class="attr">phone</span>: <span class="string">`130<span class="subst">$&#123;<span class="built_in">Math</span>.floor(<span class="number">10000000</span> + <span class="built_in">Math</span>.random() * <span class="number">90000000</span>)&#125;</span>`</span>,</span><br><span class="line">  &#125;));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取分页对应的数据 </span></span><br><span class="line">  <span class="keyword">const</span> pageData = users.<span class="title function_">slice</span>((pageNumber - <span class="number">1</span>) * pageSize, pageNumber * pageSize);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回分页数据和总数</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;<span class="title class_">FetchUsersResponse</span>&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="attr">response</span>: <span class="title class_">FetchUsersResponse</span> = &#123; <span class="attr">data</span>: pageData, <span class="attr">total</span>: users.<span class="property">length</span> &#125;;</span><br><span class="line">      <span class="title function_">resolve</span>(response);</span><br><span class="line">    &#125;, <span class="number">1000</span>); <span class="comment">// 1秒后返回数据</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在Users页面，我们需要定一个state来保存total。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [total, setTotal] = <span class="title function_">useState</span>(<span class="number">0</span>); <span class="comment">// 总数据条数</span></span><br></pre></td></tr></table></figure>
-
-<p>然后在获取数据时，设置total。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUsers</span> = <span class="keyword">async</span> (<span class="params"><span class="attr">pageNumber</span>: <span class="built_in">number</span>, <span class="attr">pageSize</span>?: <span class="built_in">number</span></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetchUsers</span>(pageNumber, pageSize);</span><br><span class="line">    <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">    <span class="title function_">setTotal</span>(res.<span class="property">total</span>); <span class="comment">// 设置总数据条数  </span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>最后，在Table组件中传递total属性，并响应<code>onChange</code>函数，在用户切换页面时，获取对应的数据。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  loading=&#123;loading&#125;</span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125;</span><br><span class="line">  pagination=&#123;&#123;</span><br><span class="line">    <span class="attr">pageSize</span>: <span class="number">10</span>,</span><br><span class="line">    <span class="attr">total</span>: total,</span><br><span class="line">    <span class="attr">onChange</span>: <span class="function">(<span class="params">page</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">getUsers</span>(page);</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;&#125;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<p>此时重新运行程序，然后点击不同的页码，你会发现数据会根据页码变化而变化，这样分页功能就实现了。但是当你改变每页显示的条数时，你会发现数据并没有变化，这是因为我们在<code>onChange</code>函数中没有传递每页条数，而是将每页条数固定为10条了，我们需要改造一下<code>onChange</code>函数，传递每页条数。</p>
-<p>我们可以添加一个新函数来响应Table组件的<code>onChange</code>事件。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">onPageChange</span> = (<span class="params"><span class="attr">pageNumber</span>: <span class="built_in">number</span>, <span class="attr">pageSize</span>: <span class="built_in">number</span></span>) =&gt; &#123;</span><br><span class="line">  <span class="title function_">setPageNumber</span>(pageNumber);</span><br><span class="line">  <span class="title function_">setPageSize</span>(pageSize);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>然后将<code>pageNumber</code>和<code>pageSize</code>保存到state中。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [pageNumber, setPageNumber] = <span class="title function_">useState</span>(<span class="number">1</span>); <span class="comment">// 当前页码</span></span><br><span class="line"><span class="keyword">const</span> [pageSize, setPageSize] = <span class="title function_">useState</span>(<span class="number">10</span>); <span class="comment">// 每页条数</span></span><br></pre></td></tr></table></figure>
-
-<p>并更新<code>useEffect</code>，在<code>pageNumber</code>或<code>pageSize</code>变化时，重新获取数据。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">getUsers</span>(pageNumber, pageSize);</span><br><span class="line">&#125;, [pageNumber, pageSize]);</span><br></pre></td></tr></table></figure>
-<p>最后在Table组件中传递<code>onPageChange</code>函数。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  loading=&#123;loading&#125;</span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125;</span><br><span class="line">  pagination=&#123;&#123;</span><br><span class="line">    <span class="attr">total</span>: total,</span><br><span class="line">    <span class="attr">onChange</span>: onPageChange,</span><br><span class="line">  &#125;&#125;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<p>再次刷新页面，一切正常，分页功能完美实现。</p>
-<h2 id="禁用sizeChanger"><a href="#禁用sizeChanger" class="headerlink" title="禁用sizeChanger"></a>禁用sizeChanger</h2><p>如果你不希望用户改变每页显示的条数，可以禁用<code>sizeChanger</code>功能，只需要在<code>pagination</code>属性中添加<code>showSizeChanger: false</code>即可。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  loading=&#123;loading&#125;</span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125;</span><br><span class="line">  pagination=&#123;&#123;</span><br><span class="line">    <span class="attr">showSizeChanger</span>: <span class="literal">false</span>, <span class="comment">// 禁用每页条数选择器</span></span><br><span class="line">  &#125;&#125;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="禁用分页"><a href="#禁用分页" class="headerlink" title="禁用分页"></a>禁用分页</h2><p>如果你十分确定，你的数据一页就能展示完，比如10条以内的数据，那么你可以禁用分页功能。只需要在<code>Table</code>组件中添加<code>pagination=&#123;false&#125;</code>属性即可。</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  loading=&#123;loading&#125;</span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125;</span><br><span class="line">  pagination=&#123;<span class="literal">false</span>&#125; <span class="comment">// 禁用分页</span></span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<p>今天就到这里了，祝大家编程愉快，我们明天见！觉得有用，就点个关注吧！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1222,20 +1367,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">333</span>
+          <span class="site-state-item-count">338</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">442</span>
+        <span class="site-state-item-count">443</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1271,12 +1416,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">219k</span>
+    <span title="Symbols count total">226k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:15</span>
+    <span title="Reading time total">13:42</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

@@ -21,16 +21,19 @@
     var CONFIG = {"hostname":"frontendthink.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+  <meta name="description" content="介绍今天我们学习一下如何在Ant Design的Table组件中使用动态Columns，也就是说列的定义不是固定的，而是根据某些条件动态生成的。这在实际开发中非常常见，比如根据用户权限来决定显示哪些列，或者根据数据的不同类型来显示不同的列。 动态显示&#x2F;隐藏某些列考虑下面的需求，我们有一个页面，包含两个tab，一个是我的报告，另一个是所有报告。在我的报告中，我们只需要显示报告的标题和创建时">
 <meta property="og:type" content="article">
 <meta property="og:title" content="react-ant-design-component-table-7">
 <meta property="og:url" content="https://frontendthink.com/2025/06/22/react-ant-design-component-table-7/index.html">
 <meta property="og:site_name" content="Philip">
-<meta property="og:description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+<meta property="og:description" content="介绍今天我们学习一下如何在Ant Design的Table组件中使用动态Columns，也就是说列的定义不是固定的，而是根据某些条件动态生成的。这在实际开发中非常常见，比如根据用户权限来决定显示哪些列，或者根据数据的不同类型来显示不同的列。 动态显示&#x2F;隐藏某些列考虑下面的需求，我们有一个页面，包含两个tab，一个是我的报告，另一个是所有报告。在我的报告中，我们只需要显示报告的标题和创建时">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-06-22T09:34:47.000Z">
-<meta property="article:modified_time" content="2025-06-22T09:34:47.277Z">
+<meta property="article:modified_time" content="2025-06-29T07:12:09.434Z">
 <meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="react">
+<meta property="article:tag" content="ant design">
+<meta property="article:tag" content="table">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-7/">
@@ -215,6 +218,22 @@
 
               <time title="Created: 2025-06-22 17:34:47" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:47+08:00">2025-06-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-06-29 15:12:09" itemprop="dateModified" datetime="2025-06-29T15:12:09+08:00">2025-06-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
 
           <br>
             <span class="post-meta-item" title="Symbols count in article">
@@ -222,14 +241,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
+              <span>553</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -241,7 +260,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天我们学习一下如何在Ant Design的Table组件中使用动态<code>Columns</code>，也就是说列的定义不是固定的，而是根据某些条件动态生成的。这在实际开发中非常常见，比如根据用户权限来决定显示哪些列，或者根据数据的不同类型来显示不同的列。</p>
+<h2 id="动态显示-隐藏某些列"><a href="#动态显示-隐藏某些列" class="headerlink" title="动态显示&#x2F;隐藏某些列"></a>动态显示&#x2F;隐藏某些列</h2><p>考虑下面的需求，我们有一个页面，包含两个tab，一个是<code>我的报告</code>，另一个是<code>所有报告</code>。在<code>我的报告</code>中，我们只需要显示报告的标题和创建时间，而在<code>所有报告</code>中，我们需要显示更多的信息，比如作者等。- 由于<code>我的报告</code>中作者就是我，所以不需要显示作者列。</p>
+<p>首先我们定义所有的列，然后根据当前tab的不同来显示或隐藏作者列。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;标题&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;title&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;createdAt&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;作者&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;author&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">getColumns</span> = (<span class="params"><span class="attr">tab</span>: <span class="string">&#x27;myReports&#x27;</span> | <span class="string">&#x27;allReports&#x27;</span></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (tab === <span class="string">&#x27;myReports&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> columns.<span class="title function_">filter</span>(<span class="function"><span class="params">col</span> =&gt;</span> col.<span class="property">dataIndex</span> !== <span class="string">&#x27;author&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> columns;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Tabs</span> <span class="attr">defaultActiveKey</span>=<span class="string">&quot;myReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">TabPane</span> <span class="attr">tab</span>=<span class="string">&quot;我的报告&quot;</span> <span class="attr">key</span>=<span class="string">&quot;myReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;getColumns(</span>&#x27;<span class="attr">myReports</span>&#x27;)&#125; <span class="attr">dataSource</span>=<span class="string">&#123;myReports&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">TabPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">TabPane</span> <span class="attr">tab</span>=<span class="string">&quot;所有报告&quot;</span> <span class="attr">key</span>=<span class="string">&quot;allReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;getColumns(</span>&#x27;<span class="attr">allReports</span>&#x27;)&#125; <span class="attr">dataSource</span>=<span class="string">&#123;allReports&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">TabPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">Tabs</span>&gt;</span></span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>这样，我们就实现的动态列的功能，但是这个方法有一个问题，那就是会产生大量的重复代码，如果两个tab的内容几乎相同，只有作者这一列不同的话，那么我们可以提取一个基类用来渲染tab内容，然后在基类中根据tab的不同来决定显示哪些列。</p>
+<p>也就是说，我们只需定义一个<code>columns</code>对象，然后在这个组件中根据传入的<code>tab</code>来决定显示哪些列。这时候我们可以用<code>Columns</code>中的<code>hidden</code>属性来隐藏某些列。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">ReportTable</span> = (<span class="params">&#123; tab &#125;: &#123; tab: <span class="string">&#x27;myReports&#x27;</span> | <span class="string">&#x27;allReports&#x27;</span> &#125;</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> columns = [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;标题&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;title&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;createdAt&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;作者&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;author&#x27;</span>,</span><br><span class="line">      <span class="attr">hidden</span>: tab === <span class="string">&#x27;myReports&#x27;</span>, <span class="comment">// 如果是我的报告，则隐藏作者列</span></span><br><span class="line">    &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;columns&#125;</span> <span class="attr">dataSource</span>=<span class="string">&#123;dataSource&#125;</span> /&gt;</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这样的实现，是不是更优雅呢？这种方式的好处即使避免大量的重复代码，程序员嘛，怎么能老是重复呢？</p>
+
     </div>
 
     
@@ -249,6 +277,11 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/react/" rel="tag"># react</a>
+              <a href="/tags/ant-design/" rel="tag"># ant design</a>
+              <a href="/tags/table/" rel="tag"># table</a>
+          </div>
 
         
 
@@ -321,6 +354,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%98%BE%E7%A4%BA-%E9%9A%90%E8%97%8F%E6%9F%90%E4%BA%9B%E5%88%97"><span class="nav-number">2.</span> <span class="nav-text">动态显示&#x2F;隐藏某些列</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -334,20 +368,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">333</span>
+          <span class="site-state-item-count">338</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">442</span>
+        <span class="site-state-item-count">443</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -383,12 +417,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">219k</span>
+    <span title="Symbols count total">226k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:15</span>
+    <span title="Reading time total">13:42</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

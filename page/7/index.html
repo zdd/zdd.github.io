@@ -187,6 +187,588 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/03/04/css-position/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/04/css-position/" class="post-title-link" itemprop="url">css-position</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-03-04 15:53:15" itemprop="dateCreated datePublished" datetime="2025-03-04T15:53:15+08:00">2025-03-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-05-21 21:41:29" itemprop="dateModified" datetime="2025-05-21T21:41:29+08:00">2025-05-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>position是CSS中非常重要的一个属性，也是面试中常考的考点之一！比如昨天我的面试中面试官就问我，absolute和fixed有什么区别？可惜我没有答上来。</p>
+<p>那么这个position到底代表什么呢？顾名思义，就是位置，position决定了浏览器如何确定一个元素的位置。来看一下官方的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">The position CSS property sets how an element is positioned in a document. </span><br><span class="line">The top, right, bottom, and left properties determine the final location of positioned elements.</span><br></pre></td></tr></table></figure>
+
+<p>我们翻译一下这段话：position属性设置了一个元素如何在文档中定位。top, right, bottom, left属性决定了定位元素的最终位置。也就是说：<code>position</code>决定了如何放置一个元素，<code>top</code>、<code>right</code>、<code>bottom</code>、<code>left</code>决定了元素的最终位置。</p>
+<p>position的取值有5种，分别是：<code>static</code>、<code>relative</code>、<code>absolute</code>、<code>fixed</code>、<code>sticky</code>。下面我们来详细了解一下这5种取值。</p>
+<p>在此之前先了解一个术语 - <code>已定位元素</code>（positioned element），这个概念在CSS中非常重要，尤其是在理解<code>absolute</code>和<code>fixed</code>时。<br>什么是<code>已定位元素</code>呢？来看一下官方的定义：<br>A positioned element is an element whose computed position value is either relative, absolute, fixed, or sticky. (In other words, it’s anything except static.)</p>
+<p>说白了，只要元素的<code>position</code>属性不是<code>static</code>，那么这个元素就是一个<code>已定位元素</code>。</p>
+<h2 id="static-默认定位"><a href="#static-默认定位" class="headerlink" title="static - 默认定位"></a>static - 默认定位</h2><p>这个是默认值，可以这么说，平时开发的时候我们基本用不到这个值，因为它什么也不做，元素就是正常按照文档流一个一个排列就完了。而且由于是默认值，如果不设置<code>position</code>属性，那么元素的定位方式就是<code>static</code>的。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div1&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div2&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div3&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div1</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: red;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div2</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div3</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/css-position-static.png" alt="static"></p>
+<p>注意在<code>position: static</code>模式下，<code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>是不起作用的，因为这些属性只对<code>已定位元素</code>有效。</p>
+<p>下面的<code>top: 20px</code>不起作用，因为<code>#child</code>元素的<code>position</code>属性是<code>static</code>。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-id">#child</span> &#123;</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">20px</span>; <span class="comment">/* This doesn&#x27;t work! need nonstatic position */</span></span><br><span class="line">  <span class="attribute">background-color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="relative-相对定位"><a href="#relative-相对定位" class="headerlink" title="relative - 相对定位"></a>relative - 相对定位</h2><p>记得之前有一次面试，面试官突然问我，<code>position: relative</code>你知道吧，我说那必须知道啊！然后他说：那么你说说<code>relative</code>到底相对的是谁？我一下就懵了，之前根本没有思考过这个问题。其实答案很简单，相对的是元素自己本来的位置。也就是说，<code>relative</code>是相对于元素自己本来的位置进行定位的。- 注意不是相对于父元素，这是误解。</p>
+<p>下图中绿色方块定位方式设置为relative，相对其原始位置向右偏移100像素，向下偏移20像素，原始位置保留，没有影响红色方块和蓝色方块。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div1&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div2&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div3&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div1</span> &#123;</span><br><span class="line">	<span class="attribute">background-color</span>: red;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div2</span> &#123;</span><br><span class="line">	<span class="attribute">position</span>: relative;</span><br><span class="line">	<span class="attribute">top</span>: <span class="number">20px</span>;</span><br><span class="line">	<span class="attribute">left</span>: <span class="number">100px</span>;</span><br><span class="line">	<span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div3</span> &#123;</span><br><span class="line">	<span class="attribute">background-color</span>: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/css-position-relative.png" alt="relative"></p>
+<p>设置为<code>relative</code>的元素不会脱离文档流，最终位置相对于元素自己本来的位置进行偏移。原始的位置会保留，不影响其他元素（子元素除外）布局。</p>
+<p>注意：<code>relative</code>会创建一个<code>stack context</code>，详情请看<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context">这里</a>.</p>
+<h2 id="absolute-绝对定位"><a href="#absolute-绝对定位" class="headerlink" title="absolute - 绝对定位"></a>absolute - 绝对定位</h2><p><code>absolute</code>是指绝对定位，它是相对于最近的非static定位的父元素进行定位的。如果没有非static定位的父元素，那么它是相对于<code>&lt;html&gt;</code>元素进行定位的。</p>
+<p>标记为<code>position: absolute</code>的元素会脱离文档流，不占据空间，不影响其他元素的布局。下图中绿色方块定位方式设置为absolute，相对于其最近的非static定位的父元素（body）进行定位，向右偏移100像素，向下偏移20像素，原始位置不保留，影响蓝色方块的布局（蓝色方块补充了绿色方块原来的位置）</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div1&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div2&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;div3&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">	<span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">	<span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div1</span> &#123;</span><br><span class="line">	<span class="attribute">background-color</span>: red;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div2</span> &#123;</span><br><span class="line">	<span class="attribute">position</span>: absolute;</span><br><span class="line">	<span class="attribute">top</span>: <span class="number">20px</span>;</span><br><span class="line">	<span class="attribute">left</span>: <span class="number">100px</span>;</span><br><span class="line">	<span class="attribute">background-color</span>: green;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.div3</span> &#123;</span><br><span class="line">	<span class="attribute">background-color</span>: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/css-position-absolute.png" alt="absolute"></p>
+<h2 id="fixed-固定定位"><a href="#fixed-固定定位" class="headerlink" title="fixed - 固定定位"></a>fixed - 固定定位</h2><p><code>fixed</code>和<code>absolute</code>非常相似，元素也会脱离文档流，不同的是<code>fixed</code>是相对于<code>viewport</code>进行定位的。也就是说，无论你怎么滚动页面，<code>fixed</code>元素都会固定在浏览器视口的某个位置。（仿佛固定在屏幕上一样）</p>
+<p><code>fixed</code>的使用场景有很多，比如常见的页面右下角的返回顶部按钮，基本都是用<code>fixed</code>实现的。比如下面这个例子，注意这种场景不能使用<code>absolute</code>来实现，否则当页面滚动时，元素会跟着滚动。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-id">#child</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: fixed;</span><br><span class="line">  <span class="attribute">bottom</span>: <span class="number">32px</span>;</span><br><span class="line">  <span class="attribute">right</span>: <span class="number">32px</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="sticky-黏性定位"><a href="#sticky-黏性定位" class="headerlink" title="sticky - 黏性定位"></a>sticky - 黏性定位</h2><p><code>sticky</code> - 黏性的；黏的，其实从这个名字就可以看出来，这种布局可以实现黏性效果，比如常见的吸顶效果（当页面滚动时，某个元素滚动到顶部时就固定不动了），下面我们看看如何实现<code>sticky</code>效果。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;content&quot;</span>&gt;</span>This is a sticky bar<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">div</span><span class="selector-class">.container</span> &#123;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">500vh</span>; // <span class="number">500</span>个视口高度，使页面可以垂直滚动</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-tag">div</span><span class="selector-class">.content</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: sticky; // 设置为sticky</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">16px</span>; // 当滚动至距离父元素顶部<span class="number">16px</span>时，元素固定，也就是变得sticky.</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">64px</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ad1414</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>sticky</code>元素不会脱离文档流，它会按正常的文档流进行布局，但是当页面滚动至临界距离时（上面设置的<code>top: 16px</code>）,元素就会固定住，不会继续滚动了，所以sticky也是有参照元素的，它参照的元素是它最近的可滚动的祖先元素。</p>
+<p><code>sticky</code>是相对定位和固定定位的结合体。它的行为就像是<code>relative</code>和<code>fixed</code>的合体，当元素在屏幕中可见时，它的行为就像<code>relative</code>，当元素在屏幕外时，它的行为就像<code>fixed</code>。</p>
+<h2 id="position属性如何影响top-right-bottom-left的表现？"><a href="#position属性如何影响top-right-bottom-left的表现？" class="headerlink" title="position属性如何影响top, right, bottom, left的表现？"></a>position属性如何影响<code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>的表现？</h2><p>position属性的值会直接影响<code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>的表现，具体如下：</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th>值</th>
+<th>是否脱离文档流</th>
+<th>是否保留原来位置</th>
+<th>是否影响 top&#x2F;bottom&#x2F;left&#x2F;right</th>
+<th>参照元素</th>
+<th>是否创建堆叠上下文</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>static</code></td>
+<td>否</td>
+<td>是</td>
+<td>否</td>
+<td>无（按照正常文档流布局）</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>relative</code></td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+<td>元素自身原本的位置</td>
+<td>否（除非设置了 <code>z-index</code> 或其他触发条件）</td>
+</tr>
+<tr>
+<td><code>absolute</code></td>
+<td>是</td>
+<td>否</td>
+<td>是</td>
+<td>最近的已定位祖先元素（非 <code>static</code>），否则为 <code>&lt;html&gt;</code></td>
+<td>否（除非设置了 <code>z-index</code> 或其他触发条件）</td>
+</tr>
+<tr>
+<td><code>fixed</code></td>
+<td>是</td>
+<td>否</td>
+<td>是</td>
+<td>浏览器视口（viewport）</td>
+<td>否（除非设置了 <code>z-index</code> 或其他触发条件）</td>
+</tr>
+<tr>
+<td><code>sticky</code></td>
+<td>部分（滚动时脱离）</td>
+<td>是</td>
+<td>是</td>
+<td>元素原本的位置与视口之间的相对关系</td>
+<td>否（除非设置了 <code>z-index</code> 或其他触发条件）</td>
+</tr>
+</tbody></table>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/CSS/position">https://developer.mozilla.org/en-US/docs/Web/CSS/position</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/03/04/css-basic-box-model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/04/css-basic-box-model/" class="post-title-link" itemprop="url">css-basic-box-model</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-03-04 10:10:54" itemprop="dateCreated datePublished" datetime="2025-03-04T10:10:54+08:00">2025-03-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:12:08" itemprop="dateModified" datetime="2025-04-07T21:12:08+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>710</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是盒模型？"><a href="#什么是盒模型？" class="headerlink" title="什么是盒模型？"></a>什么是盒模型？</h1><p>当浏览器对一个页面进行布局的时候，浏览器的渲染引擎会把每个元素看视为一个盒子（box），这个盒子就是盒模型。盒模型是CSS布局的基础，理解盒模型对于理解CSS布局非常重要。</p>
+<p><img src="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model/boxmodel.png" alt="box-model"></p>
+<h2 id="盒模型的四个组成部分"><a href="#盒模型的四个组成部分" class="headerlink" title="盒模型的四个组成部分"></a>盒模型的四个组成部分</h2><h3 id="内容区域（content）"><a href="#内容区域（content）" class="headerlink" title="内容区域（content）"></a>内容区域（content）</h3><p>以上图为例，中间的黑色矩形就是内容区域，内容区域是盒模型的核心部分，包含了元素的实际内容，比如文本、图片等。</p>
+<h3 id="内边距（padding）"><a href="#内边距（padding）" class="headerlink" title="内边距（padding）"></a>内边距（padding）</h3><p>上图中黑色矩形和蓝色矩形框之间的白色部分就是padding，内边距是内容区域和边框之间的空间。内边距可以用来增加内容区域和边框之间的距离。</p>
+<h3 id="边框（border）"><a href="#边框（border）" class="headerlink" title="边框（border）"></a>边框（border）</h3><p>上图中蓝色矩形框就是边框，边框是元素的边界，边框也是有宽度和颜色的。</p>
+<h3 id="外边距（margin）"><a href="#外边距（margin）" class="headerlink" title="外边距（margin）"></a>外边距（margin）</h3><p>上图中蓝色矩形框和最外层的黑色矩形框之间的透明色部分就是外边距，外边距是元素和其他元素之间的空间。外边距可以用来增加元素之间的距离。</p>
+<h1 id="box-sizing对于盒模型的影响"><a href="#box-sizing对于盒模型的影响" class="headerlink" title="box-sizing对于盒模型的影响"></a>box-sizing对于盒模型的影响</h1><p>CSS中的<code>box-sizing</code>属性决定了如何计算一个元素的宽度和高度，它有两个取值：<code>content-box</code>和<code>border-box</code>。</p>
+<h2 id="content-box"><a href="#content-box" class="headerlink" title="content-box"></a>content-box</h2><p><code>content-box</code>是默认值，表示元素的宽度和高度只包括内容区域，不包括内边距（padding）和边框（border）。也就是说，如果你设置了一个元素的宽度为100px，高度为100px，那么它的实际宽度和高度就是100px，不包括内边距和边框。</p>
+<p>计算公式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">元素的实际宽度 = CSS中的width</span><br><span class="line">元素的实际高度 = CSS中的height</span><br></pre></td></tr></table></figure>
+<p>看一段CSS代码，因为没有指定<code>box-sizing</code>属性，所以默认是<code>content-box</code>，所以box元素的宽度是100px，高度是100px。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">5px</span> solid black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="border-box"><a href="#border-box" class="headerlink" title="border-box"></a>border-box</h2><p><code>border-box</code>表示元素的宽度和高度包括内容区域、内边距和边框。也就是说，如果你设置了一个元素的宽度为100px，高度为100px，那么它的实际宽度和高度就是100px - padding - border。计算公式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">元素的实际宽度 = CSS中的width - padding-left - padding-right - border-left - border-right</span><br><span class="line">元素的实际高度 = CSS中的height - padding-top - padding-bottom - border-top - border-bottom</span><br></pre></td></tr></table></figure>
+<p>看一段CSS代码，你知道如何计算元素的实际宽高吗？</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">5px</span> solid black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据border-box的计算公式：</p>
+<ul>
+<li>box元素的实际宽度 &#x3D; 100px - 10px * 2 - 5px * 2 &#x3D; 70px</li>
+<li>box元素的实际高度 &#x3D; 100px - 10px * 2 - 5px * 2 &#x3D; 70px</li>
+</ul>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model">https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model</a></li>
+<li></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/03/04/css-horizontal-align-center/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/04/css-horizontal-align-center/" class="post-title-link" itemprop="url">css-horizontal-align-center</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-03-04 10:10:27" itemprop="dateCreated datePublished" datetime="2025-03-04T10:10:27+08:00">2025-03-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:12:49" itemprop="dateModified" datetime="2025-04-07T21:12:49+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>0</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/03/02/nodejs-event-loop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/03/02/nodejs-event-loop/" class="post-title-link" itemprop="url">nodejs-event-loop</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-03-02 11:57:29" itemprop="dateCreated datePublished" datetime="2025-03-02T11:57:29+08:00">2025-03-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:29:22" itemprop="dateModified" datetime="2025-04-07T21:29:22+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/node-js/" itemprop="url" rel="index"><span itemprop="name">node.js</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>54</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Node.js中的事件循环和javascript中的事件循环是不同的，Node.js中的队列更多，算法更复杂，今天我们来一探究竟。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick">https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/26/javascript-garbage-collection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/26/javascript-garbage-collection/" class="post-title-link" itemprop="url">javascript-garbage-collection</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-26 16:16:50" itemprop="dateCreated datePublished" datetime="2025-02-26T16:16:50+08:00">2025-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:22:21" itemprop="dateModified" datetime="2025-04-07T21:22:21+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>600</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>JavaScript的垃圾收集机制主要是为了自动管理内存，使得开发者不需要手动去分配和释放内存。这种机制主要依赖于一些算法来追踪和标记不再使用的对象，然后回收它们所占用的内存空间。以下是简述的两个主要机制：</p>
+<ol>
+<li><p><strong>引用计数（Reference Counting）</strong>：</p>
+<ul>
+<li>在引用计数机制中，每个对象都维护着一个记录它被引用次数的计数器。每当有新的引用指向该对象时，计数器加一；当某个引用失效或被移除时，计数器减一。一旦某个对象的引用计数降为0，就说明这个对象不再被使用，可以安全地将其从内存中删除。</li>
+<li>但是，引用计数有一个显著的问题是它无法处理循环引用的情况，即两个或多个对象互相引用，但实际上这些对象已经不可达（无法从根对象访问到）。这会导致这些对象永远不会被回收，从而造成内存泄漏。</li>
+</ul>
+</li>
+<li><p><strong>标记-清除（Mark-and-Sweep）</strong>：</p>
+<ul>
+<li>标记-清除是现代JavaScript引擎中最常用的垃圾收集算法。在这个机制下，垃圾收集器会定期从根对象（如全局变量、当前调用栈中的局部变量等）开始遍历所有可达的对象，并给这些对象做上标记。完成标记阶段后，任何没有被标记的对象就被认为是不可达的，因此可以从内存中清除。</li>
+<li>这种方法解决了引用计数中的循环引用问题，因为它不关心对象之间的相互引用，只关注对象是否能通过根对象访问到。</li>
+</ul>
+</li>
+</ol>
+<p>除了上述两种基本的垃圾收集机制外，现代JavaScript引擎还可能采用其他优化技术，比如分代收集（Generational GC），它基于大多数对象很快变得不可用的假设，将对象分为不同的“代”，并更频繁地检查较新的对象以提高效率。</p>
+<p>总的来说，JavaScript的垃圾收集机制旨在让开发者不必担心内存管理的问题，尽管如此，了解这些机制有助于编写更高效的代码，避免潜在的内存泄漏问题。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/26/css-vertical-align-center/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -824,523 +1406,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/18/angular-component-input/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/18/angular-component-input/" class="post-title-link" itemprop="url">angular-component-input</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-18 10:41:17" itemprop="dateCreated datePublished" datetime="2025-02-18T10:41:17+08:00">2025-02-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:32" itemprop="dateModified" datetime="2025-04-07T17:24:32+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>609</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天这篇我们讲解一下Angular中的Input，Input是Angular中的一个装饰器，它用来接收父组件传递过来的数据。</p>
-<h2 id="传统的-Input-写法"><a href="#传统的-Input-写法" class="headerlink" title="传统的@Input()写法"></a>传统的@Input()写法</h2><p>为了方便展示，我们定义两个组件, 一个父组件：<code>ListComponent</code>， 一个子组件：<code>ListItemComponent</code>。为了便于展示，我们将template和style都写在component.ts中。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list-item.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list-item&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list-item&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;id: &#123;&#123;id&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;name: &#123;&#123;name&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styles</span>: [<span class="string">`</span></span><br><span class="line"><span class="string">    .list-item &#123;</span></span><br><span class="line"><span class="string">      border: 1px solid #ccc;</span></span><br><span class="line"><span class="string">      margin-bottom: 10px;</span></span><br><span class="line"><span class="string">      padding: 10px;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  `</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(&#123;<span class="attr">required</span>: <span class="literal">true</span>&#125;) <span class="attr">id</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在<code>ListItemComponent</code>中，我们定义了两个属性：<code>id</code>和<code>name</code>，并且使用了<code>@Input</code>装饰器。<code>@Input</code>装饰器有一个可选的参数<code>required</code>，如果设置为<code>true</code>，则表示这个属性是必须的，如果使用组件时没有给该字段赋值，则会报错。</p>
-<p>接下来我们在<code>ListComponent</code>中使用<code>ListItemComponent</code>组件，并传递数据。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ListItemComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../list-item/list-item.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ListItemComponent</span>],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list&quot;&gt;</span></span><br><span class="line"><span class="string">      @for (item of listItems; track item.id) &#123;</span></span><br><span class="line"><span class="string">        &lt;app-list-item [id]=&quot;item.id&quot; [name]=&quot;item.name&quot;/&gt;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./list.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListComponent</span> &#123;</span><br><span class="line">  listItems = [</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 1&#x27;</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 2&#x27;</span>&#125;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>@Input</code>定义的字段，需要通过property binding的方式传递数据，即<code>[id]=&quot;item.id&quot;</code>和<code>[name]=&quot;item.name&quot;</code>。</p>
-<h2 id="基于signal的input写法"><a href="#基于signal的input写法" class="headerlink" title="基于signal的input写法"></a>基于signal的<code>input</code>写法</h2><p>以上是旧版的写法，从Angular 17.1开始，我们可以使用新版的基于signal的<code>input</code>语法了。</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, input&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>; <span class="comment">// import &#x27;input&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="comment">// @Input(&#123;required: true&#125;) id: string = &#x27;&#x27;;</span></span><br><span class="line">  <span class="comment">// @Input() name: string = &#x27;&#x27;;</span></span><br><span class="line"></span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = input&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于这种类型的input的值对应的是一个signal, 所以读取值的时候，要加<code>()</code>，id -&gt; <code>id()</code>, name -&gt; <code>name()</code>。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template: `</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;list-item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>id: &#123;&#123;id()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>name: &#123;&#123;name()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  `</span><br></pre></td></tr></table></figure>
-
-<h2 id="default-value"><a href="#default-value" class="headerlink" title="default value"></a>default value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="title function_">input</span>(<span class="number">0</span>); <span class="comment">// 0 is default value</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="specify-type"><a href="#specify-type" class="headerlink" title="specify type"></a>specify type</h2><p>Note that, for simple values, typescript can infer the type by value, but for complex types, you need to specify the type.</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">value = input&lt;<span class="built_in">number</span>&gt;(<span class="number">0</span>); <span class="comment">// value = input(0); // totally ok</span></span><br><span class="line">value = input&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;&#x27;</span>); <span class="comment">// value = input(&#x27;&#x27;); // totally ok </span></span><br></pre></td></tr></table></figure>
-
-<h2 id="required"><a href="#required" class="headerlink" title="required"></a>required</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = input.<span class="property">required</span>&lt;<span class="built_in">number</span>&gt;(); <span class="comment">// required</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Input-transform"><a href="#Input-transform" class="headerlink" title="Input transform"></a>Input transform</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = <span class="title function_">input</span>(<span class="string">&#x27;&#x27;</span>, &#123;<span class="attr">transform</span>: trimString&#125;); <span class="comment">// apply transform</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// define transform function, transform function should be statically analyzable and pure function.</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">trimString</span>(<span class="params"><span class="attr">value</span>: <span class="built_in">string</span> | <span class="literal">undefined</span></span>): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> value?.<span class="title function_">trim</span>() ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Built-in-transform"><a href="#Built-in-transform" class="headerlink" title="Built-in transform"></a>Built-in transform</h3><ol>
-<li><code>booleanAttribute</code> - imitates the behavior of standard HTML boolean attributes, where the presence of the attribute indicates a “true” value. However, Angular’s booleanAttribute treats the literal string “false” as the boolean false.</li>
-<li><code>numberAttribute</code> - attempts to parse the given value to a number, producing NaN if parsing fails.</li>
-</ol>
-<h2 id="Input-alias"><a href="#Input-alias" class="headerlink" title="Input alias"></a>Input alias</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="title function_">input</span>(<span class="number">0</span>, &#123;<span class="attr">alias</span>: <span class="string">&#x27;sliderValue&#x27;</span>&#125;); <span class="comment">// aliasValue is the alias name</span></span><br></pre></td></tr></table></figure>
-<p>在模板中使用<code>sliderValue</code>, 注意，组件代码中仍然只能使用<code>value</code>。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">custom-slider</span> [<span class="attr">sliderValue</span>]=<span class="string">&quot;50&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/components/inputs">https://angular.dev/guide/components/inputs</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/17/angular-forms/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/17/angular-forms/" class="post-title-link" itemprop="url">angular-forms</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-17 16:07:55" itemprop="dateCreated datePublished" datetime="2025-02-17T16:07:55+08:00">2025-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:37" itemprop="dateModified" datetime="2025-04-07T17:24:37+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>77</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Reactive-Forms"><a href="#Reactive-Forms" class="headerlink" title="Reactive Forms"></a>Reactive Forms</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ReactiveFormsModule</span>, <span class="title class_">FormControl</span>, <span class="title class_">FormGroup</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/forms&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;form [formGroup]=&quot;profileForm&quot; (ngSubmit)=&quot;handleSubmit()&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;label&gt;</span></span><br><span class="line"><span class="string">        Name</span></span><br><span class="line"><span class="string">        &lt;input type=&quot;text&quot; formControlName=&quot;name&quot; /&gt;</span></span><br><span class="line"><span class="string">      &lt;/label&gt;</span></span><br><span class="line"><span class="string">      &lt;label&gt;</span></span><br><span class="line"><span class="string">        Email</span></span><br><span class="line"><span class="string">        &lt;input type=&quot;email&quot; formControlName=&quot;email&quot; /&gt;</span></span><br><span class="line"><span class="string">      &lt;/label&gt;</span></span><br><span class="line"><span class="string">      &lt;button type=&quot;submit&quot;&gt;Submit&lt;/button&gt;</span></span><br><span class="line"><span class="string">      &lt;h2&gt;Profile Form&lt;/h2&gt;</span></span><br><span class="line"><span class="string">      &lt;p&gt;Name: &#123;&#123;profileForm.value.name&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">      &lt;p&gt;Email: &#123;&#123;profileForm.value.email&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;/form&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ReactiveFormsModule</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  profileForm = <span class="keyword">new</span> <span class="title class_">FormGroup</span>(&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="keyword">new</span> <span class="title class_">FormControl</span>(<span class="string">&#x27;&#x27;</span>),</span><br><span class="line">    <span class="attr">email</span>: <span class="keyword">new</span> <span class="title class_">FormControl</span>(<span class="string">&#x27;&#x27;</span>),</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleSubmit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title function_">alert</span>(<span class="variable language_">this</span>.<span class="property">profileForm</span>.<span class="property">value</span>.<span class="property">name</span> + <span class="string">&#x27; | &#x27;</span> + <span class="variable language_">this</span>.<span class="property">profileForm</span>.<span class="property">value</span>.<span class="property">email</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/16/angular-styles/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/16/angular-styles/" class="post-title-link" itemprop="url">angular-styles</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-16 11:27:44" itemprop="dateCreated datePublished" datetime="2025-02-16T11:27:44+08:00">2025-02-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 14:03:19" itemprop="dateModified" datetime="2025-04-07T14:03:19+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>191</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天这篇主要讨论一下Angular框架如何处理样式。</p>
-<h2 id="Angular如何隔离样式"><a href="#Angular如何隔离样式" class="headerlink" title="Angular如何隔离样式"></a>Angular如何隔离样式</h2><p>因为Angular是组件话的，每一个Component有自己的样式文件，那么Angular是如何保证多个组件之间的样式不会互相影响的呢？</p>
-<h2 id="Angular的样式封装"><a href="#Angular的样式封装" class="headerlink" title="Angular的样式封装"></a>Angular的样式封装</h2><p>Angular中有三种样式封装方式：</p>
-<ul>
-<li><code>Emulated</code>：默认的样式封装方式，通过给每个组件的样式添加一个唯一的属性，来实现样式的隔离。</li>
-<li><code>ShadowDom</code>：使用原生的Shadow DOM来实现样式的隔离。</li>
-<li><code>None</code>：不对样式进行封装，直接使用全局样式。<br>关于这三种样式封装方式的详细介绍，可以参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/30/angular-view-encapsulation/">angular-view-encapsulation</a>。</li>
-</ul>
-<h2 id="ng-deep"><a href="#ng-deep" class="headerlink" title="ng::deep"></a>ng::deep</h2><h2 id="如何处理全局样式"><a href="#如何处理全局样式" class="headerlink" title="如何处理全局样式"></a>如何处理全局样式</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/16/angular-ngdeep/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/16/angular-ngdeep/" class="post-title-link" itemprop="url">angular-ngdeep</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-16 10:48:10" itemprop="dateCreated datePublished" datetime="2025-02-16T10:48:10+08:00">2025-02-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:25:11" itemprop="dateModified" datetime="2025-04-07T17:25:11+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>857</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这篇探讨一下Angular中::ng-deep伪类的用法。</p>
-<h2 id="ng-deep是什么？"><a href="#ng-deep是什么？" class="headerlink" title="::ng-deep是什么？"></a><code>::ng-deep</code>是什么？</h2><p>以下是<code>::ng-deep</code>的官方描述：</p>
-<p>(deprecated) &#x2F;deep&#x2F;, &gt;&gt;&gt;, and ::ng-deep<br>Component styles normally apply only to the HTML in the component’s own template.</p>
-<p>Applying the ::ng-deep pseudo-class to any CSS rule completely disables view-encapsulation for that rule. Any style with ::ng-deep applied becomes a global style. In order to scope the specified style to the current component and all its descendants, be sure to include the :host selector before ::ng-deep. If the ::ng-deep combinator is used without the :host pseudo-class selector, the style can bleed into other components.</p>
-<h2 id="为什么需要-ng-deep"><a href="#为什么需要-ng-deep" class="headerlink" title="为什么需要::ng-deep?"></a>为什么需要<code>::ng-deep</code>?</h2><p>根据我的经验，使用<code>::ng-deep</code>的场景有：</p>
-<ol>
-<li>第三方库的样式覆盖，因为第三方库的样式有时候是无法直接通过选择器来修改的，这时候就需要使用<code>::ng-deep</code>。</li>
-</ol>
-<h2 id="为什么要配合-host一起使用"><a href="#为什么要配合-host一起使用" class="headerlink" title="为什么要配合:host一起使用?"></a>为什么要配合<code>:host</code>一起使用?</h2><p>在我们日常的项目中，<code>::ng-deep</code>很少单独使用，由上面对ng<code>::deep</code>的描述可知，它相当于将样式变成了全局样式，如果不加<code>:host</code>，那么这个样式会影响到所有的组件，加了<code>:host</code>,则只会影响到当前组件及其后代组件。</p>
-<p>注意：</p>
-<ol>
-<li>使用了<code>::ng-deep</code>的组件，只有显示在页面上时（该组建对应的前端路由生效时），才会影响其他组件的样式。如果该组件没有显示在页面上，那么它的样式是不会影响其他组件的。</li>
-<li>如果当前页面只显示了使用了<code>::ng-deep</code>的组件，而没有显示其他组件，那么<code>ng::deep</code>的样式也不会影响到其他组件。</li>
-</ol>
-<p>也就是说使用了<code>::ng-deep</code>的组件，只有和其他组件一起显示在页面上，才会影响其他组件的样式。</p>
-<p>实际的例子，假设有组件A在其样式文件中使用了<code>ng::deep</code>，对于三级标题，将其文本设置为红色。</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line">::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>组件B也有一个三级标题，但是没有设置样式。</p>
-<p>如果组件A和组件B同时显示在页面上，那么组件A的样式会覆盖组件B的样式，此时页面上的所有h3标题都会显示为红色。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">app-component-a</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">app-component-b</span>&gt;</span><span class="tag">&lt;/<span class="name">app-component-b</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>我们在浏览器中inspect，可以看到组件A设置的三级标题样式放到了整个html的head部分。</p>
-<p>如果组件A中在<code>::ng-deep</code>前加上<code>:host</code>，则只有组件A中的h3标题显示为红色，组件B中的h3标题不会受到影响。</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style for Component A */</span></span><br><span class="line"><span class="selector-pseudo">:host</span> ::ng-deep h3 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>为啥加上<code>:host</code>后，就不影响别的组件了呢，因为:host表示这个样式只针对当前组件和其子组件生效，由生成后的css文件也可看出这点，请看下图。</p>
-<p>在<code>h3</code>之前多了一个限定字符串<code>_nghost-ng-c2124967347</code>,这个字符串正好是组件A的选择器，这样就保证了这个样式只会影响到组件A。而组件B有一个不同的选择器<code>_nghost-ng-c2124967348</code>，所以组件B的h3标题不会受到影响。</p>
-<p>如果我们不加<code>:host</code>，那么生成的css文件中就没有这个限定字符串，这样就会影响到所有的组件。</p>
-<p><img src="/../images/angular-style-ngdeep.png" alt="angular-style-ngdeep"></p>
-<h2 id="ng-deep只对ViewEncapsulation-Emulated有效"><a href="#ng-deep只对ViewEncapsulation-Emulated有效" class="headerlink" title="::ng-deep只对ViewEncapsulation.Emulated有效"></a><code>::ng-deep</code>只对<code>ViewEncapsulation.Emulated</code>有效</h2><p><code>::ng-deep</code>只对<code>encapsulation: ViewEncapsulation.Emulated</code>有效，对于<code>encapsulation: ViewEncapsulation.ShadowDom</code>和<code>encapsulation: ViewEncapsulation.None</code>无效。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/13/javascript-string-operation/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/13/javascript-string-operation/" class="post-title-link" itemprop="url">javascript-string-operation</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-13 08:19:04" itemprop="dateCreated datePublished" datetime="2025-02-13T08:19:04+08:00">2025-02-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:26:11" itemprop="dateModified" datetime="2025-04-07T21:26:11+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>224</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>字符串在任何编程语言中都是非常重要的数据类型，对字符串的操作是程序员必备的技能，这篇文章探讨一下Javascript中常见的字符串操作，没有什么高深的内容，算是一篇笔记吧。</p>
-<h2 id="字符串反转"><a href="#字符串反转" class="headerlink" title="字符串反转"></a>字符串反转</h2><p>JS中String对象上没有reverse方法，但是Array对象上有reverse方法，所以我们可以先把字符串转成数组，然后再调用reverse方法，最后再把数组转回字符串。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> str.<span class="title function_">split</span>(<span class="string">&#x27;&#x27;</span>).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>除了用<code>split(&#39;&#39;)</code>方法，我们还可以用<code>Array.from</code>方法，这个方法可以把类数组对象或者可迭代对象转成数组。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(str).<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当然也可以使用<code>...</code>扩展运算符，这个运算符可以把可迭代对象转成数组。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">reverseString</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> [...str].<span class="title function_">reverse</span>().<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1410,20 +1475,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">333</span>
+          <span class="site-state-item-count">338</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">442</span>
+        <span class="site-state-item-count">443</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1459,12 +1524,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">219k</span>
+    <span title="Symbols count total">226k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:15</span>
+    <span title="Reading time total">13:42</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
