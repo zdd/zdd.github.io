@@ -187,6 +187,164 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/18/angular-signal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/18/angular-signal/" class="post-title-link" itemprop="url">angular-signal</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-18 16:27:55" itemprop="dateCreated datePublished" datetime="2025-02-18T16:27:55+08:00">2025-02-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:20" itemprop="dateModified" datetime="2025-04-07T17:25:20+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="What’s-Signal"><a href="#What’s-Signal" class="headerlink" title="What’s Signal?"></a>What’s Signal?</h2><p>先看一下官方定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A signal is a wrapper around a value that notifies interested consumers when that value changes. Signals can contain any value, from primitives to complex data structures.</span><br></pre></td></tr></table></figure>
+<p>翻译一下：Signal是一个包装器，它包装了一个值，并在该值发生变化时通知感兴趣的消费者。Signal可以包含任何值，从基本类型到复杂的数据结构。据说signal借鉴了<code>solid.js</code>的思想（看<a target="_blank" rel="noopener" href="https://fullstackladder.dev/blog/2023/05/07/introduction-angular-signals/">这里</a>），但是我没有考证过。</p>
+<p>Signal是Angular中重要的新特性，从xxx版开始引入，至xxx版本稳定，Signal的出现，彻底更改了Angular的变更检测机制，原本基于<code>Zone.js</code>的变更检测机制被<code>Signal</code> + <code>OnPush</code>取代，Signal的出现，使得Angular的性能得到了极大的提升。</p>
+<p>今天，我们就来揭开Signal的神秘面纱。</p>
+<h2 id="Why-Signal"><a href="#Why-Signal" class="headerlink" title="Why Signal?"></a>Why Signal?</h2><p>首先，我们来探讨一下Angular为什么要引入Signal？</p>
+<p>在Signal之前，Angular是基于Zone.js做变更检测的，不可否认Zone.js是一个非常强大的库，但是它也有一些缺点，比如：</p>
+<ol>
+<li>性能问题：Zone.js的性能并不是很好，特别是在大型项目中，Zone.js的性能问题会暴露的更加明显。除非你使用了<code>OnPush</code>策略，否则Zone.js会在每次异步操作后都会触发变更检测，这样会导致性能问题。</li>
+<li>由于Zone.js要monkey patch所有的异步操作（在Angular app启动时），所以Angular项目在启动的时候会有一些性能损失。</li>
+<li>有些异步操作无法monkey patch，比如<code>async/await</code>，Angular的解决办法是将其降级到<code>Promise</code>。如今几乎所有浏览器都支持<code>async/await</code>，这种做法显然不太合理。</li>
+</ol>
+<p>基于以上原因，Angular Team很早就考虑移除Zone.js，但是Zone.js的变更检测机制是Angular的核心，移除Zone.js，意味着Angular无法自动进行变更检测，也就是说变更检测的触发机制由Angular通过Zone.js自动检测，变成了需要用户手动触发，而Signal就是为此而服务的。</p>
+<p>通过Signal定义的数据，当它变化时，Angular会自动进行变更检测，这样就不需要Zone.js了，也就解决了上面提到的问题。</p>
+<h2 id="signal-语法"><a href="#signal-语法" class="headerlink" title="signal 语法"></a>signal 语法</h2><p>Signal语法非常简单，下面来看看如何定义和使用signal。</p>
+<h3 id="定义signal"><a href="#定义signal" class="headerlink" title="定义signal"></a>定义signal</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> count = <span class="title function_">signal</span>(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>上面是一个简单的signal定义，它的初始值是0。如果要定义复杂的值，可以使用泛型：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> user = signal&lt;<span class="title class_">User</span>&gt;(&#123;<span class="attr">name</span>: <span class="string">&#x27;zdd&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>&#125;); <span class="comment">// generic type</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="读取signal的值"><a href="#读取signal的值" class="headerlink" title="读取signal的值"></a>读取signal的值</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Signals are getter functions - calling them reads their value.</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;The count is: &#x27;</span> + <span class="title function_">count</span>());</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置signal的值"><a href="#设置signal的值" class="headerlink" title="设置signal的值"></a>设置signal的值</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">count.<span class="title function_">set</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新signal的值（根据前一个值）"><a href="#更新signal的值（根据前一个值）" class="headerlink" title="更新signal的值（根据前一个值）"></a>更新signal的值（根据前一个值）</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Signals can also be updated by passing a function that receives the current value and returns the new value.</span></span><br><span class="line">count.<span class="title function_">update</span>(<span class="function"><span class="params">value</span> =&gt;</span> value + <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="signal的分类"><a href="#signal的分类" class="headerlink" title="signal的分类"></a>signal的分类</h2><p>Signal有两种类型：<code>Signal</code>和<code>Compute Signal</code>。<code>Signal</code>是指普通的signal，它是可读写的；<code>Compute Signal</code>是指由其他signal计算得到的signal，它是只读的。</p>
+<p>上面的count就是普通的Signal，可读写，下面我们看一个compute signal的例子。下面代码中，doubleCount是一个compute signal，它的值是由count的值乘以2得到的。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> count = <span class="title function_">signal</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> doubleCount = <span class="title function_">computed</span>(<span class="function">() =&gt;</span> <span class="title function_">count</span>() * <span class="number">2</span>); <span class="comment">// </span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Signal</th>
+<th>Compute Signal</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读写性</td>
+<td>可读写</td>
+<td>只读</td>
+</tr>
+</tbody></table>
+<h2 id="一个例子"><a href="#一个例子" class="headerlink" title="一个例子"></a>一个例子</h2><p>我们以一个todo list为例，来看看Signal的使用。首先我们来定义List组件：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list-item.model.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, signal&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ListItemComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../list-item/list-item.component&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ListItem</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../list-item/list-item.model&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ListItemComponent</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./list.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./list.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListComponent</span> &#123;</span><br><span class="line">  <span class="keyword">readonly</span> listItems = signal&lt;<span class="title class_">ListItem</span>[]&gt;([</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 1&#x27;</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 2&#x27;</span>&#125;,</span><br><span class="line">  ])</span><br><span class="line"></span><br><span class="line">  <span class="title function_">addItem</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> nextId = (<span class="variable language_">this</span>.<span class="title function_">listItems</span>().<span class="property">length</span> + <span class="number">1</span>).<span class="title function_">toString</span>();</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listItems</span>.<span class="title function_">set</span>([...<span class="variable language_">this</span>.<span class="title function_">listItems</span>(), &#123;<span class="attr">id</span>: nextId, <span class="attr">name</span>: <span class="string">`item <span class="subst">$&#123;nextId&#125;</span>`</span>&#125;]);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">removeItem</span>(<span class="params"><span class="attr">id</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">listItems</span>.<span class="title function_">set</span>(<span class="variable language_">this</span>.<span class="title function_">listItems</span>().<span class="title function_">filter</span>(<span class="function"><span class="params">item</span> =&gt;</span> item.<span class="property">id</span> !== id));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的代码中，我们使用<code>readonly listItems = signal&lt;ListItem[]&gt;([...]);</code>定义了一个signal, 它的初始值是一个包含两个ListItem的数组。我们还定义了一个<code>addItem</code>方法，用来添加一个新的ListItem，以及一个<code>removeItem</code>方法，用来删除一个ListItem。<br>signal与普通的js变量不同，它的读取和写入需要特殊的语法。</p>
+<ul>
+<li>读取signal的值：<code>this.listItems()</code> - 注意不是<code>this.listItems</code>，后面要加括号，有点像函数调用。</li>
+<li>写入signal的值：<code>this.listItems.set(newValue)</code></li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--list.component.html--&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>list works!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;list&quot;</span>&gt;</span></span><br><span class="line">  @for (item of listItems(); track item.id) &#123;</span><br><span class="line">    <span class="tag">&lt;<span class="name">app-list-item</span> [<span class="attr">id</span>]=<span class="string">&quot;item.id&quot;</span> [<span class="attr">name</span>]=<span class="string">&quot;item.name&quot;</span> (<span class="attr">removeItem</span>)=<span class="string">&quot;removeItem($event)&quot;</span> /&gt;</span></span><br><span class="line">  &#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;add-button&quot;</span> (<span class="attr">click</span>)=<span class="string">&quot;addItem()&quot;</span>&gt;</span>Add Item<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后我们来定义ListItem组件：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list-item.model.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, input, output&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list-item&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list-item&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;div class=&quot;list-item-content&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;id: &#123;&#123;id()&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">        &lt;div&gt;name: &#123;&#123;name()&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;div class=&quot;list-item-actions&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;button (click)=&quot;onRemoveItem(id())&quot;&gt;Remove&lt;/button&gt;</span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;list-item.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = <span class="title function_">input</span>(<span class="string">&#x27;&#x27;</span>); <span class="comment">// 注意，这是新的input语法。</span></span><br><span class="line"></span><br><span class="line">  removeItem = output&lt;<span class="built_in">string</span>&gt;(); <span class="comment">// 这是新的output语法。</span></span><br><span class="line"></span><br><span class="line">  <span class="title function_">onRemoveItem</span>(<span class="params"><span class="attr">id</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">removeItem</span>.<span class="title function_">emit</span>(id);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Compute-Signal"><a href="#Compute-Signal" class="headerlink" title="Compute Signal"></a>Compute Signal</h2><p><code>Compute Signal</code>是指依赖于其他Signal计算得到的Signal，它是只读的，当依赖的signal值变化时，compute signal的值也会相应变化。下面是一个例子：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">count</span>: <span class="title class_">WritableSignal</span>&lt;<span class="built_in">number</span>&gt; = <span class="title function_">signal</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="attr">doubleCount</span>: <span class="title class_">Signal</span>&lt;<span class="built_in">number</span>&gt; = <span class="title function_">computed</span>(<span class="function">() =&gt;</span> <span class="title function_">count</span>() * <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+<p><code>Computed signal</code>有两个重要特性：</p>
+<ol>
+<li>lazy load - 直到你第一次读取它的值时，它才会计算。</li>
+<li>memoization - 第一次读取后缓存值，当依赖的signal值没有变化时，它不会重新计算，而是直接读取缓存的值。当依赖的signal值变化时，重新计算并缓存。</li>
+</ol>
+<h2 id="比较函数"><a href="#比较函数" class="headerlink" title="比较函数"></a>比较函数</h2><p>signal是如何比较新旧值的呢？signal使用<code>Object.is</code>来比较新旧值，如果新旧值相等，那么signal不会触发变更检测。对于js对象来说，<code>Object.is</code>相当于引用（地址）比较，也就是说只有两个对象引用相等时，<code>Object.is</code>才会返回true。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> b = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="keyword">const</span> c = a;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">is</span>(a, b)); <span class="comment">// false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="title function_">is</span>(a, c)); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<p>创建signal时，你可以指定一个比较函数来改变默认的比较方式，比如使用<code>lodash</code>的<code>isEqual</code>函数来进行深比较，这样当两个对象的值相等时，signal也会触发变更检测。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _ <span class="keyword">from</span> <span class="string">&#x27;lodash&#x27;</span>;</span><br><span class="line"><span class="keyword">const</span> data = <span class="title function_">signal</span>([<span class="string">&#x27;test&#x27;</span>], &#123;<span class="attr">equal</span>: _.<span class="property">isEqual</span>&#125;);</span><br><span class="line"><span class="comment">// Even though this is a different array instance, the deep equality</span></span><br><span class="line"><span class="comment">// function will consider the values to be equal, and the signal won&#x27;t</span></span><br><span class="line"><span class="comment">// trigger any updates.</span></span><br><span class="line">data.<span class="title function_">set</span>([<span class="string">&#x27;test&#x27;</span>]);</span><br></pre></td></tr></table></figure>
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/signals">https://angular.dev/guide/signals</a></li>
+<li><a target="_blank" rel="noopener" href="https://fullstackladder.dev/blog/2023/05/07/introduction-angular-signals/">https://fullstackladder.dev/blog/2023/05/07/introduction-angular-signals/</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/18/angular-component-input/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1202,148 +1360,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/11/algorithm-dp-climb-stairs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/11/algorithm-dp-climb-stairs/" class="post-title-link" itemprop="url">algorithm-dp-climb-stairs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-11 10:59:05" itemprop="dateCreated datePublished" datetime="2025-02-11T10:59:05+08:00">2025-02-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 16:32:33" itemprop="dateModified" datetime="2025-04-07T16:32:33+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/algorithm/" itemprop="url" rel="index"><span itemprop="name">algorithm</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>一座楼梯有n个台阶，每一步可以走一个台阶，也可以走两个台阶，请问走完这座楼梯共有多少种方法? </p>
-<p>这是一个经典的问题，俗称走台阶问题，此题有多种解法，我们分别看看每种解法的优劣。我们现推理一下递推关系，假设f(n)表示走n个台阶的方法数，那么：</p>
-<ol>
-<li>当n &#x3D; 1时，只有一种走法，即f(1) &#x3D; 1</li>
-<li>当n &#x3D; 2时，有两种走法（每次走一个台阶:1-1，或者一次走两个台阶：2），即f(2) &#x3D; 2</li>
-<li>当n &#x3D; 3时，有三种走法（1-1-1，1-2，2-1），即f(3) &#x3D; 3</li>
-<li>当n &#x3D; n时，如果第一步走一个台阶，剩下n-1个台阶，有f(n-1)种走法；如果第一步走两个台阶，剩下n-2个台阶，有f(n-2)种走法，所以f(n) &#x3D; f(n-1) + f(n-2)</li>
-</ol>
-<h2 id="递归解法"><a href="#递归解法" class="headerlink" title="递归解法"></a>递归解法</h2><p>根据上面的递推关系，我们很容易写出递归解法，代码如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">climbStairs</span>(<span class="params">n</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">climbStairs</span>(n - <span class="number">1</span>) + <span class="title function_">climbStairs</span>(n - <span class="number">2</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>递归法虽好，但是效率极其低下，当n &#x3D; 100时，程序就卡死了，我们来分析一下时间复杂度，当计算f(n)时，需要计算f(n-1)和f(n-2)，而计算f(n-1)时，需要计算f(n-2)和f(n-3)，依次类推，可以构造一个递归二叉树，其根节点是f(n)，左子树是f(n-1)，右子树是f(n-2)，左子树的左子树是f(n-2)，右子树是f(n-3)，以此类推，可以看出，递归法的时间复杂度是指数级别的，即O(2^n)。</p>
-<p>以n &#x3D; 5为例，递归树如下：这里面f(3)被计算了2次，f(2)被计算了3次，f(1)被计算了2次。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">         f(5)</span><br><span class="line">        /    \</span><br><span class="line">     f(4)    f(3)</span><br><span class="line">     /  \    /  \</span><br><span class="line">  f(3) f(2) f(2) f(1)</span><br><span class="line">  /  \</span><br><span class="line">f(2) f(1)</span><br></pre></td></tr></table></figure>
-
-<p>由于每个子问题被计算多次，所以这里面有大量的重复计算，为了避免重复计算，我们可以将计算过的结果存储起来，下次用到的时候直接使用存储的结果即可。这就是记忆化搜索（备忘录）方法。</p>
-<h2 id="记忆化搜索-备忘录-解法"><a href="#记忆化搜索-备忘录-解法" class="headerlink" title="记忆化搜索(备忘录)解法"></a>记忆化搜索(备忘录)解法</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">climbStairs</span>(<span class="params">n, memory = []</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 如果计算过，直接使用存储的结果</span></span><br><span class="line">    <span class="keyword">if</span> (memory[n] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> memory[n];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 计算并存储，不能直接return，必须先存放到memory[n]中</span></span><br><span class="line">      memory[n] = <span class="title function_">climbStairs</span>(n - <span class="number">1</span>, memory) + <span class="title function_">climbStairs</span>(n - <span class="number">2</span>, memory);</span><br><span class="line">      <span class="keyword">return</span> memory[n];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用记忆化搜索后，每个子问题只会被计算一次，时间复杂度降为O(n)，空间复杂度为O(n)。空间复杂度就是memory数组的长度。</p>
-<h2 id="动态规划解法"><a href="#动态规划解法" class="headerlink" title="动态规划解法"></a>动态规划解法</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">climbStairs1</span>(<span class="params">n</span>) &#123;</span><br><span class="line">  <span class="comment">// 如果台阶数小于等于2，直接返回n（因为1阶有1种方法，2阶有2种方法）</span></span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">2</span>) <span class="keyword">return</span> n;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定义一个数组dp，其中dp[i]表示到达第i个台阶的方法数</span></span><br><span class="line">  <span class="keyword">let</span> dp = <span class="keyword">new</span> <span class="title class_">Array</span>(n + <span class="number">1</span>);</span><br><span class="line">  dp[<span class="number">0</span>] = <span class="number">0</span>; <span class="comment">// 第0阶没有意义，设为0</span></span><br><span class="line">  dp[<span class="number">1</span>] = <span class="number">1</span>; <span class="comment">// 到达第1阶只有1种方法</span></span><br><span class="line">  dp[<span class="number">2</span>] = <span class="number">2</span>; <span class="comment">// 到达第2阶有2种方法</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 动态规划填表</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">3</span>; i &lt;= n; i++) &#123;</span><br><span class="line">    dp[i] = dp[i - <span class="number">1</span>] + dp[i - <span class="number">2</span>];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回到达第n阶的方法数</span></span><br><span class="line">  <span class="keyword">return</span> dp[n];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>还能进一步优化吗?上面的空间复杂度是O(n)，我们可以看到，计算f(n)时只需要f(n-1)和f(n-2)的结果，所以我们只需要存储f(n-1)和f(n-2)的结果即可，不需要存储所有的结果。我们用两个变量来存储f(n-1)和f(n-2)的结果，然后依次计算f(n)，这就是迭代法。</p>
-<h2 id="动态规划解法（优化空间）"><a href="#动态规划解法（优化空间）" class="headerlink" title="动态规划解法（优化空间）"></a>动态规划解法（优化空间）</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">climbStairs</span>(<span class="params">n</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> prev1 = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> prev2 = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">let</span> current = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">3</span>; i &lt;= n; i++) &#123;</span><br><span class="line">      current = prev1 + prev2;</span><br><span class="line">      prev1 = prev2;</span><br><span class="line">      prev2 = current;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> current;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>迭代法的时间复杂度是O(n)，空间复杂度是O(1)。因为只使用了三个变量，所以空间复杂度是常数级别的。</p>
-<h2 id="打印出所有走法"><a href="#打印出所有走法" class="headerlink" title="打印出所有走法"></a>打印出所有走法</h2><p>我们稍微拓展一下，如果想打印出所有的走法，该怎么做呢？</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>时间复杂度和空间复杂度总结如下表：</p>
-<table>
-<thead>
-<tr>
-<th>方法</th>
-<th>时间复杂度</th>
-<th>空间复杂度</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>递归</td>
-<td>O(2^n)</td>
-<td>O(n)</td>
-</tr>
-<tr>
-<td>记忆化搜索</td>
-<td>O(n)</td>
-<td>O(n)</td>
-</tr>
-<tr>
-<td>动态规划</td>
-<td>O(n)</td>
-<td>O(n)</td>
-</tr>
-<tr>
-<td>动态规划（优化空间）</td>
-<td>O(n)</td>
-<td>O(1)</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1413,7 +1429,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">338</span>
+          <span class="site-state-item-count">339</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1426,7 +1442,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">443</span>
+        <span class="site-state-item-count">444</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1462,12 +1478,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">226k</span>
+    <span title="Symbols count total">227k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:42</span>
+    <span title="Reading time total">13:45</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

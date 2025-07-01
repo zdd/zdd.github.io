@@ -187,6 +187,95 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/18/jest-config-do-not-collect-coverage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/18/jest-config-do-not-collect-coverage/" class="post-title-link" itemprop="url">jest-config-do-not-collect-coverage</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-18 22:09:55 / Modified: 22:22:18" itemprop="dateCreated datePublished" datetime="2025-06-18T22:09:55+08:00">2025-06-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/jest/" itemprop="url" rel="index"><span itemprop="name">jest</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>488</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天上午，我兴致勃勃的提交了一个PR，结果跑<code>Pipeline</code>的时候出了问题，我们用的是<code>ADO</code>（Azure DevOps），失败的原因是<code>Unit Tes</code>t覆盖率不够，覆盖率不够算是常见的问题了，但是这个问题比较特殊，<code>SonarQube</code>报告显示Unit Test覆盖率为0%，这就奇怪了。</p>
+<p>我们的项目已经开始三个月了，PR也提交了很多，还没有遇到覆盖率是0%的情况。于是开始排查SonarQube的配置，是不是无法拉取覆盖率报告导致覆盖率为了，看了很多log，发现没有问题。</p>
+<p>又回过头来排查项目代码，检查<code>pipeline</code>的配置，也没有发现问题。</p>
+<p>百思不得解，这时候，有一位同事反应，他在本地跑测试的时候（<code>npx jest --coverage</code>），也无法生成覆盖率报告了。正常情况下，<code>jest</code>会生成一个<code>lcov</code>格式的覆盖率报告，位于项目根目录的<code>coverage</code>目录下。于是尝试删除<code>coverage</code>目录，重新运行测试，还是没有生成覆盖率报告。</p>
+<p>这基本上可以断定是本地配置的问题，与<code>SonarQube</code>或者<code>Pipeline</code>配置都无关。于是开始排查<code>jest</code>的配置文件，发现了一个问题：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">  <span class="attr">collectCoverage</span>: <span class="literal">false</span>, <span class="comment">// 这里设置为false，导致不收集覆盖率</span></span><br><span class="line">  <span class="comment">// 其他配置...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这个配置项<code>collectCoverage</code>被设置为<code>false</code>，这就导致了<code>jest</code>不会收集覆盖率信息。于是将其改为<code>true</code>，重新运行测试，一切正常！</p>
+<p>原来，随着项目的不断推进，单元测试用例越来越多，导致跑一次测试要好几分钟，于是前端组的小张为了加快测试速度，临时将<code>collectCoverage</code>设置为<code>false</code>，以便快速跑通测试用例。没想到这个配置被提交到了代码库中，导致了覆盖率报告无法生成。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/16/typescript-utility-types-omit/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1083,123 +1172,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/01/vscode-search-tips/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/05/01/vscode-search-tips/" class="post-title-link" itemprop="url">VSCode搜索技巧</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-05-01 10:52:00 / Modified: 12:23:51" itemprop="dateCreated datePublished" datetime="2025-05-01T10:52:00+08:00">2025-05-01</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>579</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>VSCode是时下最令行的前端开发工具，用好VSCode能极大的提高我们的开发效率，而搜索是日常开发中必不可少的操作，今天我们一起来聊聊VSCode中的搜索技巧。</p>
-<p>普通的搜索我们就不谈了，今天主要介绍一下正则表达式搜索和一些小技巧。</p>
-<h1 id="匹配换行符"><a href="#匹配换行符" class="headerlink" title="匹配换行符"></a>匹配换行符</h1><ul>
-<li><code>[.|\n]*</code> - 可以匹配任意字符，包括换行符。</li>
-<li><code>[\s\S]</code> - 注意这种方式不好用。</li>
-</ul>
-<p>一般情况下我们都是进行单行搜索，但是有些情况下我们需要跨行搜索，比如下面的React代码：</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> lang = <span class="title class_">LocalStorageUtil</span>.<span class="title function_">getLanguage</span>();</span><br><span class="line">  i18n.<span class="title function_">changeLanguage</span>(lang);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
-<p>如果我想搜索所有依赖数组为空的<code>useEffect</code>调用，该怎么写这个正则表达式呢？大家可以先试试，反正我试了半天也没写出来，后来还是差DeepSeek才搞定，答案如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useEffect\((.|\n)*?,\s*\[\s*\]\s*\)</span><br></pre></td></tr></table></figure>
-<p>我们来解析一下这个正则表达式：</p>
-<ul>
-<li>useEffect - 匹配<code>useEffect</code>字符串</li>
-<li><code>\(</code> - 匹配<code>(</code>字符，因为<code>(</code>是正则表达式中的特殊字符，所以需要转义。</li>
-<li><code>(.|\n)*?</code> - 匹配任意字符，包括换行符，<code>*?</code>表示非贪婪匹配，尽可能少的匹配字符。</li>
-<li><code>,</code> - 匹配<code>,</code>字符</li>
-<li><code>\s*</code> - 匹配<code>,</code>与<code>[]</code>之间的任意空格字符，包括空格、制表符、换行符等，<code>*</code>表示匹配0次或多次。</li>
-<li><code>\[\s*\]</code> - 匹配空的依赖数组，因为<code>[</code>和<code>]</code>是正则表达式中的特殊字符，所以需要转义。</li>
-<li><code>\s*\)</code> - 匹配最后的右括弧，<code>\s*</code>表示<code>[]</code>与右括弧之间可能有空格。</li>
-</ul>
-<p>这里面的关键是：<code>(.|\n)</code> - 它匹配任意字符包括换行符。</p>
-<h1 id="匹配markdown中的表格"><a href="#匹配markdown中的表格" class="headerlink" title="匹配markdown中的表格"></a>匹配markdown中的表格</h1><p>在Markdown中，使用如下方式来生成表格。</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| Name  | Age |</span><br><span class="line">| ----- | --- |</span><br><span class="line">| Tom   | 18  |</span><br><span class="line">| Jerry | 20  |</span><br></pre></td></tr></table></figure>
-
-<p>如果我们要查找所有的markdown表格，那么我们只需要找出如下特征字符串即可</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|------|-----|</span><br></pre></td></tr></table></figure>
-
-<p>可以使用如下的正则表达式：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\|\s*-+</span><br></pre></td></tr></table></figure>
-<p>我们来解析一下这个正则表达式：</p>
-<ul>
-<li><code>\|</code> - 匹配<code>|</code>字符，因为<code>|</code>是正则表达式中的特殊字符，所以需要转义。</li>
-<li><code>\s*</code> - 匹配<code>|</code>与<code>-</code>之间的任意空格字符。</li>
-<li><code>-+</code> - 匹配<code>-</code>字符，<code>+</code>表示匹配1次或多次。</li>
-</ul>
-<p>这样，我们就可以查出所有的markdown表格了。你学会了吗？</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1269,7 +1241,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">338</span>
+          <span class="site-state-item-count">339</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1282,7 +1254,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">443</span>
+        <span class="site-state-item-count">444</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1318,12 +1290,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">226k</span>
+    <span title="Symbols count total">227k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:42</span>
+    <span title="Reading time total">13:45</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

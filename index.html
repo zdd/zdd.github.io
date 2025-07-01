@@ -187,6 +187,136 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/01/javascript-quine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/01/javascript-quine/" class="post-title-link" itemprop="url">javascript-quine</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-07-01 19:47:42 / Modified: 22:23:47" itemprop="dateCreated datePublished" datetime="2025-07-01T19:47:42+08:00">2025-07-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>863</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>如何写一段javascript程序，输出自身的源代码？这个问题非常有意思，大家不妨先尝试一下，反正在尝试了半个小时之后，我果断放弃了。</p>
+<p>这种能输出自身的程序在英文里被称为<code>quine</code>。</p>
+<h2 id="准备知识"><a href="#准备知识" class="headerlink" title="准备知识"></a>准备知识</h2><p>其实要实现这样一段程序，至少要掌握javascript中两个重要的知识点：</p>
+<ol>
+<li>IIFE</li>
+<li>toString()方法</li>
+</ol>
+<p>关于IIFE，之前的文章已经做过详细的介绍，这里就不再赘述了，感兴趣的同学可以先去看一下。</p>
+<p>&#x2F;&#x2F; insert IIFE的文章链接</p>
+<p>关于<code>toString()</code>方法，相信大家也不陌生，但是你可知道对于一个函数来说，调用<code>toString()</code>方法意味着什么？</p>
+<p>没错，调用一个函数的<code>toString()</code>方法会返回这个函数的源代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hello world&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>()) <span class="comment">// 输出foo的源代码</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="第一个例子"><a href="#第一个例子" class="headerlink" title="第一个例子"></a>第一个例子</h2><p>有了上面的知识储备，我们可以动手写一下了，首先写一个函数<code>foo</code>，在函数体内调用<code>console.log(foo.toString())</code>输出函数的源代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是这只是函数定义，并未执行，所以需要在函数定义之后调用它。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>())</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">foo</span>() <span class="comment">// 调用函数，输出源代码</span></span><br></pre></td></tr></table></figure>
+<p>运行上面的代码，输出的结果如下所示，可以看到最后的调用语句<code>foo()</code>并没有打印出来。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这不符合我们的要求，所以考虑去掉调用语句，将函数改为IIFE的形式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>())</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>运行上面的代码，输出的结果如下，最外层的<code>()</code>和末尾调用函数的<code>()</code>没有打印出来，这也不符合我们的要求。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>改造一下内部的<code>console.log</code>，将两组括弧也输出来。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;(&#x27;</span> + foo.<span class="title function_">toString</span>() + <span class="string">&#x27;)()&#x27;</span>)</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>这回结果终于正确了，我们进一步改造，使用<code>+</code>拼接字符串时，js会自动将<code>+</code>另一侧的操作数转换为字符串，所以我们可以把<code>toString()</code>省略掉。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;(&#x27;</span> + foo + <span class="string">&#x27;)()&#x27;</span>)</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<p>再增加点神秘感，将foo换成<code>$</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">$</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;(&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span>)</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">$</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;(&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span>)</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>这就是一个简单的javascript quine了。</p>
+<h2 id="最短的例子"><a href="#最短的例子" class="headerlink" title="最短的例子"></a>最短的例子</h2><p>在上面的例子中，为了便于观察结果，使用了<code>console.log</code>输出了源代码，实际上我们可以直接返回源代码，这样就可以省略掉<code>console.log</code>语句。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">$</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;(&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span></span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<p>根据前面两篇文章学到的<code>IIFE</code>的知识，我们使用IIFE的箭头函数形式。下面这段代码定义一个箭头函数并将其赋值给变量<code>$</code>，然后立即执行这个函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">($ = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;(&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span></span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>但是它的执行结果中没有包含<code>$</code>，我们加上<code>$</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">($ = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&#x27;($ =&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span></span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<p>根据箭头函数的规则，如果返回值只有一行，那么可以省略掉大括号<code>&#123;&#125;</code>和<code>return</code>关键字，所以我们可以进一步简化为</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">($ = <span class="function">() =&gt;</span> <span class="string">&#x27;($ =&#x27;</span> + $ + <span class="string">&#x27;)()&#x27;</span>)()</span><br></pre></td></tr></table></figure>
+<p>再将字符串拼接操作改为ES6的模板字符串形式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">($ = <span class="function">() =&gt;</span> <span class="string">`($ = <span class="subst">$&#123;$&#125;</span>)()`</span>)()</span><br></pre></td></tr></table></figure>
+<p>最后去掉空格，得到如下代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">($=<span class="function">()=&gt;</span><span class="string">`($=<span class="subst">$&#123;$&#125;</span>)()`</span>)()</span><br></pre></td></tr></table></figure>
+<p>这就是史上最短的<code>javascript quine</code>了。需要注意的是，上面的代码需要在浏览器的控制台中运行，如果在IDE中运行，代码格式化工具可能会将代码格式化，导致结果不正确。</p>
+<p>你还能想到其他办法吗？欢迎在评论区分享你的想法。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/30/javascript-iife-history/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1227,77 +1357,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-9/" class="post-title-link" itemprop="url">react-ant-design-component-table-9</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:55" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:55+08:00">2025-06-22</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1367,7 +1426,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">338</span>
+          <span class="site-state-item-count">339</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1380,7 +1439,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">443</span>
+        <span class="site-state-item-count">444</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1416,12 +1475,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">226k</span>
+    <span title="Symbols count total">227k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:42</span>
+    <span title="Reading time total">13:45</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
