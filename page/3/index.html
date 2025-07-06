@@ -187,6 +187,330 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/22/react-ant-design-component-table-2/" class="post-title-link" itemprop="url">react-ant-design-component-table-2</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-22 10:12:20 / Modified: 11:32:27" itemprop="dateCreated datePublished" datetime="2025-06-22T10:12:20+08:00">2025-06-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>851</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>&#x2F;&#x2F; 这里插入之前的文章目录</p>
+<p>这一篇我们继续介绍如何使用Ant Design的Table组件，关于前面的系列介绍，可以参考上面的目录。</p>
+<h2 id="为Table组件添加Loading效果"><a href="#为Table组件添加Loading效果" class="headerlink" title="为Table组件添加Loading效果"></a>为Table组件添加Loading效果</h2><p>在实际开发中，表格数据通常是通过异步请求获取的，异步请求通常是耗时的，我们不能让用户干等，需要加上Loading以提高用户体验。Ant Design为Table组件提供了<code>loading</code>属性来控制数据的加载状态，我们就利用这个属性来实现Loading效果。</p>
+<p>首先定义一个<code>loading</code>状态变量，用于控制表格的Loading状态。然后在获取用户数据时，将<code>loading</code>设置为<code>true</code>，请求完成后再设置为<code>false</code>。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">Users</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [loading, setLoading] = <span class="title function_">useState</span>(<span class="literal">true</span>);</span><br><span class="line">  <span class="keyword">const</span> [tableData, setTableData] = useState&lt;<span class="title class_">User</span>[]&gt;([]);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="title function_">fetchUsers</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span> <span class="attr">loading</span>=<span class="string">&#123;loading&#125;</span> <span class="attr">dataSource</span>=<span class="string">&#123;tableData&#125;</span> <span class="attr">columns</span>=<span class="string">&#123;columns&#125;</span>&gt;</span><span class="tag">&lt;/<span class="name">Table</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时运行程序，表格数据加载时页面会显示Loading效果，等数据加载完成后，Loading会自动消失。</p>
+<p>但是这段代码有一个非常隐蔽的问题，你看出来了吗？如果<code>fetchUsers</code>产生了异常，也就是当<code>.then</code>没有被调用时，<code>loading</code>状态将一直保持为<code>true</code>，导致表格一直处于Loading状态。为了避免这种情况，我们需要在<code>.catch</code>中也将<code>loading</code>设置为<code>false</code>。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">  <span class="title function_">fetchUsers</span>()</span><br><span class="line">    .<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;)</span><br><span class="line">    .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;获取用户数据失败:&#x27;</span>, error);</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+<p>这时候，无论用户数据获取成功还是失败，表格的Loading状态都会正确更新。但是上面的代码还是不太优雅，因为我们在每个分支中都重复了<code>setLoading(false)</code>，这不是一个好的实践。我们可以使用<code>finally</code>来简化代码。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">  <span class="title function_">fetchUsers</span>()  </span><br><span class="line">    .<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">    &#125;)</span><br><span class="line">    .<span class="title function_">catch</span>(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;获取用户数据失败:&#x27;</span>, error);</span><br><span class="line">    &#125;)</span><br><span class="line">    .<span class="title function_">finally</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+<p>现在已经消除了重复代码，但是Promise的方式产生了很多的缩进，这就是所谓的“回调地狱”。我们再使用<code>async/await</code>来重构一下代码。因为要使用<code>async/await</code>，我们需要将<code>useEffect</code>中的逻辑封装成一个新的<code>async</code>函数 - <code>getUsers</code>，然后在<code>useEffect</code>中调用它。注意，我们不能直接在<code>useEffect</code>中使用<code>await</code>操作，如果非要那么做的话，只能将<code>await</code>代码封装成一个<code>IIFE</code>放到<code>useEffect</code>中，但是那样可读性非常差。</p>
+<p>使用<code>async/await</code>重构后的代码如下, 是不是更清晰了呢？</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUsers</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetchUsers</span>();</span><br><span class="line">    <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error fetching users:&#x27;</span>, error);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">getUsers</span>();</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<h2 id="更友好的提示"><a href="#更友好的提示" class="headerlink" title="更友好的提示"></a>更友好的提示</h2><p>回顾上面的代码，似乎一切都很完美了，但是如果用户获取数据失败，也就是走到<code>catch</code>分支时，我们只是在控制台打印了错误信息，这个错误信息对我们分析程序错误很有帮助，但是对于用户来说，却没有得到任何提示，用户并不知道发生了什么，所以我们可以添加一个更友好的提示，比如使用Ant Design的<code>message</code>组件来告知用户发生了错误。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getUsers</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetchUsers</span>();</span><br><span class="line">    <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error fetching users:&#x27;</span>, error);</span><br><span class="line">    message.<span class="title function_">error</span>(<span class="string">&#x27;获取用户数据失败。&#x27;</span>);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>好了，今天就到这里了，我们明天继续。祝大家编程愉快！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/21/react-ant-design-component-table-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/21/react-ant-design-component-table-1/" class="post-title-link" itemprop="url">react-ant-design-component-table</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-06-21 18:44:35" itemprop="dateCreated datePublished" datetime="2025-06-21T18:44:35+08:00">2025-06-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-06-22 10:38:37" itemprop="dateModified" datetime="2025-06-22T10:38:37+08:00">2025-06-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>834</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><code>Ant Design</code>是一个非常出色的<code>React</code> UI组件库，今天来介绍一下如何使用<code>Ant Design</code>的<code>Table</code>组件。<code>Table</code>组件在数据可视化方面有非常广泛的应用，对于展示列表数据非常有用。在实际开发工作中，也是必须要掌握的一个组件。</p>
+<p>创建<code>React</code>项目和安装<code>Ant Design</code>的过程我就省略了，大家直接参照官网即可，下面直接开始介绍<code>Table</code>组件的使用。我们要开发一个用户管理页面，用于展示用户列表数据。</p>
+<h2 id="定义用户数据结构"><a href="#定义用户数据结构" class="headerlink" title="定义用户数据结构"></a>定义用户数据结构</h2><p>首先定义一下用户类型信息，这个类型后续要被很多地方使用。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>; <span class="comment">// 用户ID</span></span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>; <span class="comment">// 姓名</span></span><br><span class="line">  <span class="attr">email</span>: <span class="built_in">string</span>; <span class="comment">// 邮箱</span></span><br><span class="line">  <span class="attr">phone</span>: <span class="built_in">string</span>; <span class="comment">// 手机号</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建获取用户数据的API"><a href="#创建获取用户数据的API" class="headerlink" title="创建获取用户数据的API"></a>创建获取用户数据的API</h2><p>兵马未动，粮草先行，为了获取用户数据，我们先创建一个API，可以在<code>src/api</code>目录下新建一个<code>UserAPI.ts</code>文件，模拟获取用户数据的API - <code>fetchUsers</code>。这个API使用<code>Promise</code> + <code>setTimeout</code>模拟异步请求，1秒后返回一个用户列表数据。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">User</span> &#125; <span class="keyword">from</span> <span class="string">&quot;./User&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchUsers</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="attr">users</span>: <span class="title class_">User</span>[] = [</span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>, <span class="attr">email</span>: <span class="string">&#x27;philip@mail.google.com&#x27;</span>, <span class="attr">phone</span>: <span class="string">&#x27;13012345678&#x27;</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">name</span>: <span class="string">&#x27;Richard&#x27;</span>, <span class="attr">email</span>: <span class="string">&#x27;richard@mail.google.com&#x27;</span>, <span class="attr">phone</span>: <span class="string">&#x27;15012345678&#x27;</span> &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>&lt;&#123; <span class="attr">data</span>: <span class="title class_">User</span>[] &#125;&gt;(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">resolve</span>(&#123; <span class="attr">data</span>: users &#125;);</span><br><span class="line">    &#125;, <span class="number">1000</span>); <span class="comment">// 1秒后返回数据</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建用户页面"><a href="#创建用户页面" class="headerlink" title="创建用户页面"></a>创建用户页面</h2><p>在项目的<code>src/pages</code>目录下新建一个<code>users</code>目录，然后在该目录下新建一个<code>index.tsx</code>文件，作为用户页面的入口。初始代码很简单，就是引入Ant Design的Table组件并渲染一个空表格。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Table</span> <span class="keyword">from</span> <span class="string">&#x27;antd/es/table&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">Users</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span>&gt;</span><span class="tag">&lt;/<span class="name">Table</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="为Table组件添加数据源"><a href="#为Table组件添加数据源" class="headerlink" title="为Table组件添加数据源"></a>为Table组件添加数据源</h2><p>接下来，我们需要在<code>Users</code>组件中使用<code>useEffect</code>钩子来获取用户数据，并将其传递给<code>Table</code>组件。我们还需要定义一个状态来存储用户数据。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [users, setUsers] = useState&lt;<span class="title class_">User</span>[]&gt;([]);</span><br><span class="line"></span><br><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">fetchUsers</span>().<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">setUsers</span>(response.<span class="property">data</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;, []);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span> <span class="attr">dataSource</span>=<span class="string">&#123;tableData&#125;</span>&gt;</span><span class="tag">&lt;/<span class="name">Table</span>&gt;</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>此时运行App，你会看到一个空的表格，因为表格的Columns还没有定义。接下来我们定义Columns。Columns决定了表格的每一列都显示什么。</p>
+<h2 id="定义表格的Columns"><a href="#定义表格的Columns" class="headerlink" title="定义表格的Columns"></a>定义表格的Columns</h2><p>Columns是一个数组，数组中每一个元素对应表格中的一列，每个列需要如下属性：</p>
+<ul>
+<li><code>title</code>：列的标题 - 这个用于显示在表头</li>
+<li><code>dataIndex</code>：列对应的数据字段 - 这个用于从数据中获取对应的值并显示到表格中</li>
+<li><code>key</code>：列的唯一标识符</li>
+</ul>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;email&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;email&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;手机号&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;phone&#x27;</span>,</span><br><span class="line">    <span class="attr">key</span>: <span class="string">&#x27;phone&#x27;</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>此时再运行<code>npm run start</code>，你就可以看到表格中的数据了。<br><img src="/../images/ant-design-table-user.png" alt="用户列表表格"><br>完整代码如下：</p>
+<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Table</span> <span class="keyword">from</span> <span class="string">&#x27;antd/es/table&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; useEffect, useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">User</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./User&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; fetchUsers &#125; <span class="keyword">from</span> <span class="string">&#x27;./UserAPI&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">Users</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [tableData, setTableData] = useState&lt;<span class="title class_">User</span>[]&gt;([]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> columns = [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;ID&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="string">&#x27;id&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;email&#x27;</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="string">&#x27;email&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;手机号&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;phone&#x27;</span>,</span><br><span class="line">      <span class="attr">key</span>: <span class="string">&#x27;phone&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">fetchUsers</span>().<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="title function_">setTableData</span>(res.<span class="property">data</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span> <span class="attr">dataSource</span>=<span class="string">&#123;tableData&#125;</span> <span class="attr">columns</span>=<span class="string">&#123;columns&#125;</span>&gt;</span><span class="tag">&lt;/<span class="name">Table</span>&gt;</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好了，今天就到这里，在后续的文章中，我们会逐步完善这个管理页面，添加更多的功能，随着功能的增加，我们会逐步介绍Ant Design的其他组件和用法。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/21/javascript-nan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/21/javascript-nan/" class="post-title-link" itemprop="url">JavaScript中最狠的角色：NaN</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-21 15:24:54 / Modified: 16:13:55" itemprop="dateCreated datePublished" datetime="2025-06-21T15:24:54+08:00">2025-06-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>870</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>JavaScript中最狠的角色：<code>NaN</code>，为什么说它是最狠的角色呢？因为它狠起来，连自己都不放过！</p>
+<p>如果要在纯数学中找到一个变量x，且满足 <code>x != x</code>，那么很遗憾，数学中不存在这样的变量。但是在JS的世界中却存在这样一个变量，它就是 <code>NaN</code>，它自己和自己不相等，够不够狠？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">NaN</span> == <span class="title class_">NaN</span> <span class="comment">// false</span></span><br><span class="line"><span class="title class_">NaN</span> === <span class="title class_">NaN</span> <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<p><code>NaN</code>的全称是“Not a Number”，它表示一个非数字的值。通常情况下，<code>NaN</code>出现在以下几种情况：</p>
+<h1 id="什么情况会产生NaN？"><a href="#什么情况会产生NaN？" class="headerlink" title="什么情况会产生NaN？"></a>什么情况会产生NaN？</h1><p>以下情况都会产生<code>NaN</code>：</p>
+<h2 id="失败的数字类型转换"><a href="#失败的数字类型转换" class="headerlink" title="失败的数字类型转换"></a>失败的数字类型转换</h2><p>如果尝试将一个非数字类型的变量转换为数字类型，但转换失败，则会产生<code>NaN</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Number</span>(<span class="literal">undefined</span>); <span class="comment">// NaN</span></span><br><span class="line"><span class="built_in">parseInt</span>(<span class="string">&#x27;abc&#x27;</span>); <span class="comment">// NaN</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="无效的数学运算"><a href="#无效的数学运算" class="headerlink" title="无效的数学运算"></a>无效的数学运算</h2><p>在数学运算中，如果运算无法产生一个数字，则会产生<code>NaN</code>。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Math</span>.<span class="title function_">sqrt</span>(-<span class="number">1</span>); <span class="comment">// NaN，负数的平方根是虚数，不是数字 </span></span><br><span class="line"><span class="title class_">Math</span>.<span class="title function_">log</span>(-<span class="number">1</span>); <span class="comment">// NaN，负数的对数是未定义的</span></span><br><span class="line"><span class="title class_">Math</span>.<span class="title function_">pow</span>(<span class="string">&#x27;abc&#x27;</span>, <span class="number">2</span>); <span class="comment">// NaN，&#x27;abc&#x27;不能转换为数字</span></span><br></pre></td></tr></table></figure>
+<h2 id="无穷值"><a href="#无穷值" class="headerlink" title="无穷值"></a>无穷值</h2><p>当一个数学运算的结果是无穷大或无穷小时，JS会将其转换为<code>NaN</code>。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> / <span class="number">0</span>; <span class="comment">// Infinity</span></span><br><span class="line"><span class="number">0</span> * <span class="title class_">Infinity</span>; <span class="comment">// NaN，0乘以无穷大是未定义的</span></span><br><span class="line"><span class="title class_">Infinity</span> - <span class="title class_">Infinity</span>; <span class="comment">// NaN，无穷大减去无穷大是未定义的</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="非数字类型的运算"><a href="#非数字类型的运算" class="headerlink" title="非数字类型的运算"></a>非数字类型的运算</h2><p>在JS中，如果对非数字类型的值进行数学运算，通常会产生<code>NaN</code>。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;abc&#x27;</span> * <span class="number">2</span>; <span class="comment">// NaN，字符串不能参与数学运算</span></span><br><span class="line"><span class="literal">undefined</span> + <span class="number">1</span>; <span class="comment">// NaN，undefined转换为数字时是NaN</span></span><br><span class="line"><span class="number">2</span> ** <span class="title class_">NaN</span>; <span class="comment">// NaN不能参加数学运算</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="其他情况"><a href="#其他情况" class="headerlink" title="其他情况"></a>其他情况</h2><p>这个情况和第一种类似，就是将一个非数字类型表示为数字类型时，如果转换失败，也会产生<code>NaN</code>。例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Date</span>(<span class="string">&quot;blabla&quot;</span>).<span class="title function_">getTime</span>(); <span class="comment">// NaN，无法将无效的日期字符串转换为时间戳</span></span><br><span class="line"><span class="string">&quot;&quot;</span>.<span class="title function_">charCodeAt</span>(<span class="number">1</span>); <span class="comment">// NaN，空字符串的第二个字符不存在</span></span><br></pre></td></tr></table></figure>
+<h2 id="唯一的例外"><a href="#唯一的例外" class="headerlink" title="唯一的例外"></a>唯一的例外</h2><p>在JS所支持的所有数学运算中，只有一个运算不会产生<code>NaN</code>，那就是0次幂运算。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">NaN</span> ** <span class="number">0</span> <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="如何判断NaN？"><a href="#如何判断NaN？" class="headerlink" title="如何判断NaN？"></a>如何判断NaN？</h1><p>给定一个变量<code>x</code>，如何判断它是否是<code>NaN</code>呢？由开头的介绍可知，我们无法使用<code>==</code>或者<code>===</code>来判断NaN，所以JS提供了专门用于判断NaN的函数：</p>
+<ul>
+<li><code>isNaN(x)</code>：这个函数主要用来判断x是否能转换为数字，如果不能转换为数字，则返回<code>true</code>，否则返回<code>false</code>。注意，这个函数会对非数字类型的值进行隐式转换。</li>
+<li><code>Number.isNaN(x)</code>：这个函数是ES6引入的，它只会判断<code>x</code>是否是<code>NaN</code>，不会进行隐式转换。如果<code>x</code>是<code>NaN</code>，则返回<code>true</code>，否则返回<code>false</code>。</li>
+<li><code>Object.is(x, NaN)</code>：这个函数也是ES6引入的，它可以用来判断<code>x</code>是否是<code>NaN</code>。</li>
+</ul>
+<p>看几个列子，理解一下。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">isNaN</span>(<span class="title class_">NaN</span>); <span class="comment">// true</span></span><br><span class="line"><span class="built_in">isNaN</span>(<span class="string">&#x27;abc&#x27;</span>); <span class="comment">// true，因为&#x27;abc&#x27;不能转换为数字</span></span><br><span class="line"><span class="built_in">isNaN</span>(<span class="string">`123`</span>); <span class="comment">// false，因为123可以转换为数字</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Number</span>.<span class="built_in">isNaN</span>(<span class="title class_">NaN</span>); <span class="comment">// true</span></span><br><span class="line"><span class="title class_">Number</span>.<span class="built_in">isNaN</span>(<span class="string">&#x27;abc&#x27;</span>); <span class="comment">// false，因为&#x27;abc&#x27;不是NaN</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Object</span>.<span class="title function_">is</span>(<span class="title class_">NaN</span>, <span class="title class_">NaN</span>); <span class="comment">// true</span></span><br><span class="line"><span class="title class_">Object</span>.<span class="title function_">is</span>(<span class="title class_">NaN</span>, <span class="number">123</span>); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h2><p>如果让你写一个函数判断一个变量是否是<code>NaN</code>，你会怎么写？我们可以根据<code>NaN</code>的特性：NaN与自身不相等来实现这个函数。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isReallyNaN</span>(<span class="params">x</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> x !== x; <span class="comment">// NaN是唯一一个不等于自己的值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">isReallyNaN</span>(<span class="title class_">NaN</span>)); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">isReallyNaN</span>(<span class="number">123</span>)); <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/18/jest-config-do-not-collect-coverage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -868,314 +1192,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/06/jest-integrate-jest-to-react-app/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/05/06/jest-integrate-jest-to-react-app/" class="post-title-link" itemprop="url">jest-integrate-jest-to-react-app</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-05-06 20:39:03" itemprop="dateCreated datePublished" datetime="2025-05-06T20:39:03+08:00">2025-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-17 15:03:05" itemprop="dateModified" datetime="2025-05-17T15:03:05+08:00">2025-05-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/jest/" itemprop="url" rel="index"><span itemprop="name">jest</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天来看一下如何在React项目中使用Jest进行单元测试。</p>
-<h2 id="创建React项目"><a href="#创建React项目" class="headerlink" title="创建React项目"></a>创建React项目</h2><p>我们使用Vite来创建React项目，命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm create vite@latest react-app-jest --template react-ts</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用VSCode打开项目"><a href="#使用VSCode打开项目" class="headerlink" title="使用VSCode打开项目"></a>使用VSCode打开项目</h2><p>使用如下命令打开项目</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> react-app-jest</span><br><span class="line">code .</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/05/06/jest-integrate-jest-to-react-app/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/05/angular-use-lit-element-in-angular-app/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/05/05/angular-use-lit-element-in-angular-app/" class="post-title-link" itemprop="url">如何在Angular应用中使用Lit Element</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-05-05 10:52:54 / Modified: 11:16:09" itemprop="dateCreated datePublished" datetime="2025-05-05T10:52:54+08:00">2025-05-05</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/lit/" itemprop="url" rel="index"><span itemprop="name">Lit</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>553</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天来研究一下如何在Angular应用中集成Lit Element。Lit Element是一个轻量级的Web Component库，基于标准的Web Component API，因此可以在任何支持Web Component的框架中使用，比如React、Vue、Angular等。</p>
-<h1 id="使用Angular-CLI创建Angular项目"><a href="#使用Angular-CLI创建Angular项目" class="headerlink" title="使用Angular CLI创建Angular项目"></a>使用Angular CLI创建Angular项目</h1><p>如果你已经安装了Angular CLI，可以直接使用以下命令创建一个新的Angular项目：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new lit_element-app-angular</span><br></pre></td></tr></table></figure>
-<p>如果你没有安装过Angular CLI，也没关系，可以使用以下命令创建Angular项目：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@latest new lit_element-app-angular</span><br></pre></td></tr></table></figure>
-<p>在cli创建项目的过程中可能会提示你选择CSS预处理器，我们直接选择CSS即可，CLI还会询问是否启用服务端渲染，我们选择否。</p>
-<h1 id="安装Lit-Element依赖"><a href="#安装Lit-Element依赖" class="headerlink" title="安装Lit Element依赖"></a>安装Lit Element依赖</h1><p>待项目创建好以后，我们使用如下命令用VSCode打开项目，首先使用<code>cd lit_element-app-angular</code>进入项目目录，然后使用<code>code .</code>表示用VSCode打开当前目录。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> lit_element-app-angular</span><br><span class="line">code .</span><br></pre></td></tr></table></figure>
-<p>打开VSCode中的Terminal，运行以下命令安装<code>lit</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install lit</span><br></pre></td></tr></table></figure>
-
-<h1 id="创建Lit-Element组件"><a href="#创建Lit-Element组件" class="headerlink" title="创建Lit Element组件"></a>创建Lit Element组件</h1><p>在<code>src</code>目录下创建一个<code>components</code>目录，然后在<code>components</code>目录下创建一个<code>my-element.ts</code>文件，内容如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">LitElement</span>, css, html &#125; <span class="keyword">from</span> <span class="string">&#x27;lit&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; customElement, property &#125; <span class="keyword">from</span> <span class="string">&#x27;lit/decorators.js&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@customElement</span>(<span class="string">&#x27;my-element&#x27;</span>)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">MyElement</span> <span class="keyword">extends</span> <span class="title class_ inherited__">LitElement</span> &#123;</span><br><span class="line">  <span class="meta">@property</span>(&#123; <span class="attr">type</span>: <span class="title class_">String</span> &#125;) name = <span class="string">&#x27;World&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">override</span> styles = css`<span class="language-css"></span></span><br><span class="line"><span class="language-css">    <span class="selector-pseudo">:host</span> &#123;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">display</span>: block;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">padding</span>: <span class="number">16px</span>;</span></span><br><span class="line"><span class="language-css">      <span class="attribute">color</span>: <span class="built_in">var</span>(--my-element-text-color, black);</span></span><br><span class="line"><span class="language-css">    &#125;</span></span><br><span class="line"><span class="language-css">  `</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="title function_">render</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> html`<span class="language-xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Hello, </span><span class="subst">$&#123;<span class="variable language_">this</span>.name&#125;</span><span class="language-xml">!<span class="tag">&lt;/<span class="name">p</span>&gt;</span>`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用my-element组件"><a href="#使用my-element组件" class="headerlink" title="使用my-element组件"></a>使用my-element组件</h1><p>首先：在<code>src/app/app.component.ts</code>中引入<code>my-element.ts</code>并添加<code>CUSTOM_ELEMENTS_SCHEMA</code>，代码如下：</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="variable constant_">CUSTOM_ELEMENTS_SCHEMA</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">RouterOutlet</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/router&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;../components/my-element&#x27;</span>; <span class="comment">// 引入my-element组件</span></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">RouterOutlet</span>],</span><br><span class="line">  <span class="attr">templateUrl</span>: <span class="string">&#x27;./app.component.html&#x27;</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./app.component.css&#x27;</span>,</span><br><span class="line">  <span class="attr">schemas</span>: [<span class="variable constant_">CUSTOM_ELEMENTS_SCHEMA</span>], <span class="comment">// 添加CUSTOM_ELEMENTS_SCHEMA</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  title = <span class="string">&#x27;lit_element-app-angular&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后：在<code>src/app/app.component.html</code>中使用<code>my-element</code>组件：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">my-element</span> <span class="attr">name</span>=<span class="string">&quot;World&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">my-element</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">router-outlet</span> /&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="更新tsconfig设置"><a href="#更新tsconfig设置" class="headerlink" title="更新tsconfig设置"></a>更新tsconfig设置</h1><p>打开项目根目录下（package.json所在目录）的<code>tsconfig.app.json</code>文件，添加以下配置：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;experimentalDecorators&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span> </span><br><span class="line">    <span class="attr">&quot;useDefineForClassFields&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="运行项目"><a href="#运行项目" class="headerlink" title="运行项目"></a>运行项目</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run start</span><br></pre></td></tr></table></figure>
-
-<p>在浏览器中访问<code>http://localhost:4200</code>，你应该能看到如下效果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
-<p>话说Angular集成Lit简直是分分钟的事，比React简单太多了。为什么国内用Angular的人这么少呢？不理解…</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/05/01/git-tips/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/05/01/git-tips/" class="post-title-link" itemprop="url">git最佳实践及常用技巧</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-05-01 17:01:36" itemprop="dateCreated datePublished" datetime="2025-05-01T17:01:36+08:00">2025-05-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-17 11:42:33" itemprop="dateModified" datetime="2025-05-17T11:42:33+08:00">2025-05-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.7k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="分支的本质是什么？"><a href="#分支的本质是什么？" class="headerlink" title="分支的本质是什么？"></a>分支的本质是什么？</h1><p>分支的本质是一个指向某个commit的指针。所以未commit的修改是没有分支的概念的，只有commit才有分支的概念。</p>
-<p>下面的命令中我们使用<code>git checkout</code>来切换分支，新版本的git推荐使用<code>git switch</code>来切换分支。但是<code>git checkout</code>命令还有其他功能，比如检出某个版本，所以<code>git switch</code>命令并不能完全替代<code>git checkout</code>命令。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/05/01/git-tips/#more" rel="contents" target="_blank" rel="noopener">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/34/">34</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/">35</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1241,20 +1261,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">339</span>
+          <span class="site-state-item-count">342</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">444</span>
+        <span class="site-state-item-count">446</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1290,12 +1310,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">227k</span>
+    <span title="Symbols count total">230k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:45</span>
+    <span title="Reading time total">13:56</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

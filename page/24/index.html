@@ -187,6 +187,397 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/26/angular-module-federation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/26/angular-module-federation/" class="post-title-link" itemprop="url">angular-module-federation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-26 11:01:27" itemprop="dateCreated datePublished" datetime="2024-05-26T11:01:27+08:00">2024-05-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:04" itemprop="dateModified" datetime="2025-04-07T17:25:04+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This article will introduce Angular Module Federation, a new feature in Webpack 5 that allows you to share code between Angular applications.</p>
+<p>Module Federation is a new feature in Webpack 5 that allows you to share code between applications. It enables your application to load remote modules at runtime from another application and share dependencies between applications. This feature is particularly useful for micro-frontends, where you have multiple applications that need to share code.</p>
+<h2 id="Steps"><a href="#Steps" class="headerlink" title="Steps"></a>Steps</h2><h3 id="Create-an-empty-angular-workspace"><a href="#Create-an-empty-angular-workspace" class="headerlink" title="Create an empty angular workspace"></a>Create an empty angular workspace</h3><p>Option <code>--no-create-application</code> is used to create an empty workspace without an initial application.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new angular-module-federation --no-create-application</span><br></pre></td></tr></table></figure>
+
+<h3 id="Generate-shell-application-shell"><a href="#Generate-shell-application-shell" class="headerlink" title="Generate shell application shell"></a>Generate shell application <code>shell</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> angular-module-federation</span><br><span class="line">ng generate application shell</span><br></pre></td></tr></table></figure>
+
+<h3 id="Generate-remote-application-mfe1"><a href="#Generate-remote-application-mfe1" class="headerlink" title="Generate remote application mfe1"></a>Generate remote application <code>mfe1</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate application mfe1</span><br></pre></td></tr></table></figure>
+
+<h3 id="Add-plugin-angular-architects-module-federation-to-shell-app"><a href="#Add-plugin-angular-architects-module-federation-to-shell-app" class="headerlink" title="Add plugin @angular-architects/module-federation to shell app"></a>Add plugin <code>@angular-architects/module-federation</code> to <code>shell</code> app</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng add @angular-architects/module-federation --project shell --port 4200 --<span class="built_in">type</span> host</span><br></pre></td></tr></table></figure>
+
+<p>This command will do the following:</p>
+<ol>
+<li><p>Add <code>@angular-architects/module-federation</code> and <code>ngx-build-plus</code> to file <code>package.json</code> under workspace root.</p>
+</li>
+<li><p>Add command <code>&quot;run:all&quot;: &quot;node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js&quot;</code> to <code>scripts</code> section in file <code>package.json</code>. This command will start the module federation development server, which will run app shell and app mfe1 at the same time.</p>
+</li>
+<li><p>Add file <code>bootstrap.ts</code> under <code>projects/shell/src</code> folder, its content was copied from <code>main.ts</code></p>
+ <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; bootstrapApplication &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; appConfig &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.config&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bootstrapApplication</span>(<span class="title class_">AppComponent</span>, appConfig)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure></li>
+<li><p>Update file <code>projects/shell/src/main.ts</code> to import <code>bootstrap.ts</code>(Note, when a file was imported, it was executed automatically)</p>
+ <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;./bootstrap&#x27;</span>;</span><br></pre></td></tr></table></figure></li>
+<li><p>Add file <code>webpack.config.js</code> under <code>projects/shell</code> folder, </p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; shareAll, withModuleFederationPlugin &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@angular-architects/module-federation/webpack&#x27;</span>);</span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="attr">remotes</span>: &#123;</span><br><span class="line">    <span class="string">&quot;mfe1&quot;</span>: <span class="string">&quot;http://localhost:4200/remoteEntry.js&quot;</span>,    </span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">shared</span>: &#123;</span><br><span class="line">    ...<span class="title function_">shareAll</span>(&#123; <span class="attr">singleton</span>: <span class="literal">true</span>, <span class="attr">strictVersion</span>: <span class="literal">true</span>, <span class="attr">requiredVersion</span>: <span class="string">&#x27;auto&#x27;</span> &#125;),</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><p>Add file <code>webpack.prod.config.js</code> under <code>projects/shell</code> folder, </p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="built_in">require</span>(<span class="string">&#x27;./webpack.config&#x27;</span>);</span><br></pre></td></tr></table></figure></li>
+<li><p>Update file <code>angular.json</code> under workspace root.</p>
+<ol>
+<li>projects&#x2F;shell&#x2F;architect&#x2F;build&#x2F;builder: <code>&quot;@angular-devkit/build-angular:application&quot;</code> —&gt; <code>ngx-build-plus:browser</code> - The reason for this change is that module federation is a feature provided by <code>WebPack</code>, but <code>&quot;@angular-devkit/build-angular:application&quot;</code> is for ESBuild, so we need to change it to <code>ngx-build-plus:browser</code> which is for <code>WebPack</code>. see <a target="_blank" rel="noopener" href="https://zdd.github.io/2024/06/06/angular-builders/">here</a> for details.</li>
+<li>projects&#x2F;shell&#x2F;architect&#x2F;build&#x2F;builder&#x2F;extraWebpackConfig: <code>&quot;projects/shell/webpack.config.js&quot;</code></li>
+<li>projects&#x2F;shell&#x2F;architect&#x2F;build&#x2F;configurations&#x2F;production&#x2F;extraWebpackConfig: <code>&quot;projects/shell/webpack.prod.config.js&quot;</code></li>
+<li>projects&#x2F;shell&#x2F;architect&#x2F;serve&#x2F;configurations&#x2F;extraWebpackConfig: <code>&quot;projects/shell/webpack.prod.config.js&quot;</code></li>
+<li>projects&#x2F;shell&#x2F;architect&#x2F;serve&#x2F;options: <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line"> <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">4200</span><span class="punctuation">,</span></span><br><span class="line"> <span class="attr">&quot;publicHost&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://localhost:4200&quot;</span><span class="punctuation">,</span></span><br><span class="line"> <span class="attr">&quot;extraWebpackConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/shell/webpack.config.js&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<p>Note that: <code>extraWebpackConfig</code> is an option from <a target="_blank" rel="noopener" href="https://github.com/manfredsteyer/ngx-build-plus/"><code>ngx-build-plus</code></a>, it allows you to add additional webpack configuration to the project.</p>
+<h3 id="Add-plugin-angular-architects-module-federation-to-mfe1-app"><a href="#Add-plugin-angular-architects-module-federation-to-mfe1-app" class="headerlink" title="Add plugin @angular-architects/module-federation to mfe1 app"></a>Add plugin <code>@angular-architects/module-federation</code> to <code>mfe1</code> app</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng add @angular-architects/module-federation --project mfe1 --port 4201 --<span class="built_in">type</span> remote</span><br></pre></td></tr></table></figure>
+
+<p>This command will do the same thing as the previous command, but for the <code>mfe1</code> app with a little difference.</p>
+<ol>
+<li>webpack.config.js <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; shareAll, withModuleFederationPlugin &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@angular-architects/module-federation/webpack&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;mfe1&#x27;</span>,</span><br><span class="line">  <span class="attr">exposes</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;./Component&#x27;</span>: <span class="string">&#x27;./projects/mfe1/src/app/app.component.ts&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">shared</span>: &#123;</span><br><span class="line">    ...<span class="title function_">shareAll</span>(&#123; <span class="attr">singleton</span>: <span class="literal">true</span>, <span class="attr">strictVersion</span>: <span class="literal">true</span>, <span class="attr">requiredVersion</span>: <span class="string">&#x27;auto&#x27;</span> &#125;),</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li>Serve options in <code>angular.json</code> <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;options&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">4201</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;publicHost&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://localhost:4201&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;extraWebpackConfig&quot;</span><span class="punctuation">:</span> <span class="string">&quot;projects/mfe1/webpack.config.js&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Add-home-component-to-shell-app"><a href="#Add-home-component-to-shell-app" class="headerlink" title="Add home component to shell app"></a>Add <code>home</code> component to <code>shell</code> app</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component home --project=shell</span><br></pre></td></tr></table></figure>
+
+<h3 id="Add-product-component-to-mfe1-app"><a href="#Add-product-component-to-mfe1-app" class="headerlink" title="Add product component to mfe1 app"></a>Add <code>product</code> component to <code>mfe1</code> app</h3><p>app <code>mfe1</code> will expose a component <code>product</code> to shell app.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng generate component product --project=mfe1</span><br></pre></td></tr></table></figure>
+
+<h3 id="Update-webpack-config-js-in-app-mfe1"><a href="#Update-webpack-config-js-in-app-mfe1" class="headerlink" title="Update webpack.config.js in app mfe1"></a>Update webpack.config.js in app mfe1</h3><p>We’ll expose the <code>product</code> component to the <code>shell</code> app.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; shareAll, withModuleFederationPlugin &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@angular-architects/module-federation/webpack&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;mfe1&#x27;</span>,</span><br><span class="line">  <span class="attr">exposes</span>: &#123;</span><br><span class="line">    <span class="string">&#x27;./Component&#x27;</span>: <span class="string">&#x27;./projects/mfe1/src/app/product/product.component.ts&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">shared</span>: &#123;</span><br><span class="line">    ...<span class="title function_">shareAll</span>(&#123; <span class="attr">singleton</span>: <span class="literal">true</span>, <span class="attr">strictVersion</span>: <span class="literal">true</span>, <span class="attr">requiredVersion</span>: <span class="string">&#x27;auto&#x27;</span> &#125;),</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Update-app-routers-ts-in-app-mfe1"><a href="#Update-app-routers-ts-in-app-mfe1" class="headerlink" title="Update app.routers.ts in app mfe1"></a>Update app.routers.ts in app mfe1</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">ProductComponent</span>,</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h3 id="Update-webpack-config-js-in-app-shell"><a href="#Update-webpack-config-js-in-app-shell" class="headerlink" title="Update webpack.config.js in app shell"></a>Update webpack.config.js in app shell</h3><p>Note the generated <code>port</code> in webpack.config.js, its value is <code>4200</code>, we should change it to <code>4201</code> since mfe1 runs on this port.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; shareAll, withModuleFederationPlugin &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@angular-architects/module-federation/webpack&#x27;</span>);</span><br><span class="line">    <span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">      <span class="attr">remotes</span>: &#123;</span><br><span class="line">        <span class="string">&quot;mfe1&quot;</span>: <span class="string">&quot;http://localhost:4201/remoteEntry.js&quot;</span>, <span class="comment">// &lt;--- 4201</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">shared</span>: &#123;</span><br><span class="line">        ...<span class="title function_">shareAll</span>(&#123; <span class="attr">singleton</span>: <span class="literal">true</span>, <span class="attr">strictVersion</span>: <span class="literal">true</span>, <span class="attr">requiredVersion</span>: <span class="string">&#x27;auto&#x27;</span> &#125;),</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Update-app-routes-ts-in-app-shell"><a href="#Update-app-routes-ts-in-app-shell" class="headerlink" title="Update app.routes.ts in app shell"></a>Update app.routes.ts in app shell</h3><p>Add a route path <code>product</code> to load the <code>product</code> component remotely from <code>mfe1</code>.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> <span class="attr">routes</span>: <span class="title class_">Routes</span> = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;home&#x27;</span>,</span><br><span class="line">    <span class="attr">component</span>: <span class="title class_">HomeComponent</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">    <span class="attr">loadChildren</span>: <span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;mfe1/Component&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductComponent</span>),</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h3 id="Add-typescript-declaration-file-decl-d-ts-under-projects-shell-src"><a href="#Add-typescript-declaration-file-decl-d-ts-under-projects-shell-src" class="headerlink" title="Add typescript declaration file decl.d.ts under projects&#x2F;shell&#x2F;src"></a>Add typescript declaration file <code>decl.d.ts</code> under projects&#x2F;shell&#x2F;src</h3><p>If you don’t add this file, you will get an error when you import the remote module <code>mfe1</code> in the shell app.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="variable language_">module</span> <span class="string">&#x27;mfe1/Component&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Workspace-structure"><a href="#Workspace-structure" class="headerlink" title="Workspace structure"></a>Workspace structure</h3><p>Here is the file structure of the workspace till now.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">angular-module-federation/</span><br><span class="line">├─ projects/</span><br><span class="line">│  ├─ mfe1/</span><br><span class="line">│  │  ├─ src/</span><br><span class="line">│  │  ├─ webpack.config.js</span><br><span class="line">│  │  ├─ webpack.prod.config.js</span><br><span class="line">│  ├─ shell/</span><br><span class="line">│  │  ├─ src/</span><br><span class="line">│  │  ├─ webpack.config.js</span><br><span class="line">│  │  ├─ webpack.prod.config.js</span><br><span class="line">├─ angular.json</span><br><span class="line">├─ package.json</span><br></pre></td></tr></table></figure>
+
+<h3 id="Start-the-development-server"><a href="#Start-the-development-server" class="headerlink" title="Start the development server"></a>Start the development server</h3><p>You can run shell and mef1 app separately by running the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ng serve shell - o</span><br><span class="line">ng serve mfe1 - o</span><br></pre></td></tr></table></figure>
+
+<p>Or run them at the same time by running the following command.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run run:all</span><br></pre></td></tr></table></figure>
+
+<p>Change the shell app url in browser to <code>localhost:4200/product</code>, you will see the product component from mfe1 app.</p>
+<h3 id="Remote-entry-file"><a href="#Remote-entry-file" class="headerlink" title="Remote entry file"></a>Remote entry file</h3><p>If you look into the webpack.config.js file in the <code>shell</code> app, you will see the following configuration.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">remotes</span>: &#123;</span><br><span class="line">  <span class="string">&quot;mfe1&quot;</span>: <span class="string">&quot;http://localhost:4200/remoteEntry.js&quot;</span>,    </span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>Here we use <code>remoteEntry.js</code> as the entry point of the remote expose module, this is the default file name, However, if you want to change it, you can update the configuration in the webpack.config.js file in the <code>mfe1</code> app.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">filename</span>: <span class="string">&#x27;myEntryName.js&#x27;</span>,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>and then update the configuration in the webpack.config.js file in the <code>shell</code> app.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">remotes</span>: &#123;</span><br><span class="line">    <span class="string">&quot;mfe1&quot;</span>: <span class="string">&quot;http://localhost:4200/myEntryName.js&quot;</span>,    </span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="namedChunk"><a href="#namedChunk" class="headerlink" title="namedChunk"></a>namedChunk</h3><p>When you run the shell app, switch to <code>network</code> tab in the browser’s developer tool, you will see the response of the javascript file name as a random string, that’s because <code>Webpack</code> generates a random name for the chunk file, you can change it to a named chunk by adding the following configuration in the <code>angular.json</code> file in the <code>mfe1</code> app.(under <code>architect | build | configuration | development</code>)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">withModuleFederationPlugin</span>(&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="attr">filename</span>: <span class="string">&#x27;myEntryName.js&#x27;</span>,</span><br><span class="line">  <span class="attr">namedChunk</span>: <span class="literal">true</span>,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Dynamic-loading"><a href="#Dynamic-loading" class="headerlink" title="Dynamic loading"></a>Dynamic loading</h3><p>You can remove the <code>remotes</code> part in app shell’s <code>webpack.config.js</code> file, and update the <code>app.routes.ts</code> file in the shell app to load the remote module dynamically.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">path</span>: <span class="string">&#x27;product&#x27;</span>,</span><br><span class="line">  <span class="attr">loadComponent</span>: <span class="function">() =&gt;</span></span><br><span class="line">    <span class="title function_">loadRemoteModule</span>(&#123;</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;module&#x27;</span>,</span><br><span class="line">      <span class="attr">remoteEntry</span>: <span class="string">&#x27;http://localhost:4201/remoteEntry.js&#x27;</span>,</span><br><span class="line">      <span class="attr">exposedModule</span>: <span class="string">&#x27;./Component&#x27;</span></span><br><span class="line">    &#125;).<span class="title function_">then</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">ProductComponent</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>You can found the options of <code>withModuleFederationPlugin</code> in WebPack’s official documentation <a target="_blank" rel="noopener" href="https://webpack.js.org/plugins/module-federation-plugin/#options">here</a>, unfortunately, some property was even not mentioned in this document, you can found them in the source code of the plugin(schema file) from <a target="_blank" rel="noopener" href="https://github.com/webpack/webpack/blob/main/schemas/plugins/container/ModuleFederationPlugin.json">here</a></p>
+<h2 id="loadRemoteEntry-vs-loadRemoteModule"><a href="#loadRemoteEntry-vs-loadRemoteModule" class="headerlink" title="loadRemoteEntry vs loadRemoteModule"></a>loadRemoteEntry vs loadRemoteModule</h2><p><code>loadRemoteEntry</code> is used to load the remote entry file, and <code>loadRemoteModule</code> is used to load the remote module.</p>
+<p><code>loadRemoteEntry</code> is not required, but nice to have, here is the description from <a target="_blank" rel="noopener" href="https://github.com/angular-architects/module-federation-plugin/blob/main/libs/mf/README.md">github</a><br>If somehow possible, load the remoteEntry upfront. This allows Module Federation to take the remote’s metadata in consideration when negotiating the versions of the shared libraries.</p>
+<p>For this, you could call loadRemoteEntry BEFORE bootstrapping Angular:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; loadRemoteEntry &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular-architects/module-federation&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([</span><br><span class="line">  <span class="title function_">loadRemoteEntry</span>(&#123;</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&#x27;module&#x27;</span>,</span><br><span class="line">    <span class="attr">remoteEntry</span>: <span class="string">&#x27;http://localhost:3000/remoteEntry.js&#x27;</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">])</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error loading remote entries&#x27;</span>, err))</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function">() =&gt;</span> <span class="keyword">import</span>(<span class="string">&#x27;./bootstrap&#x27;</span>))</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>Mono repo with Angular CLI: <a target="_blank" rel="noopener" href="https://angular.dev/reference/configs/file-structure#multiple-projects">https://angular.dev/reference/configs/file-structure#multiple-projects</a></li>
+<li>Module federation with Angular: <a target="_blank" rel="noopener" href="https://module-federation.io/practice/frameworks/angular/angular-cli.html">https://module-federation.io/practice/frameworks/angular/angular-cli.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/manfredsteyer/ngx-build-plus/">https://github.com/manfredsteyer/ngx-build-plus/</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/25/typescript-paths/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/25/typescript-paths/" class="post-title-link" itemprop="url">typescript-paths</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-25 08:59:36" itemprop="dateCreated datePublished" datetime="2024-05-25T08:59:36+08:00">2024-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:34:53" itemprop="dateModified" datetime="2025-04-07T21:34:53+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>376</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><code>paths</code> is a TypeScript configuration option that allows you to map a module name to a path. This is useful when you have a complex project structure and you want to avoid long relative paths.</p>
+<h2 id="Config"><a href="#Config" class="headerlink" title="Config"></a>Config</h2><p>Add the following configuration to your <code>tsconfig.json</code> file.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;baseUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span> <span class="comment">// This must be specified.</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@app/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;src/app/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@shared/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;src/shared/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@utils/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;src/app/service/others/utils/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="baseUrl"><a href="#baseUrl" class="headerlink" title="baseUrl"></a>baseUrl</h2><p>The <code>baseUrl</code> option specifies the base directory to resolve non-relative module names. This must be specified when using absolute path. In above example, <code>baseUrl</code> is set to <code>.</code>(this is the same directory with <code>tsconfig.json</code>) which means the base directory is the root directory of the project. take “@app&#x2F;*” as an example, when you import a module like <code>import &#123;AppComponent&#125; from &#39;@app/app.component&#39;</code>, TypeScript will look for the module in the <code>src/app</code> directory.</p>
+<p>if you don’t specify <code>baseUrl</code>, You must use relative paths to import modules. For example:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@app/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;./src/app/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@shared/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;./src/shared/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@utils/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;./src/app/service/others/utils/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><p>Suppose you have a file <code>stringUtils.ts</code> in the <code>src/app/service/others/utils</code> directory. You can import it like this:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;stringUtils&#125; <span class="keyword">from</span> <span class="string">&#x27;@utils/stringUtils&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>You don’t need to write the long relative path. TypeScript will automatically resolve the path based on the configuration in <code>tsconfig.json</code>.</p>
+<h2 id="Nx-mono-repo"><a href="#Nx-mono-repo" class="headerlink" title="Nx mono repo"></a>Nx mono repo</h2><p>When using Nx mono repo to create multiple app&#x2F;libs, be careful when you use <code>paths</code> in <code>tsconfig.json</code>. You need to add the <code>paths</code> configuration to the <code>tsconfig.base.json</code> file in the root directory of the Nx workspace. and every tsconfig.json in each app&#x2F;lib should extend <code>tsconfig.base.json</code>.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tsconfig.json in app or lib</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;extends&quot;</span><span class="punctuation">:</span> <span class="string">&quot;../../tsconfig.base.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;../../dist/out-tsc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;types&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;include&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;**/*.ts&quot;</span><span class="punctuation">,</span> <span class="string">&quot;**/*.tsx&quot;</span><span class="punctuation">,</span> <span class="string">&quot;**/*.js&quot;</span><span class="punctuation">,</span> <span class="string">&quot;**/*.jsx&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tsconfig.base.json</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;baseUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span> <span class="comment">// This must be specified.</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@app/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;apps/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@shared/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;libs/shared/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@utils/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;libs/shared/utils/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Note that <code>tsconfig.json</code> in app&#x2F;lib has higher priority than <code>tsconfig.base.json</code>. If you have same configuration in both files, the configuration in <code>tsconfig.json</code> will override the configuration in <code>tsconfig.base.json</code>. this will cause some path not found sometimes.</p>
+<p>So, </p>
+<ul>
+<li><code>Only</code> add <code>paths</code> configuration to <code>tsconfig.base.json</code> file in the root directory of Nx workspace.</li>
+<li><code>Do not</code> add <code>paths</code> configuration to any other <code>tsconfig.json</code> file in the app&#x2F;lib.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://www.typescriptlang.org/tsconfig/#paths">https://www.typescriptlang.org/tsconfig/#paths</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/21/angular-ngc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/21/angular-ngc/" class="post-title-link" itemprop="url">angular-ngc</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-05-21 19:41:51" itemprop="dateCreated datePublished" datetime="2024-05-21T19:41:51+08:00">2024-05-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:10" itemprop="dateModified" datetime="2025-04-07T17:25:10+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>128</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="What-is-angular-ngc"><a href="#What-is-angular-ngc" class="headerlink" title="What is angular ngc?"></a>What is angular ngc?</h2><p><code>ngc</code> stands fore Angular Compiler. It is a tool that compiles Angular applications. ngc was built on tsc(TypeScript Compiler) and extends it to support Angular.</p>
+<h2 id="Angular-compile-options"><a href="#Angular-compile-options" class="headerlink" title="Angular compile options"></a>Angular compile options</h2><p>You can see the ngc compile options in the <code>tsconfig.json</code> file under your Angular project root.</p>
+<p>We can see that the output directory is set to <code>dist/out-tsc</code>. and there is a special section <code>angularCompilerOptions</code> used for angular.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;compileOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;outDir&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./dist/out-tsc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strict&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;angularCompilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;enableI18nLegacyMessageIdFormat&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInjectionParameters&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictInputAccessModifiers&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;strictTemplates&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Run-ngc-manually"><a href="#Run-ngc-manually" class="headerlink" title="Run ngc manually"></a>Run <code>ngc</code> manually</h2><p>You can run <code>ngc</code> manually by using the command <code>ngc</code> in the terminal. and then found the compiled files in the dist&#x2F;out-tsc directory.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549">https://blog.angular.io/how-the-angular-compiler-works-42111f9d2549</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/19/angular-service/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1184,336 +1575,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/06/html-select-and-option/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/06/html-select-and-option/" class="post-title-link" itemprop="url">html-select-and-option</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-06 18:35:18" itemprop="dateCreated datePublished" datetime="2024-05-06T18:35:18+08:00">2024-05-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:18:47" itemprop="dateModified" datetime="2025-04-07T21:18:47+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/html/" itemprop="url" rel="index"><span itemprop="name">html</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>173</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><code>&lt;select&gt;</code> is a form control element that allows users to select an option from a list of options. It is used to create a drop-down list. <code>&lt;option&gt;</code> is a child element of <code>&lt;select&gt;</code>, which represents an option in a drop-down list.</p>
-<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;my_select&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;1&quot;</span>&gt;</span>1<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;2&quot;</span>&gt;</span>2<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;3&quot;</span>&gt;</span>3<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Default-value"><a href="#Default-value" class="headerlink" title="Default value"></a>Default value</h2><p>You can set default value to a select by adding <code>selected</code> to the option element.</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;my_select&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;1&quot;</span>&gt;</span>1<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;2&quot;</span> <span class="attr">selected</span>&gt;</span>2<span class="tag">&lt;/<span class="name">option</span>&gt;</span> <span class="comment">&lt;!-- default value --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">option</span> <span class="attr">value</span>=<span class="string">&quot;3&quot;</span>&gt;</span>3<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Use-ul-li-to-create-a-select-list"><a href="#Use-ul-li-to-create-a-select-list" class="headerlink" title="Use ul&#x2F;li to create a select list"></a>Use ul&#x2F;li to create a select list</h2><p>Its 2024 now, I still can’t set styles to <code>option</code> like <code>padding</code> and <code>margin</code>. The only way to create a custom select list is to use <code>ul</code> and <code>li</code> elements. </p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">&quot;my_select&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span> <span class="attr">value</span>=<span class="string">&quot;1&quot;</span>&gt;</span>1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span> <span class="attr">value</span>=<span class="string">&quot;2&quot;</span>&gt;</span>2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span> <span class="attr">value</span>=<span class="string">&quot;3&quot;</span>&gt;</span>3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/22681234/1487475">https://stackoverflow.com/a/22681234/1487475</a></p>
-<p>未完，待续。。。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/05/angular-how-to-create-an-angular-app/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/05/angular-how-to-create-an-angular-app/" class="post-title-link" itemprop="url">angular-how to create an angular app</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-05 11:59:55" itemprop="dateCreated datePublished" datetime="2024-05-05T11:59:55+08:00">2024-05-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:42" itemprop="dateModified" datetime="2025-04-07T17:24:42+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>84</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Install-Node-js"><a href="#Install-Node-js" class="headerlink" title="Install Node.js"></a>Install Node.js</h2><p>Download and install <a target="_blank" rel="noopener" href="https://nodejs.org/en/">Node.js</a>.</p>
-<h2 id="Install-Angular-CLI"><a href="#Install-Angular-CLI" class="headerlink" title="Install Angular CLI"></a>Install Angular CLI</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g @angular/cli</span><br></pre></td></tr></table></figure>
-
-<h2 id="Create-Angular-project"><a href="#Create-Angular-project" class="headerlink" title="Create Angular project"></a>Create Angular project</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new my-app</span><br></pre></td></tr></table></figure>
-<p>If you want to project with specific angular version, use the following command:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@15 new angular15-app</span><br></pre></td></tr></table></figure>
-
-<h2 id="Start-project"><a href="#Start-project" class="headerlink" title="Start project"></a>Start project</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> my-app</span><br><span class="line">ng serve</span><br></pre></td></tr></table></figure>
-
-<h2 id="Open-browser"><a href="#Open-browser" class="headerlink" title="Open browser"></a>Open browser</h2><p>Open browser and navigate to <code>http://localhost:4200/</code>.</p>
-<h2 id="Create-angular-app-with-specific-version"><a href="#Create-angular-app-with-specific-version" class="headerlink" title="Create angular app with specific version"></a>Create angular app with specific version</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx @angular/cli@15 new angular15-app</span><br></pre></td></tr></table></figure>
-
-<h2 id="References"><a href="#References" class="headerlink" title="References:"></a>References:</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://nodejs.org/en/">Node.js</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.io/cli">Angular CLI</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.io/">Angular</a></li>
-<li><a target="_blank" rel="noopener" href="https://angular.dev/">Angular new site</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/05/05/angular-how-does-an-angular-app-start/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/05/05/angular-how-does-an-angular-app-start/" class="post-title-link" itemprop="url">angular-how does an angular app start</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-05-05 11:58:38" itemprop="dateCreated datePublished" datetime="2024-05-05T11:58:38+08:00">2024-05-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:24:41" itemprop="dateModified" datetime="2025-04-07T17:24:41+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>733</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天从源码的角度来看一下Angular是如何启动一个应用的。</p>
-<h2 id="创建Angular项目"><a href="#创建Angular项目" class="headerlink" title="创建Angular项目"></a>创建Angular项目</h2><p>首先，参照<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这篇文章</a>创建一个Angular项目</p>
-<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>关于如何阅读Angular源码，请参考这里<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/04/30/angular-how-to-read-angular-source-code/">如何阅读Angular源码</a>。</p>
-<p>使用<code>VSCode</code>或者<code>WebStorm</code>打开项目，找到<code>src/main.ts</code>文件，这是Angular应用的入口文件。可以看到如下代码：</p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; enableProdMode &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; platformBrowserDynamic &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/platform-browser-dynamic&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">AppModule</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./app/app.module&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; environment &#125; <span class="keyword">from</span> <span class="string">&#x27;./environments/environment&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (environment.<span class="property">production</span>) &#123;</span><br><span class="line">  <span class="title function_">enableProdMode</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">platformBrowserDynamic</span>().<span class="title function_">bootstrapModule</span>(<span class="title class_">AppModule</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(err));</span><br></pre></td></tr></table></figure>
-
-<p>这里调用platformBrowserDynamic().bootstrapModule来启动Angular项目，我们到源码里面搜索<code>bootstrapModule</code>，找到如下代码：</p>
-<p><code>packages/core/src/platform/platform_ref.ts</code></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModule&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleType</span>: <span class="title class_">Type</span>&lt;M&gt;,</span><br><span class="line">  <span class="attr">compilerOptions</span>:</span><br><span class="line">    | (<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>)</span><br><span class="line">    | <span class="title class_">Array</span>&lt;<span class="title class_">CompilerOptions</span> &amp; <span class="title class_">BootstrapOptions</span>&gt; = [],</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> options = <span class="title function_">optionsReducer</span>(&#123;&#125;, compilerOptions);</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">compileNgModuleFactory</span>(<span class="variable language_">this</span>.<span class="property">injector</span>, options, moduleType).<span class="title function_">then</span>(<span class="function">(<span class="params">moduleFactory</span>) =&gt;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">bootstrapModuleFactory</span>(moduleFactory, options), <span class="comment">// &lt;------- Here</span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>bootstrapModule</code>方法内部调用了 <code>bootstrapModuleFactory</code> 方法，我们继续搜索<code>bootstrapModuleFactory</code>，找到如下代码：</p>
-<p><code>packages/core/src/platform/platform_ref.ts</code></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">bootstrapModuleFactory&lt;M&gt;(</span><br><span class="line">  <span class="attr">moduleFactory</span>: <span class="title class_">NgModuleFactory</span>&lt;M&gt;,</span><br><span class="line">  <span class="attr">options</span>?: <span class="title class_">BootstrapOptions</span>,</span><br><span class="line">): <span class="title class_">Promise</span>&lt;<span class="title class_">NgModuleRef</span>&lt;M&gt;&gt; &#123;</span><br><span class="line">  <span class="comment">// Note: We need to create the NgZone _before_ we ins</span></span><br><span class="line">  <span class="comment">// as instantiating the module creates some providers</span></span><br><span class="line">  <span class="comment">// So we create a mini parent injector that just cont</span></span><br><span class="line">  <span class="comment">// pass that as parent to the NgModuleFactory.</span></span><br><span class="line">  <span class="keyword">const</span> ngZone = <span class="title function_">getNgZone</span>(</span><br><span class="line">    options?.<span class="property">ngZone</span>,</span><br><span class="line">    <span class="title function_">getNgZoneOptions</span>(&#123;</span><br><span class="line">      <span class="attr">eventCoalescing</span>: options?.<span class="property">ngZoneEventCoalescing</span>,</span><br><span class="line">      <span class="attr">runCoalescing</span>: options?.<span class="property">ngZoneRunCoalescing</span>,</span><br><span class="line">    &#125;),</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Note: Create ngZoneInjector within ngZone.run so that all of the instantiated services are</span></span><br><span class="line">  <span class="comment">// created within the Angular zone</span></span><br><span class="line">  <span class="comment">// Do not try to replace ngZone.run with ApplicationRef#run because ApplicationRef would then be</span></span><br><span class="line">  <span class="comment">// created outside of the Angular zone.</span></span><br><span class="line">  <span class="keyword">return</span> ngZone.<span class="title function_">run</span>(<span class="function">() =&gt;</span> &#123;...&#125;); <span class="comment">// &lt;------- Here</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>注意<code>bootstrapModuleFactory</code>这个方法比较长，我们简化一下，只截取其中的关键部分，首先这里创建了一个<code>ngZone</code>，用来做更新检测。然后调用了<code>ngZone.run</code>方法，这个方法是<code>NgZone</code>的方法，用来运行一个函数，并且确保这个函数在Angular的Zone中运行。在<code>return ngZone.run()</code>方法中的最后，又调用了<code>_moduleDoBootstrap</code>。</p>
-<p><code>packages/core/src/platform/platform_ref.ts</code></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_moduleDoBootstrap</span>(<span class="attr">moduleRef</span>: <span class="title class_">InternalNgModuleRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> appRef = moduleRef.<span class="property">injector</span>.<span class="title function_">get</span>(<span class="title class_">ApplicationRef</span>);</span><br><span class="line">  <span class="keyword">if</span> (moduleRef.<span class="property">_bootstrapComponents</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">_bootstrapComponents</span>.<span class="title function_">forEach</span>(<span class="function">(<span class="params">f</span>) =&gt;</span> appRef.<span class="title function_">bootstrap</span>(f)); <span class="comment">// &lt;------- Here</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (moduleRef.<span class="property">instance</span>.<span class="property">ngDoBootstrap</span>) &#123;</span><br><span class="line">    moduleRef.<span class="property">instance</span>.<span class="title function_">ngDoBootstrap</span>(appRef);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeError</span>(</span><br><span class="line">      <span class="title class_">RuntimeErrorCode</span>.<span class="property">BOOTSTRAP_COMPONENTS_NOT_FOUND</span>,</span><br><span class="line">      ngDevMode &amp;&amp;</span><br><span class="line">        <span class="string">`The module <span class="subst">$&#123;stringify(moduleRef.instance.constructor)&#125;</span> was bootstrapped, `</span> +</span><br><span class="line">          <span class="string">`but it does not declare &quot;@NgModule.bootstrap&quot; components nor a &quot;ngDoBootstrap&quot; method. `</span> +</span><br><span class="line">          <span class="string">`Please define one of these.`</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="title function_">push</span>(moduleRef);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在该方法中，对于每个声明的<code>bootstrap</code>组件，都会调用<code>appRef.bootstrap</code>方法，这个方法是<code>ApplicationRef</code>的方法，用来启动一个组件。通常Angular程序只有一个bootstrap组件，就是<code>AppComponent</code>。<br>再来看<code>appRef.bootstrap</code>方法：</p>
-<p><code>packages/core/src/application/application_ref.ts</code></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bootstrap&lt;C&gt;(</span><br><span class="line">  <span class="attr">componentOrFactory</span>: <span class="title class_">ComponentFactory</span>&lt;C&gt; | <span class="title class_">Type</span>&lt;C&gt;,</span><br><span class="line">  <span class="attr">rootSelectorOrNode</span>?: <span class="built_in">string</span> | <span class="built_in">any</span>,</span><br><span class="line">): <span class="title class_">ComponentRef</span>&lt;C&gt; &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">const</span> selectorOrNode = rootSelectorOrNode || componentFactory.<span class="property">selector</span>;</span><br><span class="line">  <span class="keyword">const</span> compRef = componentFactory.<span class="title function_">create</span>(<span class="title class_">Injector</span>.<span class="property">NULL</span>, [], selectorOrNode, ngModule); <span class="comment">// 1</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">_loadComponent</span>(compRef); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ... </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个方法同样很大，如前，这里省略一些细枝末节，直接展示最重要的代码。</p>
-<ol>
-<li>首先根据bootstrap方法的第一个参数（通常是<code>AppComponent</code>）创建component。</li>
-<li>然后调用内部方法<code>_loadComponent</code>来加载组件。</li>
-</ol>
-<p>继续看<code>_loadComponent</code>方法：<br><code>packages/core/src/application/application_ref.ts</code></p>
-<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="title function_">_loadComponent</span>(<span class="attr">componentRef</span>: <span class="title class_">ComponentRef</span>&lt;<span class="built_in">any</span>&gt;): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">attachView</span>(componentRef.<span class="property">hostView</span>); <span class="comment">// 1</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">tick</span>(); <span class="comment">// 2</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>首先调用<code>attachView</code>方法, 将组件的视图添加到视图树中。</li>
-<li>然后调用<code>tick</code>方法，用来触发变更检测。</li>
-</ol>
-<p><code>tick</code>后续的方法调用如下：<br><code>tick</code> -&gt; <code>_tick</code> -&gt; <code>detectChangesInAttachedViews</code> -&gt; <code>detectChangesInViewIfRequired</code> -&gt; <code>detectChangesInternal</code></p>
-<p>再看<code>detectChangesInternal</code>方法：<br><code>packages/core/src/render3/instructions/change_detection.ts</code></p>
-<p>未完待续。。。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/23/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><span class="page-number current">24</span><a class="page-number" href="/page/25/">25</a><span class="space">&hellip;</span><a class="page-number" href="/page/34/">34</a><a class="extend next" rel="next" href="/page/25/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/23/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><span class="page-number current">24</span><a class="page-number" href="/page/25/">25</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/">35</a><a class="extend next" rel="next" href="/page/25/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1579,20 +1644,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">339</span>
+          <span class="site-state-item-count">342</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">44</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">444</span>
+        <span class="site-state-item-count">446</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1628,12 +1693,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">227k</span>
+    <span title="Symbols count total">230k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:45</span>
+    <span title="Reading time total">13:56</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
