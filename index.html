@@ -187,6 +187,181 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/07/javascript-object-iterate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/07/javascript-object-iterate/" class="post-title-link" itemprop="url">javascript-object-iterate</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-07-07 22:12:28 / Modified: 23:14:20" itemprop="dateCreated datePublished" datetime="2025-07-07T22:12:28+08:00">2025-07-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="JavaScript中如何遍历对象？"><a href="#JavaScript中如何遍历对象？" class="headerlink" title="JavaScript中如何遍历对象？"></a>JavaScript中如何遍历对象？</h2><p>今天来点稍微轻松的话题，如何在JavaScript中遍历对象，在平常的工作中，遍历对象是很常见的操作，javascript提供了多种方法来遍历对象的属性。这些方法各有特点，不同的场景需要使用不同的方法。</p>
+<p>假设我们有一个<code>Person</code>对象，包含名字和年龄两个属性，下面看看有哪些方式可以遍历这个对象。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="for…in"><a href="#for…in" class="headerlink" title="for…in"></a>for…in</h2><p>遍历对象最基本的方式就是使用<code>for...in</code>，这里需要注意区分和<code>for...of</code>的区别。</p>
+<ul>
+<li><code>for...in</code> - 遍历可枚举对象，比如<code>Object</code>。</li>
+<li><code>for...of</code> - 遍历可迭代对象，比如<code>Array</code>。</li>
+</ul>
+<p>在以下代码中，<code>key</code>是每个属性的名字 - 对应<code>name</code>和<code>age</code>，而<code>person[key]</code>则是每个属性的值 - 对应<code>Philip</code>和<code>18</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> person) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, person[key]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name Philip</span><br><span class="line">age 18</span><br></pre></td></tr></table></figure>
+<p><code>for...in</code>是遍历对象最基本的方式，需要注意的是它不仅会遍历对象自身的属性，也会遍历原型链上的属性。假设我们在<code>Object.prototype</code>上添加一个属性，那么这个属性也会被遍历到。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">customProperty</span> = <span class="string">&#x27;Hello World&#x27;</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> person) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, person[key]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">name Philip</span><br><span class="line">age 18</span><br><span class="line">customProperty Hello World</span><br></pre></td></tr></table></figure>
+<p>如果你只想遍历对象自身的属性，可以使用<code>Object.hasOwnProperty</code>方法来过滤掉原型链上的属性。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> person) &#123;</span><br><span class="line">  <span class="keyword">if</span> (person.<span class="title function_">hasOwnProperty</span>(key)) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(key, person[key]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用for-of-Object-keys"><a href="#使用for-of-Object-keys" class="headerlink" title="使用for...of + Object.keys"></a>使用<code>for...of</code> + <code>Object.keys</code></h2><p><code>Object.keys</code>方法返回一个对象中所有可枚举属性的键名并放到一个数组里，配合<code>for...of</code>可以很方便地遍历对象的属性。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">keys</span>(person)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, person[key]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用for-of-Object-values"><a href="#使用for-of-Object-values" class="headerlink" title="使用for...of + Object.values"></a>使用<code>for...of</code> + <code>Object.values</code></h2><p>如果你只关心对象的值，而不在key的话，那么可以使用<code>Object.values</code>方法，它返回一个包含对象所有可枚举属性值的数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> value <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">values</span>(person)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Philip</span><br><span class="line">18</span><br></pre></td></tr></table></figure>
+
+<h2 id="for-of-Object-entries"><a href="#for-of-Object-entries" class="headerlink" title="for...of + Object.entries"></a><code>for...of</code> + <code>Object.entries</code></h2><p>下面的方法使用<code>for...of</code>进行遍历，我们都知道<code>for..of</code>是用来遍历可迭代对象的，所以<code>Object.entries</code>返回的一定是一个可迭代对象 - 这里是一个二维数组，然后<code>[key, value]</code>是一个解构操作，负责解构内层一维数组中的值并输出。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> [key, value] <span class="keyword">of</span> <span class="title class_">Object</span>.<span class="title function_">entries</span>(person)) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Object.entries(person)</code>输出如下，可以看作是一个键值对组成的二维数组。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[name, <span class="string">&#x27;Philip&#x27;</span>], [age， <span class="number">18</span>]]</span><br></pre></td></tr></table></figure>
+<p>使用<code>[key, value]</code>进行解构后正好得到两组数据：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">key = name, value = <span class="string">&#x27;Philip&#x27;</span> <span class="comment">// 第一组数据</span></span><br><span class="line">key = age, value = <span class="number">18</span> <span class="comment">// 第二组数据</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Object-entries-forEach"><a href="#Object-entries-forEach" class="headerlink" title="Object.entries + forEach"></a><code>Object.entries</code> + <code>forEach</code></h2><p>一个更加函数式的写法是使用数组对象上的<code>forEach</code>方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Object</span>.<span class="title function_">entries</span>(person).<span class="title function_">forEach</span>(<span class="function">(<span class="params">[key, value]</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>forEach</code>本质上和<code>for...of</code>并无区别，在使用链式操作时，这种方式可读性更好，比如和<code>filter</code>等方法串联调用时。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Object</span>.<span class="title function_">entries</span>(person)</span><br><span class="line">  .<span class="title function_">filter</span>(<span class="function">(<span class="params">[key, value]</span>) =&gt;</span> key !== <span class="string">&#x27;age&#x27;</span>) <span class="comment">// 过滤掉 age 属性</span></span><br><span class="line">  .<span class="title function_">forEach</span>(<span class="function">(<span class="params">[key, value]</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(key));</span><br></pre></td></tr></table></figure>
+<p>还有一点要注意，那就是<code>forEach</code>是无法中断的，比如不能使用<code>continue</code>或者<code>break</code>来中断循环，但是<code>for...in</code>和<code>for...of</code>则不受此限制。</p>
+<h2 id="Reflect-ownKeys"><a href="#Reflect-ownKeys" class="headerlink" title="Reflect.ownKeys"></a>Reflect.ownKeys</h2><p>如果你的对象中有<code>Symbol</code>类型的属性，那么可以使用<code>Reflect.ownKeys</code>方法来获取所有属性的键名。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span>,</span><br><span class="line">  [<span class="title class_">Symbol</span>(<span class="string">&#x27;id&#x27;</span>)]: <span class="number">123</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Reflect</span>.<span class="title function_">ownKeys</span>(person).<span class="title function_">forEach</span>(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(key, person[key]);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">name Philip</span><br><span class="line">age 18</span><br><span class="line">Symbol(id) 123</span><br></pre></td></tr></table></figure>
+<p><code>Reflect.ownKeys</code>是遍历<code>Symbol</code>类型属性的唯一方法。</p>
+<p>最后，如果你使用的是<code>TypeScript</code>，那么所有使用了索引操作的遍历方式（比如<code>person[key]</code>）都需要添加索引签名，否则<code>TypeScript</code>会报错，具体原因可以看这篇：</p>
+<p>好了最后用表格总结一下：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>包含继承属性</th>
+<th>包含Symbol</th>
+<th>包含不可枚举属性</th>
+<th>TypeScript支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>for...in</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>需要索引签名</td>
+</tr>
+<tr>
+<td><code>Object.keys()</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>Object.values()</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>Object.entries()</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>Reflect.ownKeys()</code></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<p>今天就到这里了，今天是我生日，感谢大家的支持，我们明天见！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/06/typescript-index-signature/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -578,10 +753,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-07-01 19:47:42 / Modified: 22:23:47" itemprop="dateCreated datePublished" datetime="2025-07-01T19:47:42+08:00">2025-07-01</time>
+              <time title="Created: 2025-07-01 19:47:42" itemprop="dateCreated datePublished" datetime="2025-07-01T19:47:42+08:00">2025-07-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-07-08 22:17:07" itemprop="dateModified" datetime="2025-07-08T22:17:07+08:00">2025-07-08</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -598,7 +779,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>863</span>
+              <span>858</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -625,7 +806,7 @@
 <li>toString()方法</li>
 </ol>
 <p>关于IIFE，之前的文章已经做过详细的介绍，这里就不再赘述了，感兴趣的同学可以先去看一下。</p>
-<p>&#x2F;&#x2F; insert IIFE的文章链接</p>
+<p><a href="https://frontendthink.com/2025/06/29/javascript-iife/">JavaScript IIFE</a></p>
 <p>关于<code>toString()</code>方法，相信大家也不陌生，但是你可知道对于一个函数来说，调用<code>toString()</code>方法意味着什么？</p>
 <p>没错，调用一个函数的<code>toString()</code>方法会返回这个函数的源代码。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hello world&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toString</span>()) <span class="comment">// 输出foo的源代码</span></span><br></pre></td></tr></table></figure>
@@ -1273,118 +1454,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/24/css-extension/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/24/css-extension/" class="post-title-link" itemprop="url">css-extension</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-24 18:53:35 / Modified: 19:17:25" itemprop="dateCreated datePublished" datetime="2025-06-24T18:53:35+08:00">2025-06-24</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/css/" itemprop="url" rel="index"><span itemprop="name">css</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>949</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>CSS中如何实现继承（扩展）呢？很多编程语言都支持继承（或扩展），在一个基类的基础上添加新的属性或者方法，比如下面是JavaScript中的继承（扩展）语法：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">baseProperty</span> = <span class="string">&#x27;base&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">baseMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;base method&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Extended</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Base</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">super</span>(); <span class="comment">// 调用基类的构造函数</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">extendedProperty</span> = <span class="string">&#x27;extended&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">extendedMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;extended method&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过继承，我们可以把共同的属性或者方法抽象到基类中，然后在子类中添加新的属性或者方法。那么问题来了，CSS中是否也有类似的语法来实现继承（扩展）呢？</p>
-<h2 id="原生CSS中的继承"><a href="#原生CSS中的继承" class="headerlink" title="原生CSS中的继承"></a>原生CSS中的继承</h2><p>很遗憾，原生CSS并没有提供类似于编程语言中的继承（扩展）语法。早期CSS曾出现过<code>@apply</code>语法，但是现在这个提案已经被废弃了，不推荐使用。</p>
-<p>虽然原生CSS没有语法层面的支持，但是我们可以采用多个选择器的方式来实现这种效果，假设我们有三个button，分别时<code>normal</code>、<code>warning</code>和<code>error</code>，这三种button除了颜色不一样之前，其他属性诸如宽度，高度、边框、字体等都是相同的，我们可以这样写：</p>
-<p>先定义定义公共的button样式：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.button</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50px</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">8px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">3px</span> solid white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后为三种button分别指定颜色：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.normal-button</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#4caf50</span>; <span class="comment">/* Green */</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.warning-button</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ff9800</span>; <span class="comment">/* Orange */</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.error-button</span> &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#f44336</span>; <span class="comment">/* Red */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后使用这些样式的时候，为每个button都指定<code>.button</code>类和他们各自的颜色类：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button normal-button&quot;</span>&gt;</span>Normal<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button warning-button&quot;</span>&gt;</span>Warning<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;button error-button&quot;</span>&gt;</span>Error<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这种方法虽然不是正统意义上的继承，但是同样可以达到避免冗余代码的效果。</p>
-<h2 id="CSS-Module中的继承"><a href="#CSS-Module中的继承" class="headerlink" title="CSS Module中的继承"></a>CSS Module中的继承</h2><p>CSS Module并不是CSS预处理器，而是一种CSS模块化的方式，它允许我们将CSS样式封装在模块中，并且可以通过导入的方式来使用其他模块的样式。CSS Module的文件名都是以<code>.module.css</code>结尾，比如<code>users.module.css</code>。</p>
-<p>在CSS Module中，可以使用<code>composes</code>关键字来实现样式的继承（扩展）。假设我们有一个基础的按钮样式<code>button.module.css</code>，内容如下：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* button.module.css */</span></span><br><span class="line"><span class="selector-class">.button</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50px</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">8px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">3px</span> solid white;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.normal-button</span> &#123;</span><br><span class="line">  composes: button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#4caf50</span>; <span class="comment">/* Green */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.warning-button</span> &#123;</span><br><span class="line">  composes: button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ff9800</span>; <span class="comment">/* Orange */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.error-button</span> &#123;  </span><br><span class="line">  composes: button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: #f  <span class="number">44336</span>; <span class="comment">/* Red */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用的时候，就无需在指定<code>.button</code>类了，直接使用各自的颜色类即可：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;normal-button&quot;</span>&gt;</span>Normal<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;warning-button&quot;</span>&gt;</span>Warning<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;error-button&quot;</span>&gt;</span>Error<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="SaSS中的继承"><a href="#SaSS中的继承" class="headerlink" title="SaSS中的继承"></a>SaSS中的继承</h2><p>SaSS（Syntactically Awesome Style Sheets）是一个CSS预处理器，它提供了许多强大的功能，包括变量、嵌套、混合宏（mixins）和继承等。SaSS中的继承可以通过<code>@extend</code>指令来实现。</p>
-<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* base.scss */</span></span><br><span class="line"><span class="selector-class">.button</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50px</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">8px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">3px</span> solid white;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* normal.scss */</span></span><br><span class="line"><span class="selector-class">.normal-button</span> &#123;</span><br><span class="line">  <span class="keyword">@extend</span> .button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#4caf50</span>; <span class="comment">/* Green */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* warning.scss */</span></span><br><span class="line"><span class="selector-class">.warning-button</span> &#123;</span><br><span class="line">  <span class="keyword">@extend</span> .button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ff9800</span>; <span class="comment">/* Orange */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* error.scss */</span></span><br><span class="line"><span class="selector-class">.error-button</span> &#123;</span><br><span class="line">  <span class="keyword">@extend</span> .button; <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#f44336</span>; <span class="comment">/* Red */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用方法也是一样的：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;normal-button&quot;</span>&gt;</span>Normal<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;warning-button&quot;</span>&gt;</span>Warning<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;error-button&quot;</span>&gt;</span>Error<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Less中的继承"><a href="#Less中的继承" class="headerlink" title="Less中的继承"></a>Less中的继承</h2><p>Less是另一个流行的CSS预处理器，它也提供了类似于SaSS的继承功能。Less中的继承可以通过<code>&amp;:extend</code>语法来实现。</p>
-<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* base.less */</span></span><br><span class="line"><span class="selector-class">.button</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50px</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">8px</span>;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">3px</span> solid white;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* normal.less */</span></span><br><span class="line"><span class="selector-class">.normal-button</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span>:<span class="selector-tag">extend</span>(.button); <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#4caf50</span>; <span class="comment">/* Green */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* warning.less */</span></span><br><span class="line"><span class="selector-class">.warning-button</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span>:<span class="selector-tag">extend</span>(.button); <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#ff9800</span>; <span class="comment">/* Orange */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* error.less */</span></span><br><span class="line"><span class="selector-class">.error-button</span> &#123;</span><br><span class="line">  <span class="selector-tag">&amp;</span>:<span class="selector-tag">extend</span>(.button); <span class="comment">/* 继承button样式 */</span></span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#f44336</span>; <span class="comment">/* Red */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用方法同上。</p>
-<p>好了，今天就到这里，祝大家编程愉快，我们明天再见，觉得有用，就点个关注吧！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1454,7 +1523,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">342</span>
+          <span class="site-state-item-count">343</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1467,7 +1536,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">446</span>
+        <span class="site-state-item-count">447</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1503,12 +1572,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">230k</span>
+    <span title="Symbols count total">231k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:56</span>
+    <span title="Reading time total">14:01</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

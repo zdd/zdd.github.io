@@ -187,6 +187,115 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/12/angular-run-outside-angular/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/12/angular-run-outside-angular/" class="post-title-link" itemprop="url">angular-run-outside-angular</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-12 12:46:31" itemprop="dateCreated datePublished" datetime="2025-02-12T12:46:31+08:00">2025-02-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:25:18" itemprop="dateModified" datetime="2025-04-07T17:25:18+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>587</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>runOutsideAngular</code>是<code>NgZone</code>的一个方法，它接受一个函数作为参数，该函数会在Angular的<code>NgZone</code>之外执行。这个方法的作用是什么呢？</p>
+<p>在<code>runOutsideAngular</code>函数中运行的代码不会触发Angular变更检测。这里的outside并不是真的在Angular之外运行，而是在Angular的Zone之外运行。</p>
+<ol>
+<li><p>在执行一些性能敏感的操作时，比如处理大量DOM事件或者动画，避免频繁的变更检测导致性能问题。比如，如果有一个画布应用，用户拖动元素的时候，每次<code>mousemove</code>事件都触发变更检测可能不太高效，这时候用runOutsideAngular可以让这些事件处理在Angular Zone外运行，减少不必要的检测。</p>
+</li>
+<li><p>第三方库的集成,比如使用D3.js或者Three.js这些库，它们可能有自己的渲染循环，这时候用runOutsideAngular可以避免Angular的变更检测干扰这些库的性能。</p>
+</li>
+<li><p>另外，长时间运行的计算任务，比如Web Worker中的处理，可能也需要用这个方法，确保这些任务不会触发变更检测，直到真正需要更新UI的时候再手动触发。</p>
+</li>
+</ol>
+<p>所有上面这些情况都需要用到<code>runOutsideAngular</code>方法，它可以让我们更好地控制变更检测的时机，避免不必要的性能损耗。</p>
+<p>频繁的DOM操作</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">NgZone</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;...&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">CanvasComponent</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params"><span class="keyword">private</span> <span class="attr">ngZone</span>: <span class="title class_">NgZone</span></span>) &#123;</span><br><span class="line">    ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      canvasElement.<span class="title function_">addEventListener</span>(<span class="string">&#x27;mousemove&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 处理鼠标移动，不触发变更检测</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">updateCanvasPosition</span>(event);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集成第三方库</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> chart = d3.<span class="title function_">select</span>(<span class="string">&#x27;#chart&#x27;</span>);</span><br><span class="line">  chart.<span class="title function_">on</span>(<span class="string">&#x27;zoom&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// D3 的缩放操作，避免 Angular 频繁检查</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">handleZoom</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Web workers或耗时计算</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> worker = <span class="keyword">new</span> <span class="title class_">Worker</span>(<span class="string">&#x27;data-processor.worker.ts&#x27;</span>);</span><br><span class="line">  worker.<span class="property">onmessage</span> = <span class="function">(<span class="params">result</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="回到Angular-Zone"><a href="#回到Angular-Zone" class="headerlink" title="回到Angular Zone"></a>回到Angular Zone</h2><p>如果在<code>runOutsideAngular</code>中执行的代码需要更新Angular的UI，可以在需要的时候手动调用<code>ngZone.run</code>方法，把这些代码放回Angular的Zone中，这样就可以触发变更检测了。</p>
+<p>这个过程相当于先跳出Angular的Zone，做一些不需要变更检测的操作，然后再手动回到Angular的Zone，触发变更检测。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ngZone.<span class="title function_">runOutsideAngular</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 长时间运行的计算任务</span></span><br><span class="line">  <span class="keyword">const</span> result = <span class="title function_">longRunningTask</span>();</span><br><span class="line">  <span class="comment">// 手动触发变更检测以更新 UI</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">ngZone</span>.<span class="title function_">run</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="property">data</span> = result);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/11/css-display-inline-inlineblock-block/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1292,104 +1401,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/01/06/angular-pipe-json/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/01/06/angular-pipe-json/" class="post-title-link" itemprop="url">angular-pipe-json</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-01-06 22:27:00" itemprop="dateCreated datePublished" datetime="2025-01-06T22:27:00+08:00">2025-01-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 17:25:12" itemprop="dateModified" datetime="2025-04-07T17:25:12+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>126</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>The built-in pipe <code>json</code> is used to convert a JavaScript object into a JSON string. It is useful for debugging purposes or when you need to display the raw JSON data in your Angular application.</p>
-<h2 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h2><p>Assume you have a data object in your components which is an javascript object:</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;userId&quot;</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="string">&quot;id&quot;</span>: <span class="number">20</span>,</span><br><span class="line">  <span class="string">&quot;title&quot;</span>: <span class="string">&quot;ullam nobis libero sapiente ad optio sint&quot;</span>,</span><br><span class="line">  <span class="string">&quot;completed&quot;</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>In your template file, you can use the <code>json</code> pipe to convert the object into a JSON string:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span>&#123;&#123; data | json &#125;&#125;<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>You will get the following output on the rendered page:</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; &quot;userId&quot;: 1, &quot;id&quot;: 20, &quot;title&quot;: &quot;ullam nobis libero sapiente ad optio sint&quot;, &quot;completed&quot;: true &#125;</span><br></pre></td></tr></table></figure>
-
-<p>Without the <code>json</code> pipe, you will get <code>[object Object]</code> in the output.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1459,7 +1470,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">342</span>
+          <span class="site-state-item-count">343</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1472,7 +1483,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">446</span>
+        <span class="site-state-item-count">447</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1508,12 +1519,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">230k</span>
+    <span title="Symbols count total">231k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">13:56</span>
+    <span title="Reading time total">14:01</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
