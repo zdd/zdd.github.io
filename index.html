@@ -187,6 +187,338 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/10/typescript-type-predicate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/10/typescript-type-predicate/" class="post-title-link" itemprop="url">typescript-type-predicate</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-07-10 19:15:44 / Modified: 22:48:29" itemprop="dateCreated datePublished" datetime="2025-07-10T19:15:44+08:00">2025-07-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>660</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>各位老铁上午好，昨天我们学习了TypeScript中的类型断言(as操作符)，今天我们来学习TypeScript中的类型谓词（Type Predicate）(is操作符)。</p>
+<p>为什么需要类型谓词呢？我们先看一个例子，假设我们要写一个函数，判断一个变量是否为字符串类型。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isString</span>(<span class="params"><span class="attr">value</span>: <span class="built_in">unknown</span></span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">typeof</span> value === <span class="string">&#x27;string&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用这个函数</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">example</span>(<span class="params"><span class="attr">foo</span>: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">isString</span>(foo)) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toUpperCase</span>()); <span class="comment">// 这里会报错，因为foo的类型仍然是any</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">example</span>(<span class="string">&quot;hello&quot;</span>); <span class="comment">// 输出 &quot;HELLO&quot;</span></span><br><span class="line"><span class="title function_">example</span>(<span class="number">123</span>); <span class="comment">// 不会输出任何内容</span></span><br></pre></td></tr></table></figure>
+
+<p>看起来一切正常，但是假如我们疏忽了，不小心在<code>example</code>中调用了一个不属于字符串的方法，比如<code>toFixed</code>，TypeScript会报错，因为字符串上没有<code>toFixed</code>方法。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">example</span>(<span class="params"><span class="attr">foo</span>: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">isString</span>(foo)) &#123; <span class="comment">// foo的类型是any，通过检查</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toFixed</span>(<span class="number">2</span>)); <span class="comment">// 编译时没有问题</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">example</span>(<span class="string">&quot;hello&quot;</span>); <span class="comment">// 运行时报错，因为字符串上没有toFixed方法</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，虽然满足了<code>isString()</code>的判断，但是在编译期间，foo还是它本来的类型，typescript无法在编译期检查到错误。</p>
+<p>但是，如果我们加上类型谓词，IDE就会提示字符串上没有<code>toFixed</code>方法。也就是说，类型谓词可以在编译时就杜绝类型错误，这就是它核心的功能。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isString</span>(<span class="params"><span class="attr">value</span>: <span class="built_in">unknown</span></span>): value is <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">typeof</span> value === <span class="string">&#x27;string&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中，typescript在编译期就会将value的类型窄化为<code>string</code>，如果调用的方法不属于<code>string</code>类型，IDE会提示错误。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">example</span>(<span class="params"><span class="attr">foo</span>: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">isString</span>(foo)) &#123;</span><br><span class="line">    <span class="comment">// TS2551: Property &#x27;toFixed&#x27; does not exist on type &#x27;string&#x27;.</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toFixed</span>(<span class="number">2</span>)); <span class="comment">// 编译期报错</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型谓词的语法规则"><a href="#类型谓词的语法规则" class="headerlink" title="类型谓词的语法规则"></a>类型谓词的语法规则</h2><p>类型谓词要写在函数的返回值上，形式为：<code>value is Type</code>，其中<code>value</code>是函数的参数，<code>Type</code>是要判断的类型，比如一个判断<code>number</code>类型的函数可以这样写：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">isNumber</span>(<span class="params"><span class="attr">value</span>: <span class="built_in">unknown</span></span>): value is <span class="built_in">number</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">typeof</span> value === <span class="string">&#x27;number&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="类型谓词的作用范围"><a href="#类型谓词的作用范围" class="headerlink" title="类型谓词的作用范围"></a>类型谓词的作用范围</h2><p>需要注意的是，类型谓词只在<code>isString</code>函数的作用域内有效。也就是说，只有在<code>isString</code>函数返回<code>true</code>的情况下，TypeScript才会将传入的参数类型窄化为<code>string</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">example</span>(<span class="params"><span class="attr">foo</span>: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">isString</span>(foo)) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toFixed</span>()); <span class="comment">// 编译期报错，因为foo的类型被窄化为string</span></span><br><span class="line">  &#125; </span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(foo.<span class="title function_">toFixed</span>()); <span class="comment">// 运行时报错，因为foo的类型仍然是any</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">example</span>(<span class="string">&quot;hello&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>好了，今天就到这里了，我们明天见。</p>
+<blockquote>
+<p>今天又买了一把新弹弓：锁凤十代，握感舒适，重量适中。理查德说这个弓可以留着，我再试两天再说。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/09/typescript-type-assertion-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/09/typescript-type-assertion-1/" class="post-title-link" itemprop="url">typescript-type-assertion</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-07-09 19:42:19" itemprop="dateCreated datePublished" datetime="2025-07-09T19:42:19+08:00">2025-07-09</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>0</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/08/typescript-pick-optional-types/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/08/typescript-pick-optional-types/" class="post-title-link" itemprop="url">typescript-pick-optional-types</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-07-08 23:20:53" itemprop="dateCreated datePublished" datetime="2025-07-08T23:20:53+08:00">2025-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-07-09 07:58:45" itemprop="dateModified" datetime="2025-07-09T07:58:45+08:00">2025-07-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是可选属性？"><a href="#什么是可选属性？" class="headerlink" title="什么是可选属性？"></a>什么是可选属性？</h2><p>今天我们来看一下如何从一个 TypeScript 类型中提取可选属性。那么什么是可选属性呢?<br>可选属性是指在类型定义中使用问号（<code>?</code>）标记的属性，这些属性在对象中可以存在也可以不存在。</p>
+<p>以下面的<code>User</code>类型为例：其中id和name是必需的属性，而age和email是可选的属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">number</span>; <span class="comment">// 可选属性</span></span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">string</span>; <span class="comment">// 可选属性</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于必须属性，我们在定义变量的时候必须提供这些属性的值。</p>
+<p>下面这个变量定义是正确的，因为id和name这两个必须属性都出现了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">user1</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面这个变量定义则是错误的，因为缺少了id属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">user2</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>TypeScript对于上面这个类型定义会给出如下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TS2741: Property &#x27;id&#x27; is missing in type &#x27;&#123; name: string; &#125;&#x27; but required in type &#x27;User&#x27;.</span><br></pre></td></tr></table></figure>
+
+<p>对于可选属性，当它未出现在变量中时，它的值就是<code>undefined</code>（对应的类型也是<code>undefined</code>），这个特性非常重要，后面我们会用到。比如对于上面的<code>user1</code>来说，<code>user</code>.age和<code>user.email</code>的值都是<code>undefined</code>。</p>
+<h2 id="可选属性的类型"><a href="#可选属性的类型" class="headerlink" title="可选属性的类型"></a>可选属性的类型</h2><p>可选属性出现时，那么它的类型就是定义的类型，比如上面的<code>age</code>属性的类型是<code>number</code>，<code>email</code>属性的类型是<code>string</code>。</p>
+<p>如果可选属性未出现，那么它的类型就是<code>undefined</code>，比如上面的<code>user1</code>变量中，<code>user1.age</code>和<code>user1.email</code>的类型都是<code>undefined</code>。</p>
+<p>综合下来，我们可以得出一个结论：可选属性的类型是<code>T | undefined</code>，其中<code>T</code>是可选属性的定义类型。</p>
+<p>将<code>User</code>类型复制到IDE中，可以将鼠标悬停在<code>age</code>和<code>email</code>属性上，查看它们的类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">age 对应的类型是 number | undefined</span><br><span class="line">email 对应的类型是 string | undefined</span><br></pre></td></tr></table></figure>
+
+<h2 id="提取可选属性"><a href="#提取可选属性" class="headerlink" title="提取可选属性"></a>提取可选属性</h2><p>可选属性介绍完毕，，现在问题来了，如何从一个类型定义中提取出所有可选属性，对应上面的<code>User</code>类型，我们需要提取出<code>age</code>和<code>email</code>这两个属性。</p>
+<p>我们可以分步骤解决这个问题，每个步骤解决一个问题</p>
+<h2 id="第一步：获取所有属性"><a href="#第一步：获取所有属性" class="headerlink" title="第一步：获取所有属性"></a>第一步：获取所有属性</h2><p>要提取可选属性，我们首先需要获取类型中所有的属性。TypeScript提供了内置的<code>keyof</code>操作符，可以获取一个类型的所有键（属性）。</p>
+<p>假设给定的是一个类型T，那么<code>keyof T</code>将返回一个联合类型，包含T的所有属性名。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">UserKeys</span> = keyof <span class="title class_">User</span>; <span class="comment">// &quot;id&quot; | &quot;name&quot; | &quot;age&quot; | &quot;email&quot;</span></span><br></pre></td></tr></table></figure>
+<p>假设给定的不是一个类型，而是一个变量，那么首先要用<code>typeof</code>操作符获取变量对应的的类型。再使用<code>keyof</code>获取该类型所有属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> user = &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">30</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">UserKeys</span> = keyof <span class="keyword">typeof</span> user; <span class="comment">// &quot;id&quot; | &quot;name&quot; | &quot;age&quot;</span></span><br></pre></td></tr></table></figure>
+<p>可以看到虽然<code>user</code>变量属于<code>User</code>类型，但是两者返回的属性并不完全相同，因为<code>user</code>变量并未包含<code>email</code>属性。</p>
+<h2 id="第二步：判断一个类型是否是可选的"><a href="#第二步：判断一个类型是否是可选的" class="headerlink" title="第二步：判断一个类型是否是可选的"></a>第二步：判断一个类型是否是可选的</h2><p>typescript中并没有提供内置的操作符判断一个属性是否是可选的，但是我们可以通过条件类型来实现。</p>
+<p>前面说过当可选类型<code>未出现</code>时，他的值就是<code>undefined</code>(类型也是<code>undefined</code>)，所以我们可以通过判断一个属性的类型是否包含<code>undefined</code>来判断它是否是可选的。</p>
+<p>下面我们来定义一个类型<code>IsOptional</code>，它接受两个参数：一个类型T和一个属性K。它将返回一个布尔值，表示属性K是否是类型T的可选属性。</p>
+<p>代码大概是这个样子的</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">IsOptional</span>&lt;T, K&gt; = <span class="literal">undefined</span> <span class="keyword">extends</span> T[K] ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p>如果K是可选的，那么T[K]的值就有可能是<code>undefined</code>，因此<code>undefined extends T[K]</code>将返回<code>true</code>，否则返回<code>false</code>。</p>
+<p>举个例子：我们将T和K对应到文章开头的类型定义中，令<code>T = User</code>, 假设<code>K = age</code>，那么就有：</p>
+<ul>
+<li>当<code>age</code>属性存在时：<code>T[K] = number</code></li>
+<li>当<code>age</code>属性不存在时：<code>T[K] = undefined</code><br>所以<code>T[K] = number | undefined</code>，因此<code>undefined extends T[K]</code>将返回<code>true</code>。</li>
+</ul>
+<p>假设<code>K = name</code>，因为<code>name</code>属性是必需的，所以<code>T[K] = string</code>，因此<code>undefined extends T[K]</code>将返回<code>false</code>。</p>
+<p>似乎问题就要解决了，但是这里还有一个严重的问题，那就是K必须是T的属性，否则<code>T[K]</code>将会报错。所以我们还要限制一下K的值。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">IsOptional</span>&lt;T, K <span class="keyword">extends</span> keyof T&gt; = <span class="literal">undefined</span> <span class="keyword">extends</span> T[K] ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p><code>K extends keyof T</code>的意思是K必须是T的属性之一，这样可以避免<code>T[K]</code>报错。</p>
+<h2 id="第三步：提取可选属性"><a href="#第三步：提取可选属性" class="headerlink" title="第三步：提取可选属性"></a>第三步：提取可选属性</h2><p>现在我们已经有了获取所有属性的类型<code>UserKeys</code>和判断一个属性是否是可选的类型<code>IsOptional</code>，接下来我们只需要把这两步结合起来即可：</p>
+<ol>
+<li>对于一个给定的类型T，我们首先获取其所有属性。</li>
+<li>遍历步骤1中获取的所有属性，对于每个属性K，使用<code>IsOptional&lt;T, K&gt;</code>判断它是否是可选的。</li>
+<li>如果是可选的，就将其包含在结果中，否则将其排除。</li>
+</ol>
+<p>代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">OptionalKeys</span>&lt;T&gt; = keyof &#123;</span><br><span class="line">  [K <span class="keyword">in</span> keyof T <span class="keyword">as</span> <span class="title class_">IsOptional</span>&lt;T, K&gt; <span class="keyword">extends</span> <span class="literal">true</span> ? K : <span class="built_in">never</span>]: <span class="built_in">any</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这段代码的核心部分在于<code>[K in keyof T as IsOptional&lt;T, K&gt; extends true ? K : never]</code> - 这一行代码对应了我们上面的三个步骤。</p>
+<ul>
+<li><code>keyof T</code> 获取所有属性。</li>
+<li><code>K in keyof T</code>遍历所有属性。</li>
+<li><code>as IsOptional&lt;T, K&gt; extends true ? K : never</code> 对于类型K，使用条件类型来判断属性K是否是可选的，如果是则保留K，否则将其排除（变为<code>never</code>）。</li>
+</ul>
+<p>但是最后为什么还有一个any呢？因为这是一个遍历操作，我们要把结果放到一个对象中，对象的key是我们提取的可选属性，对象的值就是<code>any</code>，<code>any</code>只是用来来占位的，即使使用其他类型也是一样的，比如<code>unknown</code>或者<code>void</code>都可以。</p>
+<p>循环遍历完成后，我们得到一个对象如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">any</span>;</span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">any</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后再使用使用<code>keyof</code>操作符获取这个对象的所有键，就得到了可选属性的联合类型：<code>&quot;age&quot; | &quot;email&quot;</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">keyof &#123;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">any</span>;</span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">any</span>;</span><br><span class="line">&#125; <span class="comment">// &quot;age&quot; | &quot;email&quot;</span></span><br></pre></td></tr></table></figure>
+<p>因此，最终的<code>OptionalKeys&lt;User&gt;</code>将返回<code>&quot;age&quot; | &quot;email&quot;</code>。</p>
+<p>好了，今天就到这里了，感谢大家的支持！我们明天见。</p>
+<blockquote>
+<p>其实这篇文章是分两次写的，昨天晚上写了一半困得不行，遂作罢，今天早上又起来继续写。日更不能停啊。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/07/javascript-object-iterate/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1136,324 +1468,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-simulate-a-50ms-task/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/29/javascript-simulate-a-50ms-task/" class="post-title-link" itemprop="url">javascript-simulate-a-50ms-task</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-29 10:35:00" itemprop="dateCreated datePublished" datetime="2025-06-29T10:35:00+08:00">2025-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-07-02 22:47:32" itemprop="dateModified" datetime="2025-07-02T22:47:32+08:00">2025-07-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>363</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天在写前端性能监控的文章时，需要模拟一个长任务，所谓长任务就是指阻塞主线程超过50毫秒的任务。</p>
-<p>这种任务当然直接交给AI做了，我给了AI一个提示：帮我模拟一个执行事件超过50毫秒的JavaScript任务。</p>
-<p>于是AI给了以下几个代码片段：</p>
-<h2 id="使用Busy-Wait来模拟一个长任务"><a href="#使用Busy-Wait来模拟一个长任务" class="headerlink" title="使用Busy-Wait来模拟一个长任务"></a>使用Busy-Wait来模拟一个长任务</h2><p>使用Busy-Wait来模拟一个长任务，这个实现没啥毛病，也是我最终采用的方案，就是阻塞主线程直到50毫秒过去：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulateLongTask</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> start = performance.<span class="title function_">now</span>();</span><br><span class="line">  <span class="keyword">while</span> (performance.<span class="title function_">now</span>() - start &lt; <span class="number">50</span>) &#123;</span><br><span class="line">    <span class="comment">// 模拟一个长任务</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用setTimeout来模拟一个长任务"><a href="#使用setTimeout来模拟一个长任务" class="headerlink" title="使用setTimeout来模拟一个长任务"></a>使用setTimeout来模拟一个长任务</h2><p>下面这个实现使用<code>setTimeout</code>来模拟一个长任务。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulate50msTask</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> start = performance.<span class="title function_">now</span>();</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> end = performance.<span class="title function_">now</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Task took ~<span class="subst">$&#123;end - start&#125;</span>ms`</span>);</span><br><span class="line">  &#125;, <span class="number">50</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是这个长任务是有问题的，它不会阻塞主线程，因为<code>setTimeout</code>是异步的，所以它不会在50毫秒内阻塞主线程。</p>
-<p>这可能是一个常见的误区吧，<code>setTimeout</code>中的延时参数并不意味着主线程会在这个时间内被阻塞，它只是告诉浏览器在指定的时间后执行回调函数。</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>所以，如果要模拟一个长任务，不能使用<code>setTimeout</code>，最好的办法就是使用循环(<code>while</code>, <code>for</code>)等待的方式，直到耗尽给定的时间。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-performance-monitor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/29/javascript-performance-monitor/" class="post-title-link" itemprop="url">javascript-performance-monitor</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-29 09:38:20 / Modified: 10:28:24" itemprop="dateCreated datePublished" datetime="2025-06-29T09:38:20+08:00">2025-06-29</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>590</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天我们来谈谈JavaScript中如何做性能监控，性能优化也是前端开发中的老话题了，做好性能优化的前提是要有性能监控，只有知道哪里有性能问题，才能有针对性的进行优化。<br>性能监控的方式多种多样，比如使用浏览器的开发者工具，使用第三方性能监控工具，或者自己编写代码来监控性能等。</p>
-<p>今天我们主要介绍一下从代码层面如何做性能监控，JavaScript中提供了一个<code>PerformanceObserver</code>接口，可以用来监控性能相关的事件。</p>
-<h2 id="使用PerformanceObserver进行性能监控"><a href="#使用PerformanceObserver进行性能监控" class="headerlink" title="使用PerformanceObserver进行性能监控"></a>使用PerformanceObserver进行性能监控</h2><p>首先我们需要定义一个<code>PerformanceObserver</code>实例。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="title class_">PerformanceObserver</span>(<span class="function">(<span class="params">list</span>) =&gt;</span> &#123;</span><br><span class="line">  list.<span class="title function_">getEntries</span>().<span class="title function_">forEach</span>(<span class="function">(<span class="params">entry</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;entry.entryType&#125;</span>: <span class="subst">$&#123;entry.name&#125;</span> - <span class="subst">$&#123;entry.startTime&#125;</span> - <span class="subst">$&#123;entry.duration&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p><code>PerformanceObserver</code>的构造函数，接受以下三个参数：</p>
-<ol>
-<li><code>entities</code> - 这是一个<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserverEntryList">PerformanceObserverEntryList</a>对象，包含一系列可观察的性能事件。</li>
-<li><code>observer</code> - 接收上述事件的观察者对象。</li>
-<li><code>options</code> - 这是一个可选的配置对象，我们暂时用不到它，先忽略。</li>
-</ol>
-<p>接下来，我们需要指定我们要监听的性能事件类型，比如<code>longtask</code>、<code>mark</code>等。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">observer.<span class="title function_">observe</span>(&#123; <span class="attr">entryTypes</span>: [<span class="string">&#x27;longtask&#x27;</span>, <span class="string">&#x27;mark&#x27;</span>] &#125;);</span><br></pre></td></tr></table></figure>
-
-<p>可以使用<code>PerformanceObserver</code>中的静态函数<code>PerformanceObserver.supportedEntryTypes</code>来获取支持的性能事件类型。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">PerformanceObserver</span>.<span class="property">supportedEntryTypes</span>);</span><br></pre></td></tr></table></figure>
-<p>在我的浏览器上，支持以下类型的性能事件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;element&quot;</span></span><br><span class="line"><span class="string">&quot;event&quot;</span></span><br><span class="line"><span class="string">&quot;first-input&quot;</span></span><br><span class="line"><span class="string">&quot;largest-contentful-paint&quot;</span></span><br><span class="line"><span class="string">&quot;layout-shift&quot;</span></span><br><span class="line"><span class="string">&quot;long-animation-frame&quot;</span></span><br><span class="line"><span class="string">&quot;longtask&quot;</span></span><br><span class="line"><span class="string">&quot;mark&quot;</span>`</span><br><span class="line"><span class="string">&quot;measure&quot;</span></span><br><span class="line"><span class="string">&quot;navigation&quot;</span></span><br><span class="line"><span class="string">&quot;paint&quot;</span></span><br><span class="line"><span class="string">&quot;resource&quot;</span></span><br><span class="line"><span class="string">&quot;visibility-state&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="监控longtask事件"><a href="#监控longtask事件" class="headerlink" title="监控longtask事件"></a>监控longtask事件</h2><p><code>longtask</code>任务是指阻塞主线程超过50毫秒的任务，我们首先来模拟一个<code>longtask</code>任务。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulateLongTask</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> start = performance.<span class="title function_">now</span>();</span><br><span class="line">  <span class="keyword">while</span> (performance.<span class="title function_">now</span>() - start &lt; <span class="number">50</span>) &#123;&#125; <span class="comment">// 模拟一个50毫秒的任务</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接下来，我们在<code>PerformanceObserver</code>中监听<code>longtask</code>事件。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create a PerformanceObserver to observe long tasks</span></span><br><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="title class_">PerformanceObserver</span>(<span class="function">(<span class="params">list</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> entries = list.<span class="title function_">getEntries</span>();</span><br><span class="line">  entries.<span class="title function_">forEach</span>(<span class="function">(<span class="params">entry</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Long task detected:&quot;</span>, entry);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start observing long tasks</span></span><br><span class="line">observer.<span class="title function_">observe</span>(&#123; <span class="attr">type</span>: <span class="string">&quot;longtask&quot;</span>, <span class="attr">buffered</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Start the long task.</span></span><br><span class="line"><span class="title function_">simulateLongTask</span>();</span><br></pre></td></tr></table></figure>
-<p>打开控制台，可以看到如下输出，可以看到<code>entryType</code>为<code>longtask</code>，表示这是一个长任务。duration表示任务的持续时间为50毫秒，满足长任务的条件。如果将<code>simulateLongTask</code>中的时间改为小于50毫秒，则不会触发<code>longtask</code>事件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Long task detected: PerformanceLongTaskTiming </span><br><span class="line">&#123;</span><br><span class="line">  name: <span class="string">&quot;self&quot;</span>,</span><br><span class="line">  entryType: <span class="string">&quot;longtask&quot;</span>,</span><br><span class="line">  startTime: 10.299999997019768,</span><br><span class="line">  duration: 50,</span><br><span class="line">  attribution: [</span><br><span class="line">    &#123;</span><br><span class="line">      name: <span class="string">&quot;unknown&quot;</span>,</span><br><span class="line">      entryType: <span class="string">&quot;taskattribution&quot;</span>,</span><br><span class="line">      startTime: 0,</span><br><span class="line">      duration: 0,</span><br><span class="line">      containerType: <span class="string">&quot;window&quot;</span>,</span><br><span class="line">      containerSrc: <span class="string">&quot;&quot;</span>,</span><br><span class="line">      containerId: <span class="string">&quot;&quot;</span>,</span><br><span class="line">      containerName: <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver">https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver</a></li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/26/ant-design-select-no-placeholder/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/26/ant-design-select-no-placeholder/" class="post-title-link" itemprop="url">ant-design-select-no-placeholder</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-26 22:09:02 / Modified: 23:55:27" itemprop="dateCreated datePublished" datetime="2025-06-26T22:09:02+08:00">2025-06-26</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/ant-design/" itemprop="url" rel="index"><span itemprop="name">ant design</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>832</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天在写代码的时候，用到了Ant Design的Select组件，也就是下拉选择框，和以前一样，习惯性的给Select组件加上了<code>placeholder</code>，但是运行程序时，发现Select组件中并未显示<code>placeholder</code>。我的代码如下，大家看出问题来了吗？</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Form</span>, <span class="title class_">Select</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;antd&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">SelectComponent</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="attr">options</span>: &#123; <span class="attr">label</span>: <span class="built_in">string</span>; <span class="attr">value</span>: <span class="built_in">string</span> &#125;[] = [</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 1&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option1&#x27;</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 2&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option2&#x27;</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">label</span>: <span class="string">&#x27;Option 3&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;option3&#x27;</span> &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Form</span> <span class="attr">initialValues</span>=<span class="string">&#123;&#123;</span> <span class="attr">select:</span> &#x27;&#x27; &#125;&#125; <span class="attr">layout</span>=<span class="string">&quot;vertical&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Form.Item</span> <span class="attr">label</span>=<span class="string">&quot;Select an option&quot;</span> <span class="attr">name</span>=<span class="string">&quot;select&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Select</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">options</span>=<span class="string">&#123;options&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">width:</span> <span class="attr">200</span> &#125;&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">placeholder</span>=<span class="string">&quot;Select an option&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">          <span class="attr">allowClear</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Form.Item</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Form</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>没错，罪魁祸首就是这个<code>initialValues=&#123;&#123; select: '' &#125;&#125;</code>，因为我在<code>Form</code>组件中设置了<code>Select</code>组件初始值为<code>&#39;&#39;</code>，注意initialValues中小写的<code>select</code>对应Form.Item中组件的<code>name</code>，不要与大写的Select名字搞混了，这就导致该组件的值被设置为空字符串，从而无法显示<code>placeholder</code>。</p>
-<p>如果把这个<code>initialValues</code>去掉，或者将其设置为<code>undefined</code>，就可以正常显示<code>placeholder</code>了。</p>
-<p>反过来思考一下，<code>placeholder</code>的作用是在用户尚未选择某个值的时候给用户一个提示，而空字符串从程序的角度来说，是一个合法的值，从而导致Ant Design的Select组件不会显示<code>placeholder</code>。</p>
-<p>但是<code>undefined</code>就不一样了，它表示没有值，这时Select组件就会显示<code>placeholder</code>。（还是基础不牢呀）。</p>
-<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>为了追本溯源，我们从源码的角度分析一下其中细节，首先去<code>Ant Design</code>的github页面将源码下载到本机。<a target="_blank" rel="noopener" href="https://github.com/ant-design/ant-design">https://github.com/ant-design/ant-design</a></p>
-<p>然后找到<code>Select</code>组件的源码，路径是<code>src/components/select</code>。在这个目录下，我们可以找到<code>index.tsx</code>文件。这就是Select组件的入口了。</p>
-<p>于是尝试在文件中搜索<code>placeholder</code>，竟然没找到，这时我才意识到，Ant Design的Select组件并没有直接处理<code>placeholder</code>，而是通过<code>rc-select</code>这个库来实现的。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">InternalSelect</span> = &lt;<span class="title class_">OptionType</span> <span class="keyword">extends</span> <span class="title class_">BaseOptionType</span> | <span class="title class_">DefaultOptionType</span> = <span class="title class_">DefaultOptionType</span>&gt;() &#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;<span class="title class_">RcSelect</span>&lt;<span class="built_in">any</span>, <span class="built_in">any</span>&gt;</span><br><span class="line">      ref=&#123;ref <span class="keyword">as</span> <span class="built_in">any</span>&#125;</span><br><span class="line">      virtual=&#123;virtual&#125;</span><br><span class="line">      dropdownMatchSelectWidth=&#123;dropdownMatchSelectWidth&#125;</span><br><span class="line">      &#123;...selectProps&#125;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    /&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Select</span> = <span class="title class_">React</span>.<span class="title function_">forwardRef</span>(<span class="title class_">InternalSelect</span>);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">Select</span>;</span><br></pre></td></tr></table></figure>
-<p>从上面的代码可以看出，<code>InternalSelect</code>组件内容是通过<code>RcSelect</code>来实现的，而<code>RcSelect</code>是一个来自<code>rc-select</code>库的组件。遂又去github上找到这个库的源码 - <a target="_blank" rel="noopener" href="https://github.com/react-component/select%E3%80%82">https://github.com/react-component/select。</a></p>
-<p>全库搜索<code>placeholder</code>，很快找到了相关代码，下面是<code>placeholder</code>对应的结点的定义，最终Select通过渲染这个结点来显示<code>placeholder</code>。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> placeholderNode = <span class="title class_">React</span>.<span class="property">useMemo</span>&lt;<span class="title class_">React</span>.<span class="property">ReactNode</span>&gt;(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (item) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">span</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">className</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">prefixCls</span>&#125;<span class="attr">-selection-placeholder</span>`&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">style</span>=<span class="string">&#123;hasTextInput</span> ? &#123; <span class="attr">visibility:</span> &#x27;<span class="attr">hidden</span>&#x27; &#125; <span class="attr">:</span> <span class="attr">undefined</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">    &gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;placeholder&#125;</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;, [item, hasTextInput, placeholder, prefixCls]);</span><br></pre></td></tr></table></figure>
-<p><code>if(item)</code> - 这句很快被排除，因为<code>item</code>是当前选中的值，而我们要显示<code>placeholder</code>的前提是没有选中任何值。</p>
-<p>于是来到style这一行，可以看到如果<code>hasTextInput</code>为<code>true</code>，则<code>placeholder</code>的样式会被设置为<code>visibility: &#39;hidden&#39;</code> - 也就是隐藏。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">style=&#123; hasTextInput ? &#123; <span class="attr">visibility</span>: <span class="string">&#x27;hidden&#x27;</span> &#125; : <span class="literal">undefined</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<p>继续查找<code>hasTextInput</code>的定义，发现它是通过<code>inputValue</code>来判断的。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hasTextInput = mode !== <span class="string">&#x27;combobox&#x27;</span> &amp;&amp; !open &amp;&amp; !showSearch ? <span class="literal">false</span> : !!inputValue;</span><br></pre></td></tr></table></figure>
-
-<p>继续查找<code>inputValue</code>的定义，最终发现如下代码，看到了吗？这里添加了空字符串，也就是说如果<code>inputValue</code>是空字符串，那么<code>hasTextInput</code>就会被设置为<code>true</code>，从而导致<code>placeholder</code>被隐藏。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="attr">inputValue</span>: <span class="built_in">string</span> = searchValue || <span class="string">&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>打完收工，觉得有用就点个关注，你的关注是我输出的动力！我们明天再见！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1523,7 +1537,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">343</span>
+          <span class="site-state-item-count">346</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1536,7 +1550,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">447</span>
+        <span class="site-state-item-count">449</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1572,12 +1586,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">231k</span>
+    <span title="Symbols count total">234k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:01</span>
+    <span title="Reading time total">14:12</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

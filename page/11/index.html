@@ -187,6 +187,298 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/27/how-angular-app-runs-runtimejs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/27/how-angular-app-runs-runtimejs/" class="post-title-link" itemprop="url">how-angular-app-runs-runtimejs</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-27 10:58:25" itemprop="dateCreated datePublished" datetime="2024-12-27T10:58:25+08:00">2024-12-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:17:41" itemprop="dateModified" datetime="2025-04-07T21:17:41+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>563</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Angular app build后会生成如下文件结构，其中main&#x2F;polyfills&#x2F;runtime文件中的xxx是Angular随机生成的hash值。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">dist/</span><br><span class="line">├─ angular-15/</span><br><span class="line">│  ├─ assets/</span><br><span class="line">│  ├─ 3rdpartylicenses.txt</span><br><span class="line">│  ├─ favicon.ico</span><br><span class="line">│  ├─ index.html</span><br><span class="line">│  ├─ main.xxx.js</span><br><span class="line">│  ├─ polyfills.xxx.js</span><br><span class="line">│  ├─ runtime.xxx.js</span><br><span class="line">│  ├─ styles.xxx.css</span><br></pre></td></tr></table></figure>
+
+<p>今天我们来分析一下<code>runtime.js</code>文件的内容。（注意，由于Angular编译后的代码是压缩过的，所以以下源码是使用ng server命令本地启动app后在浏览器中查看的。）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******/</span> (<span class="function">() =&gt;</span> &#123; <span class="comment">// webpackBootstrap</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="string">&quot;use strict&quot;</span>;</span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">var</span> __webpack_modules__ = (&#123;&#125;);</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// The module cache</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">var</span> __webpack_module_cache__ = &#123;&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// The require function</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">function</span> <span class="title function_">__webpack_require__</span>(<span class="params">moduleId</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Check if module is in cache</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> cachedModule = __webpack_module_cache__[moduleId];</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">if</span> (cachedModule !== <span class="literal">undefined</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> cachedModule.<span class="property">exports</span>;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Create a new module (and put it into the cache)</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> <span class="variable language_">module</span> = __webpack_module_cache__[moduleId] = &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// no module.id needed</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// no module.loaded needed</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="attr">exports</span>: &#123;&#125;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Execute the module function</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_modules__[moduleId].<span class="title function_">call</span>(<span class="variable language_">module</span>.<span class="property">exports</span>, <span class="variable language_">module</span>, <span class="variable language_">module</span>.<span class="property">exports</span>, __webpack_require__);</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Return the exports of the module</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">return</span> <span class="variable language_">module</span>.<span class="property">exports</span>;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// expose the modules object (__webpack_modules__)</span></span><br><span class="line"><span class="comment">/******/</span> 	__webpack_require__.<span class="property">m</span> = __webpack_modules__;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/chunk loaded */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> deferred = [];</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">O</span> = <span class="function">(<span class="params">result, chunkIds, fn, priority</span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(chunkIds) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				priority = priority || <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span>(<span class="keyword">var</span> i = deferred.<span class="property">length</span>; i &gt; <span class="number">0</span> &amp;&amp; deferred[i - <span class="number">1</span>][<span class="number">2</span>] &gt; priority; i--) deferred[i] = deferred[i - <span class="number">1</span>];</span><br><span class="line"><span class="comment">/******/</span> 				deferred[i] = [chunkIds, fn, priority];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">return</span>;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> notFulfilled = <span class="title class_">Infinity</span>;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; deferred.<span class="property">length</span>; i++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">var</span> [chunkIds, fn, priority] = deferred[i];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">var</span> fulfilled = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; chunkIds.<span class="property">length</span>; j++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span> ((priority &amp; <span class="number">1</span> === <span class="number">0</span> || notFulfilled &gt;= priority) &amp;&amp; <span class="title class_">Object</span>.<span class="title function_">keys</span>(__webpack_require__.<span class="property">O</span>).<span class="title function_">every</span>(<span class="function">(<span class="params">key</span>) =&gt;</span> (__webpack_require__.<span class="property">O</span>[key](chunkIds[j])))) &#123;</span><br><span class="line"><span class="comment">/******/</span> 						chunkIds.<span class="title function_">splice</span>(j--, <span class="number">1</span>);</span><br><span class="line"><span class="comment">/******/</span> 					&#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 						fulfilled = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">/******/</span> 						<span class="keyword">if</span>(priority &lt; notFulfilled) notFulfilled = priority;</span><br><span class="line"><span class="comment">/******/</span> 					&#125;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(fulfilled) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					deferred.<span class="title function_">splice</span>(i--, <span class="number">1</span>)</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">var</span> r = <span class="title function_">fn</span>();</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span> (r !== <span class="literal">undefined</span>) result = r;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> result;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/compat get default export */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// getDefaultExport function for compatibility with non-harmony modules</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">n</span> = <span class="function">(<span class="params"><span class="variable language_">module</span></span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> getter = <span class="variable language_">module</span> &amp;&amp; <span class="variable language_">module</span>.<span class="property">__esModule</span> ?</span><br><span class="line"><span class="comment">/******/</span> 				<span class="function">() =&gt;</span> (<span class="variable language_">module</span>[<span class="string">&#x27;default&#x27;</span>]) :</span><br><span class="line"><span class="comment">/******/</span> 				<span class="function">() =&gt;</span> (<span class="variable language_">module</span>);</span><br><span class="line"><span class="comment">/******/</span> 			__webpack_require__.<span class="title function_">d</span>(getter, &#123; <span class="attr">a</span>: getter &#125;);</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> getter;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/define property getters */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// define getter functions for harmony exports</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">d</span> = <span class="function">(<span class="params"><span class="built_in">exports</span>, definition</span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> definition) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(definition, key) &amp;&amp; !__webpack_require__.<span class="title function_">o</span>(<span class="built_in">exports</span>, key)) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, key, &#123; <span class="attr">enumerable</span>: <span class="literal">true</span>, <span class="attr">get</span>: definition[key] &#125;);</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/getFullHash */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">h</span> = <span class="function">() =&gt;</span> (<span class="string">&quot;14f1d830efa2381d&quot;</span>)</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/hasOwnProperty shorthand */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">o</span> = <span class="function">(<span class="params">obj, prop</span>) =&gt;</span> (<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">hasOwnProperty</span>.<span class="title function_">call</span>(obj, prop))</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/make namespace object */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// define __esModule on exports</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">r</span> = <span class="function">(<span class="params"><span class="built_in">exports</span></span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="title class_">Symbol</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="title class_">Symbol</span>.<span class="property">toStringTag</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, <span class="title class_">Symbol</span>.<span class="property">toStringTag</span>, &#123; <span class="attr">value</span>: <span class="string">&#x27;Module&#x27;</span> &#125;);</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, <span class="string">&#x27;__esModule&#x27;</span>, &#123; <span class="attr">value</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/jsonp chunk loading */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no baseURI</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// object to store loaded and loading chunks</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// undefined = chunk not loaded, null = chunk preloaded/prefetched</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> installedChunks = &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="string">&quot;runtime&quot;</span>: <span class="number">0</span></span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no chunk on demand loading</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no prefetching</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no preloaded</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no HMR</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no HMR manifest</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">O</span>.<span class="property">j</span> = <span class="function">(<span class="params">chunkId</span>) =&gt;</span> (installedChunks[chunkId] === <span class="number">0</span>);</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// install a JSONP callback for chunk loading</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> <span class="title function_">webpackJsonpCallback</span> = (<span class="params">parentChunkLoadingFunction, data</span>) =&gt; &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> [chunkIds, moreModules, runtime] = data;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// add &quot;moreModules&quot; to the modules object,</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// then flag all &quot;chunkIds&quot; as loaded and fire callback</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> moduleId, chunkId, i = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(chunkIds.<span class="title function_">some</span>(<span class="function">(<span class="params">id</span>) =&gt;</span> (installedChunks[id] !== <span class="number">0</span>))) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span>(moduleId <span class="keyword">in</span> moreModules) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(moreModules, moduleId)) &#123;</span><br><span class="line"><span class="comment">/******/</span> 						__webpack_require__.<span class="property">m</span>[moduleId] = moreModules[moduleId];</span><br><span class="line"><span class="comment">/******/</span> 					&#125;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(runtime) <span class="keyword">var</span> result = <span class="title function_">runtime</span>(__webpack_require__);</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(parentChunkLoadingFunction) <span class="title function_">parentChunkLoadingFunction</span>(data);</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span>(;i &lt; chunkIds.<span class="property">length</span>; i++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				chunkId = chunkIds[i];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(installedChunks, chunkId) &amp;&amp; installedChunks[chunkId]) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					installedChunks[chunkId][<span class="number">0</span>]();</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				installedChunks[chunkId] = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> __webpack_require__.<span class="title function_">O</span>(result);</span><br><span class="line"><span class="comment">/******/</span> 		&#125;</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> chunkLoadingGlobal = self[<span class="string">&quot;webpackChunkangular_15&quot;</span>] = self[<span class="string">&quot;webpackChunkangular_15&quot;</span>] || [];</span><br><span class="line"><span class="comment">/******/</span> 		chunkLoadingGlobal.<span class="title function_">forEach</span>(webpackJsonpCallback.<span class="title function_">bind</span>(<span class="literal">null</span>, <span class="number">0</span>));</span><br><span class="line"><span class="comment">/******/</span> 		chunkLoadingGlobal.<span class="property">push</span> = webpackJsonpCallback.<span class="title function_">bind</span>(<span class="literal">null</span>, chunkLoadingGlobal.<span class="property">push</span>.<span class="title function_">bind</span>(chunkLoadingGlobal));</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> &#125;)()</span><br><span class="line">;</span><br><span class="line"><span class="comment">//# sourceMappingURL=runtime.js.map</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/26/javascript-search-in-string/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/26/javascript-search-in-string/" class="post-title-link" itemprop="url">javascript-search-in-string</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-26 19:59:30" itemprop="dateCreated datePublished" datetime="2024-12-26T19:59:30+08:00">2024-12-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 21:26:05" itemprop="dateModified" datetime="2025-04-07T21:26:05+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>266</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>字符串操作是JS中非常常见的操作，本文将介绍JS中搜索字符串的几种方法。</p>
+<h1 id="判断是否包含某个字符串"><a href="#判断是否包含某个字符串" class="headerlink" title="判断是否包含某个字符串"></a>判断是否包含某个字符串</h1><h2 id="String-prototype-indexOf"><a href="#String-prototype-indexOf" class="headerlink" title="String.prototype.indexOf()"></a>String.prototype.indexOf()</h2><p>在ES5中，我们通常使用<code>indexOf</code>方法来查找字符串中的子串。<code>indexOf</code>方法返回给定子串的第一个索引，如果不存在，则返回 <code>-1</code>。<code>indexOf</code>方法的语法如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">indexOf(searchValue)</span><br><span class="line">indexOf(searchValue, fromIndex)</span><br></pre></td></tr></table></figure>
+
+<h2 id="String-prototype-includes"><a href="#String-prototype-includes" class="headerlink" title="String.prototype.includes()"></a>String.prototype.includes()</h2><p><code>includes</code>方法是ES6引入的，相比<code>indexOf</code>方法，<code>includes</code>方法更加直观。<code>includes</code>方法用于判断一个字符串是否包含另一个字符串。<code>includes</code>方法的语法如下：</p>
+<h2 id="String-prototype-startsWith"><a href="#String-prototype-startsWith" class="headerlink" title="String.prototype.startsWith()"></a>String.prototype.startsWith()</h2><p><code>startsWith</code>也是ES6引入的方法，用于判断一个字符串是否以另一个字符串开头。<code>startsWith</code>方法的语法如下：</p>
+<h2 id="String-prototype-endsWith"><a href="#String-prototype-endsWith" class="headerlink" title="String.prototype.endsWith()"></a>String.prototype.endsWith()</h2><p><code>endsWith</code>也是ES6引入的方法，用于判断一个字符串是否以另一个字符串结尾。<code>endsWith</code>方法的语法如下：</p>
+<p><code>includes</code>, <code>startsWith</code>, <code>endsWith</code>方法都可以传递第二个参数，表示从指定位置开始搜索。个人感觉没有必要。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/22/angular-how-angular-app-runs-production/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/12/22/angular-how-angular-app-runs-production/" class="post-title-link" itemprop="url">angular-how-angular-app-runs(production)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-12-22 18:16:54" itemprop="dateCreated datePublished" datetime="2024-12-22T18:16:54+08:00">2024-12-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:24:41" itemprop="dateModified" datetime="2025-04-07T17:24:41+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>今天我们一起研究一下Angular App是如何运行的，今天主要讨论的是在生产环境下，Angular App是如何运行的。既然限定了生产环境，那么就不讨论开发环境相关的东西了，我们直接看编译后的代码如何运行。</p>
+<h1 id="Create-Angular-app"><a href="#Create-Angular-app" class="headerlink" title="Create Angular app"></a>Create Angular app</h1><p>首先，我们需要创建一个Angular项目，这里我们使用<code>Angular CLI</code>来创建一个项目，具体的步骤可以参考<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/05/05/angular-how-to-create-an-angular-app/">这篇文章</a>。</p>
+<h1 id="Build-Angular-App"><a href="#Build-Angular-App" class="headerlink" title="Build Angular App"></a>Build Angular App</h1><p>然后，我们使用<code>ng build --prod</code>命令来构建我们的Angular项目，这个命令会将我们的项目编译成生产环境下的代码。编译完成后，我们会得到一个<code>dist</code>目录，里面包含了我们的项目的所有文件，如下图所示：</p>
+<p><img src="/../images/angular-dist-folder.png" alt="dist"></p>
+<p>众所周知，<code>index.html</code>是前端项目的入口文件，我们看看这个文件的内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Angular15<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">base</span> <span class="attr">href</span>=<span class="string">&quot;/&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;icon&quot;</span> <span class="attr">type</span>=<span class="string">&quot;image/x-icon&quot;</span> <span class="attr">href</span>=<span class="string">&quot;favicon.ico&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;styles.ef46db3751d8e999.css&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">app-root</span>&gt;</span><span class="tag">&lt;/<span class="name">app-root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;runtime.17ade4109dbace19.js&quot;</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;polyfills.7488d7e9e1657922.js&quot;</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;main.301f0813b18ba60a.js&quot;</span> <span class="attr">type</span>=<span class="string">&quot;module&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>该文件主要执行以下操作：</p>
+<ol>
+<li>加载<code>styles.ef46db3751d8e999.css</code>样式文件 - 这是项目打包后的样式文件。</li>
+<li>加载<code>runtime.17ade4109dbace19.js</code>文件 - 这个文件的作用是初始化webpack相关的设置，比如加载模块的方法，为后续的代码运行做准备。</li>
+<li>加载<code>polyfills.7488d7e9e1657922.js</code>文件 - 这个文件主要是加载一些polyfills，用来兼容一些老的浏览器，当然也做一些额外的操作，比如zone.js的monkey patch。</li>
+<li>加载<code>main.301f0813b18ba60a.js</code>文件 - 这个文件是我们的项目的主要代码，我们书写的所有组件，服务等代码都会被编译到这个文件。</li>
+</ol>
+<p>由于runtime&#x2F;polyfills&#x2F;main这三个文件打包后都是混淆的，我们无法查看其代码，所以我们还是借助开发环境，使用<code>ng serve</code>命令来查看这三个文件的内容。</p>
+<p>以下是<code>runtime.js</code>的内容：<br>该文件主要是初始化一些Webpack的相关函数，用来为后续加载<code>polyfills</code>和<code>main</code>文件做准备。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******/</span> (<span class="function">() =&gt;</span> &#123; <span class="comment">// webpackBootstrap</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="string">&quot;use strict&quot;</span>;</span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">var</span> __webpack_modules__ = (&#123;&#125;);</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// The module cache</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">var</span> __webpack_module_cache__ = &#123;&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// The require function</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="keyword">function</span> <span class="title function_">__webpack_require__</span>(<span class="params">moduleId</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Check if module is in cache</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> cachedModule = __webpack_module_cache__[moduleId];</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">if</span> (cachedModule !== <span class="literal">undefined</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> cachedModule.<span class="property">exports</span>;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Create a new module (and put it into the cache)</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> <span class="variable language_">module</span> = __webpack_module_cache__[moduleId] = &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// no module.id needed</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// no module.loaded needed</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="attr">exports</span>: &#123;&#125;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Execute the module function</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_modules__[moduleId].<span class="title function_">call</span>(<span class="variable language_">module</span>.<span class="property">exports</span>, <span class="variable language_">module</span>, <span class="variable language_">module</span>.<span class="property">exports</span>, __webpack_require__);</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// Return the exports of the module</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">return</span> <span class="variable language_">module</span>.<span class="property">exports</span>;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">// expose the modules object (__webpack_modules__)</span></span><br><span class="line"><span class="comment">/******/</span> 	__webpack_require__.<span class="property">m</span> = __webpack_modules__;</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/chunk loaded */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> deferred = [];</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">O</span> = <span class="function">(<span class="params">result, chunkIds, fn, priority</span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(chunkIds) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				priority = priority || <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span>(<span class="keyword">var</span> i = deferred.<span class="property">length</span>; i &gt; <span class="number">0</span> &amp;&amp; deferred[i - <span class="number">1</span>][<span class="number">2</span>] &gt; priority; i--) deferred[i] = deferred[i - <span class="number">1</span>];</span><br><span class="line"><span class="comment">/******/</span> 				deferred[i] = [chunkIds, fn, priority];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">return</span>;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> notFulfilled = <span class="title class_">Infinity</span>;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; deferred.<span class="property">length</span>; i++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">var</span> [chunkIds, fn, priority] = deferred[i];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">var</span> fulfilled = <span class="literal">true</span>;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; chunkIds.<span class="property">length</span>; j++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span> ((priority &amp; <span class="number">1</span> === <span class="number">0</span> || notFulfilled &gt;= priority) &amp;&amp; <span class="title class_">Object</span>.<span class="title function_">keys</span>(__webpack_require__.<span class="property">O</span>).<span class="title function_">every</span>(<span class="function">(<span class="params">key</span>) =&gt;</span> (__webpack_require__.<span class="property">O</span>[key](chunkIds[j])))) &#123;</span><br><span class="line"><span class="comment">/******/</span> 						chunkIds.<span class="title function_">splice</span>(j--, <span class="number">1</span>);</span><br><span class="line"><span class="comment">/******/</span> 					&#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 						fulfilled = <span class="literal">false</span>;</span><br><span class="line"><span class="comment">/******/</span> 						<span class="keyword">if</span>(priority &lt; notFulfilled) notFulfilled = priority;</span><br><span class="line"><span class="comment">/******/</span> 					&#125;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(fulfilled) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					deferred.<span class="title function_">splice</span>(i--, <span class="number">1</span>)</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">var</span> r = <span class="title function_">fn</span>();</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span> (r !== <span class="literal">undefined</span>) result = r;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> result;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/compat get default export */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// getDefaultExport function for compatibility with non-harmony modules</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">n</span> = <span class="function">(<span class="params"><span class="variable language_">module</span></span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> getter = <span class="variable language_">module</span> &amp;&amp; <span class="variable language_">module</span>.<span class="property">__esModule</span> ?</span><br><span class="line"><span class="comment">/******/</span> 				<span class="function">() =&gt;</span> (<span class="variable language_">module</span>[<span class="string">&#x27;default&#x27;</span>]) :</span><br><span class="line"><span class="comment">/******/</span> 				<span class="function">() =&gt;</span> (<span class="variable language_">module</span>);</span><br><span class="line"><span class="comment">/******/</span> 			__webpack_require__.<span class="title function_">d</span>(getter, &#123; <span class="attr">a</span>: getter &#125;);</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> getter;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/define property getters */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// define getter functions for harmony exports</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">d</span> = <span class="function">(<span class="params"><span class="built_in">exports</span>, definition</span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> definition) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(definition, key) &amp;&amp; !__webpack_require__.<span class="title function_">o</span>(<span class="built_in">exports</span>, key)) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, key, &#123; <span class="attr">enumerable</span>: <span class="literal">true</span>, <span class="attr">get</span>: definition[key] &#125;);</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/getFullHash */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">h</span> = <span class="function">() =&gt;</span> (<span class="string">&quot;14f1d830efa2381d&quot;</span>)</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/hasOwnProperty shorthand */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">o</span> = <span class="function">(<span class="params">obj, prop</span>) =&gt;</span> (<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">hasOwnProperty</span>.<span class="title function_">call</span>(obj, prop))</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/make namespace object */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// define __esModule on exports</span></span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">r</span> = <span class="function">(<span class="params"><span class="built_in">exports</span></span>) =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="title class_">Symbol</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="title class_">Symbol</span>.<span class="property">toStringTag</span>) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, <span class="title class_">Symbol</span>.<span class="property">toStringTag</span>, &#123; <span class="attr">value</span>: <span class="string">&#x27;Module&#x27;</span> &#125;);</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(<span class="built_in">exports</span>, <span class="string">&#x27;__esModule&#x27;</span>, &#123; <span class="attr">value</span>: <span class="literal">true</span> &#125;);</span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	<span class="comment">/* webpack/runtime/jsonp chunk loading */</span></span><br><span class="line"><span class="comment">/******/</span> 	(<span class="function">() =&gt;</span> &#123;</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no baseURI</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// object to store loaded and loading chunks</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// undefined = chunk not loaded, null = chunk preloaded/prefetched</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> installedChunks = &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="string">&quot;runtime&quot;</span>: <span class="number">0</span></span><br><span class="line"><span class="comment">/******/</span> 		&#125;;</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no chunk on demand loading</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no prefetching</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no preloaded</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no HMR</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// no HMR manifest</span></span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		__webpack_require__.<span class="property">O</span>.<span class="property">j</span> = <span class="function">(<span class="params">chunkId</span>) =&gt;</span> (installedChunks[chunkId] === <span class="number">0</span>);</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="comment">// install a JSONP callback for chunk loading</span></span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> <span class="title function_">webpackJsonpCallback</span> = (<span class="params">parentChunkLoadingFunction, data</span>) =&gt; &#123;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> [chunkIds, moreModules, runtime] = data;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// add &quot;moreModules&quot; to the modules object,</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="comment">// then flag all &quot;chunkIds&quot; as loaded and fire callback</span></span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">var</span> moduleId, chunkId, i = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(chunkIds.<span class="title function_">some</span>(<span class="function">(<span class="params">id</span>) =&gt;</span> (installedChunks[id] !== <span class="number">0</span>))) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">for</span>(moduleId <span class="keyword">in</span> moreModules) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(moreModules, moduleId)) &#123;</span><br><span class="line"><span class="comment">/******/</span> 						__webpack_require__.<span class="property">m</span>[moduleId] = moreModules[moduleId];</span><br><span class="line"><span class="comment">/******/</span> 					&#125;</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(runtime) <span class="keyword">var</span> result = <span class="title function_">runtime</span>(__webpack_require__);</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">if</span>(parentChunkLoadingFunction) <span class="title function_">parentChunkLoadingFunction</span>(data);</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">for</span>(;i &lt; chunkIds.<span class="property">length</span>; i++) &#123;</span><br><span class="line"><span class="comment">/******/</span> 				chunkId = chunkIds[i];</span><br><span class="line"><span class="comment">/******/</span> 				<span class="keyword">if</span>(__webpack_require__.<span class="title function_">o</span>(installedChunks, chunkId) &amp;&amp; installedChunks[chunkId]) &#123;</span><br><span class="line"><span class="comment">/******/</span> 					installedChunks[chunkId][<span class="number">0</span>]();</span><br><span class="line"><span class="comment">/******/</span> 				&#125;</span><br><span class="line"><span class="comment">/******/</span> 				installedChunks[chunkId] = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/******/</span> 			&#125;</span><br><span class="line"><span class="comment">/******/</span> 			<span class="keyword">return</span> __webpack_require__.<span class="title function_">O</span>(result);</span><br><span class="line"><span class="comment">/******/</span> 		&#125;</span><br><span class="line"><span class="comment">/******/</span> 		</span><br><span class="line"><span class="comment">/******/</span> 		<span class="keyword">var</span> chunkLoadingGlobal = self[<span class="string">&quot;webpackChunkangular_15&quot;</span>] = self[<span class="string">&quot;webpackChunkangular_15&quot;</span>] || [];</span><br><span class="line"><span class="comment">/******/</span> 		chunkLoadingGlobal.<span class="title function_">forEach</span>(webpackJsonpCallback.<span class="title function_">bind</span>(<span class="literal">null</span>, <span class="number">0</span>));</span><br><span class="line"><span class="comment">/******/</span> 		chunkLoadingGlobal.<span class="property">push</span> = webpackJsonpCallback.<span class="title function_">bind</span>(<span class="literal">null</span>, chunkLoadingGlobal.<span class="property">push</span>.<span class="title function_">bind</span>(chunkLoadingGlobal));</span><br><span class="line"><span class="comment">/******/</span> 	&#125;)();</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/************************************************************************/</span></span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> 	</span><br><span class="line"><span class="comment">/******/</span> &#125;)()</span><br><span class="line">;</span><br><span class="line"><span class="comment">//# sourceMappingURL=runtime.js.map</span></span><br></pre></td></tr></table></figure>
+<p>注意代码末尾的<code>self[&quot;webpackChunkangular_15&quot;]</code>, 这里<code>angular_15</code>是我们的项目名称，<code>webpackChunk</code>是前缀。<code>self</code>是浏览器Window对象的一个属性。它就指向Window对象本身。详情参考这里：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/self">https://developer.mozilla.org/en-US/docs/Web/API/Window/self</a></p>
+<p>其余代码我就不细说了，大伙有空自己看吧，都比较简单。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/19/javascript-object-to-primitive/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -940,286 +1232,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/13/javascript-arguments/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/12/13/javascript-arguments/" class="post-title-link" itemprop="url">javascript-arguments</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-12-13 14:46:15" itemprop="dateCreated datePublished" datetime="2024-12-13T14:46:15+08:00">2024-12-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:20:22" itemprop="dateModified" datetime="2025-04-07T21:20:22+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>141</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p><code>arguments</code>是一个类数组对象，包含了函数调用时传入的所有参数。<code>arguments</code>对象只有在函数内部才可以使用。</p>
-<h2 id="访问arguments对象"><a href="#访问arguments对象" class="headerlink" title="访问arguments对象"></a>访问arguments对象</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>], <span class="variable language_">arguments</span>[<span class="number">1</span>]);</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// output: 1 2</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="通过arguments对象可以改变函数参数的值"><a href="#通过arguments对象可以改变函数参数的值" class="headerlink" title="通过arguments对象可以改变函数参数的值"></a>通过arguments对象可以改变函数参数的值</h2><ol>
-<li>改变arguments时，函数参数的值也会改变。</li>
-</ol>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="variable language_">arguments</span>[<span class="number">0</span>] = <span class="number">10</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// output: 10</span></span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>改变函数参数时，arguments对象的值也会改变。</li>
-</ol>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  a = <span class="number">10</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">add</span>(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// output: 10</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/13/javascript-try-catch-finally/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/12/13/javascript-try-catch-finally/" class="post-title-link" itemprop="url">javascript-try-catch-finally</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-12-13 10:30:37" itemprop="dateCreated datePublished" datetime="2024-12-13T10:30:37+08:00">2024-12-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-06-17 23:01:59" itemprop="dateModified" datetime="2025-06-17T23:01:59+08:00">2025-06-17</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>182</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><h2 id="try"><a href="#try" class="headerlink" title="try"></a>try</h2><h2 id="catch"><a href="#catch" class="headerlink" title="catch"></a>catch</h2><p>JavaScript中的catch不能按类型捕获异常，只能捕获所有异常。如果需要按类型捕获异常，可以使用<code>if</code>语句判断异常类型。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="title function_">myFunction</span>();</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">  <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="title class_">ReferenceError</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`ReferenceError:<span class="subst">$&#123;e.message&#125;</span>`</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="title class_">TypeError</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`TypeError: <span class="subst">$&#123;e.message&#125;</span>`</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="title class_">SyntaxError</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`SyntaxError: <span class="subst">$&#123;e.message&#125;</span>`</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> <span class="title class_">Error</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`Error: <span class="subst">$&#123;e.message&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>与<code>Java</code>等其他类型的语言不同，JS不能像下面这样捕获异常。JS中一个<code>try</code>只能对应一个<code>catch</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  myFunction();</span><br><span class="line">&#125; <span class="keyword">catch</span> (ReferenceError) &#123;</span><br><span class="line">  console.error(`ReferenceError:$&#123;e.message&#125;`);</span><br><span class="line">&#125; <span class="keyword">catch</span> (TypeError) &#123;</span><br><span class="line">  console.error(`TypeError: $&#123;e.message&#125;`);</span><br><span class="line">&#125; <span class="keyword">catch</span> (SyntaxError) &#123;</span><br><span class="line">  console.error(`SyntaxError: $&#123;e.message&#125;`);</span><br><span class="line">&#125; <span class="keyword">catch</span> (Error) &#123;</span><br><span class="line">  console.error(`Error: $&#123;e.message&#125;`);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h2><p><code>return</code>和<code>finally</code>同时存在时，<code>finally</code>会在<code>return</code>之前执行。以下代码先输出<code>finally</code>，然后返回<code>1</code>。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">test</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;finally&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2024/12/12/javascript-arrow-function/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/12/12/javascript-arrow-function/" class="post-title-link" itemprop="url">javascript-arrow-function</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2024-12-12 21:15:02" itemprop="dateCreated datePublished" datetime="2024-12-12T21:15:02+08:00">2024-12-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:42:40" itemprop="dateModified" datetime="2025-04-07T21:42:40+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>42</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><h2 id="Arrow-function-couldn’t-be-a-constructor"><a href="#Arrow-function-couldn’t-be-a-constructor" class="headerlink" title="Arrow function couldn’t be a constructor"></a>Arrow function couldn’t be a <code>constructor</code></h2><h2 id="Arrow-function-doesn’t-have-its-own-this-binding"><a href="#Arrow-function-doesn’t-have-its-own-this-binding" class="headerlink" title="Arrow function doesn’t have its own this binding"></a>Arrow function doesn’t have its own <code>this</code> binding</h2><h2 id="Arrow-function-has-no-prototype-property"><a href="#Arrow-function-has-no-prototype-property" class="headerlink" title="Arrow function has no prototype property"></a>Arrow function has no <code>prototype</code> property</h2><h2 id="Arrow-function-has-no-arguments-object"><a href="#Arrow-function-has-no-arguments-object" class="headerlink" title="Arrow function has no arguments object"></a>Arrow function has no <code>arguments</code> object</h2><h2 id="Arrow-function-has-no-hoisting"><a href="#Arrow-function-has-no-hoisting" class="headerlink" title="Arrow function has no hoisting."></a>Arrow function has no <code>hoisting</code>.</h2><h2 id="Arrow-function-is-not-suitable-for-call-apply-bind-methods"><a href="#Arrow-function-is-not-suitable-for-call-apply-bind-methods" class="headerlink" title="Arrow function is not suitable for call, apply, bind methods"></a>Arrow function is not suitable for <code>call</code>, <code>apply</code>, <code>bind</code> methods</h2>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1289,7 +1301,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">343</span>
+          <span class="site-state-item-count">346</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1302,7 +1314,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">447</span>
+        <span class="site-state-item-count">449</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1338,12 +1350,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">231k</span>
+    <span title="Symbols count total">234k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:01</span>
+    <span title="Reading time total">14:12</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

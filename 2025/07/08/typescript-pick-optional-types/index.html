@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+<meta name="google-site-verification" content="WoeYixr9--6ikwIZxHiYjVfhk2UpqldMqWnPGdyKfBw" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"frontendthink.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="什么是可选属性？今天我们来看一下如何从一个 TypeScript 类型中提取可选属性。那么什么是可选属性呢?可选属性是指在类型定义中使用问号（?）标记的属性，这些属性在对象中可以存在也可以不存在。 以下面的User类型为例：其中id和name是必需的属性，而age和email是可选的属性。 123456interface User &#123;  id: number;  name: string">
+<meta property="og:type" content="article">
+<meta property="og:title" content="typescript-pick-optional-types">
+<meta property="og:url" content="https://frontendthink.com/2025/07/08/typescript-pick-optional-types/index.html">
+<meta property="og:site_name" content="Philip">
+<meta property="og:description" content="什么是可选属性？今天我们来看一下如何从一个 TypeScript 类型中提取可选属性。那么什么是可选属性呢?可选属性是指在类型定义中使用问号（?）标记的属性，这些属性在对象中可以存在也可以不存在。 以下面的User类型为例：其中id和name是必需的属性，而age和email是可选的属性。 123456interface User &#123;  id: number;  name: string">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-08T15:20:53.000Z">
+<meta property="article:modified_time" content="2025-07-08T23:58:45.818Z">
+<meta property="article:author" content="Philip Zhang">
+<meta property="article:tag" content="optional">
+<meta property="article:tag" content="typescript">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://frontendthink.com/2025/07/08/typescript-pick-optional-types/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>typescript-pick-optional-types | Philip</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Philip</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Philip's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/08/typescript-pick-optional-types/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          typescript-pick-optional-types
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-07-08 23:20:53" itemprop="dateCreated datePublished" datetime="2025-07-08T23:20:53+08:00">2025-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-07-09 07:58:45" itemprop="dateModified" datetime="2025-07-09T07:58:45+08:00">2025-07-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="什么是可选属性？"><a href="#什么是可选属性？" class="headerlink" title="什么是可选属性？"></a>什么是可选属性？</h2><p>今天我们来看一下如何从一个 TypeScript 类型中提取可选属性。那么什么是可选属性呢?<br>可选属性是指在类型定义中使用问号（<code>?</code>）标记的属性，这些属性在对象中可以存在也可以不存在。</p>
+<p>以下面的<code>User</code>类型为例：其中id和name是必需的属性，而age和email是可选的属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">User</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">number</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">number</span>; <span class="comment">// 可选属性</span></span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">string</span>; <span class="comment">// 可选属性</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于必须属性，我们在定义变量的时候必须提供这些属性的值。</p>
+<p>下面这个变量定义是正确的，因为id和name这两个必须属性都出现了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">user1</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面这个变量定义则是错误的，因为缺少了id属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">user2</span>: <span class="title class_">User</span> = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Philip&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">18</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>TypeScript对于上面这个类型定义会给出如下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TS2741: Property &#x27;id&#x27; is missing in type &#x27;&#123; name: string; &#125;&#x27; but required in type &#x27;User&#x27;.</span><br></pre></td></tr></table></figure>
+
+<p>对于可选属性，当它未出现在变量中时，它的值就是<code>undefined</code>（对应的类型也是<code>undefined</code>），这个特性非常重要，后面我们会用到。比如对于上面的<code>user1</code>来说，<code>user</code>.age和<code>user.email</code>的值都是<code>undefined</code>。</p>
+<h2 id="可选属性的类型"><a href="#可选属性的类型" class="headerlink" title="可选属性的类型"></a>可选属性的类型</h2><p>可选属性出现时，那么它的类型就是定义的类型，比如上面的<code>age</code>属性的类型是<code>number</code>，<code>email</code>属性的类型是<code>string</code>。</p>
+<p>如果可选属性未出现，那么它的类型就是<code>undefined</code>，比如上面的<code>user1</code>变量中，<code>user1.age</code>和<code>user1.email</code>的类型都是<code>undefined</code>。</p>
+<p>综合下来，我们可以得出一个结论：可选属性的类型是<code>T | undefined</code>，其中<code>T</code>是可选属性的定义类型。</p>
+<p>将<code>User</code>类型复制到IDE中，可以将鼠标悬停在<code>age</code>和<code>email</code>属性上，查看它们的类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">age 对应的类型是 number | undefined</span><br><span class="line">email 对应的类型是 string | undefined</span><br></pre></td></tr></table></figure>
+
+<h2 id="提取可选属性"><a href="#提取可选属性" class="headerlink" title="提取可选属性"></a>提取可选属性</h2><p>可选属性介绍完毕，，现在问题来了，如何从一个类型定义中提取出所有可选属性，对应上面的<code>User</code>类型，我们需要提取出<code>age</code>和<code>email</code>这两个属性。</p>
+<p>我们可以分步骤解决这个问题，每个步骤解决一个问题</p>
+<h2 id="第一步：获取所有属性"><a href="#第一步：获取所有属性" class="headerlink" title="第一步：获取所有属性"></a>第一步：获取所有属性</h2><p>要提取可选属性，我们首先需要获取类型中所有的属性。TypeScript提供了内置的<code>keyof</code>操作符，可以获取一个类型的所有键（属性）。</p>
+<p>假设给定的是一个类型T，那么<code>keyof T</code>将返回一个联合类型，包含T的所有属性名。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">UserKeys</span> = keyof <span class="title class_">User</span>; <span class="comment">// &quot;id&quot; | &quot;name&quot; | &quot;age&quot; | &quot;email&quot;</span></span><br></pre></td></tr></table></figure>
+<p>假设给定的不是一个类型，而是一个变量，那么首先要用<code>typeof</code>操作符获取变量对应的的类型。再使用<code>keyof</code>获取该类型所有属性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> user = &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Alice&#x27;</span>,</span><br><span class="line">  <span class="attr">age</span>: <span class="number">30</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">UserKeys</span> = keyof <span class="keyword">typeof</span> user; <span class="comment">// &quot;id&quot; | &quot;name&quot; | &quot;age&quot;</span></span><br></pre></td></tr></table></figure>
+<p>可以看到虽然<code>user</code>变量属于<code>User</code>类型，但是两者返回的属性并不完全相同，因为<code>user</code>变量并未包含<code>email</code>属性。</p>
+<h2 id="第二步：判断一个类型是否是可选的"><a href="#第二步：判断一个类型是否是可选的" class="headerlink" title="第二步：判断一个类型是否是可选的"></a>第二步：判断一个类型是否是可选的</h2><p>typescript中并没有提供内置的操作符判断一个属性是否是可选的，但是我们可以通过条件类型来实现。</p>
+<p>前面说过当可选类型<code>未出现</code>时，他的值就是<code>undefined</code>(类型也是<code>undefined</code>)，所以我们可以通过判断一个属性的类型是否包含<code>undefined</code>来判断它是否是可选的。</p>
+<p>下面我们来定义一个类型<code>IsOptional</code>，它接受两个参数：一个类型T和一个属性K。它将返回一个布尔值，表示属性K是否是类型T的可选属性。</p>
+<p>代码大概是这个样子的</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">IsOptional</span>&lt;T, K&gt; = <span class="literal">undefined</span> <span class="keyword">extends</span> T[K] ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p>如果K是可选的，那么T[K]的值就有可能是<code>undefined</code>，因此<code>undefined extends T[K]</code>将返回<code>true</code>，否则返回<code>false</code>。</p>
+<p>举个例子：我们将T和K对应到文章开头的类型定义中，令<code>T = User</code>, 假设<code>K = age</code>，那么就有：</p>
+<ul>
+<li>当<code>age</code>属性存在时：<code>T[K] = number</code></li>
+<li>当<code>age</code>属性不存在时：<code>T[K] = undefined</code><br>所以<code>T[K] = number | undefined</code>，因此<code>undefined extends T[K]</code>将返回<code>true</code>。</li>
+</ul>
+<p>假设<code>K = name</code>，因为<code>name</code>属性是必需的，所以<code>T[K] = string</code>，因此<code>undefined extends T[K]</code>将返回<code>false</code>。</p>
+<p>似乎问题就要解决了，但是这里还有一个严重的问题，那就是K必须是T的属性，否则<code>T[K]</code>将会报错。所以我们还要限制一下K的值。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">IsOptional</span>&lt;T, K <span class="keyword">extends</span> keyof T&gt; = <span class="literal">undefined</span> <span class="keyword">extends</span> T[K] ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p><code>K extends keyof T</code>的意思是K必须是T的属性之一，这样可以避免<code>T[K]</code>报错。</p>
+<h2 id="第三步：提取可选属性"><a href="#第三步：提取可选属性" class="headerlink" title="第三步：提取可选属性"></a>第三步：提取可选属性</h2><p>现在我们已经有了获取所有属性的类型<code>UserKeys</code>和判断一个属性是否是可选的类型<code>IsOptional</code>，接下来我们只需要把这两步结合起来即可：</p>
+<ol>
+<li>对于一个给定的类型T，我们首先获取其所有属性。</li>
+<li>遍历步骤1中获取的所有属性，对于每个属性K，使用<code>IsOptional&lt;T, K&gt;</code>判断它是否是可选的。</li>
+<li>如果是可选的，就将其包含在结果中，否则将其排除。</li>
+</ol>
+<p>代码如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">OptionalKeys</span>&lt;T&gt; = keyof &#123;</span><br><span class="line">  [K <span class="keyword">in</span> keyof T <span class="keyword">as</span> <span class="title class_">IsOptional</span>&lt;T, K&gt; <span class="keyword">extends</span> <span class="literal">true</span> ? K : <span class="built_in">never</span>]: <span class="built_in">any</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这段代码的核心部分在于<code>[K in keyof T as IsOptional&lt;T, K&gt; extends true ? K : never]</code> - 这一行代码对应了我们上面的三个步骤。</p>
+<ul>
+<li><code>keyof T</code> 获取所有属性。</li>
+<li><code>K in keyof T</code>遍历所有属性。</li>
+<li><code>as IsOptional&lt;T, K&gt; extends true ? K : never</code> 对于类型K，使用条件类型来判断属性K是否是可选的，如果是则保留K，否则将其排除（变为<code>never</code>）。</li>
+</ul>
+<p>但是最后为什么还有一个any呢？因为这是一个遍历操作，我们要把结果放到一个对象中，对象的key是我们提取的可选属性，对象的值就是<code>any</code>，<code>any</code>只是用来来占位的，即使使用其他类型也是一样的，比如<code>unknown</code>或者<code>void</code>都可以。</p>
+<p>循环遍历完成后，我们得到一个对象如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">any</span>;</span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">any</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后再使用使用<code>keyof</code>操作符获取这个对象的所有键，就得到了可选属性的联合类型：<code>&quot;age&quot; | &quot;email&quot;</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">keyof &#123;</span><br><span class="line">  <span class="attr">age</span>?: <span class="built_in">any</span>;</span><br><span class="line">  <span class="attr">email</span>?: <span class="built_in">any</span>;</span><br><span class="line">&#125; <span class="comment">// &quot;age&quot; | &quot;email&quot;</span></span><br></pre></td></tr></table></figure>
+<p>因此，最终的<code>OptionalKeys&lt;User&gt;</code>将返回<code>&quot;age&quot; | &quot;email&quot;</code>。</p>
+<p>好了，今天就到这里了，感谢大家的支持！我们明天见。</p>
+<blockquote>
+<p>其实这篇文章是分两次写的，昨天晚上写了一半困得不行，遂作罢，今天早上又起来继续写。日更不能停啊。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/optional/" rel="tag"># optional</a>
+              <a href="/tags/typescript/" rel="tag"># typescript</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/07/07/javascript-object-iterate/" rel="prev" title="javascript-object-iterate">
+      <i class="fa fa-chevron-left"></i> javascript-object-iterate
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/07/09/typescript-type-assertion-1/" rel="next" title="typescript-type-assertion">
+      typescript-type-assertion <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%8F%AF%E9%80%89%E5%B1%9E%E6%80%A7%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是可选属性？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%80%89%E5%B1%9E%E6%80%A7%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">可选属性的类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E5%8F%96%E5%8F%AF%E9%80%89%E5%B1%9E%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">提取可选属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%B1%9E%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">第一步：获取所有属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E7%B1%BB%E5%9E%8B%E6%98%AF%E5%90%A6%E6%98%AF%E5%8F%AF%E9%80%89%E7%9A%84"><span class="nav-number">5.</span> <span class="nav-text">第二步：判断一个类型是否是可选的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E6%8F%90%E5%8F%96%E5%8F%AF%E9%80%89%E5%B1%9E%E6%80%A7"><span class="nav-number">6.</span> <span class="nav-text">第三步：提取可选属性</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Philip Zhang</p>
+  <div class="site-description" itemprop="description">青春都一餉，忍把浮名換了代碼輕狂。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">346</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">449</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Philip Zhang</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">234k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">14:12</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MRKXK1S1GG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MRKXK1S1GG');
+</script>
+</body>
+</html>
