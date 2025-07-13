@@ -187,6 +187,280 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/30/javascript-iife-history/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/30/javascript-iife-history/" class="post-title-link" itemprop="url">javascript-iife-history</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-30 22:14:00 / Modified: 23:18:45" itemprop="dateCreated datePublished" datetime="2025-06-30T22:14:00+08:00">2025-06-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE(Immediately Invoked Function Expression)，中文名称：立即执行函数表达式，其实IIFE最早并不叫这个名字，而是叫做<code>Self-Executing Anonymous Function</code>，即自执行匿名函数。根据MDN的资料，IIFE这个说法最早由Ben Alman于2010年提出，下面我们一起来看看这个名字的来龙去脉。</p>
+<p>2010年11月5日，Ben Alman写下来他的著名文章：<a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">Immediately-Invoked Function Expression (IIFE)</a>，标志着IIFE这个名字的诞生。</p>
+<p>在文章中，Ben Alman称他是一个对待术语非常严谨的人，之前他多次看到<code>Self-Executing Anonymous Function</code>这个说法，觉得不是很恰当，于是他提出了<code>Immediately-Invoked Function Expression</code>这个说法。</p>
+<h2 id="IIFE到底是咋来的？"><a href="#IIFE到底是咋来的？" class="headerlink" title="IIFE到底是咋来的？"></a>IIFE到底是咋来的？</h2><p>当我们定义一个函数或者一个函数表达式时，你得到的是一个名字，通过这个名字，你就可以调用这个函数。</p>
+<p>下面这两段代码，第一个定义了一个普通函数，第二个定义了一个函数表达式，这两种形式，我们都可以通过标识符<code>foo</code>来调用它们。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通函数</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数表达式</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function expression&#x27;</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>也就是说，当<code>javascript</code>解释器遇到全局<code>function</code>关键字，或者一个函数内部的<code>function</code>关键字时，会将其解释为一个函数声明。</p>
+<p>然而函数声明是无法直接调用的，所以下面的写法会导致错误：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>我们来分析一下，上面这段代码，javascript解释器会将其解释为一个函数声明，和一个分组操作符(<code>()</code>), 分组操作符是用来改变运算符优先级的，里面必须有表达式才行，所以javascript解释器会报错。</p>
+<p>那我们就给它一个表达式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>这回代码不报错了，但是这段代码毫无意义，这个函数并没有执行，实际上这段代码与下面的代码等价：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>它的返回值就是1，这不是我们想要的结果，我们需要函数定义后能立即被执行，那就需要我们告诉javascript解释器，这个函数是一个表达式，而不是一个声明，因为表达式可以立即执行，但是声明不能。</p>
+<p>而在javascript中，生成表达式最简单的方式就是用<code>()</code>包裹起来，于是有了下面的代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样函数声明就变成了一个函数表达式，但是这个表达是没有名字，我们没法调用它，我们先给它一个名字，然后通过名字调用它。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> bar = (<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">bar</span>(); <span class="comment">// I am a function</span></span><br></pre></td></tr></table></figure>
+<p>这样完全没有问题，但是这里的<code>bar</code>实在有点多余，实际上<code>bar</code>和</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>是等价的，既然<code>bar()</code>可以调用函数，那么我们直接在函数表达式末尾加上<code>()</code>，也可以调用这个函数，于是就有了下面的代码，这就是IIFE的由来。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>将<code>()</code>写在外层的括号内也一样，这种方式颇得javascript专家<a target="_blank" rel="noopener" href="https://www.crockford.com/fash.html">Douglas Crockford</a>的青睐。我本人更喜欢第一种。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>有上面介绍可知，生成IIFE的精髓就是<code>将函数声明变成函数表达式</code>，而在javascript中，生成表达式可不止使用<code>()</code>包裹起来这一种方式，还有很多其他的方式可以实现。于是IIFE也就是产生了诸多变种。</p>
+<p>这个变种利用赋值运算符<code>=</code>来实现，赋值运算符是将右侧表达式的值赋值给左侧变量的，所以它右侧的部分被解析成了函数表达式及其调用。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> i = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>下面的表中使用逻辑运算符来生成表达式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> &amp; (<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<p>还有下面这些，都是利用一元运算符来生成函数表达式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br></pre></td></tr></table></figure>
+
+<p>最后来一个不为人知的，<code>void</code>运算符会对其右侧的表达是求值然后返回<code>undefined</code>。（<code>void expression</code> - 先对<code>expression</code>求值，然后返回<code>undefined</code>）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+
+<p>还有使用<code>new</code>运算符来生成IIFE，这种方式比较少见，因为它会创建一个新的对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这些方式都比较偏门了，不建议使用，只是用来帮助我们理解IIFE的。</p>
+<h2 id="为什么Self-Executing-Anonymous-Function这个名字不好？"><a href="#为什么Self-Executing-Anonymous-Function这个名字不好？" class="headerlink" title="为什么Self-Executing Anonymous Function这个名字不好？"></a>为什么Self-Executing Anonymous Function这个名字不好？</h2><p><code>Ben Alman</code>认为这个名字有两个问题：</p>
+<p><strong>Self-Executing</strong>：这个名字暗示函数会调用自己，但是实际上函数是立即被执行的，而不是调用它自身。<br>比如下面的几段代码都会调用自己，但是这并不是IIFE的语义。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 递归调用自身</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123; <span class="title function_">foo</span>(); </span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用arguments.callee调用自身</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="variable language_">arguments</span>.<span class="title function_">callee</span>(); &#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Anonymous</strong>：这个名字暗示函数是匿名的，但实际上函数可以有名字，也可以没有名字，比如下面的例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 有名字的IIFE</span></span><br><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife</a></p>
+<p>大家有时间可以去拜读<code>Ben Alman</code>的原文，大佬写的东西就是不一样，通俗易懂，是我辈楷模！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-iife/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/06/29/javascript-iife/" class="post-title-link" itemprop="url">javascript-IIFE</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-06-29 16:57:32 / Modified: 23:20:35" itemprop="dateCreated datePublished" datetime="2025-06-29T16:57:32+08:00">2025-06-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE（Immediately Invoked Function Expression）中文名称：<code>立即执行函数表达式</code>，是一种JavaScript编程模式，它允许函数在定义后立即执行。由这个定义可以看出IIFE有两个特点：</p>
+<ol>
+<li>它是函数表达式</li>
+<li>它是定义后立即执行的</li>
+</ol>
+<p>来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>将这段代码放在浏览器控制台中执行，会输出<code>I am an IIFE</code>。这就是一个简单的IIFE。</p>
+<p>分析一下上面的代码，它分为两部分，每个部分由一组<code>()</code>包裹。<br>第一部分是一个函数(本例用的是匿名函数，也可以是具名函数)：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>第二部分是一个函数调用</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">();</span><br></pre></td></tr></table></figure>
+<p>这两部分结合在一起，就形成了一个IIFE。</p>
+<h2 id="快速掌握IIFE"><a href="#快速掌握IIFE" class="headerlink" title="快速掌握IIFE"></a>快速掌握IIFE</h2><p>IIFE的语法其实不复杂，但是刚开始要记住它并不容易，这里教大家一个小技巧，可以快速书写IIFE代码。</p>
+<ol>
+<li>首先，写下两组括弧<code>()()</code></li>
+<li>然后在第一组括弧内写下函数定义 - 注意这里必须是匿名函数。</li>
+<li>如果函数需要参数，那么在第二组括弧内传入参数。</li>
+</ol>
+<h3 id="一道练习题，写一个IIFE，计算1-2的和"><a href="#一道练习题，写一个IIFE，计算1-2的和" class="headerlink" title="一道练习题，写一个IIFE，计算1 + 2的和"></a>一道练习题，写一个IIFE，计算1 + 2的和</h3><p>我们使用上面的技巧来书写：</p>
+<p>首先写下两组括弧</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">()()</span><br></pre></td></tr></table></figure>
+<p>然后在第一组括弧内写下函数定义</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>因为这里的add函数需要参数，所以我们要在第二组括弧内传入参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)(<span class="number">1</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>上面介绍的IIFE写法是最常见的形式，其实IIFE还有一些其他写法(至于为什么这些写法是可以的，我们下一篇再做介绍)，现罗列如下：</p>
+<p>这种写法将调用函数的括号放到了第一组括弧内部。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+<p>以下几种写法都是使用一元运算符来实现的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with !&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with ~&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with +&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with -&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这些一元运算符的作用是将函数定义转换为一个表达式，从而使其可以被调用。如果不加这些一元运算符的话，就变成了下面的形式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE without unary operator&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>这会导致一个语法错误，因为JavaScript引擎会将其解析为一个函数声明，而不是函数表达式。函数声明需要一个函数名，而匿名函数没有名字，所以会报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Function statements require a <span class="keyword">function</span> name</span><br></pre></td></tr></table></figure>
+<p>我们给它加上一个名字，变成下面这样</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
+<p>但是还是会报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Unexpected token <span class="string">&#x27;)&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>javascript引擎会将上述代码解析为一个函数声明和一个分组操作符 - 即<code>()</code>，但是分组操作符内不能是空的，必须有一个表达式，我们在里面加上一个1</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+<p>这样就不会报错了，但是这不是一个IIFE了。它的返回值就是分组表达式的值，也就是1。</p>
+<h2 id="为什么需要IIFE"><a href="#为什么需要IIFE" class="headerlink" title="为什么需要IIFE?"></a>为什么需要IIFE?</h2><p>早期在JavaScript尚未支持模块化的时候，IIFE是实现模块化的一种简单方式，它可以创建一个独立的作用域，从而避免全局污染，下面看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> myModule = (<span class="keyword">function</span> <span class="title function_">MyModule</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> privateVariable = <span class="string">&#x27;private variable&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> publicVariable = <span class="string">&#x27;public variable&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">privateMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(privateVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">publicMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(publicVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将需要暴露给外界的变量和方法写在返回的对象中</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    publicVariable,</span><br><span class="line">    publicMethod,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">publicVariable</span>); <span class="comment">// 访问公共变量</span></span><br><span class="line">myModule.<span class="title function_">publicMethod</span>(); <span class="comment">// 访问公共方法</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">privateVariable</span>); <span class="comment">// undefined</span></span><br><span class="line">myModule.<span class="title function_">privateMethod</span>(); <span class="comment">// TypeError: myModule.privateMethod is not a function, privateMethod is not accessible</span></span><br></pre></td></tr></table></figure>
+<p>分析一下上面的代码，这是一个典型的IIFE + 闭包实现模块化的例子。</p>
+<p>MyModule是一个IIFE，它在内部定义了：</p>
+<ul>
+<li>私有变量<code>privateVariable</code></li>
+<li>私有方法<code>privateMethod</code></li>
+</ul>
+<p>这些变量和方法无法从外部访问。</p>
+<p>它还定义了</p>
+<ul>
+<li>一个公共变量<code>publicVariable</code></li>
+<li>一个公共方法<code>publicMethod</code></li>
+</ul>
+<p>这些可以通过返回的对象访问。</p>
+<p>IIFE的返回值赋值给了<code>myModule</code>变量，这样就可以通过<code>myModule</code>访问公共变量和方法。</p>
+<p>注意：这个例子仅供参考，在ES6模块已经十分普及的今天，这种方式已经不推荐使用了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-simulate-a-50ms-task/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1064,224 +1338,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-8/" class="post-title-link" itemprop="url">react-ant-design-component-table-8</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:51" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:51+08:00">2025-06-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-06-28 22:54:14" itemprop="dateModified" datetime="2025-06-28T22:54:14+08:00">2025-06-28</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天我们继续学习Ant Design的<code>Table</code>组件，今天的主题是如何为<code>Table</code>组件添加行选中功能，也就是用户可以通过点击某一行来选中它，这在很多场景下都非常有用，比如批量操作、查看详情等。关于如何选中行，我们可以使用<code>Table</code>组件提供的<code>rowSelection</code>属性来实现，关于<code>rowSelection</code>的具体用法，可以参考这里：<a target="_blank" rel="noopener" href="https://ant-design.antgroup.com/components/table-cn#rowselection">https://ant-design.antgroup.com/components/table-cn#rowselection</a></p>
-<h2 id="实现行选中功能"><a href="#实现行选中功能" class="headerlink" title="实现行选中功能"></a>实现行选中功能</h2><p>下面是一个简单的示例，展示了如何在<code>Table</code>组件中实现行选中功能，首先为Table组件添加<code>rowSelection</code>属性，然后在这个属性中定义选中行的逻辑。</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125;</span><br><span class="line">  rowSelection=&#123;rowSelection&#125; <span class="comment">// 添加行选中功能</span></span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们来定义<code>rowSelection</code>的具体内容，我们在<code>rowSelection</code>中可以定义一些回调函数，比如当选中行发生变化时，我们可以通过<code>onChange</code>回调来获取当前选中的行数据。</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowSelection = &#123;</span><br><span class="line">  <span class="attr">onChange</span>: <span class="function">(<span class="params">selectedRowKeys, selectedRows</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;selectedRowKeys changed: &#x27;</span>, selectedRowKeys);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;selectedRows changed: &#x27;</span>, selectedRows);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>运行程序，选中第一行和第二行，控制台会输出选中的<code>key</code>和行数据，如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">selectedRowKeys: 1,2</span><br><span class="line">selectedRows: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;id&quot;</span>: 1,</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;User1&quot;</span>,</span><br><span class="line">        <span class="string">&quot;email&quot;</span>: <span class="string">&quot;user1@gmail.com&quot;</span>,</span><br><span class="line">        <span class="string">&quot;phone&quot;</span>: <span class="string">&quot;13028296158&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;id&quot;</span>: 2,</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;User2&quot;</span>,</span><br><span class="line">        <span class="string">&quot;email&quot;</span>: <span class="string">&quot;user2@gmail.com&quot;</span>,</span><br><span class="line">        <span class="string">&quot;phone&quot;</span>: <span class="string">&quot;13084774670&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-<p>因为默认的rowKey是<code>id</code>，所以<code>selectedRowKeys</code>就是选中行的<code>id</code>：分别是1和2。如果我们在Table组件中设置了<code>rowKey</code>为<code>name</code></p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;name&#x27;</span>&#125;</span><br><span class="line">  rowSelection=&#123;rowSelection&#125;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-<p>那么<code>selectedRowKeys</code>就会变成选中行的<code>name</code>。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">selectedRowKeys: User1,User2</span><br></pre></td></tr></table></figure>
-<p>接下来是<code>selectedRows</code>，它是一个数组，包含了所有选中行的数据。我们可以在<code>onChange</code>回调中获取到这些数据，并进行相应的处理，比如批量删除、批量编辑等。</p>
-<h2 id="批量操作"><a href="#批量操作" class="headerlink" title="批量操作"></a>批量操作</h2><p>以批量删除为例，我们可以将选中的行数据的<code>id</code>提取出来，然后通过一个删除函数来删除这些数据。</p>
-<p>先定义一个state变量来存储选中的行数据的<code>id</code>：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [selectedRowKeys, setSelectedRowKeys] = <span class="title function_">useState</span>([]);</span><br></pre></td></tr></table></figure>
-<p>当用户选中某些行时，我们记录下这些行的<code>id</code>：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowSelection = &#123;</span><br><span class="line">  selectedRowKeys,</span><br><span class="line">  <span class="attr">onChange</span>: <span class="function">(<span class="params">newSelectedRowKeys, selectedRows</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">setSelectedRowKeys</span>(newSelectedRowKeys);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>最后，当用户点击批量删除按钮时，将这些id传给批量删除函数：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">handleBatchDelete</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="title function_">deleteUsers</span>(selectedRowKeys).<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 删除成功后，清空选中的行</span></span><br><span class="line">    <span class="title function_">setSelectedRowKeys</span>([]);</span><br><span class="line">    <span class="comment">// 重新获取数据</span></span><br><span class="line">    <span class="title function_">fetchData</span>();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="为什么选中一行，所有行都会被选中？"><a href="#为什么选中一行，所有行都会被选中？" class="headerlink" title="为什么选中一行，所有行都会被选中？"></a>为什么选中一行，所有行都会被选中？</h2><p>有时候我们会遇到一个问题，就是当我们选中某一行时，所有行都会被选中。这通常是因为我们没有在<Table>组件中正确设置<code>rowKey</code>属性。<code>rowKey</code>属性用于指定每一行数据的唯一标识符，当我们使用选中功能时，Ant Design会根据这个唯一标识符来判断哪些行是被选中的。我们只要在<code>Table</code>组件中正确设置<code>rowKey</code>属性，就可以避免这个问题。</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Table</span></span><br><span class="line">  dataSource=&#123;tableData&#125;</span><br><span class="line">  columns=&#123;columns&#125;</span><br><span class="line">  rowKey=&#123;<span class="string">&#x27;id&#x27;</span>&#125; <span class="comment">// 确保设置了唯一的rowKey</span></span><br><span class="line">  rowSelection=&#123;rowSelection&#125;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="为什么选中了一行，其他行的Checkbox也会被选中？"><a href="#为什么选中了一行，其他行的Checkbox也会被选中？" class="headerlink" title="为什么选中了一行，其他行的Checkbox也会被选中？"></a>为什么选中了一行，其他行的Checkbox也会被选中？</h2><p>如果你已经正确设置了<code>rowKey</code>属性，但仍然遇到选中一行时其他行的Checkbox也被选中的问题，这是因为<code>rowKey</code>指定的属性有重复值，比如你设置了<code>rowKey=&#123;&#39;id&#39;&#125;</code>，但数据中有多行的<code>id</code>是相同的，也会导致重复选中的问题。只要确保每一行数据的<code>rowKey</code>属性是唯一的，就可以避免这个问题。</p>
-<h2 id="禁止选中某些行"><a href="#禁止选中某些行" class="headerlink" title="禁止选中某些行"></a>禁止选中某些行</h2><p>有些时候，我们可能要禁止用户选中某些行，比如某些用户是管理员或者某些状态的用户不允许被选中。我们可以在<code>rowSelection</code>中添加一个<code>getCheckboxProps</code>函数来实现这个功能。</p>
-<p>比如，我们想让name为”User1”的行不能被选中，可以这样实现：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowSelection = &#123;</span><br><span class="line">  <span class="attr">getCheckboxProps</span>: <span class="function">(<span class="params">record</span>) =&gt;</span> (&#123;</span><br><span class="line">    <span class="attr">disabled</span>: record.<span class="property">name</span> === <span class="string">&#x27;User1&#x27;</span>, <span class="comment">// 这里根据实际情况禁用某些行</span></span><br><span class="line">  &#125;),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>这样，name为”User1”的行就会被禁用，用户无法选中它。</p>
-<h2 id="自定义选中列的名字"><a href="#自定义选中列的名字" class="headerlink" title="自定义选中列的名字"></a>自定义选中列的名字</h2><p>有时候，我们需要给选中列自定义一个名字，比如”选择”，此时可以通过<code>rowSelection</code>的<code>columnTitle</code>属性来实现：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowSelection = &#123;</span><br><span class="line">  <span class="attr">columnTitle</span>: <span class="string">&#x27;选择&#x27;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>默认情况下，选中列的宽度就是Checkbox的宽度，这会导致该列的标题竖起来，所以我们还需要为这一列设置宽度：</p>
-<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rowSelection = &#123;</span><br><span class="line">  <span class="attr">columnTitle</span>: <span class="string">&#x27;选择&#x27;</span>,</span><br><span class="line">  <span class="attr">columnWidth</span>: <span class="string">&#x27;50px&#x27;</span>, <span class="comment">// 设置选中列的宽度</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>好了，以上就是今天的内容了，祝大家编程愉快，我们明天再见！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/22/react-ant-design-component-table-7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/22/react-ant-design-component-table-7/" class="post-title-link" itemprop="url">react-ant-design-component-table-7</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-06-22 17:34:47" itemprop="dateCreated datePublished" datetime="2025-06-22T17:34:47+08:00">2025-06-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-06-29 15:12:09" itemprop="dateModified" datetime="2025-06-29T15:12:09+08:00">2025-06-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/react/" itemprop="url" rel="index"><span itemprop="name">react</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>553</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>今天我们学习一下如何在Ant Design的Table组件中使用动态<code>Columns</code>，也就是说列的定义不是固定的，而是根据某些条件动态生成的。这在实际开发中非常常见，比如根据用户权限来决定显示哪些列，或者根据数据的不同类型来显示不同的列。</p>
-<h2 id="动态显示-隐藏某些列"><a href="#动态显示-隐藏某些列" class="headerlink" title="动态显示&#x2F;隐藏某些列"></a>动态显示&#x2F;隐藏某些列</h2><p>考虑下面的需求，我们有一个页面，包含两个tab，一个是<code>我的报告</code>，另一个是<code>所有报告</code>。在<code>我的报告</code>中，我们只需要显示报告的标题和创建时间，而在<code>所有报告</code>中，我们需要显示更多的信息，比如作者等。- 由于<code>我的报告</code>中作者就是我，所以不需要显示作者列。</p>
-<p>首先我们定义所有的列，然后根据当前tab的不同来显示或隐藏作者列。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> columns = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;标题&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;title&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;createdAt&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&#x27;作者&#x27;</span>,</span><br><span class="line">    <span class="attr">dataIndex</span>: <span class="string">&#x27;author&#x27;</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">getColumns</span> = (<span class="params"><span class="attr">tab</span>: <span class="string">&#x27;myReports&#x27;</span> | <span class="string">&#x27;allReports&#x27;</span></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (tab === <span class="string">&#x27;myReports&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> columns.<span class="title function_">filter</span>(<span class="function"><span class="params">col</span> =&gt;</span> col.<span class="property">dataIndex</span> !== <span class="string">&#x27;author&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> columns;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Tabs</span> <span class="attr">defaultActiveKey</span>=<span class="string">&quot;myReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">TabPane</span> <span class="attr">tab</span>=<span class="string">&quot;我的报告&quot;</span> <span class="attr">key</span>=<span class="string">&quot;myReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;getColumns(</span>&#x27;<span class="attr">myReports</span>&#x27;)&#125; <span class="attr">dataSource</span>=<span class="string">&#123;myReports&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">TabPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">TabPane</span> <span class="attr">tab</span>=<span class="string">&quot;所有报告&quot;</span> <span class="attr">key</span>=<span class="string">&quot;allReports&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;getColumns(</span>&#x27;<span class="attr">allReports</span>&#x27;)&#125; <span class="attr">dataSource</span>=<span class="string">&#123;allReports&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">TabPane</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">Tabs</span>&gt;</span></span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-<p>这样，我们就实现的动态列的功能，但是这个方法有一个问题，那就是会产生大量的重复代码，如果两个tab的内容几乎相同，只有作者这一列不同的话，那么我们可以提取一个基类用来渲染tab内容，然后在基类中根据tab的不同来决定显示哪些列。</p>
-<p>也就是说，我们只需定义一个<code>columns</code>对象，然后在这个组件中根据传入的<code>tab</code>来决定显示哪些列。这时候我们可以用<code>Columns</code>中的<code>hidden</code>属性来隐藏某些列。</p>
-<figure class="highlight tsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">ReportTable</span> = (<span class="params">&#123; tab &#125;: &#123; tab: <span class="string">&#x27;myReports&#x27;</span> | <span class="string">&#x27;allReports&#x27;</span> &#125;</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> columns = [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;标题&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;title&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;createdAt&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;作者&#x27;</span>,</span><br><span class="line">      <span class="attr">dataIndex</span>: <span class="string">&#x27;author&#x27;</span>,</span><br><span class="line">      <span class="attr">hidden</span>: tab === <span class="string">&#x27;myReports&#x27;</span>, <span class="comment">// 如果是我的报告，则隐藏作者列</span></span><br><span class="line">    &#125;,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">Table</span> <span class="attr">columns</span>=<span class="string">&#123;columns&#125;</span> <span class="attr">dataSource</span>=<span class="string">&#123;dataSource&#125;</span> /&gt;</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>这样的实现，是不是更优雅呢？这种方式的好处即使避免大量的重复代码，程序员嘛，怎么能老是重复呢？</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1351,7 +1407,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">346</span>
+          <span class="site-state-item-count">348</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1364,7 +1420,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">449</span>
+        <span class="site-state-item-count">451</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1400,12 +1456,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">234k</span>
+    <span title="Symbols count total">238k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:12</span>
+    <span title="Reading time total">14:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

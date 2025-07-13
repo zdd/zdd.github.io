@@ -187,6 +187,215 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/18/angular-component-input/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/18/angular-component-input/" class="post-title-link" itemprop="url">angular-component-input</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-18 10:41:17" itemprop="dateCreated datePublished" datetime="2025-02-18T10:41:17+08:00">2025-02-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:24:32" itemprop="dateModified" datetime="2025-04-07T17:24:32+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>609</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天这篇我们讲解一下Angular中的Input，Input是Angular中的一个装饰器，它用来接收父组件传递过来的数据。</p>
+<h2 id="传统的-Input-写法"><a href="#传统的-Input-写法" class="headerlink" title="传统的@Input()写法"></a>传统的@Input()写法</h2><p>为了方便展示，我们定义两个组件, 一个父组件：<code>ListComponent</code>， 一个子组件：<code>ListItemComponent</code>。为了便于展示，我们将template和style都写在component.ts中。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list-item.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, <span class="title class_">Input</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list-item&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list-item&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;id: &#123;&#123;id&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">      &lt;div&gt;name: &#123;&#123;name&#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styles</span>: [<span class="string">`</span></span><br><span class="line"><span class="string">    .list-item &#123;</span></span><br><span class="line"><span class="string">      border: 1px solid #ccc;</span></span><br><span class="line"><span class="string">      margin-bottom: 10px;</span></span><br><span class="line"><span class="string">      padding: 10px;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  `</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>(&#123;<span class="attr">required</span>: <span class="literal">true</span>&#125;) <span class="attr">id</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="meta">@Input</span>() <span class="attr">name</span>: <span class="built_in">string</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>ListItemComponent</code>中，我们定义了两个属性：<code>id</code>和<code>name</code>，并且使用了<code>@Input</code>装饰器。<code>@Input</code>装饰器有一个可选的参数<code>required</code>，如果设置为<code>true</code>，则表示这个属性是必须的，如果使用组件时没有给该字段赋值，则会报错。</p>
+<p>接下来我们在<code>ListComponent</code>中使用<code>ListItemComponent</code>组件，并传递数据。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list.component.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ListItemComponent</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;../list-item/list-item.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-list&#x27;</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ListItemComponent</span>],</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;list&quot;&gt;</span></span><br><span class="line"><span class="string">      @for (item of listItems; track item.id) &#123;</span></span><br><span class="line"><span class="string">        &lt;app-list-item [id]=&quot;item.id&quot; [name]=&quot;item.name&quot;/&gt;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">styleUrl</span>: <span class="string">&#x27;./list.component.scss&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListComponent</span> &#123;</span><br><span class="line">  listItems = [</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 1&#x27;</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;item 2&#x27;</span>&#125;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>@Input</code>定义的字段，需要通过property binding的方式传递数据，即<code>[id]=&quot;item.id&quot;</code>和<code>[name]=&quot;item.name&quot;</code>。</p>
+<h2 id="基于signal的input写法"><a href="#基于signal的input写法" class="headerlink" title="基于signal的input写法"></a>基于signal的<code>input</code>写法</h2><p>以上是旧版的写法，从Angular 17.1开始，我们可以使用新版的基于signal的<code>input</code>语法了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>, input&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>; <span class="comment">// import &#x27;input&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  <span class="comment">// @Input(&#123;required: true&#125;) id: string = &#x27;&#x27;;</span></span><br><span class="line">  <span class="comment">// @Input() name: string = &#x27;&#x27;;</span></span><br><span class="line"></span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = input&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于这种类型的input的值对应的是一个signal, 所以读取值的时候，要加<code>()</code>，id -&gt; <code>id()</code>, name -&gt; <code>name()</code>。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template: `</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;list-item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>id: &#123;&#123;id()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span>&gt;</span>name: &#123;&#123;name()&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  `</span><br></pre></td></tr></table></figure>
+
+<h2 id="default-value"><a href="#default-value" class="headerlink" title="default value"></a>default value</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="title function_">input</span>(<span class="number">0</span>); <span class="comment">// 0 is default value</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="specify-type"><a href="#specify-type" class="headerlink" title="specify type"></a>specify type</h2><p>Note that, for simple values, typescript can infer the type by value, but for complex types, you need to specify the type.</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">value = input&lt;<span class="built_in">number</span>&gt;(<span class="number">0</span>); <span class="comment">// value = input(0); // totally ok</span></span><br><span class="line">value = input&lt;<span class="built_in">string</span>&gt;(<span class="string">&#x27;&#x27;</span>); <span class="comment">// value = input(&#x27;&#x27;); // totally ok </span></span><br></pre></td></tr></table></figure>
+
+<h2 id="required"><a href="#required" class="headerlink" title="required"></a>required</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = input.<span class="property">required</span>&lt;<span class="built_in">number</span>&gt;(); <span class="comment">// required</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Input-transform"><a href="#Input-transform" class="headerlink" title="Input transform"></a>Input transform</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ListItemComponent</span> &#123;</span><br><span class="line">  id = input.<span class="property">required</span>&lt;<span class="built_in">string</span>&gt;();</span><br><span class="line">  name = <span class="title function_">input</span>(<span class="string">&#x27;&#x27;</span>, &#123;<span class="attr">transform</span>: trimString&#125;); <span class="comment">// apply transform</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// define transform function, transform function should be statically analyzable and pure function.</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">trimString</span>(<span class="params"><span class="attr">value</span>: <span class="built_in">string</span> | <span class="literal">undefined</span></span>): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> value?.<span class="title function_">trim</span>() ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Built-in-transform"><a href="#Built-in-transform" class="headerlink" title="Built-in transform"></a>Built-in transform</h3><ol>
+<li><code>booleanAttribute</code> - imitates the behavior of standard HTML boolean attributes, where the presence of the attribute indicates a “true” value. However, Angular’s booleanAttribute treats the literal string “false” as the boolean false.</li>
+<li><code>numberAttribute</code> - attempts to parse the given value to a number, producing NaN if parsing fails.</li>
+</ol>
+<h2 id="Input-alias"><a href="#Input-alias" class="headerlink" title="Input alias"></a>Input alias</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = <span class="title function_">input</span>(<span class="number">0</span>, &#123;<span class="attr">alias</span>: <span class="string">&#x27;sliderValue&#x27;</span>&#125;); <span class="comment">// aliasValue is the alias name</span></span><br></pre></td></tr></table></figure>
+<p>在模板中使用<code>sliderValue</code>, 注意，组件代码中仍然只能使用<code>value</code>。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">custom-slider</span> [<span class="attr">sliderValue</span>]=<span class="string">&quot;50&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://angular.dev/guide/components/inputs">https://angular.dev/guide/components/inputs</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/17/angular-forms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/02/17/angular-forms/" class="post-title-link" itemprop="url">angular-forms</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-02-17 16:07:55" itemprop="dateCreated datePublished" datetime="2025-02-17T16:07:55+08:00">2025-02-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-04-07 17:24:37" itemprop="dateModified" datetime="2025-04-07T17:24:37+08:00">2025-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>77</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Reactive-Forms"><a href="#Reactive-Forms" class="headerlink" title="Reactive Forms"></a>Reactive Forms</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">Component</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;<span class="title class_">ReactiveFormsModule</span>, <span class="title class_">FormControl</span>, <span class="title class_">FormGroup</span>&#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/forms&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-root&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;form [formGroup]=&quot;profileForm&quot; (ngSubmit)=&quot;handleSubmit()&quot;&gt;</span></span><br><span class="line"><span class="string">      &lt;label&gt;</span></span><br><span class="line"><span class="string">        Name</span></span><br><span class="line"><span class="string">        &lt;input type=&quot;text&quot; formControlName=&quot;name&quot; /&gt;</span></span><br><span class="line"><span class="string">      &lt;/label&gt;</span></span><br><span class="line"><span class="string">      &lt;label&gt;</span></span><br><span class="line"><span class="string">        Email</span></span><br><span class="line"><span class="string">        &lt;input type=&quot;email&quot; formControlName=&quot;email&quot; /&gt;</span></span><br><span class="line"><span class="string">      &lt;/label&gt;</span></span><br><span class="line"><span class="string">      &lt;button type=&quot;submit&quot;&gt;Submit&lt;/button&gt;</span></span><br><span class="line"><span class="string">      &lt;h2&gt;Profile Form&lt;/h2&gt;</span></span><br><span class="line"><span class="string">      &lt;p&gt;Name: &#123;&#123;profileForm.value.name&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">      &lt;p&gt;Email: &#123;&#123;profileForm.value.email&#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;/form&gt;</span></span><br><span class="line"><span class="string">  `</span>,</span><br><span class="line">  <span class="attr">imports</span>: [<span class="title class_">ReactiveFormsModule</span>],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">AppComponent</span> &#123;</span><br><span class="line">  profileForm = <span class="keyword">new</span> <span class="title class_">FormGroup</span>(&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="keyword">new</span> <span class="title class_">FormControl</span>(<span class="string">&#x27;&#x27;</span>),</span><br><span class="line">    <span class="attr">email</span>: <span class="keyword">new</span> <span class="title class_">FormControl</span>(<span class="string">&#x27;&#x27;</span>),</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">handleSubmit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title function_">alert</span>(<span class="variable language_">this</span>.<span class="property">profileForm</span>.<span class="property">value</span>.<span class="property">name</span> + <span class="string">&#x27; | &#x27;</span> + <span class="variable language_">this</span>.<span class="property">profileForm</span>.<span class="property">value</span>.<span class="property">email</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/16/angular-styles/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1135,280 +1344,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/10/angular-component-communication/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/10/angular-component-communication/" class="post-title-link" itemprop="url">angular-communication-between-parent-and-child-component</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-10 15:16:01" itemprop="dateCreated datePublished" datetime="2025-02-10T15:16:01+08:00">2025-02-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:38:19" itemprop="dateModified" datetime="2025-04-07T21:38:19+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/angular/" itemprop="url" rel="index"><span itemprop="name">angular</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>578</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Angular父子组件间通信的方式有很多种，比如通过<code>@Input</code>和<code>@Output</code>，<code>ViewChild</code>和<code>ViewChildren</code>等。今天我们来详细讨论一下这几种方式的使用。</p>
-<h2 id="Input和-Output"><a href="#Input和-Output" class="headerlink" title="@Input和@Output"></a>@Input和@Output</h2><p>这是最常见的方式，适用于父子组件之间的单向或双向数据传递。</p>
-<p>(1) 父组件向子组件传递数据（@Input）<br>父组件可以通过 @Input 装饰器将数据传递给子组件。</p>
-<p>步骤：</p>
-<ol>
-<li>在子组件中使用 @Input 定义一个输入属性。</li>
-<li>在父组件模板中通过属性绑定将数据传递给子组件。<br>代码示例：</li>
-</ol>
-<p>子组件 (child.component.ts):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">Input</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`&lt;p&gt;Message from parent: &#123;&#123; message &#125;&#125;&lt;/p&gt;`</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="meta">@Input</span>() message!: <span class="built_in">string</span>; <span class="comment">// 接收父组件传递的数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>父组件 (parent.component.html):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;app-child [message]=<span class="string">&quot;&#x27;Hello from Parent!&#x27;&quot;</span>&gt;&lt;/app-child&gt;</span><br></pre></td></tr></table></figure>
-
-<p>(2) 子组件向父组件传递数据（@Output 和 EventEmitter）<br>子组件可以通过 @Output 和 EventEmitter 向父组件发送事件和数据。</p>
-<p>步骤：</p>
-<ol>
-<li>在子组件中定义一个 @Output 属性，并使用 EventEmitter 发送数据。</li>
-<li>在父组件中监听子组件的事件并处理数据。<br>代码示例：</li>
-</ol>
-<p>子组件 (child.component.ts):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">Output</span>, <span class="title class_">EventEmitter</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`&lt;button (click)=&quot;sendMessage()&quot;&gt;Send Message to Parent&lt;/button&gt;`</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  <span class="meta">@Output</span>() messageEvent = <span class="keyword">new</span> <span class="title class_">EventEmitter</span>&lt;<span class="built_in">string</span>&gt;(); <span class="comment">// 定义输出事件</span></span><br><span class="line"></span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">messageEvent</span>.<span class="title function_">emit</span>(<span class="string">&#x27;Hello from Child!&#x27;</span>); <span class="comment">// 触发事件并传递数据</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>父组件 (parent.component.html):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;app-<span class="title function_">child</span> (messageEvent)=<span class="string">&quot;receiveMessage($event)&quot;</span>&gt;&lt;/app-child&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Message from child: &#123;&#123; receivedMessage &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
-
-<p>父组件 (parent.component.ts):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ParentComponent</span> &#123;</span><br><span class="line">  receivedMessage = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">receiveMessage</span>(<span class="params"><span class="attr">message</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">receivedMessage</span> = message; <span class="comment">// 处理子组件传递的数据</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="ViewChild和ViewChildren"><a href="#ViewChild和ViewChildren" class="headerlink" title="ViewChild和ViewChildren"></a>ViewChild和ViewChildren</h2><p>父组件可以通过 @ViewChild 或 @ViewChildren 直接访问子组件的属性和方法。</p>
-<p>步骤：</p>
-<ol>
-<li>在父组件中使用 @ViewChild 获取子组件的实例。</li>
-<li>直接调用子组件的方法或访问其属性。<br>代码示例：</li>
-</ol>
-<p>子组件 (child.component.ts):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-child&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`&lt;p&gt;Child Component&lt;/p&gt;`</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ChildComponent</span> &#123;</span><br><span class="line">  message = <span class="string">&#x27;Hello from Child!&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">greet</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;Greeting from Child!&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>父组件 (parent.component.ts):</p>
-<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Component</span>, <span class="title class_">ViewChild</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;@angular/core&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">ChildComponent</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;./child.component&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span>(&#123;</span><br><span class="line">  <span class="attr">selector</span>: <span class="string">&#x27;app-parent&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;app-child&gt;&lt;/app-child&gt;</span></span><br><span class="line"><span class="string">    &lt;button (click)=&quot;callChildMethod()&quot;&gt;Call Child Method&lt;/button&gt;</span></span><br><span class="line"><span class="string">    &lt;p&gt;Message from child: &#123;&#123; childMessage &#125;&#125;&lt;/p&gt;</span></span><br><span class="line"><span class="string">  `</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">ParentComponent</span> &#123;</span><br><span class="line">  <span class="meta">@ViewChild</span>(<span class="title class_">ChildComponent</span>) child!: <span class="title class_">ChildComponent</span>; <span class="comment">// 获取子组件实例</span></span><br><span class="line">  childMessage = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">callChildMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">childMessage</span> = <span class="variable language_">this</span>.<span class="property">child</span>.<span class="title function_">greet</span>(); <span class="comment">// 调用子组件的方法</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用SharedService"><a href="#使用SharedService" class="headerlink" title="使用SharedService"></a>使用SharedService</h2><p>如果父子组件之间的通信比较复杂，可以使用共享服务来管理数据。详情见<a target="_blank" rel="noopener" href="https://zdd.github.io/2023/07/12/Communication-between-components-directives-by-service/">这里</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/02/06/javascript-falsy-values/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/02/06/javascript-falsy-values/" class="post-title-link" itemprop="url">javascript-falsy-values</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-02-06 16:43:45" itemprop="dateCreated datePublished" datetime="2025-02-06T16:43:45+08:00">2025-02-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-04-07 21:22:05" itemprop="dateModified" datetime="2025-04-07T21:22:05+08:00">2025-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>235</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Falsy-values-in-JavaScript"><a href="#Falsy-values-in-JavaScript" class="headerlink" title="Falsy values in JavaScript"></a>Falsy values in JavaScript</h1><p>JavaScript has the following falsy values. When used in a boolean context, they will be coerced to <code>false</code>.</p>
-<table>
-<thead>
-<tr>
-<th>Value</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Glossary/Null">null</a></td>
-<td>Null</td>
-<td>The keyword null — the absence of any value.</td>
-</tr>
-<tr>
-<td><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Glossary/Undefined">undefined</a></td>
-<td>Undefined</td>
-<td>undefined — the primitive value.</td>
-</tr>
-<tr>
-<td>false</td>
-<td>Boolean</td>
-<td>The keyword false.</td>
-</tr>
-<tr>
-<td><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Glossary/NaN">NaN</a></td>
-<td>Number</td>
-<td>NaN — not a number.</td>
-</tr>
-<tr>
-<td>0</td>
-<td>Number</td>
-<td>The Number zero, also including 0.0, 0x0, etc.</td>
-</tr>
-<tr>
-<td>-0</td>
-<td>Number</td>
-<td>The Number negative zero, also including -0.0, -0x0, etc.</td>
-</tr>
-<tr>
-<td>0n</td>
-<td>BigInt</td>
-<td>The BigInt zero, also including 0x0n, etc. Note that there is no BigInt negative zero — the negation of 0n is 0n.</td>
-</tr>
-<tr>
-<td>“”</td>
-<td>String</td>
-<td>Empty string value, also including <code>&#39;&#39;</code> and &#96;&#96;.</td>
-</tr>
-<tr>
-<td><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Document/all">document.all</a></td>
-<td>Object</td>
-<td>The only falsy object in JavaScript is the built-in document.all.</td>
-</tr>
-</tbody></table>
-<p>注意：<code>falsy</code>value在<code>if(...)</code>中返回false。</p>
-<h1 id="Truthy-values"><a href="#Truthy-values" class="headerlink" title="Truthy values"></a>Truthy values</h1><p>除了上面的<code>Falsy values</code>，剩下的都是<code>truthy values</code>.</p>
-<h1 id="Truthy-values-actually-false"><a href="#Truthy-values-actually-false" class="headerlink" title="Truthy values actually &#x3D;&#x3D;false"></a>Truthy values actually &#x3D;&#x3D;false</h1><p>注意，有些值虽然是truthy values，但是它们竟然<code>==fasle</code>，所以，永远不要在JS中使用<code>==</code>!.<br>以下这些比较结果都是true。至于原因嘛，请看<a target="_blank" rel="noopener" href="https://zdd.github.io/2024/11/18/javascript-operator-equal/">这篇</a></p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;0&#x27;</span> == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">new</span> <span class="title class_">Number</span>(<span class="number">0</span>) == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">new</span> <span class="title class_">Boolean</span>(<span class="literal">false</span>) == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&#x27;0&#x27;</span>) == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([] == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([[]] == <span class="literal">false</span>); <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>([<span class="number">0</span>] == <span class="literal">false</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
-
-<p>Reference: <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">https://developer.mozilla.org/en-US/docs/Glossary/Falsy</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1478,7 +1413,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">346</span>
+          <span class="site-state-item-count">348</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1491,7 +1426,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">449</span>
+        <span class="site-state-item-count">451</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1527,12 +1462,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">234k</span>
+    <span title="Symbols count total">238k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:12</span>
+    <span title="Reading time total">14:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>

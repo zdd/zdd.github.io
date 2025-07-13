@@ -187,6 +187,398 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/13/typescript-use-const-instead-of-enum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/13/typescript-use-const-instead-of-enum/" class="post-title-link" itemprop="url">typescript-use-const-instead-of-enum</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-07-13 12:03:04 / Modified: 12:53:56" itemprop="dateCreated datePublished" datetime="2025-07-13T12:03:04+08:00">2025-07-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>在昨天的文章中，我们介绍了如何使用<code>typescript</code>中的枚举类型<code>Enum</code>来处理状态值。今天，我们将探讨一个更好的实践：使用<code>const</code>代替枚举。为什么说<code>const</code>是更好的方案呢，因为typeScript中的枚举类型有一些弊端。</p>
+<h2 id="枚举类型的弊端"><a href="#枚举类型的弊端" class="headerlink" title="枚举类型的弊端"></a>枚举类型的弊端</h2><h3 id="枚举类型无法实现真正的类型安全"><a href="#枚举类型无法实现真正的类型安全" class="headerlink" title="枚举类型无法实现真正的类型安全"></a>枚举类型无法实现真正的类型安全</h3><p>对于数字类型的枚举，无法实现真正的类型安全，比如下面的枚举类型定义：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">JobStatus</span> &#123;</span><br><span class="line">  <span class="variable constant_">PENDING</span> = <span class="number">1</span>,</span><br><span class="line">  <span class="variable constant_">RUNNING</span> = <span class="number">2</span>，</span><br><span class="line">  <span class="variable constant_">SUCCESS</span> = <span class="number">3</span>,</span><br><span class="line">  <span class="variable constant_">FAILED</span> = <span class="number">4</span>,</span><br><span class="line">  <span class="variable constant_">CANCELED</span> = <span class="number">5</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里面定义了五种类型的状态，分别用数字1到5来表示。但是这里有一个隐藏的问题，你可以将任意数字赋值给<code>JobStatus</code>类型的变量，而不管这个数字是否在1到5之间。例如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="attr">status</span>: <span class="title class_">JobStatus</span> = <span class="number">1</span>; <span class="comment">// 这是合法的</span></span><br><span class="line">status = <span class="number">6</span>; <span class="comment">// 这也是合法的，虽然6不是枚举定义的</span></span><br></pre></td></tr></table></figure>
+<p>这就导致了类型安全性的问题，枚举类型并不能限制状态值只能是1到5之间的数字。</p>
+<p>一个更好的做法是使用字符串类型代替数字类型：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">enum</span> <span class="title class_">JobStatus</span> &#123;</span><br><span class="line">  <span class="variable constant_">PENDING</span> = <span class="string">&#x27;PENDING&#x27;</span>,</span><br><span class="line">  <span class="variable constant_">RUNNING</span> = <span class="string">&#x27;RUNNING&#x27;</span>,</span><br><span class="line">  <span class="variable constant_">SUCCESS</span> = <span class="string">&#x27;SUCCESS&#x27;</span>,</span><br><span class="line">  <span class="variable constant_">FAILED</span> = <span class="string">&#x27;FAILED&#x27;</span>,</span><br><span class="line">  <span class="variable constant_">CANCELED</span> = <span class="string">&#x27;CANCELED&#x27;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就可以确保状态值只能是枚举定义的字符串，而不能是其他任意字符串。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">status</span>: <span class="title class_">JobStatus</span> = <span class="title class_">JobStatus</span>.<span class="property">PENDING</span>; <span class="comment">// 这是合法的</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">status</span>: <span class="title class_">JobStatus</span> = <span class="string">&#x27;INVALID&#x27;</span>; <span class="comment">// 这将导致编译错误</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="枚举类型不支持Tree-Shaking"><a href="#枚举类型不支持Tree-Shaking" class="headerlink" title="枚举类型不支持Tree-Shaking"></a>枚举类型不支持Tree-Shaking</h3><p><code>Tree-Shaking</code>是指在打包时去除未使用的代码。TypeScript的枚举类型在编译后会生成一个对象，这个对象包含了所有枚举成员的映射关系。即使程序中没有使用这个枚举类型，编译后的代码中仍然会保留这个对象。这会导致打包后的代码体积增大。</p>
+<h2 id="使用const代替枚举"><a href="#使用const代替枚举" class="headerlink" title="使用const代替枚举"></a>使用<code>const</code>代替枚举</h2><p>上面提到的两点问题，使用<code>const</code>可以很好地解决。下面使用<code>const</code>来实现同样的功能，首先定义Job状态常量，因为要兼顾后端接口的整数类型和前端显示的字符串类型，我们索性将其封装到一起。用<code>code</code>表示状态值，用<code>label</code>表示状态的显示名称。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">JobStatus</span> = &#123;</span><br><span class="line">  <span class="attr">PENDING</span>: &#123;<span class="attr">code</span>: <span class="number">1</span>, <span class="attr">label</span>: <span class="string">&#x27;PENDING&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">RUNNING</span>: &#123;<span class="attr">code</span>: <span class="number">2</span>, <span class="attr">label</span>: <span class="string">&#x27;RUNNING&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">SUCCESS</span>: &#123;<span class="attr">code</span>: <span class="number">3</span>, <span class="attr">label</span>: <span class="string">&#x27;SUCCESS&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">FAILED</span>: &#123;<span class="attr">code</span>: <span class="number">4</span>, <span class="attr">label</span>: <span class="string">&#x27;FAILED&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">CANCELED</span>: &#123;<span class="attr">code</span>: <span class="number">5</span>, <span class="attr">label</span>: <span class="string">&#x27;CANCELED&#x27;</span>&#125;,</span><br><span class="line">&#125; <span class="keyword">as</span> <span class="keyword">const</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">JobStatusType</span> = <span class="keyword">typeof</span> <span class="title class_">JobStatus</span>[keyof <span class="keyword">typeof</span> <span class="title class_">JobStatus</span>];</span><br></pre></td></tr></table></figure>
+<p>接下来定义Job接口，使用<code>JobStatusType</code>来描述状态类型。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Job</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">status</span>: <span class="title class_">JobStatusType</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>后端返回的数据和先前一样用数字类型来表示Job状态。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jobs = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 1&#x27;</span>, <span class="attr">status</span>: <span class="number">1</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 2&#x27;</span>, <span class="attr">status</span>: <span class="number">2</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;3&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 3&#x27;</span>, <span class="attr">status</span>: <span class="number">3</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;4&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 4&#x27;</span>, <span class="attr">status</span>: <span class="number">4</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;5&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 5&#x27;</span>, <span class="attr">status</span>: <span class="number">5</span> &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>最后是打印Job的函数，这里涉及到一个问题，我们不能像之前一样直接使用字符串来访问状态的显示名称，因为现在状态是一个对象，我们需要通过状态的<code>code</code>来获取对应的<code>label</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">printJobStatus</span>(<span class="params"><span class="attr">job</span>: <span class="title class_">Job</span></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> status = <span class="title class_">Object</span>.<span class="title function_">values</span>(<span class="title class_">JobStatus</span>).<span class="title function_">find</span>(<span class="function"><span class="params">s</span> =&gt;</span> s.<span class="property">code</span> === job.<span class="property">status</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Job <span class="subst">$&#123;job.id&#125;</span> (<span class="subst">$&#123;job.name&#125;</span>) is currently <span class="subst">$&#123;status?.label ?? <span class="string">&#x27;UNKNOWN&#x27;</span>&#125;</span>.`</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我们可以调用这个函数来打印Job的状态：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobs.<span class="title function_">forEach</span>(printJobStatus);</span><br></pre></td></tr></table></figure>
+<p>这样做的好处是可以省去之前的映射函数<code>getJobDisplayName</code>，因为我们在定义JobStatus时已经将状态码(code)和显示名称(label)封装在一起了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 该函数可以省略</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">getJobDisplayName</span>: <span class="title class_">Record</span>&lt;<span class="title class_">JobStatus</span>, <span class="built_in">string</span>&gt; = &#123;</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">PENDING</span>]: <span class="string">&#x27;Pending&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">RUNNING</span>]: <span class="string">&#x27;In progress&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">SUCCESS</span>]: <span class="string">&#x27;Success&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">FAILED</span>]: <span class="string">&#x27;Failed&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">CANCELED</span>]: <span class="string">&#x27;Canceled&#x27;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>弊端是多了一个查找的过程，但这个查找过程是非常轻量级的，因为我们只需要遍历一次<code>JobStatus</code>对象来找到对应的状态。</p>
+<p><code>const</code>代替枚举的好处在于：</p>
+<ol>
+<li><strong>类型安全</strong>：使用<code>const</code>可以确保状态值只能是预定义的状态，而不能是其他任意值。</li>
+<li><strong>Tree-Shaking</strong>：<code>const</code>支持Tree-Shaking，只有实际使用才会被保留，从而减小打包后的代码体积。</li>
+</ol>
+<p>好了，今天就到这里了，我们明天见。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/12/typescript-enum-best-practice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/12/typescript-enum-best-practice/" class="post-title-link" itemprop="url">typescript-enum-best-practice</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-07-12 11:35:11" itemprop="dateCreated datePublished" datetime="2025-07-12T11:35:11+08:00">2025-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-07-13 10:26:11" itemprop="dateModified" datetime="2025-07-13T10:26:11+08:00">2025-07-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/typescript/" itemprop="url" rel="index"><span itemprop="name">typescript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>这篇文章来谈一下 TypeScript 中的枚举类型（Enum）以及一些最佳实践。事情的起因是这样的，今天看到自己之前写的一段代码，感觉不是很好，于是想优化一下，期间用到了枚举类型，遂记录一下。为了方便理解，我将原来的例子简化一下。</p>
+<h2 id="业务需求"><a href="#业务需求" class="headerlink" title="业务需求"></a>业务需求</h2><p>业务需求是这样的：我们要实现一个Job系统，你可以将其想象为Jenkins Job类似的东西，每个Job有一个状态，状态可以是以下几种：</p>
+<ul>
+<li><code>PENDING</code>：等待执行</li>
+<li><code>RUNNING</code>：正在执行</li>
+<li><code>SUCCESS</code>：执行成功</li>
+<li><code>FAILED</code>：执行失败</li>
+<li><code>CANCELED</code>：执行被取消</li>
+<li></li>
+</ul>
+<p>Job的状态信息由后端返回，前端只负责展示，也不需要实时刷新。很简单的需求，对吧？我的原始代码如下：</p>
+<h2 id="原始代码"><a href="#原始代码" class="headerlink" title="原始代码"></a>原始代码</h2><p>前端数据类型定义， 首先定义一个字面量用来保存Job状态，然后定义一个Job接口来描述Job对象。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义Job状态字面量</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">JobStatus</span> = <span class="string">&#x27;PENDING&#x27;</span> | <span class="string">&#x27;RUNNING&#x27;</span> | <span class="string">&#x27;SUCCESS&#x27;</span> | <span class="string">&#x27;FAILED&#x27;</span> | <span class="string">&#x27;CANCELED&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 每个Job包含id、name和status三个属性</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Job</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">status</span>: <span class="title class_">JobStatus</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>后端返回数据如下，可以看到后端是用数字类型来表示状态的。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jobData = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 1&#x27;</span>, <span class="attr">status</span>: <span class="number">1</span> &#125;, <span class="comment">// PENDING</span></span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 2&#x27;</span>, <span class="attr">status</span>: <span class="number">2</span> &#125;, <span class="comment">// RUNNING</span></span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;3&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 3&#x27;</span>, <span class="attr">status</span>: <span class="number">3</span> &#125;, <span class="comment">// SUCCESS</span></span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;4&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 4&#x27;</span>, <span class="attr">status</span>: <span class="number">4</span> &#125;, <span class="comment">// FAILED</span></span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;5&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 5&#x27;</span>, <span class="attr">status</span>: <span class="number">5</span> &#125;, <span class="comment">// CANCELED</span></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>为了将后端返回的数字类型和前端定义的Job Status对应起来，我又额外写了一个映射函数：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">mapJobStatus</span>(<span class="params"><span class="attr">status</span>: <span class="built_in">number</span></span>): <span class="title class_">JobStatus</span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> (status) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;PENDING&#x27;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;RUNNING&#x27;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;SUCCESS&#x27;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;FAILED&#x27;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">      <span class="keyword">return</span> <span class="string">&#x27;CANCELED&#x27;</span>;</span><br><span class="line">    <span class="attr">default</span>:</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`Unknown status: <span class="subst">$&#123;status&#125;</span>`</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是展示了，展示Job状态时，用户不想看到全大写的状态，而是想看到首字母大写的状态，所以我又写了一个函数来处理这个问题：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getJobDisplayName</span>(<span class="params"><span class="attr">status</span>: <span class="title class_">JobStatus</span></span>): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> status.<span class="title function_">charAt</span>(<span class="number">0</span>).<span class="title function_">toUpperCase</span>() + status.<span class="title function_">slice</span>(<span class="number">1</span>).<span class="title function_">toLowerCase</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 转换后的状态字符串如下：</span></span><br><span class="line"><span class="comment">PENDING -&gt; Pending</span></span><br><span class="line"><span class="comment">RUNNING -&gt; Running</span></span><br><span class="line"><span class="comment">SUCCESS -&gt; Success</span></span><br><span class="line"><span class="comment">FAILED -&gt; Failed</span></span><br><span class="line"><span class="comment">CANCELED -&gt; Canceled</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+<p>好了，下面我们停下来思考一下，以上这些代码都解决了哪些问题，为什么需要两个转换函数，有没有更好的解决方式？</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>为了完成这个需求，上述代码做了以下几件事：</p>
+<ol>
+<li>后端状态码到前端状态的转换（1,2,3,4,5 -&gt; PENDING, RUNNING, SUCCESS, FAILED, CANCELED）</li>
+<li>前端状态字面量到展示字符串的转换（PENDING, RUNNING, SUCCESS, FAILED, CANCELED -&gt; Pending, Running, Success, Failed, Canceled）</li>
+</ol>
+<p>对于第一点，可以使用枚举类型来实现，这样就不需要手动维护状态码和状态字面量之间的映射关系了。</p>
+<p>对于第二点，原本的实现是将全大写的状态转换为首字母大写的形式，这种转换方式比较简单，但实际业务中，可能会有更复杂的需求，比如用户希望看到不同的展示字符串（例如将<code>RUNNING</code>显示为<code>In progress</code>）。因此，使用一个映射表来处理这种转换会更加灵活。</p>
+<h2 id="优化后的代码"><a href="#优化后的代码" class="headerlink" title="优化后的代码"></a>优化后的代码</h2><p>我们可以使用 TypeScript 的枚举类型来简化代码。首先定义一个枚举来表示 Job 状态：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">JobStatus</span> &#123;</span><br><span class="line">  <span class="variable constant_">PENDING</span> = <span class="number">1</span>,</span><br><span class="line">  <span class="variable constant_">RUNNING</span> = <span class="number">2</span>,</span><br><span class="line">  <span class="variable constant_">SUCCESS</span> = <span class="number">3</span>,</span><br><span class="line">  <span class="variable constant_">FAILED</span> = <span class="number">4</span>,</span><br><span class="line">  <span class="variable constant_">CANCELED</span> = <span class="number">5</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就可以省去第一个转换函数<code>mapJobStatus</code>，因为枚举本身就提供了状态码到状态字面量的映射，可以直接使用这个枚举来定义 Job 接口：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Job</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">status</span>: <span class="title class_">JobStatus</span>; <span class="comment">// 使用枚举类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，重写<code>getJobDisplayName</code>, 这里使用typescript的<code>Record</code>类型来创建一个映射表（<code>Record</code>类型相当于一个键值对的映射，只不过键和值都是类型化的），将枚举值映射到展示字符串，与原本的实现方式相比，这种方式更加简洁易维护。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">getJobDisplayName</span>: <span class="title class_">Record</span>&lt;<span class="title class_">JobStatus</span>, <span class="built_in">string</span>&gt; = &#123;</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">PENDING</span>]: <span class="string">&#x27;Pending&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">RUNNING</span>]: <span class="string">&#x27;In progress&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">SUCCESS</span>]: <span class="string">&#x27;Success&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">FAILED</span>]: <span class="string">&#x27;Failed&#x27;</span>,</span><br><span class="line">  [<span class="title class_">JobStatus</span>.<span class="property">CANCELED</span>]: <span class="string">&#x27;Canceled&#x27;</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>最后是调用代码，如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jobs = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;1&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 1&#x27;</span>, <span class="attr">status</span>: <span class="number">1</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;2&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 2&#x27;</span>, <span class="attr">status</span>: <span class="number">2</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;3&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 3&#x27;</span>, <span class="attr">status</span>: <span class="number">3</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;4&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 4&#x27;</span>, <span class="attr">status</span>: <span class="number">4</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;5&#x27;</span>, <span class="attr">name</span>: <span class="string">&#x27;Job 5&#x27;</span>, <span class="attr">status</span>: <span class="number">5</span> &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">jobs.<span class="title function_">forEach</span>(<span class="function">(<span class="params">job</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">    <span class="string">`Job ID: <span class="subst">$&#123;job.id&#125;</span>, Name: <span class="subst">$&#123;job.name&#125;</span>, Status: <span class="subst">$&#123;</span></span></span><br><span class="line"><span class="subst"><span class="string">      getJobDisplayName[job.status <span class="keyword">as</span> JobStatus]</span></span></span><br><span class="line"><span class="subst"><span class="string">    &#125;</span>`</span></span><br><span class="line">  );</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>使用枚举类型的好处是：</p>
+<ol>
+<li><strong>可读性</strong>：枚举提供了更清晰的语义，</li>
+<li><strong>类型安全</strong>：TypeScript 的枚举类型可以确保状态值的合法性，避免了手动维护映射关系的错误。</li>
+<li><strong>简化代码</strong>：减少了转换函数的数量，使代码更简洁</li>
+<li><strong>易于维护</strong>：如果需要添加新的状态，只需在枚举中添加即可，不需要修改多个地方。</li>
+</ol>
+<p>有没有更好的实现方式？很想听听大家的想法，欢迎留言讨论。</p>
+<p>今天就到这里了，我们明天见。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/12/javascript-operator-add/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Philip Zhang">
+      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Philip">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2025/07/12/javascript-operator-add/" class="post-title-link" itemprop="url">javascript-operator-add</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2025-07-12 07:24:56" itemprop="dateCreated datePublished" datetime="2025-07-12T07:24:56+08:00">2025-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-07-13 08:30:55" itemprop="dateModified" datetime="2025-07-13T08:30:55+08:00">2025-07-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>昨天在网上看到一道面试题，是关于JavaScript中的<code>+</code>元算符的，如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[] + <span class="number">0</span> = ?</span><br><span class="line">&#123;&#125; + <span class="number">0</span> = ?</span><br></pre></td></tr></table></figure>
+<p>要解决这道题，我们首先要了解JavaScript中<code>+</code>运算符的行为，<code>+</code>元算符在JavaScript中主要有三种用途：一是用于数字相加，二是用于字符串连接，三是用于类型转换。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="number">2</span> = <span class="number">3</span> <span class="comment">// 数字相加</span></span><br><span class="line"><span class="string">&#x27;Hello, &#x27;</span> + <span class="string">&#x27;World!&#x27;</span> = <span class="string">&#x27;Hello, World!&#x27;</span> <span class="comment">// 字符串连接</span></span><br><span class="line">+<span class="string">&#x27;1&#x27;</span> = <span class="number">1</span> <span class="comment">// 字符串转换为数字</span></span><br></pre></td></tr></table></figure>
+<p>再回到面试题，可以看出，这并非常规的加法操作，因为运算符两侧的操作数并非都是数字类型，而是包含了数组和对象。难道是字符串连接吗？不确定，是类型转换？好像也不是。</p>
+<p>追本溯源，我们先看看MDN上关于<code>+</code>的运行规则吧：</p>
+<p>如果<code>+</code>元算符的操作数包含非基本类型（比如对象，数组等），先将其转换为基本类型(primitive type)。</p>
+<blockquote>
+<p>在JavaScript中，基本类型包括<code>undefined</code>、<code>null</code>、<code>boolean</code>、<code>number</code>、<code>string</code>、<code>BigInt</code>、<code>Symbol</code>。</p>
+</blockquote>
+<p>当<code>+</code>元算符两侧都是基本类型时，执行规则如下：</p>
+<ol>
+<li>有一个操作数是字符串时，将另一个操作数也转换为字符串，并执行字符串连接；</li>
+<li>有一个操作数是<code>BigInt</code>时，将另一个操作数也转换为<code>BigInt</code>，并执行加法；</li>
+<li>否则，将两个操作数都转换为数字，并执行加法。</li>
+</ol>
+<p>举几个列子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> + <span class="string">`2`</span> = <span class="string">&#x27;12&#x27;</span> <span class="comment">// 满足规则1，将数字1转换为字符串&#x27;1&#x27;，执行字符串连接</span></span><br><span class="line"><span class="number">1</span> + <span class="number">2n</span> = <span class="number">3n</span> <span class="comment">// 满足规则2，将数字1转换为</span></span><br><span class="line"><span class="literal">null</span> + <span class="literal">true</span> = <span class="number">1</span> <span class="comment">// 满足规则3，将null转换为数字0，将true转换为数字1，执行加法</span></span><br></pre></td></tr></table></figure>
+
+<p>注意以上3条规则是按顺序执行的，字符串连接的优先级高于数字加法，所以字符串和数字相加时，永远会转换为字符串连接。</p>
+<p>现在来看<code>[] + 0</code>该如何执行，首先<code>[]</code>是数组，不属于基本类型，所以先将它转换为基本类型，对象类型转换为基本类型的操作如下：</p>
+<ol>
+<li>调用对象的<code>toPrimitive</code>方法；</li>
+<li>如果没有<code>toPrimitive</code>方法，则调用<code>valueOf</code>方法；</li>
+<li>如果<code>valueOf</code>方法返回的值不是基本类型，则调用<code>toString</code>方法；</li>
+<li>如果<code>toString</code>方法返回的值仍不是基本类型，则抛出错误。</li>
+</ol>
+<p>所以<code>[] + 0</code>的执行过程如下：</p>
+<ol>
+<li><code>[]</code>没有<code>toPrimitive</code>方法，所以调用<code>valueOf</code>方法。</li>
+<li><code>valueOf</code>方法返回值仍然是数组对象<code>[]</code>。</li>
+<li>接着调用<code>toString</code>方法，返回空字符串<code>&#39;&#39;</code>。</li>
+</ol>
+<p>因此，<code>[] + 0</code>等价于<code>&#39;&#39; + 0</code>, 此时<code>+</code>两侧都是基本类型了，并且满足有一侧是字符串的条件，所以将另一侧的操作数<code>0</code>也转换为字符串，执行字符串连接，结果为<code>&#39;&#39; + &#39;0&#39;</code> &#x3D; <code>&#39;0&#39;</code>。</p>
+<p>再来看<code>&#123;&#125; + 0</code>, <code>&#123;&#125;</code>和<code>[]</code>一样，都是对象类型，所以先将其转换为基本类型。</p>
+<ol>
+<li><code>&#123;&#125;</code>没有<code>toPrimitive</code>方法，所以调用<code>valueOf</code>方法，返回值仍然是对象<code>&#123;&#125;</code>。</li>
+<li>接着调用<code>toString</code>方法，返回字符串<code>&#39;[object Object]&#39;</code></li>
+<li>然后将<code>&#39;[object Object]&#39;</code>与<code>0</code>进行字符串连接，结果为<code>&#39;[object Object]&#39; + &#39;0&#39;</code> &#x3D; <code>&#39;[object Object]0&#39;</code>。</li>
+</ol>
+<p>哈哈，但是我要告诉你，这个答案是错误的，这个分析是没有问题的，但是JavaScript解释器不同意，当它看到<code>&#123;&#125;</code>时，会将其解释为一个空的代码块，而不是一个空对象，因此，<code>&#123;&#125; + 0</code>实际上等于下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#125;</span><br><span class="line">+ <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p><code>&#123;&#125;</code>被视为一个空代码块, 没有返回任何结果，而<code>+ 0</code>被解释为一条独立的语句，返回值是0，最终结果是<code>0</code>。</p>
+<p>如果要让代码按照我们上面分析的过程执行，那么就要防止JavaScript将<code>&#123;&#125;</code>解释为空代码块，可以用<code>()</code>将其包裹起来。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(&#123;&#125;) + <span class="number">0</span> <span class="comment">// 结果为 &#x27;[object Object]0&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[] + <span class="number">0</span> = <span class="string">&#x27;0&#x27;</span></span><br><span class="line">&#123;&#125; + <span class="number">0</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>说实话这道题目比较偏门，但是对于了解JavaScript中<code>+</code>运算符的行为还是很有帮助的，通过一道题，能了解一个知识点，还是很值得的。</p>
+<p>有的时候，不要光纠结问题的答案，更应该关注的是问题背后的原理的规则，就比如这道题，在没有写这篇文章之前，如果让我回答，我是答不上来的，我需要查阅资料，了解<code>+</code>运算符的行为规则，才能得出正确的答案。我觉得相比知道答案，更有意思的是分析的过程，这个过程体现了一个程序员处理问题的逻辑思维能力，小到一道面试题，大到一个复杂的系统设计，都是如此。那么如何培养这种能力呢，我也一直在寻找答案…</p>
+<p>最后给大家留几道思考题：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[] + [] = ?</span><br><span class="line">&#123;&#125; + [] = ?</span><br><span class="line">[] + &#123;&#125; = ?</span><br><span class="line">&#123;&#125; + &#123;&#125; = ?</span><br></pre></td></tr></table></figure>
+
+<p>今天就到这里了，我们明天见。</p>
+<blockquote>
+<p>今天周六，准备出去逛逛，奈何天气太热，动也不想动，只能呆在家里了。锁凤十代打了两天，手感非常不错，准备留下了，之前买的猛禽就退了吧，现在赚钱不易，还是要精打细算的好。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/10/typescript-type-predicate/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -277,77 +669,6 @@
 <p>今天又买了一把新弹弓：锁凤十代，握感舒适，重量适中。理查德说这个弓可以留着，我再试两天再说。</p>
 </blockquote>
 
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/07/09/typescript-type-assertion-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/07/09/typescript-type-assertion-1/" class="post-title-link" itemprop="url">typescript-type-assertion</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2025-07-09 19:42:19" itemprop="dateCreated datePublished" datetime="2025-07-09T19:42:19+08:00">2025-07-09</time>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>0</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          
       
     </div>
 
@@ -1194,280 +1515,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/30/javascript-iife-history/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/30/javascript-iife-history/" class="post-title-link" itemprop="url">javascript-iife-history</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-30 22:14:00 / Modified: 23:18:45" itemprop="dateCreated datePublished" datetime="2025-06-30T22:14:00+08:00">2025-06-30</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE(Immediately Invoked Function Expression)，中文名称：立即执行函数表达式，其实IIFE最早并不叫这个名字，而是叫做<code>Self-Executing Anonymous Function</code>，即自执行匿名函数。根据MDN的资料，IIFE这个说法最早由Ben Alman于2010年提出，下面我们一起来看看这个名字的来龙去脉。</p>
-<p>2010年11月5日，Ben Alman写下来他的著名文章：<a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">Immediately-Invoked Function Expression (IIFE)</a>，标志着IIFE这个名字的诞生。</p>
-<p>在文章中，Ben Alman称他是一个对待术语非常严谨的人，之前他多次看到<code>Self-Executing Anonymous Function</code>这个说法，觉得不是很恰当，于是他提出了<code>Immediately-Invoked Function Expression</code>这个说法。</p>
-<h2 id="IIFE到底是咋来的？"><a href="#IIFE到底是咋来的？" class="headerlink" title="IIFE到底是咋来的？"></a>IIFE到底是咋来的？</h2><p>当我们定义一个函数或者一个函数表达式时，你得到的是一个名字，通过这个名字，你就可以调用这个函数。</p>
-<p>下面这两段代码，第一个定义了一个普通函数，第二个定义了一个函数表达式，这两种形式，我们都可以通过标识符<code>foo</code>来调用它们。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通函数</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数表达式</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function expression&#x27;</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>也就是说，当<code>javascript</code>解释器遇到全局<code>function</code>关键字，或者一个函数内部的<code>function</code>关键字时，会将其解释为一个函数声明。</p>
-<p>然而函数声明是无法直接调用的，所以下面的写法会导致错误：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-
-<p>我们来分析一下，上面这段代码，javascript解释器会将其解释为一个函数声明，和一个分组操作符(<code>()</code>), 分组操作符是用来改变运算符优先级的，里面必须有表达式才行，所以javascript解释器会报错。</p>
-<p>那我们就给它一个表达式：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>); <span class="comment">// Uncaught SyntaxError: Unexpected token &#x27;)&#x27;</span></span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-<p>这回代码不报错了，但是这段代码毫无意义，这个函数并没有执行，实际上这段代码与下面的代码等价：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-<p>它的返回值就是1，这不是我们想要的结果，我们需要函数定义后能立即被执行，那就需要我们告诉javascript解释器，这个函数是一个表达式，而不是一个声明，因为表达式可以立即执行，但是声明不能。</p>
-<p>而在javascript中，生成表达式最简单的方式就是用<code>()</code>包裹起来，于是有了下面的代码</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>这样函数声明就变成了一个函数表达式，但是这个表达是没有名字，我们没法调用它，我们先给它一个名字，然后通过名字调用它。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> bar = (<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">bar</span>(); <span class="comment">// I am a function</span></span><br></pre></td></tr></table></figure>
-<p>这样完全没有问题，但是这里的<code>bar</code>实在有点多余，实际上<code>bar</code>和</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>是等价的，既然<code>bar()</code>可以调用函数，那么我们直接在函数表达式末尾加上<code>()</code>，也可以调用这个函数，于是就有了下面的代码，这就是IIFE的由来。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
-<p>将<code>()</code>写在外层的括号内也一样，这种方式颇得javascript专家<a target="_blank" rel="noopener" href="https://www.crockford.com/fash.html">Douglas Crockford</a>的青睐。我本人更喜欢第一种。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am a function&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
-
-<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>有上面介绍可知，生成IIFE的精髓就是<code>将函数声明变成函数表达式</code>，而在javascript中，生成表达式可不止使用<code>()</code>包裹起来这一种方式，还有很多其他的方式可以实现。于是IIFE也就是产生了诸多变种。</p>
-<p>这个变种利用赋值运算符<code>=</code>来实现，赋值运算符是将右侧表达式的值赋值给左侧变量的，所以它右侧的部分被解析成了函数表达式及其调用。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> i = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-
-<p>下面的表中使用逻辑运算符来生成表达式。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> &amp; (<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
-
-<p>还有下面这些，都是利用一元运算符来生成函数表达式。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>)&#123; <span class="comment">/* code */</span> &#125;();</span><br></pre></td></tr></table></figure>
-
-<p>最后来一个不为人知的，<code>void</code>运算符会对其右侧的表达是求值然后返回<code>undefined</code>。（<code>void expression</code> - 先对<code>expression</code>求值，然后返回<code>undefined</code>）。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-
-<p>还有使用<code>new</code>运算符来生成IIFE，这种方式比较少见，因为它会创建一个新的对象。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-<p>这些方式都比较偏门了，不建议使用，只是用来帮助我们理解IIFE的。</p>
-<h2 id="为什么Self-Executing-Anonymous-Function这个名字不好？"><a href="#为什么Self-Executing-Anonymous-Function这个名字不好？" class="headerlink" title="为什么Self-Executing Anonymous Function这个名字不好？"></a>为什么Self-Executing Anonymous Function这个名字不好？</h2><p><code>Ben Alman</code>认为这个名字有两个问题：</p>
-<p><strong>Self-Executing</strong>：这个名字暗示函数会调用自己，但是实际上函数是立即被执行的，而不是调用它自身。<br>比如下面的几段代码都会调用自己，但是这并不是IIFE的语义。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 递归调用自身</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123; <span class="title function_">foo</span>(); </span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用arguments.callee调用自身</span></span><br><span class="line"><span class="keyword">const</span> foo = <span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="variable language_">arguments</span>.<span class="title function_">callee</span>(); &#125;;</span><br></pre></td></tr></table></figure>
-
-<p><strong>Anonymous</strong>：这个名字暗示函数是匿名的，但实际上函数可以有名字，也可以没有名字，比如下面的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 有名字的IIFE</span></span><br><span class="line">(<span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife">https://web.archive.org/web/20171201033208/http://benalman.com/news/2010/11/immediately-invoked-function-expression/#iife</a></p>
-<p>大家有时间可以去拜读<code>Ben Alman</code>的原文，大佬写的东西就是不一样，通俗易懂，是我辈楷模！</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://frontendthink.com/2025/06/29/javascript-iife/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Philip Zhang">
-      <meta itemprop="description" content="青春都一餉，忍把浮名換了代碼輕狂。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Philip">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/06/29/javascript-iife/" class="post-title-link" itemprop="url">javascript-IIFE</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2025-06-29 16:57:32 / Modified: 23:20:35" itemprop="dateCreated datePublished" datetime="2025-06-29T16:57:32+08:00">2025-06-29</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/javascript/" itemprop="url" rel="index"><span itemprop="name">javascript</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IIFE（Immediately Invoked Function Expression）中文名称：<code>立即执行函数表达式</code>，是一种JavaScript编程模式，它允许函数在定义后立即执行。由这个定义可以看出IIFE有两个特点：</p>
-<ol>
-<li>它是函数表达式</li>
-<li>它是定义后立即执行的</li>
-</ol>
-<p>来看一个例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
-<p>将这段代码放在浏览器控制台中执行，会输出<code>I am an IIFE</code>。这就是一个简单的IIFE。</p>
-<p>分析一下上面的代码，它分为两部分，每个部分由一组<code>()</code>包裹。<br>第一部分是一个函数(本例用的是匿名函数，也可以是具名函数)：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>第二部分是一个函数调用</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">();</span><br></pre></td></tr></table></figure>
-<p>这两部分结合在一起，就形成了一个IIFE。</p>
-<h2 id="快速掌握IIFE"><a href="#快速掌握IIFE" class="headerlink" title="快速掌握IIFE"></a>快速掌握IIFE</h2><p>IIFE的语法其实不复杂，但是刚开始要记住它并不容易，这里教大家一个小技巧，可以快速书写IIFE代码。</p>
-<ol>
-<li>首先，写下两组括弧<code>()()</code></li>
-<li>然后在第一组括弧内写下函数定义 - 注意这里必须是匿名函数。</li>
-<li>如果函数需要参数，那么在第二组括弧内传入参数。</li>
-</ol>
-<h3 id="一道练习题，写一个IIFE，计算1-2的和"><a href="#一道练习题，写一个IIFE，计算1-2的和" class="headerlink" title="一道练习题，写一个IIFE，计算1 + 2的和"></a>一道练习题，写一个IIFE，计算1 + 2的和</h3><p>我们使用上面的技巧来书写：</p>
-<p>首先写下两组括弧</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">()()</span><br></pre></td></tr></table></figure>
-<p>然后在第一组括弧内写下函数定义</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
-<p>因为这里的add函数需要参数，所以我们要在第二组括弧内传入参数</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">add</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a + b);</span><br><span class="line">&#125;)(<span class="number">1</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
-<h2 id="IIFE的变种"><a href="#IIFE的变种" class="headerlink" title="IIFE的变种"></a>IIFE的变种</h2><p>上面介绍的IIFE写法是最常见的形式，其实IIFE还有一些其他写法(至于为什么这些写法是可以的，我们下一篇再做介绍)，现罗列如下：</p>
-<p>这种写法将调用函数的括号放到了第一组括弧内部。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;I am an IIFE&#x27;</span>);</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
-
-<p>以下几种写法都是使用一元运算符来实现的。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">!<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with !&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">~<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with ~&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">+<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with +&quot;</span>)</span><br><span class="line">&#125;();</span><br><span class="line"></span><br><span class="line">-<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with -&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-<p>这些一元运算符的作用是将函数定义转换为一个表达式，从而使其可以被调用。如果不加这些一元运算符的话，就变成了下面的形式：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE without unary operator&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-<p>这会导致一个语法错误，因为JavaScript引擎会将其解析为一个函数声明，而不是函数表达式。函数声明需要一个函数名，而匿名函数没有名字，所以会报错：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Function statements require a <span class="keyword">function</span> name</span><br></pre></td></tr></table></figure>
-<p>我们给它加上一个名字，变成下面这样</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;();</span><br></pre></td></tr></table></figure>
-<p>但是还是会报错：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught SyntaxError: Unexpected token <span class="string">&#x27;)&#x27;</span></span><br></pre></td></tr></table></figure>
-<p>javascript引擎会将上述代码解析为一个函数声明和一个分组操作符 - 即<code>()</code>，但是分组操作符内不能是空的，必须有一个表达式，我们在里面加上一个1</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;IIFE with function name&quot;</span>)</span><br><span class="line">&#125;(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-<p>这样就不会报错了，但是这不是一个IIFE了。它的返回值就是分组表达式的值，也就是1。</p>
-<h2 id="为什么需要IIFE"><a href="#为什么需要IIFE" class="headerlink" title="为什么需要IIFE?"></a>为什么需要IIFE?</h2><p>早期在JavaScript尚未支持模块化的时候，IIFE是实现模块化的一种简单方式，它可以创建一个独立的作用域，从而避免全局污染，下面看一个例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> myModule = (<span class="keyword">function</span> <span class="title function_">MyModule</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> privateVariable = <span class="string">&#x27;private variable&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> publicVariable = <span class="string">&#x27;public variable&#x27;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">privateMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(privateVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">publicMethod</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(publicVariable);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将需要暴露给外界的变量和方法写在返回的对象中</span></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    publicVariable,</span><br><span class="line">    publicMethod,</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;)();</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">publicVariable</span>); <span class="comment">// 访问公共变量</span></span><br><span class="line">myModule.<span class="title function_">publicMethod</span>(); <span class="comment">// 访问公共方法</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(myModule.<span class="property">privateVariable</span>); <span class="comment">// undefined</span></span><br><span class="line">myModule.<span class="title function_">privateMethod</span>(); <span class="comment">// TypeError: myModule.privateMethod is not a function, privateMethod is not accessible</span></span><br></pre></td></tr></table></figure>
-<p>分析一下上面的代码，这是一个典型的IIFE + 闭包实现模块化的例子。</p>
-<p>MyModule是一个IIFE，它在内部定义了：</p>
-<ul>
-<li>私有变量<code>privateVariable</code></li>
-<li>私有方法<code>privateMethod</code></li>
-</ul>
-<p>这些变量和方法无法从外部访问。</p>
-<p>它还定义了</p>
-<ul>
-<li>一个公共变量<code>publicVariable</code></li>
-<li>一个公共方法<code>publicMethod</code></li>
-</ul>
-<p>这些可以通过返回的对象访问。</p>
-<p>IIFE的返回值赋值给了<code>myModule</code>变量，这样就可以通过<code>myModule</code>访问公共变量和方法。</p>
-<p>注意：这个例子仅供参考，在ES6模块已经十分普及的今天，这种方式已经不推荐使用了。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1537,7 +1584,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">346</span>
+          <span class="site-state-item-count">348</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1550,7 +1597,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">449</span>
+        <span class="site-state-item-count">451</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1586,12 +1633,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">234k</span>
+    <span title="Symbols count total">238k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">14:12</span>
+    <span title="Reading time total">14:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
